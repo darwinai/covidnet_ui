@@ -1,0 +1,50 @@
+// Colors:
+
+$chris-blue: #002030;
+$chris-light-blue: #007bba;
+$chris-highlight-background-blue: #def7f7;
+$global-icon-margin-right: 5px;
+
+// Site specific Variables:
+// --------------------------------------------------------------------
+$image-url: "../../../assets/images/";
+
+//Gotop component
+$gotop-bg: $chris-highlight-background-blue;
+$gotop-bg: $chris-light-blue;
+$gotop-bg-active: $chris-light-blue;
+$gotop-dimension: 50px;
+
+// Feed pages
+$feed-block-background: #000;
+$node-block-background: $chris-blue;
+$node-block-border: $chris-light-blue;
+
+// Tree colors
+$tree-node-backgound: #fff;
+$tree-links-color: #fff;
+$tree-node-active-backgound: $chris-light-blue;
+$tree-tooltip-background: #282d33; //#393f44;
+$tree-tooltip-arrow-width: 0.9375rem;
+
+// Label and data sizes for plugin panel
+$plugin-label-font-size: 0.8125rem;
+$plugin-data-font-size: 0.875rem;
+
+// Data Output and Viewer - File Browser
+$file-explorer-yellow: #ffee99;
+$file-explorer-blue: $chris-highlight-background-blue;
+$fe-viewer-border: #eee;
+$fe-viewer-background: #f8f9fa;
+$fe-viewer-max-width-sm: 768px;
+$fe-viewer-max-width-md: 992px;
+$fe-viewer-min-heigth: calc(100vh - 280px);
+$gallery-arrows-height: 48px;
+$gallery-toolbar-bottom: 5px;
+
+$dot-background-gray: #ddd;
+$dot-background-red: #c83737;
+$dot-background-orange: #ff7f2a;
+$dot-background-yellow: #ffdd55;
+
+$table-stripe-background: $chris-highlight-background-blue; //rgba(0, 0, 0, 0.05);

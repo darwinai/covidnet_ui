@@ -1,0 +1,20 @@
+
+// Root container
+// ---------------------------------------------------------
+#root{
+    height: 100%;
+}
+
+
+// Page Header:
+// ---------------------------------------------------------
+.header{
+    .pf-c-page__header-brand-toggle .pf-c-button{
+        margin-right: 0;
+        @media screen and (min-width: 992px) {
+            display: none !important;
+        }
+    }
+}
+
+

@@ -1,0 +1,20 @@
+
+
+FROM node:12
+MAINTAINER fnndsc "dev@babymri.org"
+
+# Pass a UID on build command line (see above) to set internal UID
+ARG UID=1001
+ENV UID=$UID  HOME="/home/localuser" VERSION="0.1"
+
+RUN adduser --uid $UID --disabled-password localuser  \
+  && npm install chrome -g
+
+# Start as user localuser
+USER localuser
+
+WORKDIR $HOME
+EXPOSE 3000
+
+CMD npm install && npm start
+
