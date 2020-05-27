@@ -6,13 +6,13 @@ import {
 } from "react-router-dom";
 
 // Add view routes here
-import { Dashboard } from "./pages/Dashboard/Dashboard";
+import { AnalysisDashboard } from "./pages/Analysis/Analaysis";
 import {NotFound} from "./pages/NotFound/NotFound";
 
 const Routes: React.FunctionComponent = () => (
     <React.Fragment>
       <Switch>
-        <Route exact path="/" component={Dashboard} />
+        <Route exact path="/" component={AnalysisDashboard} />
         <Route component={NotFound} />
       </Switch>
     </React.Fragment>

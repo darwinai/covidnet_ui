@@ -12,8 +12,8 @@
 @import "./base/overrides";
 @import "./base/typography";
 
-
-
+// Components
+@import './components/header.scss';
 
 // Custom Layout styles
 @import './layout/layout';

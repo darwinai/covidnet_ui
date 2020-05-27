@@ -6,3 +6,8 @@ code{
     display: block;
     padding: 1.5rem;
 }
+
+@font-face {
+    font-family: 'Overpass-Bold';
+    src:local('Overpass-Bold'), url(../../fonts/Overpass-Bold.ttf) format('truetype')
+}

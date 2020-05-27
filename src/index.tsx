@@ -7,7 +7,6 @@ import Main from "./main";
 import * as serviceWorker from "./serviceWorker";
 import "./assets/scss/main.scss";
 
-
 // Description: Set up store configurations
 const history = createBrowserHistory();
 const store = configureStore(history);

@@ -5,17 +5,17 @@ import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 
 type AllProps = RouteComponentProps;
 
-class DashboardPage extends React.Component<AllProps> {
+class AnalysisPage extends React.Component<AllProps> {
   componentDidMount() {
-    document.title = "Dashboard - ChRIS UI site";
+    document.title = "Anayalsis - CovidNet ui";
   }
 
   render() {
     const { children } = this.props;
     return (
       <Wrapper>
-        <PageSection variant={PageSectionVariants.darker}>
-          <h1>Sample Header</h1>
+        <PageSection variant={PageSectionVariants.light}>
+          <h1>Predicative Analysis</h1>
         </PageSection>
         <PageSection>
           {children}
@@ -26,4 +26,4 @@ class DashboardPage extends React.Component<AllProps> {
 }
 
 
-export { DashboardPage as Dashboard };
+export { AnalysisPage as AnalysisDashboard };
