@@ -5,7 +5,6 @@ import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
 import {
-    PageSidebar,
     Nav,
     NavItem,
     NavList,
@@ -27,6 +26,9 @@ class Sidebar extends React.Component<AllProps> {
                 <Link to={`/`}> Dashboard</Link>
               </NavItem>
               <NavItem itemId={1} isActive={sidebarActiveItem === "tab2"}>
+                <Link to={`/`}> Dashboard</Link>
+              </NavItem>
+              <NavItem itemId={1} isActive={sidebarActiveItem === "tab3"}>
                 <Link to={`/`}> Dashboard</Link>
               </NavItem>
             </NavList>
