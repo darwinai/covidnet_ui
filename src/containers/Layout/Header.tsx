@@ -11,7 +11,6 @@ import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibili
 import { css } from '@patternfly/react-styles';
 import Sidebar from "./Sidebar";
 
-
 class Header extends React.Component {
   render() {
     //const pageToolbar = <Link to="/login">Log In</Link>;

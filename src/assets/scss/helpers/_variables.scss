@@ -20,6 +20,13 @@ $feed-block-background: #000;
 $node-block-background: $chris-blue;
 $node-block-border: $chris-light-blue;
 
+// Login
+$login-background-image: "pfbg_576.jpg";
+$login-background-image-2x: "pfbg_576@2x.jpg"; //var(--pf-c-background-image--BackgroundImage-2x);
+$login-background-image-sm: "pfbg_768.jpg"; //var(--pf-c-background-image--BackgroundImage--sm);
+$login-background-image-sm-2x: "pfbg_768@2x.jpg"; //var(--pf-c-background-image--BackgroundImage--sm-2x);
+$login-background-image-lg: "pfbg_2000.jpg"; //var(--pf-c-background-image--BackgroundImage--lg);
+
 // Tree colors
 $tree-node-backgound: #fff;
 $tree-links-color: #fff;
