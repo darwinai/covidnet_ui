@@ -22,7 +22,7 @@ class LogInPage extends React.Component<AllProps> {
         textContent="Lorem ipsum dodafdlor sit amet, consectetur adipiscing elit."
         loginTitle="Log in to your account"
       >
-        <LoginFormComponent />
+          <LoginFormComponent />
       </LoginPage>
     );
   }

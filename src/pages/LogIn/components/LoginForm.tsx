@@ -1,14 +1,36 @@
 import React, { useState } from "react";
 import { LoginForm } from "@patternfly/react-core";
+import { AppContext } from "../../../context/context";
+import { Types } from "../../../context/actions/types";
+import { handleLogin } from "../../../services/login";
+import { useHistory } from "react-router-dom";
 
 const LoginFormComponent = () => {
-  const [showHelperText] = useState(false)
-  const [usernameValue, setUsernameValue] = useState('chris')
-  const [isValidUsername] = useState(true)
-  const [passwordValue, setPasswordValue] = useState('chris1234')
-  const [RememberMeClick, setRememberMeClick] = useState(true)
+  const history = useHistory()
+  const [showHelperText] = useState(false);
+  const [usernameValue, setUsernameValue] = useState('chris');
+  const [isValidUsername] = useState(true);
+  const [passwordValue, setPasswordValue] = useState('chris1234');
+  const [RememberMeClick, setRememberMeClick] = useState(true);
+
+  const { dispatch } = React.useContext(AppContext);
 
   const handleSubmit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>)=>{
+    handleLogin({
+      username: usernameValue,
+      password: passwordValue
+    })
+    .then(res =>{
+      console.log(res)
+      dispatch({
+        type: Types.Login_update,
+        payload: {
+          username: usernameValue,
+          password: passwordValue
+        }
+      });
+      history.push('/');
+    })
     event.preventDefault();
   }
 

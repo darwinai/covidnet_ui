@@ -8,8 +8,8 @@ import "./assets/scss/main.scss";
 
 const history = createBrowserHistory();
 ReactDOM.render(
-  <Main history={history} />,
-  document.getElementById("root")
+    <Main history={history} />,  
+    document.getElementById("root")
 );
 
 serviceWorker.unregister();

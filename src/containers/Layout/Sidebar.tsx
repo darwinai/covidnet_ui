@@ -10,7 +10,7 @@ import {
 
 
 const TopBar = () => {
-    const [sidebarActiveItem, setSidebarActiveItem] = useState("dashboard");
+    const [sidebarActiveItem] = useState("dashboard");
 
     return (
         <Nav aria-label="Nav">

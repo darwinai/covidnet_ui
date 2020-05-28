@@ -12,15 +12,16 @@ class DashboardPage extends React.Component<AllProps> {
   }
 
   render() {
-    const { children } = this.props;
+    // const { children } = this.props;
     return (
       <Wrapper>
         <PageSection variant={PageSectionVariants.light}>
           <h1 className='board-title'>Dashboard</h1>
         </PageSection>
         <PageSection>
+        </PageSection>
+        <PageSection variant={PageSectionVariants.light}>
           <CreateAnalysisSection/>
-          {children}
         </PageSection>
       </Wrapper>
     );
