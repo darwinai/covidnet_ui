@@ -15,21 +15,25 @@ const LoginFormComponent = () => {
 
   const { dispatch } = React.useContext(AppContext);
 
-  const handleSubmit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>)=>{
+  const handleSubmit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     handleLogin({
       username: usernameValue,
       password: passwordValue
     })
-    .then(res =>{
-      console.log(res)
-      dispatch({
-        type: Types.Login_update,
-        payload: {
-          username: usernameValue,
-          password: passwordValue
-        }
-      });
-      history.push('/');
+    .then(res => {
+      if (res) {
+        dispatch({
+          type: Types.Login_update,
+          payload: {
+            username: usernameValue,
+            password: passwordValue
+          }
+        });
+        history.push('/');
+        return;
+      } else {
+        console.log('login failed')
+      }
     })
     event.preventDefault();
   }
@@ -37,7 +41,7 @@ const LoginFormComponent = () => {
   return (
     <LoginForm
       showHelperText={showHelperText}
-      helperText= "Invalid login credentials."
+      helperText="Invalid login credentials."
       usernameLabel="Username"
       usernameValue={usernameValue}
       onChangeUsername={(val) => setUsernameValue(val)}
@@ -54,5 +58,5 @@ const LoginFormComponent = () => {
     />
   );
 }
-    
+
 export default LoginFormComponent;

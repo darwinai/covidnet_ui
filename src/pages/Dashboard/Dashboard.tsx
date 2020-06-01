@@ -3,12 +3,14 @@ import { RouteComponentProps } from "react-router-dom";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { CreateAnalysisSection } from "../../components/CreateAnalysis";
+import { testAnalysis } from '../../services/analysis'
 
 type AllProps = RouteComponentProps;
 
 class DashboardPage extends React.Component<AllProps> {
   componentDidMount() {
     document.title = "Anayalsis - CovidNet ui";
+    testAnalysis()
   }
 
   render() {

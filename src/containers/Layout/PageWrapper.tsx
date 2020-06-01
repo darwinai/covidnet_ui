@@ -3,22 +3,42 @@ import * as React from "react";
 import { Page } from "@patternfly/react-core";
 import Header from "./Header";
 import "./layout.scss";
+import { AppContext } from "../../context/context";
+import { Types } from "../../context/actions/types";
+
+interface WrapperProps {
+  children: React.ReactNode
+}
+
+const Wrapper = (props: WrapperProps) => {
+  
+  const { dispatch } = React.useContext(AppContext);
 
 
-class Wrapper extends React.Component {
-  // Description: toggles sidebar on pageresize
-  render() {
-    const { children } = this.props;
+  React.useEffect(()=>{
+    const token = window.sessionStorage.getItem('AUTH_TOKEN')
+    if (!!token) {
+      dispatch({
+        type: Types.Login_update,
+        payload: {
+          username: 'chris',
+          password: 'chris1234'
+        }
+      });
+    }
+  },[])
 
-    return (
-      <Page
-        className="pf-background"
-        header={<Header/>}
-      >
-        {children}
-      </Page>
-    );
-  }
+  const { children } = props
+
+  return (
+    <Page
+      className="pf-background"
+      header={<Header />}
+    >
+      {children}
+    </Page>
+  );
+
 }
 
 export default Wrapper;

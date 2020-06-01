@@ -11,11 +11,9 @@ export const handleLogin = async (user: IUserState): Promise<boolean> => {
       username
     };
     const res: string = await Client.getAuthToken(authURL, authObj.username, authObj.password)
-    // yield put(getAuthTokenSuccess(res));
     window.sessionStorage.setItem("AUTH_TOKEN", res);
     window.sessionStorage.setItem("USERNAME", username);
     return true
-    // yield put(push("/"));
   } catch (error) {
     return false
   }
