@@ -1,3 +1,14 @@
 .board-title {
     font-family: Overpass-Bold;
 }
+
+
+$sectionAreaSpacing:15px;
+
+.sectionArea{
+  margin-bottom: $sectionAreaSpacing;
+}
+
+.classificationText{
+  color:grey;
+}

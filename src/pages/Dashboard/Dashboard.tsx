@@ -4,6 +4,7 @@ import Wrapper from "../../containers/Layout/PageWrapper";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { CreateAnalysisSection } from "../../components/CreateAnalysis";
 import { testAnalysis } from '../../services/analysis'
+import PastAnalysis from "../../components/PastAnalyses";
 
 type AllProps = RouteComponentProps;
 
@@ -21,9 +22,12 @@ class DashboardPage extends React.Component<AllProps> {
           <h1 className='board-title'>Dashboard</h1>
         </PageSection>
         <PageSection>
-        </PageSection>
-        <PageSection variant={PageSectionVariants.light}>
-          <CreateAnalysisSection/>
+          <PageSection className='sectionArea' variant={PageSectionVariants.light}>
+            <CreateAnalysisSection />
+          </PageSection>
+          <PageSection variant={PageSectionVariants.light}>
+            <PastAnalysis></PastAnalysis>
+          </PageSection>
         </PageSection>
       </Wrapper>
     );
