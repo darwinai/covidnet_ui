@@ -1,4 +1,4 @@
-import { Types } from "../actions/types";
+import { Types, ActionMap } from "../actions/types";
 
 export type IUserState = {
   username: string;
@@ -6,17 +6,11 @@ export type IUserState = {
   loggedIn?: boolean;
 }
 
-
-type ActionMap<M extends { [index: string]: any }> = {
-  [Key in keyof M]: M[Key] extends undefined
-  ? {
-    type: Key;
-  }
-  : {
-    type: Key;
-    payload: M[Key];
-  }
-};
+export let initialIUserState = {
+  username: '',
+  password: '',
+  loggedIn: false
+}
 
 type UserPayload = {
   [Types.Login_update]: IUserState,
