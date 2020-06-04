@@ -99,14 +99,6 @@ class ChrisIntegration {
       // iterate it over all feeds
       const pluginlists = pluginInstances.getItems()
       for (let plugin of pluginlists) {
-        // ignore plugins that are not pl_covidnet
-        if (plugin.data.title !== this.PL_COVIDNET) {
-          continue;
-        }
-        const pluginInstanceFiles = await plugin.getFiles({
-          limit: 25,
-          offset: page * perpage,
-        });
         const analysis: IAnalysis = {
           image: '',
           // patientMRN: 0,
@@ -116,6 +108,16 @@ class ChrisIntegration {
           predPneumonia: 0,
           predNormal: 0
         }
+
+        // ignore plugins that are not pl_covidnet
+        if (plugin.data.title !== this.PL_COVIDNET) {
+          continue;
+        }
+        analysis.createdTime = plugin.data.start_date
+        const pluginInstanceFiles = await plugin.getFiles({
+          limit: 25,
+          offset: page * perpage,
+        });
         for (let fileObj of pluginInstanceFiles.getItems()) {
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
             let file = await client.getFile(fileObj.data.id);
