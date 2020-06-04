@@ -1,11 +1,16 @@
 import { Button, Stack, StackItem } from '@patternfly/react-core';
-import * as React from "react";
-import { uploadTest } from "../services/analysis";
-import { LocalFile } from '../services/chris_integration';
+import React, { useContext } from "react";
+import ChrisIntegration, { LocalFile } from '../services/chris_integration';
+import { AppContext } from '../context/context';
+import { AnalysisTypes } from '../context/actions/types';
 
 const CreateAnalysis: React.FC = () => {
+  const { state, dispatch } = useContext(AppContext);
+  const { prevAnalyses } = state;
+  const { page, perpage } = prevAnalyses;
 
   const openLocalFilePicker = (): Promise<LocalFile[]> => {
+
     const input = document.createElement("input");
     input.type = "file";
     input.multiple = true;
@@ -26,8 +31,20 @@ const CreateAnalysis: React.FC = () => {
   }
 
   const submitFile = () => {
-    openLocalFilePicker().then((files: LocalFile[]) => {
-      uploadTest(files)
+    openLocalFilePicker().then(async (files: LocalFile[]) => {
+      const res: boolean = await ChrisIntegration.processNewAnalysis(files)
+      if (res) {
+        const analysisList = await ChrisIntegration.getPastAnalaysis(page, perpage)
+        dispatch({
+          type: AnalysisTypes.Update_list,
+          payload: { list: analysisList }
+        })
+        const total = await ChrisIntegration.getTotalAnalyses()
+        dispatch({
+          type: AnalysisTypes.Update_total,
+          payload: { total: total }
+        })
+      }
     })
   }
 

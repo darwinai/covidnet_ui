@@ -2,7 +2,7 @@ import { AnalysisTypes, ActionMap } from "../actions/types";
 
 export type IAnalysis = {
   image: string;
-  patientMRN: number;
+  patientMRN?: number;
   createdTime: string;
   study: string;
   predCovid: number;
@@ -18,17 +18,7 @@ export type IPrevAnalysesState = {
 }
 
 export let initialIPrevAnalysesState: IPrevAnalysesState = {
-  listOfAnalyses: [
-    // {
-    //   image: "image name",
-    //   patientMRN: 213231312312312,
-    //   createdTime: "today bruh",
-    //   study: "study Patient B",
-    //   predCovid: 80,
-    //   predPneumonia: 10,
-    //   predNormal: 10
-    // }
-  ],
+  listOfAnalyses: [],
   page: 1,
   perpage: 10,
   totalResults: 50 // fake initial number

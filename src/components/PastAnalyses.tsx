@@ -1,9 +1,10 @@
 import { Pagination } from "@patternfly/react-core";
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
-import React, { useState } from "react";
-import { ChartDonutUtilization } from '@patternfly/react-charts';
+import React, { useState, useEffect } from "react";
 import { AppContext } from "../context/context";
 import { AnalysisTypes } from "../context/actions/types";
+import ChrisIntegration from "../services/chris_integration";
+import PredictionCircle from "./PredictionCircle";
 
 const PastAnalysis = () => {
   const { state, dispatch } = React.useContext(AppContext);
@@ -19,58 +20,37 @@ const PastAnalysis = () => {
     { title: (<span><br /><span className='classificationText'>Normal</span></span>) }
   ]
 
+  useEffect(() => {
+    ChrisIntegration.getPastAnalaysis(page, perpage)
+      .then(res =>{
+        dispatch({
+          type: AnalysisTypes.Update_list,
+          payload: {
+            list:res
+          }
+        })
+      })
+    ChrisIntegration.getTotalAnalyses()
+    .then(total =>{
+      dispatch({
+        type: AnalysisTypes.Update_total,
+        payload: {
+          total:total
+        }
+      })
+    })
+  }, [page, perpage, dispatch])
 
+  //something wrong with donut-chart that caused the key error
   const rows = listOfAnalyses.map(analysis => ({
     cells: [
       { title: <div>{analysis.image} </div> },
       analysis.patientMRN, analysis.createdTime, analysis.study, {
-        title: (
-          <div style={{ height: '80px', width: '80px' }}>
-            <ChartDonutUtilization
-              ariaDesc="Storage capacity"
-              constrainToVisibleArea={true}
-              data={{ x: 'Prediction', y: analysis.predCovid }}
-              height={400}
-              innerRadius={0}
-              padding={0}
-              title={`${analysis.predCovid}%`}
-              thresholds={[{ value: 60 }, { value: 90 }]}
-              width={400}
-            />
-          </div>
-        )
+        title: (<PredictionCircle covidCircle={true} predictionNumber={analysis.predCovid} />)
       }, {
-        title: (
-          <div style={{ height: '80px', width: '80px' }}>
-            <ChartDonutUtilization
-              ariaDesc="Storage capacity"
-              constrainToVisibleArea={true}
-              data={{ x: 'Prediction', y: analysis.predPneumonia }}
-              height={400}
-              innerRadius={0}
-              padding={0}
-              title={`${analysis.predPneumonia}%`}
-              thresholds={[{ value: 60 }, { value: 90 }]}
-              width={435}
-            />
-          </div>
-        )
+        title: (<PredictionCircle covidCircle={false} predictionNumber={analysis.predPneumonia} />)
       }, {
-        title: (
-          <div style={{ height: '80px', width: '80px' }}>
-            <ChartDonutUtilization
-              ariaDesc="Storage capacity"
-              constrainToVisibleArea={true}
-              data={{ x: 'Prediction', y: analysis.predNormal }}
-              height={400}
-              innerRadius={0}
-              padding={0}
-              title={`${analysis.predNormal}%`}
-              thresholds={[{ value: 60 }, { value: 90 }]}
-              width={435}
-            />
-          </div>
-        )
+        title: (<PredictionCircle covidCircle={false} predictionNumber={analysis.predNormal} />)
       }]
   }))
 
