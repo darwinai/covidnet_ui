@@ -1,20 +1,16 @@
 import React, { createContext, useReducer } from 'react';
-import {
-  userReducer,
-  UserActions
-} from './reducers/userReducer';
-import {IUserState} from './reducers/userReducer'
+import { analysesReducer, initialIPrevAnalysesState, 
+  IPrevAnalysesState } from './reducers/analyseReducer';
+import { initialIUserState, IUserState, userReducer } from './reducers/userReducer';
 
 type InitialStateType = {
   user: IUserState;
+  prevAnalyses: IPrevAnalysesState;
 }
 
 const initialState: InitialStateType = {
-  user: {
-    username: 'chris',
-    password: 'chris1234',
-    loggedIn: false
-  }
+  user: initialIUserState,
+  prevAnalyses: initialIPrevAnalysesState
 }
 
 const AppContext = createContext<{
@@ -26,10 +22,11 @@ const AppContext = createContext<{
 });
 
 const mainReducer = (
-  { user }: InitialStateType,
-  action: UserActions
+  { user, prevAnalyses}: InitialStateType,
+  action: any, // or UserActions | AnalysisActions
 ) => ({
   user: userReducer(user, action),
+  prevAnalyses: analysesReducer(prevAnalyses, action)
 });
 
 // a function component for Provider

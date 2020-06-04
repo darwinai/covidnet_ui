@@ -193,7 +193,7 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to a ``PluginList`` object
      */
     getPlugins: (searchParams?: IPluginsSearchParams, timeout?: number) => Promise<PluginList>;
-    
+
     /**
      * Get a plugin resource object given its id.
      *
@@ -203,6 +203,14 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to a ``Plugin`` object
      */
     getPlugin: (id: number, timeout?: number) => Promise<Plugin>;
+
+    /**
+     * Upload a file and create a new uploaded file resource through the REST API.
+     * 
+     * @param {data} IRequestData
+     * @param {uploadFileObj} IUploadFileObj
+     */
+    uploadFile: (data: Object, uploadFileObj: Object) => UploadedFile
 
     /**
      * Get a paginated list of plugin instances from the REST API given query search
@@ -254,8 +262,8 @@ declare module "@fnndsc/chrisapi" {
      */
 
     createPluginInstance: (pluginId: number, data: IPluginCreateData, timeout?: number) => Promise<PluginInstance>;
-  
-  
+
+
   }
 
   /**
@@ -413,9 +421,9 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to a ``FeedFileList`` object
      */
-    getFiles: 
-    (params: IParams, timeout?: number) => Promise<FeedFileList>;
-    
+    getFiles:
+      (params: IParams, timeout?: number) => Promise<FeedFileList>;
+
     /**
      * Fetch a list of plugin instances associated to this feed from the REST API.
      *
@@ -436,7 +444,7 @@ declare module "@fnndsc/chrisapi" {
      *
      * @return {Object} - JS Promise, resolves to a ``Tagging`` object
      */
-    tagFeed: (tag_id:number, timeout?: number) => Promise<Tagging>
+    tagFeed: (tag_id: number, timeout?: number) => Promise<Tagging>
 
     /**
      * Make a PUT request to modify this feed item resource through the REST API.
@@ -594,7 +602,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {string} auth.token - authentication token
      */
     constructor(url: string, auth: IAuth);
-  
+
     /**
      * Fetch the feed associated to this file list from the REST API.
      *
@@ -603,7 +611,7 @@ declare module "@fnndsc/chrisapi" {
      * @return {Object} - JS Promise, resolves to a ``Feed`` object
      */
     getFeed: (timeout?: number) => Promise<Feed>;
-  
+
     /**
      * Fetch the plugin instance associated to this file list from the REST API.
      *
@@ -611,7 +619,7 @@ declare module "@fnndsc/chrisapi" {
      *
      * @return {Object} - JS Promise, resolves to a ``PluginInstance`` object
      */
-    getPluginInstance: (timeout?: number) => Promise<PluginInstance>; 
+    getPluginInstance: (timeout?: number) => Promise<PluginInstance>;
   }
 
   /**
@@ -743,7 +751,7 @@ declare module "@fnndsc/chrisapi" {
      * @param {string} auth.token - authentication token
      */
     constructor(url: string, auth: IAuth);
-  
+
     /**
      * Fetch the feed associated to this feed-specific list of plugin instances from
      * the REST API.
@@ -848,7 +856,9 @@ declare module "@fnndsc/chrisapi" {
      *
      * @return {Object} - JS Promise, resolves to a ``PluginInstanceFileList`` object
      */
-    getFiles: (params: IParams, timeout?: number) => Promise<PluginInstanceFileList>;
+    getFiles: (params?: IParams, timeout?: number) => Promise<PluginInstanceFileList>;
+
+    getComputeResource: (timeout?: number) => Promise<any>
   }
 
   /**
@@ -975,14 +985,14 @@ declare module "@fnndsc/chrisapi" {
    * the plugin instance was run with.
    */
   export class PluginInstanceParameterList extends ListResource {
-      /**
-       * Constructor
-       *
-       * @param {string} url - url of the resource
-       * @param {Object} auth - authentication object
-       * @param {string} auth.token - authentication token
-       */
-      constructor(url: string, auth: IAuth);
+    /**
+     * Constructor
+     *
+     * @param {string} url - url of the resource
+     * @param {Object} auth - authentication object
+     * @param {string} auth.token - authentication token
+     */
+    constructor(url: string, auth: IAuth);
   }
 
   /**
@@ -1390,7 +1400,7 @@ declare module "@fnndsc/chrisapi" {
      *
      * @return {Object} - clone object
      */
-    clone: () => void ;
+    clone: () => void;
   }
 
   /**
@@ -1398,13 +1408,13 @@ declare module "@fnndsc/chrisapi" {
    * feed is tagged with.
    */
   export class FeedTagList extends ListResource {
-      /**
-     * Constructor
-     *
-     * @param {string} url - url of the resource
-     * @param {Object} auth - authentication object
-     * @param {string} auth.token - authentication token
-     */
+    /**
+   * Constructor
+   *
+   * @param {string} url - url of the resource
+   * @param {Object} auth - authentication object
+   * @param {string} auth.token - authentication token
+   */
     constructor(url: string, auth: IAuth);
     /**
      * Fetch the feed associated to this feed-specific list of tags from the REST API.
@@ -1420,13 +1430,13 @@ declare module "@fnndsc/chrisapi" {
    * an specific feed.
    */
   export class FeedTaggingList extends ListResource {
-      /**
-     * Constructor
-     *
-     * @param {string} url - url of the resource
-     * @param {Object} auth - authentication object
-     * @param {string} auth.token - authentication token
-     */
+    /**
+   * Constructor
+   *
+   * @param {string} url - url of the resource
+   * @param {Object} auth - authentication object
+   * @param {string} auth.token - authentication token
+   */
     constructor(url: string, auth: IAuth);
     /**
      * Fetch the feed associated to this feed-specific list of taggings from the REST API.
@@ -1655,7 +1665,7 @@ declare module "@fnndsc/chrisapi" {
    * Uploaded file item resource object representing a user's uploaded file.
    */
   export class UploadedFile extends ItemResource {
-    
+
     /**
      * Constructor
      *
@@ -1668,7 +1678,7 @@ declare module "@fnndsc/chrisapi" {
     data: {
       id: number;
       upload_path: string;
-      fname:string;  
+      fname: string;
     }
 
     /**
@@ -1723,20 +1733,20 @@ declare module "@fnndsc/chrisapi" {
      * @param {number} [timeout=30000] - request timeout
      * @return {Object} - JS Promise, resolves to ``this`` object
      */
-    post: ( data: UploadedFileListPostData, uploadFileObj: UploadedFileListPostuploadFileObj, timeout?: number) => Promise<UploadedFile>;
+    post: (data: UploadedFileListPostData, uploadFileObj: UploadedFileListPostuploadFileObj, timeout?: number) => Promise<UploadedFile>;
   }
 
   /**
    * User item resource object representing a user of the system.
    */
   export class User extends ItemResource {
-      /**
-     * Constructor
-     *
-     * @param {string} url - url of the resource
-     * @param {Object} auth - authentication object
-     * @param {string} auth.token - authentication token
-     */
+    /**
+   * Constructor
+   *
+   * @param {string} url - url of the resource
+   * @param {Object} auth - authentication object
+   * @param {string} auth.token - authentication token
+   */
     constructor(url: string, auth: IAuth);
 
     data: {
@@ -1759,7 +1769,7 @@ declare module "@fnndsc/chrisapi" {
 
   // Interfaces
   export interface IAuth { token: string; }
-  export interface IUserParams {password: string; email: string; }
+  export interface IUserParams { password: string; email: string; }
   export interface IData { title: string; content: string; }
   export interface IFeedData { name?: string, owner?: string }
   export interface IUploadFileObj { fname: object; }
@@ -1769,7 +1779,8 @@ declare module "@fnndsc/chrisapi" {
   export interface UploadedFileListPostData { upload_path: string; }
   export interface UploadedFileListPostuploadFileObj { fname: object; }
   export interface UploadedFilePutData { upload_path: string; }
-  
+  export interface IRequestData { upload_path: string; }
+
   // Search Parameter Interfaces
   export interface IParams { limit?: number; offset?: number; id?: number }
   export interface IFeedsSearchParams extends IParams {
@@ -1805,11 +1816,11 @@ declare module "@fnndsc/chrisapi" {
 
   export interface IPluginCreateData {
     title?: string,
-    previous_id?: string,
+    previous_id?: number,
     cpu_limit?: string,
     memory_limit?: string,
     number_of_workers?: string,
     gpu_limit?: string
   }
-  
+
 }
