@@ -30,17 +30,42 @@ export const pollingBackend = async (pluginInstance: PluginInstance) => {
   }
 }
 
+export const modifyDatetime = (oldDay: string): string => {
+  let today = new Date().setHours(0, 0, 0, 0)
+  let diff = Math.abs(+today - +new Date(oldDay.split('T')[0]))
+  diff = Math.floor(diff / (1000 * 60 * 60 * 24)) // diff is in days
+  let description = "days ago"
+  let rvtVal = `${diff} ${description}`
+  if (diff / 30 >= 1) {
+    description = diff / 30 >= 2 ? "months ago" : "month ago"
+    diff = Math.floor((diff / 30))
+    rvtVal = `${diff} ${description}`
+  } else if (diff / 7 >= 1) {
+    description = diff / 7 >= 2 ? "weeks ago" : "week ago"
+    diff = Math.floor(diff / 7)
+    rvtVal = `${diff} ${description}`
+  } else if (diff < 1) {
+    rvtVal = oldDay.split('T')[1].split('.')[0]
+  }
+  return rvtVal
+}
+
 class ChrisIntegration {
 
   private static PL_COVIDNET = "pl_covidnet";
 
-  static async getTotalAnalyses(): Promise<number>{
+  static async getTotalAnalyses(): Promise<number> {
     let client: any = await ChrisAPIClient.getClient();
     const feeds = await client.getFeeds({
       limit: 25,
       offset: 0,
     });
-    return feeds.totalCount;
+    let count = 0;
+    for (let feed of feeds.getItems()) {
+      if (feed.data.finished_jobs >= 2)
+        count++;
+    }
+    return count;
   }
 
   static async processNewAnalysis(files: LocalFile[]): Promise<boolean> {
@@ -113,7 +138,7 @@ class ChrisIntegration {
         if (plugin.data.title !== this.PL_COVIDNET) {
           continue;
         }
-        analysis.createdTime = plugin.data.start_date
+        analysis.createdTime = modifyDatetime(plugin.data.start_date)
         const pluginInstanceFiles = await plugin.getFiles({
           limit: 25,
           offset: page * perpage,
@@ -135,8 +160,8 @@ class ChrisIntegration {
             analysis.image = filename
           }
         }
-        // if (pluginInstanceFiles.getItems().length > 0)
-        pastAnalyses.push(analysis);
+        if (pluginInstanceFiles.getItems().length > 0)
+          pastAnalyses.push(analysis);
       }
     }
     return pastAnalyses;

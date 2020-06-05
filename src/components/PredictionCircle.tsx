@@ -8,22 +8,27 @@ interface circleProps {
 }
 
 const PredictionCircle = (props: circleProps) => {
-  const {covidCircle, predictionNumber} = props
+  const { covidCircle, predictionNumber } = props
+  let size = 120
+  let divSize = '100px'
+  if (!covidCircle) {
+    size = 150
+    divSize = "80px"
+  }
   return (
-    // <div style={{ height: '80px', width: '80px' }}>
-    //   <ChartDonutUtilization
-    //     ariaDesc="Storage capacity"
-    //     constrainToVisibleArea={true}
-    //     data={{ x: 'Prediction', y: predictionNumber }}
-    //     height={400}
-    //     innerRadius={0}
-    //     padding={0}
-    //     title={`${predictionNumber}%`}
-    //     thresholds={[{ value: 60 }, { value: 90 }]}
-    //     width={435}
-    //   />
-    // </div>
-    <span>{predictionNumber}%</span>
+    <div style={{ height: divSize, width: divSize }}>
+      <ChartDonutUtilization
+        ariaDesc="Storage capacity"
+        constrainToVisibleArea={true}
+        data={{ x: 'Prediction', y: predictionNumber }}
+        height={size}
+        width={size}
+        padding={0}
+        title={`${predictionNumber}%`}
+        thresholds={[{ value: 60 }, { value: 90 }]}
+      />
+    </div>
+    // <span>{predictionNumber}%</span>
   )
 }
 

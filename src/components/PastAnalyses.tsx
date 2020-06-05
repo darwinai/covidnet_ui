@@ -22,29 +22,38 @@ const PastAnalysis = () => {
 
   useEffect(() => {
     ChrisIntegration.getPastAnalaysis(page, perpage)
-      .then(res =>{
+      .then(res => {
         dispatch({
           type: AnalysisTypes.Update_list,
           payload: {
-            list:res
+            list: res
           }
         })
       })
     ChrisIntegration.getTotalAnalyses()
-    .then(total =>{
-      dispatch({
-        type: AnalysisTypes.Update_total,
-        payload: {
-          total:total
-        }
+      .then(total => {
+        dispatch({
+          type: AnalysisTypes.Update_total,
+          payload: {
+            total: total
+          }
+        })
       })
-    })
   }, [page, perpage, dispatch])
+
+  const viewImage = (imageName: any) =>{
+    console.log(imageName)
+  }
 
   //something wrong with donut-chart that caused the key error
   const rows = listOfAnalyses.map(analysis => ({
     cells: [
-      { title: <div>{analysis.image} </div> },
+      {
+        title: (<div>
+          <div><b>{analysis.image}</b></div>
+          <span className="viewImageClick" onClick={()=>viewImage(analysis.image)}>View Image</span>
+        </div>)
+      },
       analysis.patientMRN, analysis.createdTime, analysis.study, {
         title: (<PredictionCircle covidCircle={true} predictionNumber={analysis.predCovid} />)
       }, {
@@ -73,7 +82,7 @@ const PastAnalysis = () => {
       />
       <Table aria-label="Simple Table" cells={columns} rows={rows}>
         <TableHeader />
-        <TableBody />
+        <TableBody className="anaylsisTableRow" />
       </Table>
     </React.Fragment>
   )

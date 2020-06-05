@@ -1,19 +1,33 @@
 .board-title {
-    font-family: Overpass-Bold;
+  font-family: Overpass-Bold;
 }
 
+$sectionAreaSpacing: 15px;
 
-$sectionAreaSpacing:15px;
-
-.sectionArea{
+.sectionArea {
   margin-bottom: $sectionAreaSpacing;
 }
 
-.classificationText{
-  color:grey;
+.classificationText {
+  color: grey;
 }
 
-.rowContent{
-  padding:0;
-  max-height: 99;
+.anaylsisTableRow {
+  td {
+    padding: 5px !important;
+    margin: 0px !important;
+    max-width: 40px;
+    vertical-align: top !important;
+  }
+  tspan {
+    font-weight: bold;
+  }
+}
+
+.viewImageClick {
+  cursor: pointer;
+  color: #42c2f5;
+  &:hover {
+    text-decoration: underline;
+  }
 }
