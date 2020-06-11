@@ -1,8 +1,9 @@
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import React, { useContext } from "react";
-import ChrisIntegration, { LocalFile } from '../services/chris_integration';
-import { AppContext } from '../context/context';
-import { AnalysisTypes } from '../context/actions/types';
+import ChrisIntegration, { LocalFile } from '../../services/chris_integration';
+import { AppContext } from '../../context/context';
+import { AnalysisTypes } from '../../context/actions/types';
+import PatientLookup from '../PatientLookup';
 
 const CreateAnalysis: React.FC = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -52,7 +53,7 @@ const CreateAnalysis: React.FC = () => {
     <Stack>
       <StackItem>Create a new predicative analysis</StackItem>
       <StackItem isFilled>
-
+        <PatientLookup isOnDashboard={true}></PatientLookup>
         <Button onClick={submitFile}>Choose File...</Button>
       </StackItem>
     </Stack>

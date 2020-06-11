@@ -1,22 +1,21 @@
 import { Nav, NavItem, NavList, NavVariants } from "@patternfly/react-core";
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-
-
+import { useLocation } from 'react-router-dom'
 
 const TopBar = () => {
-    const [sidebarActiveItem] = useState("dashboard");
+    let location = useLocation();
 
     return (
         <Nav aria-label="Nav">
         <NavList variant={NavVariants.horizontal}>
-            <NavItem itemId={0} isActive={sidebarActiveItem === "dashboard"}>
+            <NavItem itemId={0} isActive={location.pathname === "/"}>
             <Link to={`/`}> Dashboard</Link>
             </NavItem>
-            <NavItem itemId={1} isActive={sidebarActiveItem === "tab2"}>
-            <Link to={`/`}> Dashboard</Link>
+            <NavItem itemId={1} isActive={location.pathname === "/createAnalysis"}>
+            <Link to={`/createAnalysis`}> Create Analysis</Link>
             </NavItem>
-            <NavItem itemId={1} isActive={sidebarActiveItem === "tab3"}>
+            <NavItem itemId={1} isActive={location.pathname === "/tab3"}>
             <Link to={`/`}> Dashboard</Link>
             </NavItem>
         </NavList>

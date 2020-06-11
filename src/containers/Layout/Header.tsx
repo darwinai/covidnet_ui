@@ -10,7 +10,7 @@ import {
 } from "@patternfly/react-core";
 import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
 import { css } from '@patternfly/react-styles';
-import Sidebar from "./Sidebar";
+import TopBar from "./TopBar";
 import { useHistory, Link } from 'react-router-dom'
 import { AppContext } from "../../context/context";
 import { Types } from "../../context/actions/types";
@@ -61,7 +61,7 @@ const Header = () => {
     aria-label="Page Header"
     toolbar={pageToolbar}
     logo={<span className='logo-text'>COVID-Net</span>}
-    topNav={<Sidebar />}
+    topNav={<TopBar />}
   />;
 }
 

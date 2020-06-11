@@ -1,0 +1,18 @@
+.InputRow {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1rem;
+  .InputRowField {
+    width: 25%;
+    padding-right: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    label {
+      font-weight: bold;
+    }
+    #toggle-Privacy-Level{
+      width: 1000px;
+    }
+  }
+}

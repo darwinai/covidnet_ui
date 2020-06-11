@@ -2,8 +2,7 @@ import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
-import { CreateAnalysisSection } from "../../components/CreateAnalysis";
-import { testAnalysis } from '../../services/analysis'
+import { CreateAnalysisSection } from "../../components/CreateAnalysis/CreateAnalysis";
 import PastAnalysis from "../../components/PastAnalyses";
 
 type AllProps = RouteComponentProps;
@@ -11,7 +10,6 @@ type AllProps = RouteComponentProps;
 class DashboardPage extends React.Component<AllProps> {
   componentDidMount() {
     document.title = "Anayalsis - CovidNet ui";
-    testAnalysis()
   }
 
   render() {

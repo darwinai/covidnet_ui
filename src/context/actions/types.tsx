@@ -21,3 +21,7 @@ export enum AnalysisTypes {
   Update_perpage = 'UPDATE_PERPAGE',
   Update_total = 'UPDATE_TOTAL'
 }
+
+export enum CreateAnalysisTypes {
+  Update_patient_ID = 'UPDATE_PATIENT_ID'
+}
