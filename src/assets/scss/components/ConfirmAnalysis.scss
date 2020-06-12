@@ -1,0 +1,28 @@
+.ConfirmAnalysis {
+  padding-top: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  height: 100%;
+}
+
+.rightbarTitle {
+  padding-top: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.rightBar {
+  .pf-c-drawer__body {
+    background-color: white;
+  }
+  h1 {
+    font-weight: bold;
+    font-size: 1.4rem;
+  }
+}
+
+.encapsulation{
+  .pf-c-page__main-section {
+    padding:0px;
+  }
+}

@@ -1,0 +1,119 @@
+$full: 100%;
+$description-top-padding: 0.3rem;
+$CustomGrey: #6a6e73;
+$pf4Black: #151515;
+
+.detail-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 70vh;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+.detail-top-wrapper {
+  width: $full;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  h1 {
+    font-weight: bold;
+    font-size: 2rem;
+  }
+  p {
+    font-size: 1.1rem;
+  }
+  .detail-top-left {
+    width: 80%;
+  }
+  .detail-patient {
+    padding-top: 5vh;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    h2 {
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+    .detail-patient-title {
+      padding-top: $description-top-padding;
+      padding-left: 1rem;
+      p {
+        color: $CustomGrey;
+      }
+    }
+    .detail-patient-name-age {
+      margin-left: 15vw;
+      display: flex;
+      flex-direction: row;
+      .detail-patient-name-age-title {
+        padding-top: $description-top-padding;
+        text-align: right;
+        h3 {
+          font-weight: bold;
+          font-size: 1rem;
+        }
+      }
+      .detail-patient-name-age-info {
+        padding-left: 1rem;
+        p {
+          color: $CustomGrey;
+        }
+      }
+    }
+  }
+  .detail-top-right {
+    width: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 25vh;
+    margin-left: 2rem;
+    .detail-top-right-box {
+      background-color: white;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.5;
+      Button {
+        margin-top: 1.3rem;
+      }
+      .numberCircle {
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        padding: 11px;
+
+        background: $CustomGrey;
+        border: 2px solid #666;
+        color: white;
+        text-align: center;
+
+        font: 32px Arial, sans-serif;
+      }
+    }
+  }
+}
+
+.detail-bottom-wrapper {
+  width: $full;
+  display: flex;
+  height: 60vh;
+  flex-direction: row;
+  .detail-select-studies {
+    margin-left: 2rem;
+    background-color: white;
+    width: 20%;
+    min-height: 100%;
+    h1 {
+      font-weight: bold;
+      color: $pf4Black;
+    }
+  }
+}
+
+.fullHeight {
+  min-height: 100vh;
+}

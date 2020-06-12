@@ -1,4 +1,4 @@
-import { Button, Stack, StackItem } from '@patternfly/react-core';
+import { Button, Stack, StackItem, Divider } from '@patternfly/react-core';
 import React, { useContext } from "react";
 import ChrisIntegration, { LocalFile } from '../../services/chris_integration';
 import { AppContext } from '../../context/context';

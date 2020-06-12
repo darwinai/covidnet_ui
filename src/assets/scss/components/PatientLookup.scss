@@ -1,7 +1,7 @@
 .InputRow {
   display: flex;
   flex-direction: row;
-  margin-bottom: 1rem;
+  margin: 1rem;
   .InputRowField {
     width: 25%;
     padding-right: 1rem;
@@ -15,4 +15,8 @@
       width: 1000px;
     }
   }
+}
+
+.PatientLookupWrapper{
+  padding-bottom: 0px;
 }

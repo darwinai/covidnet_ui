@@ -4,7 +4,8 @@ import {
   DropdownToggle,
   DropdownItem,
   Button,
-  TextInput
+  TextInput,
+  Divider
 } from '@patternfly/react-core';
 import { useHistory } from "react-router-dom";
 import { AppContext } from "../context/context";
