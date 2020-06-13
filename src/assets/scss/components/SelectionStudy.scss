@@ -1,11 +1,11 @@
 .SelectionStudy {
   padding: 0.8rem;
   line-height: 2;
-  .studyType {
-    border: 1px solid green;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
+}
+
+
+.greyText {
+  color: $pfGrey;
 }
 
 .selected {

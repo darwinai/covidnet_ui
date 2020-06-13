@@ -3,12 +3,16 @@
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   height: 100%;
+  .rightAlign {
+    float: right;
+  }
 }
 
 .rightbarTitle {
   padding-top: 1rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .rightBar {
@@ -17,12 +21,15 @@
   }
   h1 {
     font-weight: bold;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
+  }
+  .pf-c-drawer__head {
+    border-bottom: 2px solid $pfBackgroundGrey;
   }
 }
 
-.encapsulation{
+.encapsulation {
   .pf-c-page__main-section {
-    padding:0px;
+    padding: 0px;
   }
 }

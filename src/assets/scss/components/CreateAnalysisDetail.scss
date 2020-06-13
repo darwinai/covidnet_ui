@@ -1,21 +1,17 @@
 $full: 100%;
 $description-top-padding: 0.3rem;
-$CustomGrey: #6a6e73;
-$pf4Black: #151515;
 
 .detail-wrapper {
-  display: flex;
-  flex-direction: column;
+  @include flex(column);
   min-height: 70vh;
   padding-left: 2.5rem;
   padding-right: 2.5rem;
 }
 
 .detail-top-wrapper {
+  @include flex(row);
   width: $full;
   padding: 10px;
-  display: flex;
-  flex-direction: row;
   h1 {
     font-weight: bold;
     font-size: 2rem;
@@ -29,8 +25,7 @@ $pf4Black: #151515;
   .detail-patient {
     padding-top: 5vh;
     width: 100%;
-    display: flex;
-    flex-direction: row;
+    @include flex(row);
     h2 {
       font-weight: bold;
       font-size: 1.5rem;
@@ -39,13 +34,12 @@ $pf4Black: #151515;
       padding-top: $description-top-padding;
       padding-left: 1rem;
       p {
-        color: $CustomGrey;
+        color: $pfGrey;
       }
     }
     .detail-patient-name-age {
       margin-left: 15vw;
-      display: flex;
-      flex-direction: row;
+      @include flex(row);
       .detail-patient-name-age-title {
         padding-top: $description-top-padding;
         text-align: right;
@@ -57,7 +51,7 @@ $pf4Black: #151515;
       .detail-patient-name-age-info {
         padding-left: 1rem;
         p {
-          color: $CustomGrey;
+          color: $pfGrey;
         }
       }
     }
@@ -72,8 +66,7 @@ $pf4Black: #151515;
     .detail-top-right-box {
       background-color: white;
       padding: 2rem;
-      display: flex;
-      flex-direction: column;
+      @include flex(column);
       justify-content: center;
       align-items: center;
       line-height: 1.5;
@@ -86,7 +79,7 @@ $pf4Black: #151515;
         height: 60px;
         padding: 11px;
 
-        background: $CustomGrey;
+        background: $pfGrey;
         border: 2px solid #666;
         color: white;
         text-align: center;
@@ -99,11 +92,11 @@ $pf4Black: #151515;
 
 .detail-bottom-wrapper {
   width: $full;
-  display: flex;
-  height: 60vh;
-  flex-direction: row;
+  @include flex(row);
+  min-height: 60vh;
+  padding-bottom: 6vh;
   .detail-select-studies {
-    margin-left: 2rem;
+    margin-left: 0.5rem;
     background-color: white;
     width: 20%;
     min-height: 100%;

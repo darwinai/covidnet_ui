@@ -1,27 +1,99 @@
-
 // Root container
 // ---------------------------------------------------------
-#root{
-    height: 100%;
+#root {
+  height: 100%;
 }
-
 
 // Page Header:
 // ---------------------------------------------------------
-.header{
-    .pf-c-page__header-brand-toggle .pf-c-button{
-        margin-right: 0;
-        @media screen and (min-width: 992px) {
-            display: none !important;
-        }
+.header {
+  .pf-c-page__header-brand-toggle .pf-c-button {
+    margin-right: 0;
+    @media screen and (min-width: 992px) {
+      display: none !important;
     }
+  }
 }
 
-
-h1,h2,h3,h4,h5,p {
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
   color: $pf4Black;
 }
 
-.pfPageSectionGrey{
+.pfPageSectionGrey {
   background: $pfBackgroundGrey;
+}
+
+.flex_row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex_row_wrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.lg_p {
+  font-size: 1.3rem;
+}
+
+.margin_top {
+  margin-top: 0.5rem;
+}
+
+.color_grey {
+  color: $pfGrey;
+}
+
+.margin_left {
+  margin-left: 0.6rem;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.half_width {
+  width: 50%;
+}
+
+.padding_1rem {
+  padding: 1rem;
+}
+
+.padding_2rem {
+  padding: 2rem;
+}
+.padding_left_right_2rem {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+.padding_bot_1rem {
+  padding-bottom: 1rem;
+}
+
+.med-size {
+  font-size: 1.1rem;
+}
+
+.outtline-box {
+  margin-left: 0.7rem;
+  border: 1px solid green;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.border-bottom-grey {
+  width: 100%;
+  border-bottom: 2px solid $pfBackgroundGrey;
+}
+
+.blueText {
+  color: $pfTextBlue;
 }

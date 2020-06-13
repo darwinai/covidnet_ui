@@ -10,7 +10,7 @@ import {
 import { useHistory } from "react-router-dom";
 import { AppContext } from "../context/context";
 import { CreateAnalysisTypes } from "../context/actions/types";
-import DashboardButton from "../pages/CreateAnalysisPage/dashboardbutton";
+import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
 
 enum PrivacyLevel {
   ANONYMIZE_ALL_DATA = "Anonymize all data",
@@ -68,7 +68,7 @@ const PatientLookup = (props: PatientLookupProps) => {
   }
 
   const submitButton = props.isOnDashboard ? (
-    <DashboardButton click={navigateToCreateAnalysis}></DashboardButton>
+    <RightArrowButton click={navigateToCreateAnalysis}>Continue</RightArrowButton>
   ) : (
       <Button variant="secondary" onClick={newLookup}>
         <b>New Lookup</b>

@@ -3,8 +3,9 @@ import avator from '../../assets/images/avator.png';
 import {
   Button, Badge
 } from '@patternfly/react-core';
-import { ArrowRightIcon } from '@patternfly/react-icons';
 import SelectionStudy from "./SelectionStudy";
+import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
+import SelectedStudyDetail from "./SelectedStudyDetail";
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>
@@ -19,8 +20,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
           <div className="detail-top-left">
             <h1>Create a new predictive analysis</h1>
             <p>Select at least one image series below and select the "Analyze" button to receive COVID, pneumonia
-            and normal predictions per image.
-                  </p>
+            and normal predictions per image.</p>
             <div className="detail-patient">
               <div>
                 <img src={avator} alt="avator" width="100px" height="100px"></img>
@@ -48,9 +48,9 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
               <div className="numberCircle">2</div>
               <h3>Series selected</h3>
               <a>(More details)</a>
-              <Button variant="primary" onClick={() => props.setIsExpanded(true)}>
-                Analyze <ArrowRightIcon></ArrowRightIcon>
-              </Button>
+              <RightArrowButton click={() => props.setIsExpanded(true)}>
+                Analyze
+              </RightArrowButton>
             </div>
           </div>
         </div>
@@ -58,9 +58,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
           <div className="detail-select-studies">
             <SelectionStudy></SelectionStudy>
           </div>
-          <div className="detail-select">
-
-          </div>
+          <SelectedStudyDetail></SelectedStudyDetail>
         </div>
       </div>
     </React.Fragment>
