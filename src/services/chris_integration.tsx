@@ -1,6 +1,7 @@
 import ChrisAPIClient from "../api/chrisapiclient"
 import { IAnalysis } from "../context/reducers/analyseReducer";
 import { PluginInstance, IPluginCreateData } from "@fnndsc/chrisapi";
+import { DcmImage } from "../context/reducers/dicomImagesReducer";
 
 export interface LocalFile {
   name: string;
@@ -79,8 +80,9 @@ class ChrisIntegration {
       })
 
       // create dircopy plugin
-      const plugins = await client.getPlugins({ "name_exact": "dircopy" });
+      const plugins = await client.getPlugins({ "name_exact": "pl-dircopy" });
       const dircopyPlugin = plugins.getItems()[0]
+      console.log(plugins.getItems())
       const data: DirCreateData = { "dir": uploadedFile.data.fname }
       const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
@@ -100,6 +102,7 @@ class ChrisIntegration {
 
       await pollingBackend(covidnetInstance)
     } catch (err) {
+      console.log(err)
       return false
     }
     return true;
@@ -165,6 +168,16 @@ class ChrisIntegration {
       }
     }
     return pastAnalyses;
+  }
+
+  static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {
+    let client: any = await ChrisAPIClient.getClient();
+
+    const res = await client.getPACSFiles({
+      PatientID: patientID
+    })
+    const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
+    return patientImages
   }
 }
 

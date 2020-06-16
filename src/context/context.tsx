@@ -5,17 +5,20 @@ import {
 } from './reducers/analyseReducer';
 import { initialIUserState, IUserState, userReducer } from './reducers/userReducer';
 import { ICreateAnalysisState, initialICreateAnalysisState, createAnalysisReducer } from './reducers/createAnalysisReducer';
+import { IDcmImagesState, initialIDcmImagesState, dicomImagesReducer } from './reducers/dicomImagesReducer';
 
 type InitialStateType = {
   user: IUserState;
   prevAnalyses: IPrevAnalysesState;
   createAnalysis: ICreateAnalysisState;
+  dcmImages: IDcmImagesState
 }
 
 const initialState: InitialStateType = {
   user: initialIUserState,
   prevAnalyses: initialIPrevAnalysesState,
-  createAnalysis: initialICreateAnalysisState
+  createAnalysis: initialICreateAnalysisState,
+  dcmImages: initialIDcmImagesState
 }
 
 const AppContext = createContext<{
@@ -27,12 +30,13 @@ const AppContext = createContext<{
 });
 
 const mainReducer = (
-  { user, prevAnalyses, createAnalysis}: InitialStateType,
+  { user, prevAnalyses, createAnalysis, dcmImages}: InitialStateType,
   action: any, // or UserActions | AnalysisActions
 ) => ({
   user: userReducer(user, action),
   prevAnalyses: analysesReducer(prevAnalyses, action),
-  createAnalysis: createAnalysisReducer(createAnalysis, action)
+  createAnalysis: createAnalysisReducer(createAnalysis, action),
+  dcmImages: dicomImagesReducer(dcmImages, action)
 });
 
 // a function component for Provider

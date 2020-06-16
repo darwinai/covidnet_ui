@@ -47,8 +47,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
             <div className="detail-top-right-box">
               <div className="numberCircle">2</div>
               <h3>Series selected</h3>
-              <a>(More details)</a>
-              <RightArrowButton click={() => props.setIsExpanded(true)}>
+              <a  onClick={() => props.setIsExpanded(true)}>(More details)</a>
+              <RightArrowButton  click={() => {}}>
                 Analyze
               </RightArrowButton>
             </div>

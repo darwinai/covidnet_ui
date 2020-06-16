@@ -5,12 +5,12 @@ import {
   DropdownItem,
   Button,
   TextInput,
-  Divider
 } from '@patternfly/react-core';
 import { useHistory } from "react-router-dom";
 import { AppContext } from "../context/context";
-import { CreateAnalysisTypes } from "../context/actions/types";
+import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
 import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
+import chris_integration from '../services/chris_integration'
 
 enum PrivacyLevel {
   ANONYMIZE_ALL_DATA = "Anonymize all data",
@@ -41,8 +41,14 @@ const PatientLookup = (props: PatientLookupProps) => {
     if (element) element.focus();
   };
 
-  const newLookup = () => {
-    console.log('new look up')
+  const newLookup = async () => {
+    const dcmImages = await chris_integration.fetchPacFiles(createAnalysis.patientID);
+    dispatch({
+      type: DicomImagesTypes,
+      payload: {
+        images: dcmImages
+      }
+    })
   }
 
   const setPatientid = (value: string) => {
@@ -63,7 +69,8 @@ const PatientLookup = (props: PatientLookupProps) => {
     </DropdownItem>,
   ];
 
-  const navigateToCreateAnalysis = () => {
+  const navigateToCreateAnalysis = async () => {
+    await newLookup();
     history.push("/createAnalysis");
   }
 

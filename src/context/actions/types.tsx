@@ -25,3 +25,7 @@ export enum AnalysisTypes {
 export enum CreateAnalysisTypes {
   Update_patient_ID = 'UPDATE_PATIENT_ID'
 }
+
+export enum DicomImagesTypes {
+  UpdateImages = 'UPDATE_DICOM_IMAGES'
+}

@@ -90,42 +90,6 @@ export const uploadTest = async (files: LocalFile[]): Promise<void> => {
 
 }
 
-// const uploadedFile = await client.uploadFile({"upload_path": "cube/uploads/<file_name>"}, {"fname": <file_blob>});
-// const plugins = await client.getPlugins({"name_exact": "dircopy"});
-// const dircopyPlugin = plugins.getItems()[0]
-// const data = {"dir": uploadedFile.fname}
-// const pluginInstance = await client.createPluginInstance(dircopyPlugin.id, data);
+export const testGetPacs = async () => {
 
-export const testAnalysis = async () => {
-  // const client = ChrisAPIClient.getClient();
-  // let page = 1;
-  // const feeds = await client.getFeeds({
-  //   limit: 25,
-  //   offset: page * 25,
-  // });
-  // console.log(feeds)
-  // const feedArray = feeds.getItems();
-  // // there are no feeds so currently empty array
-  // console.log(feedArray)
-  // const pluginId = 1; // assuming that the plugin with id 1 is 'simplefsapp'
-  // const data = {
-  //   //previous_id: null,  // instances of 'fs' plugins have previous_id set to null
-  //   title: "Test plugin instance",
-  //   dir: "chris/uploads/cube/"
-  // };
-  // let resp = client.createPluginInstance(pluginId, data);
-  // resp
-  //   .then((plgInstResObj: PluginInstance) => {
-  //     console.log('New plugin instance: ', plgInstResObj);
-
-  //   })
-  //   .catch(error => {
-  //     console.log('Something went wrong with this request!!!: ', error);
-  //   });
-  // const searchdata: IPluginsSearchParams = {
-  //   title: "",
-  //   limit:100
-  // }
-  // let result = await client.getPlugins(searchdata)
-  // console.log(result)
 }

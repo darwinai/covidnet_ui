@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Drawer,
   DrawerPanelContent,
@@ -10,7 +10,6 @@ import {
 } from '@patternfly/react-core';
 import ConfirmAnalysis from './ConfirmAnalysis'
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
-
 
 const CreateAnalysisWrapper = () => {
   const [isExpanded, setIsExpanded] = useState(false)
