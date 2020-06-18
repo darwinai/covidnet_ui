@@ -12,9 +12,7 @@ const SelectedStudyDetail = () => {
 
   const addImgToAnalysis = (isSelected: boolean, img: DcmImage): void => {
     let actionType = CreateAnalysisTypes.Add_selected_studies_UID;
-    if (isSelected){
-      actionType = CreateAnalysisTypes.Remove_selected_studies_UID;
-    }
+    if (isSelected) actionType = CreateAnalysisTypes.Remove_selected_studies_UID;
     dispatch({
       type: actionType,
       payload: {
@@ -61,8 +59,7 @@ const SelectedStudyDetail = () => {
           </div>
           <div className="flex_row_wrap">
             {images.map((img: DcmImage, i) => {
-              const imagesSelectedInThisStudy = selectedStudyUIDs[img.StudyInstanceUID];
-              const isSelected: boolean = !!imagesSelectedInThisStudy && !!imagesSelectedInThisStudy[img.SeriesInstanceUID];
+              const isSelected: boolean = CreateAnalysisService.isImgSelected(selectedStudyUIDs, img);
               return (
                 <div className="half_width margin-top-bottom" key={i}>
                   <label className={`container ${isSelected ? 'blueText' : null}`}>{img.fname.split('/')[3]}

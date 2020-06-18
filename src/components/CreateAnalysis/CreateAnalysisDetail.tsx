@@ -1,20 +1,19 @@
-import React, { useEffect, useContext, Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect } from "react";
 import avator from '../../assets/images/avator.png';
-import SelectionStudy from "./SelectionStudy";
-import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
-import SelectedStudyDetail from "./SelectedStudyDetail";
-import { AppContext } from "../../context/context";
-import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
 import { CreateAnalysisTypes } from "../../context/actions/types";
+import { AppContext } from "../../context/context";
+import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
+import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
+import SelectedStudyDetail from "./SelectedStudyDetail";
+import SelectionStudy from "./SelectionStudy";
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>
 }
 
-
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
-
+  const { selectedStudyUIDs } = createAnalysis;
   useEffect(() => {
     const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
     dispatch({
@@ -26,7 +25,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   }, [dcmImages, dispatch])
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
-
+  const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
+  
   const { patientName, patientID, patientAge, patientBirthdate, patientGender } = createAnalysis
   return (
     <React.Fragment>
@@ -60,7 +60,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
           </div>
           <div className="detail-top-right">
             <div className="detail-top-right-box">
-              <div className="numberCircle">2</div>
+              <div className="numberCircle">{numOfSelectedImages}</div>
               <h3>Series selected</h3>
               <a onClick={() => props.setIsExpanded(true)}>(More details)</a>
               <RightArrowButton click={() => { }}>
