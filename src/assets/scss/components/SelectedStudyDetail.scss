@@ -55,7 +55,7 @@
   }
 
   /* On mouse-over, add a grey background color */
-  .container:hover input ~ .checkmark {
+  .container input ~ .checkmark {
     background-color: #ccc;
   }
 

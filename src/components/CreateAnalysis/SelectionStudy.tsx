@@ -11,9 +11,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   modality,
   createdDate,
 }) => {
-  const { state, dispatch } = useContext(AppContext);
-  const { createAnalysis } = state;
-  const { selectedStudyUIDs, currSelectedStudyUID } = createAnalysis;
+  const { state: { createAnalysis: { selectedStudyUIDs, currSelectedStudyUID } }, dispatch } = useContext(AppContext);
   const imagesSelectedDict = selectedStudyUIDs[studyInstanceUID]
 
   const selectThisStudy = () => {
@@ -25,14 +23,14 @@ const SelectionStudy: React.FC<StudyInstance> = ({
     })
   }
 
-  const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0 ;
+  const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0;
   return (
-    <div 
+    <div
       className={`SelectionStudy ${isSelected ? 'selected' : ''}`}
       onClick={selectThisStudy}
     >
-      <h1 className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText': ''}`}>
-        { isSelected ? 
+      <h1 className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText' : ''}`}>
+        {isSelected ?
           (<Badge>{Object.keys(imagesSelectedDict).length}</Badge>) : null}
         &nbsp;{studyDescription}</h1>
       <p className="greyText"><span className="outtline-box">{modality}</span> {createdDate} </p>

@@ -46,6 +46,10 @@ class CreateAnalysisService {
     
     return studyInstances;
   }
+
+  static returnAllImagesInOneStudy(dcmImages: DcmImage[], studyUID: string): DcmImage[] {
+    return dcmImages.filter((dcmImage: DcmImage) => dcmImage.StudyInstanceUID ===  studyUID);
+  }
 }
 
 export default CreateAnalysisService;

@@ -13,8 +13,7 @@ interface CreateAnalysisDetailProps {
 
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
-  const { state, dispatch } = useContext(AppContext);
-  const { dcmImages, createAnalysis } = state;
+  const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
 
   useEffect(() => {
     const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
@@ -43,7 +42,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
               </div>
               <div className="detail-patient-title">
                 <h2>{patientName}</h2>
-                <p>UID#{patientID}</p>
+                <p>MRN#{patientID}</p>
               </div>
               <div className="detail-patient-name-age">
                 <div className="detail-patient-name-age-title">

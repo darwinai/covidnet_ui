@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   Dropdown,
   DropdownToggle,
@@ -23,9 +23,8 @@ interface PatientLookupProps {
 }
 
 const PatientLookup = (props: PatientLookupProps) => {
-  const { state, dispatch } = useContext(AppContext);
-  const [privacyLevel, setPrivacyLevel] = React.useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
-  const { createAnalysis } = state;
+  const { state: {createAnalysis}, dispatch } = useContext(AppContext);
+  const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
   const history = useHistory();
 
   // dropdown
@@ -96,7 +95,7 @@ const PatientLookup = (props: PatientLookupProps) => {
     <React.Fragment>
       <div className="InputRow">
         <div className="InputRowField">
-          <label>Patient UID</label>
+          <label>Patient MRN</label>
           <TextInput value={createAnalysis.patientID} type="text" onChange={setPatientid} aria-label="text input example" />
         </div>
         <div className="InputRowField">

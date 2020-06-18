@@ -7,9 +7,7 @@ import ChrisIntegration from "../services/chris_integration";
 import PredictionCircle from "./PredictionCircle";
 
 const PastAnalysis = () => {
-  const { state, dispatch } = React.useContext(AppContext);
-  const { prevAnalyses } = state;
-  const { page, perpage, listOfAnalyses, totalResults } = prevAnalyses;
+  const { state: {prevAnalyses: { page, perpage, listOfAnalyses, totalResults }}, dispatch } = React.useContext(AppContext);
   const columns = [
     { title: (<span>Image<br /><span className='classificationText'>&nbsp;</span></span>) },
     { title: (<span>Patient MRN<br /><span className='classificationText'>&nbsp;</span></span>) },
