@@ -27,7 +27,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
   
-  const { patientName, patientID, patientAge, patientBirthdate, patientGender } = createAnalysis
+  const { patientName, patientID, patientAge, patientBirthdate, patientGender } = createAnalysis;
+  
   return (
     <React.Fragment>
       <div className="detail-wrapper">
@@ -51,7 +52,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
                   <h3>Patient Gender</h3>
                 </div>
                 <div className="detail-patient-name-age-info">
-                  <p> {patientAge}y </p>
+                  <p> {CreateAnalysisService.calculatePatientAge(patientBirthdate)}y </p>
                   <p> {patientBirthdate} </p>
                   <p> {patientGender} </p>
                 </div>

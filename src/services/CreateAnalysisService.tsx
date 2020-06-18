@@ -28,6 +28,12 @@ class CreateAnalysisService {
     }
   }
 
+  static calculatePatientAge(patientDOB: string): number {
+    const today = new Date();
+    const dob = new Date(patientDOB);
+    return today.getFullYear() - dob.getFullYear();
+  }
+
   static extractStudyInstances(dcmImages: DcmImage[]): StudyInstance[] {
     const studyInstances: StudyInstance[] = [];
     const seenUID: { [uid: string]: boolean } = {}
