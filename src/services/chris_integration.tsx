@@ -53,7 +53,7 @@ export const modifyDatetime = (oldDay: string): string => {
 
 class ChrisIntegration {
 
-  private static PL_COVIDNET = "pl_covidnet";
+  private static PL_COVIDNET = 'pl_covidnet';
 
   static async getTotalAnalyses(): Promise<number> {
     let client: any = await ChrisAPIClient.getClient();
@@ -93,7 +93,7 @@ class ChrisIntegration {
       // create covidnet plugin
       const plcovidnet_data: PlcovidnetData = {
         previous_id: pluginInstance.data.id,
-        title: "pl_covidnet",
+        title: this.PL_COVIDNET,
         imagefile: filename
       }
       const plcovidnet = await client.getPlugins({ "name_exact": "pl-covidnet" })

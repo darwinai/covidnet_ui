@@ -1,11 +1,8 @@
 import React, { createContext, useReducer } from 'react';
-import {
-  analysesReducer, initialIPrevAnalysesState,
-  IPrevAnalysesState
-} from './reducers/analyseReducer';
+import { analysesReducer, initialIPrevAnalysesState, IPrevAnalysesState } from './reducers/analyseReducer';
+import { createAnalysisReducer, ICreateAnalysisState, initialICreateAnalysisState } from './reducers/createAnalysisReducer';
+import { dicomImagesReducer, IDcmImagesState, initialIDcmImagesState } from './reducers/dicomImagesReducer';
 import { initialIUserState, IUserState, userReducer } from './reducers/userReducer';
-import { ICreateAnalysisState, initialICreateAnalysisState, createAnalysisReducer } from './reducers/createAnalysisReducer';
-import { IDcmImagesState, initialIDcmImagesState, dicomImagesReducer } from './reducers/dicomImagesReducer';
 
 type InitialStateType = {
   user: IUserState;
@@ -51,3 +48,4 @@ const AppProvider: React.FC = ({ children }) => {
 }
 
 export { AppContext, AppProvider };
+

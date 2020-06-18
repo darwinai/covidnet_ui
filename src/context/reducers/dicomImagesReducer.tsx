@@ -3,7 +3,7 @@ import { ActionMap, DicomImagesTypes } from "../actions/types";
 
 export interface DcmImage {
   id: number,
-  created_date: string,
+  creation_date: string,
   fname: string,
   PatientId: string
   PatientName: string,
@@ -11,7 +11,7 @@ export interface DcmImage {
   PatientAge: number,
   PatientSex: string,
   StudyInstanceUID: string,
-  studyDescription: string,
+  StudyDescription: string,
   SeriesInstanceUID: string,
   SeriesDescription: string
 }

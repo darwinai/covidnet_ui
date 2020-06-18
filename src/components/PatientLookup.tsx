@@ -11,6 +11,7 @@ import { AppContext } from "../context/context";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
 import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
 import chris_integration from '../services/chris_integration'
+import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
 
 enum PrivacyLevel {
   ANONYMIZE_ALL_DATA = "Anonymize all data",
@@ -44,11 +45,20 @@ const PatientLookup = (props: PatientLookupProps) => {
   const newLookup = async () => {
     const dcmImages = await chris_integration.fetchPacFiles(createAnalysis.patientID);
     dispatch({
-      type: DicomImagesTypes,
+      type: DicomImagesTypes.UpdateImages,
       payload: {
         images: dcmImages
       }
     })
+    const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
+    if (studyInstances.length > 0) {
+      dispatch({
+        type: CreateAnalysisTypes.UpdateCurrSelectedStudyUID,
+        payload: {
+          studyUID: studyInstances[0].studyInstanceUID
+        }
+      })
+    }
   }
 
   const setPatientid = (value: string) => {

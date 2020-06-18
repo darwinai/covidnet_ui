@@ -1,18 +1,34 @@
-import React, { useContext, useState, Dispatch, SetStateAction } from "react";
+import React, { useEffect, useContext, Dispatch, SetStateAction } from "react";
 import avator from '../../assets/images/avator.png';
-import {
-  Button, Badge
-} from '@patternfly/react-core';
 import SelectionStudy from "./SelectionStudy";
 import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import SelectedStudyDetail from "./SelectedStudyDetail";
+import { AppContext } from "../../context/context";
+import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
+import { CreateAnalysisTypes } from "../../context/actions/types";
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>
 }
 
-const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
 
+const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
+  const { state, dispatch } = useContext(AppContext);
+  const { dcmImages, createAnalysis } = state;
+
+  useEffect(() => {
+    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
+    dispatch({
+      type: CreateAnalysisTypes.Update_patient_personal_info,
+      payload: {
+        ...patientInfo
+      }
+    })
+  }, [dcmImages, dispatch])
+
+  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
+
+  const { patientName, patientID, patientAge, patientBirthdate, patientGender } = createAnalysis
   return (
     <React.Fragment>
       <div className="detail-wrapper">
@@ -26,8 +42,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
                 <img src={avator} alt="avator" width="100px" height="100px"></img>
               </div>
               <div className="detail-patient-title">
-                <h2>Patience D. Patient</h2>
-                <p>MRN#3211232142112312</p>
+                <h2>{patientName}</h2>
+                <p>UID#{patientID}</p>
               </div>
               <div className="detail-patient-name-age">
                 <div className="detail-patient-name-age-title">
@@ -36,9 +52,9 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
                   <h3>Patient Gender</h3>
                 </div>
                 <div className="detail-patient-name-age-info">
-                  <p>2y 6m</p>
-                  <p>2018 01 05</p>
-                  <p>Female</p>
+                  <p> {patientAge}y </p>
+                  <p> {patientBirthdate} </p>
+                  <p> {patientGender} </p>
                 </div>
               </div>
             </div>
@@ -47,8 +63,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
             <div className="detail-top-right-box">
               <div className="numberCircle">2</div>
               <h3>Series selected</h3>
-              <a  onClick={() => props.setIsExpanded(true)}>(More details)</a>
-              <RightArrowButton  click={() => {}}>
+              <a onClick={() => props.setIsExpanded(true)}>(More details)</a>
+              <RightArrowButton click={() => { }}>
                 Analyze
               </RightArrowButton>
             </div>
@@ -56,7 +72,9 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
         </div>
         <div className="detail-bottom-wrapper">
           <div className="detail-select-studies">
-            <SelectionStudy></SelectionStudy>
+            {studyInstances.map((study: StudyInstance, i) => (
+              <SelectionStudy key={i} {...study}></SelectionStudy>
+            ))}
           </div>
           <SelectedStudyDetail></SelectedStudyDetail>
         </div>

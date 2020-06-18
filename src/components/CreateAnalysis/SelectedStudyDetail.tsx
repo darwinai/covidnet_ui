@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Checkbox } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core';
 
 const SelectedStudyDetail = () => {
   return (

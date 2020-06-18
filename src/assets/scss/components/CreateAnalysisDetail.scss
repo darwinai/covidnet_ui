@@ -49,6 +49,7 @@ $description-top-padding: 0.3rem;
         }
       }
       .detail-patient-name-age-info {
+        padding-top: $description-top-padding;
         padding-left: 1rem;
         p {
           color: $pfGrey;

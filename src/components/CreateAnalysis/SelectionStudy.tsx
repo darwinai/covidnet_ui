@@ -1,13 +1,28 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Badge } from '@patternfly/react-core';
+import { StudyInstance } from "../../services/CreateAnalysisService";
+import { AppContext } from "../../context/context";
 
-const SelectionStudy = () => {
 
-  const categoryName = "XRAY"
+const SelectionStudy: React.FC<StudyInstance> = ({
+  studyInstanceUID,
+  studyDescription,
+  modality,
+  createdDate,
+}) => {
+  const { state } = useContext(AppContext);
+  const { createAnalysis } = state;
+  const { selectedStudyUIDs, currSelectedStudyUID } = createAnalysis;
+  const imagesSelectedDict = selectedStudyUIDs[studyInstanceUID]
+
+  let isSelected = false
   return (
-    <div className="SelectionStudy selected">
-      <h1 className="blueText"><Badge>1</Badge> Patient Study A</h1>
-      <p className="greyText"><span className="outtline-box">{categoryName}</span> 2019 11 30</p>
+    <div className={`SelectionStudy ${isSelected ? 'selected' : ''}`}>
+      <h1 className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText': ''}`}>
+        {!!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0 ? 
+          (<Badge>{Object.keys(imagesSelectedDict).length}</Badge>) : null}
+        &nbsp;{studyDescription}</h1>
+      <p className="greyText"><span className="outtline-box">{modality}</span> {createdDate} </p>
     </div>
   )
 }
