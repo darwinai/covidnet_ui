@@ -3,19 +3,22 @@ import { analysesReducer, initialIPrevAnalysesState, IPrevAnalysesState } from '
 import { createAnalysisReducer, ICreateAnalysisState, initialICreateAnalysisState } from './reducers/createAnalysisReducer';
 import { dicomImagesReducer, IDcmImagesState, initialIDcmImagesState } from './reducers/dicomImagesReducer';
 import { initialIUserState, IUserState, userReducer } from './reducers/userReducer';
+import { IStagingDcmImgs, initialIStagingDcmImgsState, stagingDcmImgsReducer } from './reducers/stagingDcmImgsReducer';
 
 type InitialStateType = {
   user: IUserState;
   prevAnalyses: IPrevAnalysesState;
   createAnalysis: ICreateAnalysisState;
-  dcmImages: IDcmImagesState
+  dcmImages: IDcmImagesState;
+  stagingDcmImages: IStagingDcmImgs;
 }
 
 const initialState: InitialStateType = {
   user: initialIUserState,
   prevAnalyses: initialIPrevAnalysesState,
   createAnalysis: initialICreateAnalysisState,
-  dcmImages: initialIDcmImagesState
+  dcmImages: initialIDcmImagesState,
+  stagingDcmImages: initialIStagingDcmImgsState
 }
 
 const AppContext = createContext<{
@@ -27,13 +30,14 @@ const AppContext = createContext<{
 });
 
 const mainReducer = (
-  { user, prevAnalyses, createAnalysis, dcmImages}: InitialStateType,
+  { user, prevAnalyses, createAnalysis, dcmImages, stagingDcmImages}: InitialStateType,
   action: any, // or UserActions | AnalysisActions
 ) => ({
   user: userReducer(user, action),
   prevAnalyses: analysesReducer(prevAnalyses, action),
   createAnalysis: createAnalysisReducer(createAnalysis, action),
-  dcmImages: dicomImagesReducer(dcmImages, action)
+  dcmImages: dicomImagesReducer(dcmImages, action),
+  stagingDcmImages: stagingDcmImgsReducer(stagingDcmImages, action)
 });
 
 // a function component for Provider

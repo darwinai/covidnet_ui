@@ -71,6 +71,14 @@ class CreateAnalysisService {
     const imagesSelectedInThisStudy = selectedStudyUIDs[StudyInstanceUID];
     return !!imagesSelectedInThisStudy && !!imagesSelectedInThisStudy[SeriesInstanceUID];
   }
+
+  static pickImages(imgs: DcmImage[], selectedStudyUIDs: SelectedStudies): DcmImage[] {
+    return imgs.filter((img:DcmImage)=> this.isImgSelected(selectedStudyUIDs, img));
+  }
+
+  static async analyzeImages(imgs: DcmImage[]): Promise<void> {
+    console.log(imgs)
+  }
 }
 
 export default CreateAnalysisService;

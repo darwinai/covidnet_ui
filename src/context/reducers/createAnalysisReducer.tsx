@@ -17,7 +17,7 @@ export interface SelectionStates {
 
 export interface SelectedStudies {
   [uid: string]: {
-    [SeriesInstanceUID: string] : string
+    [SeriesInstanceUID: string]: string
   }
 }
 
@@ -54,7 +54,8 @@ type CreateAnalysisPayload = {
   },
   [CreateAnalysisTypes.UpdateCurrSelectedStudyUID]: {
     studyUID: string;
-  }
+  },
+  [CreateAnalysisTypes.Clear_selected_studies_UID]: {}
 }
 
 export type CreateAnalysisActions = ActionMap<CreateAnalysisPayload>[
@@ -81,7 +82,7 @@ export const createAnalysisReducer = (
         ...state,
         selectedStudyUIDs: {
           ...state.selectedStudyUIDs,
-          [action.payload.studyUID] : {
+          [action.payload.studyUID]: {
             ...state.selectedStudyUIDs[action.payload.studyUID],
             [action.payload.SeriesInstanceUID]: action.payload.fname
           }
@@ -91,7 +92,7 @@ export const createAnalysisReducer = (
       const prevStudy = state.selectedStudyUIDs[action.payload.studyUID];
       const { [action.payload.SeriesInstanceUID]: deleted, ...studyWithFileRemoved } = prevStudy;
       const selectedFilesInNewStudy = Object.keys(studyWithFileRemoved).length;
-      if (selectedFilesInNewStudy > 0 ) {
+      if (selectedFilesInNewStudy > 0) {
         return {
           ...state,
           selectedStudyUIDs: {
@@ -105,6 +106,11 @@ export const createAnalysisReducer = (
           ...state,
           selectedStudyUIDs: studyWithTargetStudyRemoved
         }
+      }
+    case CreateAnalysisTypes.Clear_selected_studies_UID:
+      return {
+        ...state,
+        selectedStudyUIDs: {}
       }
     case CreateAnalysisTypes.UpdateCurrSelectedStudyUID:
       return {

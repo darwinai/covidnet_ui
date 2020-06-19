@@ -37,6 +37,6 @@ export const dicomImagesReducer = (
     case DicomImagesTypes.UpdateImages:
       return action.payload.images
     default:
-      return state
+      return state;
   }
 }

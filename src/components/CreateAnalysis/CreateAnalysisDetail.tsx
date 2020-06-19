@@ -1,11 +1,15 @@
-import React, { Dispatch, SetStateAction, useContext, useEffect } from "react";
+import { Button, Modal } from '@patternfly/react-core';
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import avator from '../../assets/images/avator.png';
-import { CreateAnalysisTypes } from "../../context/actions/types";
+import { CreateAnalysisTypes, StagingDcmImagesTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
+import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
+
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>
@@ -13,7 +17,24 @@ interface CreateAnalysisDetailProps {
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const { selectedStudyUIDs } = createAnalysis;
+  const history = useHistory();
+
+  const submitAnalysis = () => {
+    const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
+    if (imagesSelected.length <= 0) {
+      setIsModalOpen(true);
+      return;
+    }
+    // update staging images
+    dispatch({
+      type: StagingDcmImagesTypes.UpdateStaging,
+      payload: { imgs: imagesSelected }
+    })
+    history.push("/");
+  }
+
   useEffect(() => {
     const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
     dispatch({
@@ -26,11 +47,18 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
-  
-  const { patientName, patientID, patientAge, patientBirthdate, patientGender } = createAnalysis;
-  
+
+  const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
+
   return (
     <React.Fragment>
+      <Modal
+        title="Error"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      >
+        Please select at least 1 image to analyze
+      </Modal>
       <div className="detail-wrapper">
         <div className="detail-top-wrapper">
           <div className="detail-top-left">
@@ -64,7 +92,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
               <div className="numberCircle">{numOfSelectedImages}</div>
               <h3>Series selected</h3>
               <a onClick={() => props.setIsExpanded(true)}>(More details)</a>
-              <RightArrowButton click={() => { }}>
+              <RightArrowButton click={submitAnalysis}>
                 Analyze
               </RightArrowButton>
             </div>

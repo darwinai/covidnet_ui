@@ -8,6 +8,10 @@ $description-top-padding: 0.3rem;
   padding-right: 2.5rem;
 }
 
+.pf-c-modal-box {
+  width: 400px !important;
+}
+
 .detail-top-wrapper {
   @include flex(row);
   width: $full;
