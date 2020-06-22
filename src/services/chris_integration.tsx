@@ -18,16 +18,18 @@ interface PlcovidnetData extends IPluginCreateData {
 
 
 export const pollingBackend = async (pluginInstance: PluginInstance) => {
+  let waitTime = 1000;
   const timeout = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
   while (true) {
-    await timeout(1000)
+    await timeout(waitTime)
     const res: any = await pluginInstance.get()
-    console.log(res.data.status)
+    console.log(`${res.data.plugin_name}: ${res.data.status}`)
     if (res.data.status === "finishedSuccessfully") {
       break;
     }
+    waitTime *= 2;
   }
 }
 
@@ -53,7 +55,9 @@ export const modifyDatetime = (oldDay: string): string => {
 
 class ChrisIntegration {
 
-  private static PL_COVIDNET = 'pl_covidnet';
+  private static PL_COVIDNET = 'pl-covidnet';
+  private static FS_PLUGIN = 'pl-dircopy'; // 'pl-dircopy';
+  private static MED2IMG = 'pl-med2img';
 
   static async getTotalAnalyses(): Promise<number> {
     let client: any = await ChrisAPIClient.getClient();
@@ -80,32 +84,70 @@ class ChrisIntegration {
       })
 
       // create dircopy plugin
-      const plugins = await client.getPlugins({ "name_exact": "pl-dircopy" });
-      const dircopyPlugin = plugins.getItems()[0]
-      console.log(plugins.getItems())
+      const dircopyPlugin = (await client.getPlugins({ 'name_exact': this.FS_PLUGIN })).getItems()[0];
       const data: DirCreateData = { "dir": uploadedFile.data.fname }
+      console.log(data)
       const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
       await pollingBackend(pluginInstance)
 
-      let filename = uploadedFile.data.fname.split('/')
-      filename = filename.pop()
+      const filename = uploadedFile.data.fname.split('/').pop()
       // create covidnet plugin
       const plcovidnet_data: PlcovidnetData = {
         previous_id: pluginInstance.data.id,
-        title: this.PL_COVIDNET,
+        // title: this.PL_COVIDNET,
         imagefile: filename
       }
       const plcovidnet = await client.getPlugins({ "name_exact": "pl-covidnet" })
       const covidnetPlugin = plcovidnet.getItems()[0]
       const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
-
+      console.log("Covidnet Running")
       await pollingBackend(covidnetInstance)
     } catch (err) {
       console.log(err)
       return false
     }
     return true;
+  }
+
+  static async processOneImg(img: DcmImage) {
+    let client: any = await ChrisAPIClient.getClient();
+    try {
+      const dircopyPlugin = (await client.getPlugins({ "name_exact":  this.FS_PLUGIN })).getItems()[0];
+      // const params = await dircopyPlugin.getPluginParameters();
+      const data: DirCreateData = { "dir": img.fname };
+      const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+
+      await pollingBackend(dircopyPluginInstance)
+      
+      //med2img
+      const imgConverterPlugin = (await client.getPlugins({ "name_exact":  this.MED2IMG })).getItems()[0];
+      const filename = img.fname.split('/').pop()?.split('.')[0]
+      console.log(filename)
+      const imgData = { 
+        inputFile: img.fname.split('/').pop(),
+        outputFileStem: `${filename}.jpg`, //-slice000
+        previous_id: dircopyPluginInstance.data.id 
+      }
+      console.log(imgData)
+      const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
+      console.log("Converter Running")
+      await pollingBackend(imgConverterInstance)
+
+      const covidnetPlugin = (await client.getPlugins({ "name_exact":  this.PL_COVIDNET })).getItems()[0];
+      const plcovidnet_data: PlcovidnetData = {
+        previous_id: imgConverterInstance.data.id,
+        // title: this.PL_COVIDNET,
+        imagefile: `${filename}-slice000.jpg`
+      }
+      const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+
+      console.log("Covidnet Running")
+      await pollingBackend(covidnetInstance)
+    } catch (err) {
+      console.log(err);
+      return;
+    }
   }
 
   static async getPastAnalaysis(page: number, perpage: number) {
@@ -138,7 +180,7 @@ class ChrisIntegration {
         }
 
         // ignore plugins that are not pl_covidnet
-        if (plugin.data.title !== this.PL_COVIDNET) {
+        if (plugin.data.plugin_name !== this.PL_COVIDNET) {
           continue;
         }
         analysis.createdTime = modifyDatetime(plugin.data.start_date)
@@ -177,7 +219,7 @@ class ChrisIntegration {
       PatientID: patientID
     })
     const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
-    return patientImages
+    return patientImages;
   }
 }
 

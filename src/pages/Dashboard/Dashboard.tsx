@@ -6,7 +6,7 @@ import { CreateAnalysisSection } from "../../components/CreateAnalysis/CreateAna
 import PastAnalysis from "../../components/PastAnalyses";
 import { AppContext } from "../../context/context";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
-import { StagingDcmImagesTypes, CreateAnalysisTypes } from "../../context/actions/types";
+import { StagingDcmImagesTypes, CreateAnalysisTypes, AnalysisTypes } from "../../context/actions/types";
 
 type AllProps = RouteComponentProps;
 
@@ -26,6 +26,12 @@ const DashboardPage: React.FC<AllProps> = () => {
         })
         dispatch({
           type: CreateAnalysisTypes.Clear_selected_studies_UID
+        })
+        dispatch({
+          type: AnalysisTypes.Update_are_new_imgs_available,
+          payload: {
+            isAvailable: true
+          }
         })
       })
   }, [dispatch, stagingDcmImages])

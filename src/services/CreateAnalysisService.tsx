@@ -1,5 +1,6 @@
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { PatientPersonalInfo, SelectedStudies } from "../context/reducers/createAnalysisReducer";
+import ChrisIntegration from "./chris_integration";
 
 export interface StudyInstance {
   studyInstanceUID: string;
@@ -73,11 +74,13 @@ class CreateAnalysisService {
   }
 
   static pickImages(imgs: DcmImage[], selectedStudyUIDs: SelectedStudies): DcmImage[] {
-    return imgs.filter((img:DcmImage)=> this.isImgSelected(selectedStudyUIDs, img));
+    return imgs.filter((img: DcmImage) => this.isImgSelected(selectedStudyUIDs, img));
   }
 
   static async analyzeImages(imgs: DcmImage[]): Promise<void> {
-    console.log(imgs)
+    for (let img of imgs) { 
+      await ChrisIntegration.processOneImg(img)
+    }
   }
 }
 
