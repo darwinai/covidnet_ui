@@ -1,13 +1,17 @@
 import { Pagination } from "@patternfly/react-core";
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
-import React, { useState, useEffect } from "react";
-import { AppContext } from "../context/context";
+import React, { useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { AnalysisTypes } from "../context/actions/types";
+import { AppContext } from "../context/context";
+import { IAnalysis } from '../context/reducers/analyseReducer';
 import ChrisIntegration from "../services/chris_integration";
+import DicomViewerService from "../services/dicomViewerService";
 import PredictionCircle from "./PredictionCircle";
 
 const PastAnalysis = () => {
-  const { state: {prevAnalyses: { page, perpage, listOfAnalyses, totalResults, areNewImgsAvailable }}, dispatch } = React.useContext(AppContext);
+  const { state: { prevAnalyses: { page, perpage, listOfAnalyses, totalResults, areNewImgsAvailable } }, dispatch } = React.useContext(AppContext);
+  const history = useHistory();
   const columns = [
     { title: (<span>Image<br /><span className='classificationText'>&nbsp;</span></span>) },
     { title: (<span>Patient MRN<br /><span className='classificationText'>&nbsp;</span></span>) },
@@ -39,8 +43,13 @@ const PastAnalysis = () => {
       })
   }, [page, perpage, dispatch, areNewImgsAvailable])
 
-  const viewImage = (imageName: any) =>{
-    console.log(imageName)
+  const viewImage = (analysis: IAnalysis) => {
+    DicomViewerService.fetchImageFile(analysis.imageId)
+    dispatch({
+      type: AnalysisTypes.Update_selected_image,
+      payload: { selectedImage: analysis }
+    })
+    history.push('/viewImage')
   }
 
   //something wrong with donut-chart that caused the key error
@@ -48,8 +57,8 @@ const PastAnalysis = () => {
     cells: [
       {
         title: (<div>
-          <div><b>{analysis.image}</b></div>
-          <span className="viewImageClick" onClick={()=>viewImage(analysis.image)}>View Image</span>
+          <div><b>{analysis.image.split('/').pop()}</b></div>
+          <span className="viewImageClick" onClick={() => viewImage(analysis)}>View Image</span>
         </div>)
       },
       analysis.patientMRN, analysis.createdTime, analysis.study, {

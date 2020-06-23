@@ -79,14 +79,11 @@ class ChrisIntegration {
       // upload file
       const uploadedFile = await client.uploadFile({
         "upload_path": `chris/uploads/covidnet/${files[0].name}`
-      }, {
-        "fname": files[0].blob
-      })
+      }, { "fname": files[0].blob })
 
       // create dircopy plugin
       const dircopyPlugin = (await client.getPlugins({ 'name_exact': this.FS_PLUGIN })).getItems()[0];
       const data: DirCreateData = { "dir": uploadedFile.data.fname }
-      console.log(data)
       const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
       await pollingBackend(pluginInstance)
@@ -176,14 +173,16 @@ class ChrisIntegration {
           study: '',
           predCovid: 0,
           predPneumonia: 0,
-          predNormal: 0
+          predNormal: 0,
+          imageId: ''
         }
 
         // ignore plugins that are not pl_covidnet
         if (plugin.data.plugin_name !== this.PL_COVIDNET) {
           continue;
         }
-        analysis.createdTime = modifyDatetime(plugin.data.start_date)
+        console.log(plugin)
+        analysis.createdTime = modifyDatetime(plugin.data.start_date);
         const pluginInstanceFiles = await plugin.getFiles({
           limit: 25,
           offset: page * perpage,
@@ -201,8 +200,9 @@ class ChrisIntegration {
             // pastAnalyses.append(content)
           } else if (!fileObj.data.fname.includes('json')) {
             // picture file
-            let filename = fileObj.data.fname.split('/').pop();
+            let filename = fileObj.data.fname;
             analysis.image = filename
+            analysis.imageId = fileObj.data.id;
           }
         }
         if (pluginInstanceFiles.getItems().length > 0)
