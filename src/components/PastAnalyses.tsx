@@ -70,7 +70,7 @@ const PastAnalysis = () => {
 
   return (
     <React.Fragment>
-      <h2 className="PastAnalysisTitle">Past predicative analyses</h2>
+      <h2 className="PastAnalysisTitle">Past predicative analysis</h2>
       <Pagination
         itemCount={totalResults}
         perPage={perpage}

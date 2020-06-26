@@ -18,10 +18,10 @@ dwv.image.decoderScripts = {
 };
 
 const ViewImagePage = () => {
-  const { state: { prevAnalyses: { selectedImage } } } = useContext(AppContext);
+  const { state: { prevAnalyses: { selectedImage }, imgViewer: { isImgInverted } } } = useContext(AppContext);
   const [dwvApp, setDwvApp] = useState({
     fakeInitialMock: true,
-    loadFiles: (e: any) =>{}
+    loadFiles: (e: any) => { }
   });
   const [loadProgress, setLoadProgress] = useState(0)
   const history = useHistory();
@@ -99,14 +99,13 @@ const ViewImagePage = () => {
 
     DicomViewerService.fetchImageFile(selectedImage.imageId)
       .then((imgBlob: any) => {
-        // const myImage: any = document.querySelector('#dicomViewerImg');
-        // const urlCreator = window.URL || window.webkitURL;
+        const myImage: any = document.querySelector('#dicomViewerImg');
+        const urlCreator = window.URL || window.webkitURL;
+        var objectURL = urlCreator.createObjectURL(imgBlob);
+        if (myImage) myImage.src = objectURL;
+        // app.loadURLs([objectURL]);
         // imgBlob['name'] = 'patientdata.dcm'
         // imgBlob['filename'] = 'patientdata.dcm'
-        // var objectURL = urlCreator.createObjectURL(imgBlob);
-        // app.loadURLs([objectURL]);
-
-        // if (myImage) myImage.src = objectURL;
         // console.log(app)
         // console.log(imgBlob)
         // app.loadImageObject([imgBlob]);
@@ -114,7 +113,7 @@ const ViewImagePage = () => {
         // const file = new File([imgBlob], 'PatientDicom.dcm', {type: 'application/dicom', lastModified: Date.now()})
         // console.log(file)
         // app.loadFiles([file])
-        setDwvApp(app);
+        // setDwvApp(app);
       })
 
     // test using a drop box
@@ -129,7 +128,7 @@ const ViewImagePage = () => {
   return (
     <div id="dwv" className="imgViewer">
       <DicomViewerHeader></DicomViewerHeader>
-      {/* <img className="invertImg" id="dicomViewerImg" alt="DICOM Viewer" width="600px" height="600px" /> */}
+      <img className={`${isImgInverted ? 'invertImg': ''}`} id="dicomViewerImg" alt="DICOM Viewer" width="600px" height="600px" />
       <div className="layerContainer">
         <canvas className="imageLayer">Only for HTML5 compatible browsers...</canvas>
         <div className="drawDiv"></div>

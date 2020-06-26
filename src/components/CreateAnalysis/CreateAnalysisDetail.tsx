@@ -12,28 +12,13 @@ import SelectionStudy from "./SelectionStudy";
 
 
 interface CreateAnalysisDetailProps {
-  setIsExpanded: Dispatch<SetStateAction<boolean>>
+  setIsExpanded: Dispatch<SetStateAction<boolean>>,
+  submitAnalysis: () => void
 }
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const { selectedStudyUIDs } = createAnalysis;
-  const history = useHistory();
-
-  const submitAnalysis = () => {
-    const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
-    if (imagesSelected.length <= 0) {
-      setIsModalOpen(true);
-      return;
-    }
-    // update staging images
-    dispatch({
-      type: StagingDcmImagesTypes.UpdateStaging,
-      payload: { imgs: imagesSelected }
-    })
-    history.push("/");
-  }
 
   useEffect(() => {
     const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
@@ -49,16 +34,10 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
 
   const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
-
+  const { submitAnalysis } = props;
+  
   return (
     <React.Fragment>
-      <Modal
-        title="Error"
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      >
-        Please select at least 1 image to analyze
-      </Modal>
       <div className="detail-wrapper">
         <div className="detail-top-wrapper">
           <div className="detail-top-left">

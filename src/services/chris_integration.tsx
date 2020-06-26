@@ -198,6 +198,8 @@ class ChrisIntegration {
             // pastAnalyses.append(content)
           } else if (!fileObj.data.fname.includes('json')) {
             // picture file
+            analysis.imageId = fileObj.data.id;
+
             // get dcmImageId from dircopy
             const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === this.FS_PLUGIN)]
             const dircopyFiles = (await dircopyPlugin.getFiles({
@@ -206,7 +208,6 @@ class ChrisIntegration {
             })).data;
             const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any)=> !file.fname.includes('.json'))]
             analysis.image = dcmImageFile.fname;
-            analysis.imageId = dcmImageFile.id;
           }
         }
         if (pluginInstanceFiles.getItems().length > 0)

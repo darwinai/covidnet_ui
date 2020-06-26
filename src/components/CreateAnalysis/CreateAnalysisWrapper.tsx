@@ -1,18 +1,35 @@
-import React, { useState } from "react";
-import {
-  Drawer,
-  DrawerPanelContent,
-  DrawerContent,
-  DrawerContentBody,
-  DrawerHead,
-  DrawerActions,
-  DrawerCloseButton,
-} from '@patternfly/react-core';
-import ConfirmAnalysis from './ConfirmAnalysis'
+import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from '@patternfly/react-core';
+import React, { useState, useContext } from "react";
+import { useHistory } from "react-router-dom";
+import { DcmImage } from "../../context/reducers/dicomImagesReducer";
+import CreateAnalysisService from "../../services/CreateAnalysisService";
+import ConfirmAnalysis from './ConfirmAnalysis';
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
+import { AppContext } from '../../context/context';
+import { StagingDcmImagesTypes } from '../../context/actions/types';
+
 
 const CreateAnalysisWrapper = () => {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext)
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  let submitMethod = () => { console.log('got here instead') }
+  const history = useHistory();
+
+  const submitAnalysis = () => {
+    const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
+    if (imagesSelected.length <= 0) {
+      setIsModalOpen(true);
+      return;
+    }
+    // update staging images
+    dispatch({
+      type: StagingDcmImagesTypes.UpdateStaging,
+      payload: { imgs: imagesSelected }
+    })
+    history.push("/");
+  }
+
 
   const panelContent = (
     <DrawerPanelContent className="rightBar">
@@ -25,16 +42,23 @@ const CreateAnalysisWrapper = () => {
         </DrawerActions>
       </DrawerHead>
       <DrawerContentBody>
-        <ConfirmAnalysis></ConfirmAnalysis>
+        <ConfirmAnalysis submit={submitAnalysis}></ConfirmAnalysis>
       </DrawerContentBody>
     </DrawerPanelContent>
   );
 
   return (
     <Drawer isExpanded={isExpanded}>
+      <Modal
+        title="Error"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      >
+        Please select at least 1 image to analyze
+      </Modal>
       <DrawerContent panelContent={panelContent}>
         <DrawerContentBody>
-          <CreateAnalysisDetail setIsExpanded={setIsExpanded}>
+          <CreateAnalysisDetail setIsExpanded={setIsExpanded} submitAnalysis={submitAnalysis}>
           </CreateAnalysisDetail>
         </DrawerContentBody>
       </DrawerContent>

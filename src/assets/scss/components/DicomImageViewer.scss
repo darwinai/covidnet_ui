@@ -96,11 +96,21 @@ $GreyTextColor: #868686;
   background-color: $imgViewerBackgroundColour;
 }
 
-.pointer {cursor: pointer;}
+.pointer {
+  cursor: pointer;
+}
 
 .layerContainer {
   height: 100vh;
   position: absolute;
   background-color: white;
   z-index: -1;
+}
+
+.dicomViewerImg {
+  height: 70vh;
+}
+
+.bottomInfoBox{
+  justify-content: space-around;
 }

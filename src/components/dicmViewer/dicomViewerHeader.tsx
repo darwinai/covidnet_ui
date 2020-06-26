@@ -8,7 +8,7 @@ import { AppContext } from "../../context/context";
 import { ImagesViewerMods } from '../../context/reducers/imgViewerReducer';
 
 const DicomViewerHeader = () => {
-  const { state: { imgViewer: { mod } }, dispatch } = useContext(AppContext);
+  const { state: { imgViewer: { mod, isImgInverted } }, dispatch } = useContext(AppContext);
   const history = useHistory()
 
   const switchMode = (mod: ImagesViewerMods) => {
@@ -37,7 +37,10 @@ const DicomViewerHeader = () => {
           onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon/></button>
       </div>
       <div className='padding_left_right_2rem flex_row'>
-        <button><InvertColorsIcon/></button>
+        <button onClick={()=> dispatch({
+          type: ImageViewerTypes.Update_is_img_inverted,
+          payload: { isImgInverted: !isImgInverted }
+        })}><InvertColorsIcon/></button>
         <button><i className="pf-icon pf-icon-info"></i></button>
         <div className='padding_left_right_2rem'></div>
         <button><i className="fas fa-compress"></i></button>

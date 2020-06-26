@@ -43,5 +43,6 @@ export enum StagingDcmImagesTypes {
 
 export enum ImageViewerTypes {
   Update_view_mod = 'UPDATE_VIEW_MOD',
-  Update_is_bottom_hidded = 'UPDATE_IS_BOTTOM_HIDED'
+  Update_is_bottom_hidded = 'UPDATE_IS_BOTTOM_HIDED',
+  Update_is_img_inverted = 'UPDATE_IS_IMG_INVETED'
 }

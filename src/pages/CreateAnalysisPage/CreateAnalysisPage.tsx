@@ -9,6 +9,7 @@ import { AppContext } from "../../context/context";
 const CreateAnalysisPage = () => {
   const { state } = React.useContext(AppContext);
   const { dcmImages } = state;
+
   return (
     <div className="encapsulation">
       <Wrapper>
@@ -24,7 +25,6 @@ const CreateAnalysisPage = () => {
       </Wrapper>
     </div>
   )
-
 }
 
 export default CreateAnalysisPage;

@@ -5,9 +5,12 @@ import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 
-const ConfirmAnalysis = () => {
-  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } } } = useContext(AppContext);
+interface ConfirmAnalysisProps{
+  submit: () => void
+}
 
+const ConfirmAnalysis: React.FC<ConfirmAnalysisProps> = ({submit}) => {
+  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } } } = useContext(AppContext);
 
   return (
     <div className="ConfirmAnalysis">
@@ -17,10 +20,10 @@ const ConfirmAnalysis = () => {
         return (
           <React.Fragment key={i}>
             <ImageSelectionBox img={img}></ImageSelectionBox>
-            <RightArrowButton className="rightAlign" click={() => {}}>Submit</RightArrowButton>
           </React.Fragment>
         )
       })}
+      <RightArrowButton className="rightAlign" click={submit}>Submit</RightArrowButton>
     </div>
   )
 }
