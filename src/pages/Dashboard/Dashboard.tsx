@@ -29,9 +29,7 @@ const DashboardPage: React.FC<AllProps> = () => {
         })
         dispatch({
           type: AnalysisTypes.Update_are_new_imgs_available,
-          payload: {
-            isAvailable: true
-          }
+          payload: { isAvailable: true }
         })
       })
   }, [dispatch, stagingDcmImages])

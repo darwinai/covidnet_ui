@@ -1,4 +1,7 @@
-.logo-text{
-    font-family: Overpass-Bold;
-    font-size: 1.7rem;
+$headerBlue: #73bcf7;
+
+.logo-text {
+  font-family: Overpass-Bold;
+  font-size: 1.7rem;
+  color: $headerBlue !important;
 }

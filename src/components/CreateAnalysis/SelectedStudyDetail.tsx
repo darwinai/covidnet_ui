@@ -23,7 +23,6 @@ const SelectedStudyDetail = () => {
     })
   }
 
-
   if (images.length > 0) {
     const { StudyDescription, StudyInstanceUID, PatientAge } = images[0]
     content = (

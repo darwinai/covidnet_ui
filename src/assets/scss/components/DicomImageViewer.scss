@@ -1,0 +1,106 @@
+$imgViewerBackgroundColour: black;
+$textColor: white;
+$GreyTextColor: #868686;
+
+.invertImg {
+  -webkit-filter: invert(1);
+  filter: invert(1);
+}
+
+.dicomViewerHeader {
+  width: 100vw;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $imgViewerBackgroundColour;
+  color: $textColor;
+  height: 8vh;
+  button {
+    margin-left: 1rem;
+    height: 8vh;
+    font-size: 1.5rem;
+    color: $textColor;
+    background-color: $imgViewerBackgroundColour;
+    border: none;
+    outline: none;
+  }
+  .highlightedMod {
+    border-bottom: 3px solid $headerBlue;
+    color: $headerBlue;
+  }
+  .headerlogo {
+    @extend .flex_col;
+    // padding: 5px;
+    line-height: 1.1;
+    a {
+      color: white;
+    }
+  }
+}
+
+.dicomViewerBottomBox {
+  width: 100vw;
+  background-color: $imgViewerBackgroundColour;
+  color: $GreyTextColor;
+  h2,
+  p {
+    color: $GreyTextColor;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  .hideButton {
+    @extend .flex_row;
+    justify-content: flex-end;
+    margin-right: 1.5rem;
+  }
+  .PredictionArea {
+    @extend .flex_col;
+    align-items: center;
+    justify-content: flex-end;
+
+    tspan {
+      fill: $textColor !important;
+    }
+  }
+  .predictions {
+    padding-left: 2rem;
+  }
+  .padding-l-2rem {
+    padding-left: 2rem;
+  }
+  span {
+    color: $textColor;
+    font-weight: bold;
+  }
+  .topMargin {
+    margin-top: 0.8rem;
+  }
+}
+
+.expandedBottom {
+  transition: height 1s;
+  height: 25vh;
+}
+
+.collapsedBottom {
+  height: 3vh;
+  transition: height 1s;
+  overflow: hidden;
+}
+
+.imgViewer {
+  @extend .flex_col;
+  align-items: center;
+  height: 100vh;
+  justify-content: space-between;
+  background-color: $imgViewerBackgroundColour;
+}
+
+.pointer {cursor: pointer;}
+
+.layerContainer {
+  height: 100vh;
+  position: absolute;
+  background-color: white;
+  z-index: -1;
+}

@@ -6,7 +6,6 @@ import { AnalysisTypes } from "../context/actions/types";
 import { AppContext } from "../context/context";
 import { IAnalysis } from '../context/reducers/analyseReducer';
 import ChrisIntegration from "../services/chris_integration";
-import DicomViewerService from "../services/dicomViewerService";
 import PredictionCircle from "./PredictionCircle";
 
 const PastAnalysis = () => {
@@ -44,7 +43,6 @@ const PastAnalysis = () => {
   }, [page, perpage, dispatch, areNewImgsAvailable])
 
   const viewImage = (analysis: IAnalysis) => {
-    DicomViewerService.fetchImageFile(analysis.imageId)
     dispatch({
       type: AnalysisTypes.Update_selected_image,
       payload: { selectedImage: analysis }

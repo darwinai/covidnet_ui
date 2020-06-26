@@ -29,8 +29,11 @@ p {
 }
 
 .flex_row {
-  display: flex;
-  flex-direction: row;
+  @include flex(row);
+}
+
+.flex_col {
+  @include flex(column);
 }
 
 .flex_row_wrap {

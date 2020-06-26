@@ -110,28 +110,28 @@ class ChrisIntegration {
   static async processOneImg(img: DcmImage) {
     let client: any = await ChrisAPIClient.getClient();
     try {
-      const dircopyPlugin = (await client.getPlugins({ "name_exact":  this.FS_PLUGIN })).getItems()[0];
+      const dircopyPlugin = (await client.getPlugins({ "name_exact": this.FS_PLUGIN })).getItems()[0];
       // const params = await dircopyPlugin.getPluginParameters();
       const data: DirCreateData = { "dir": img.fname };
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
       await pollingBackend(dircopyPluginInstance)
-      
+
       //med2img
-      const imgConverterPlugin = (await client.getPlugins({ "name_exact":  this.MED2IMG })).getItems()[0];
+      const imgConverterPlugin = (await client.getPlugins({ "name_exact": this.MED2IMG })).getItems()[0];
       const filename = img.fname.split('/').pop()?.split('.')[0]
       console.log(filename)
-      const imgData = { 
+      const imgData = {
         inputFile: img.fname.split('/').pop(),
         outputFileStem: `${filename}.jpg`, //-slice000
-        previous_id: dircopyPluginInstance.data.id 
+        previous_id: dircopyPluginInstance.data.id
       }
       console.log(imgData)
       const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
       console.log("Converter Running")
       await pollingBackend(imgConverterInstance)
 
-      const covidnetPlugin = (await client.getPlugins({ "name_exact":  this.PL_COVIDNET })).getItems()[0];
+      const covidnetPlugin = (await client.getPlugins({ "name_exact": this.PL_COVIDNET })).getItems()[0];
       const plcovidnet_data: PlcovidnetData = {
         previous_id: imgConverterInstance.data.id,
         // title: this.PL_COVIDNET,
@@ -178,10 +178,8 @@ class ChrisIntegration {
         }
 
         // ignore plugins that are not pl_covidnet
-        if (plugin.data.plugin_name !== this.PL_COVIDNET) {
-          continue;
-        }
-        console.log(plugin)
+        if (plugin.data.plugin_name !== this.PL_COVIDNET) continue;
+
         analysis.createdTime = modifyDatetime(plugin.data.start_date);
         const pluginInstanceFiles = await plugin.getFiles({
           limit: 25,
@@ -200,9 +198,15 @@ class ChrisIntegration {
             // pastAnalyses.append(content)
           } else if (!fileObj.data.fname.includes('json')) {
             // picture file
-            let filename = fileObj.data.fname;
-            analysis.image = filename
-            analysis.imageId = fileObj.data.id;
+            // get dcmImageId from dircopy
+            const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === this.FS_PLUGIN)]
+            const dircopyFiles = (await dircopyPlugin.getFiles({
+              limit: 25,
+              offset: page * perpage,
+            })).data;
+            const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any)=> !file.fname.includes('.json'))]
+            analysis.image = dcmImageFile.fname;
+            analysis.imageId = dcmImageFile.id;
           }
         }
         if (pluginInstanceFiles.getItems().length > 0)

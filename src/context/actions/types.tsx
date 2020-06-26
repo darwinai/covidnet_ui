@@ -40,3 +40,8 @@ export enum DicomImagesTypes {
 export enum StagingDcmImagesTypes {
   UpdateStaging = 'UPDATE_STAGING',
 }
+
+export enum ImageViewerTypes {
+  Update_view_mod = 'UPDATE_VIEW_MOD',
+  Update_is_bottom_hidded = 'UPDATE_IS_BOTTOM_HIDED'
+}
