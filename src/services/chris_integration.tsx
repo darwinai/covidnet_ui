@@ -134,7 +134,7 @@ class ChrisIntegration {
       const covidnetPlugin = (await client.getPlugins({ "name_exact": this.PL_COVIDNET })).getItems()[0];
       const plcovidnet_data: PlcovidnetData = {
         previous_id: imgConverterInstance.data.id,
-        // title: this.PL_COVIDNET,
+        title: img.fname,
         imagefile: `${filename}-slice000.jpg`
       }
       const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
@@ -147,7 +147,15 @@ class ChrisIntegration {
     }
   }
 
-  static async getPastAnalaysis(page: number, perpage: number) {
+  static async getDicomImageData(fileName: string, analysis: IAnalysis) {
+    const client: any = ChrisAPIClient.getClient();
+    const imgDatas: DcmImage[] = (await client.getPACSFiles({ fname_exact: fileName })).data;
+    if (imgDatas.length > 0) {
+      analysis.dcmImage = imgDatas[0];
+    }
+  }
+
+  static async getPastAnalaysis(page: number, perpage: number): Promise<IAnalysis[]> {
     let pastAnalyses: IAnalysis[] = []
 
     // since we want to have offset = 0 for page 1
@@ -174,11 +182,15 @@ class ChrisIntegration {
           predCovid: 0,
           predPneumonia: 0,
           predNormal: 0,
-          imageId: ''
+          imageId: '',
+          dcmImage: null
         }
 
         // ignore plugins that are not pl_covidnet
         if (plugin.data.plugin_name !== this.PL_COVIDNET) continue;
+
+        // get dicom image data
+        if (plugin.data.title != '') this.getDicomImageData(plugin.data.title, analysis);
 
         analysis.createdTime = modifyDatetime(plugin.data.start_date);
         const pluginInstanceFiles = await plugin.getFiles({
@@ -206,7 +218,7 @@ class ChrisIntegration {
               limit: 25,
               offset: page * perpage,
             })).data;
-            const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any)=> !file.fname.includes('.json'))]
+            const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => !file.fname.includes('.json'))]
             analysis.image = dcmImageFile.fname;
           }
         }

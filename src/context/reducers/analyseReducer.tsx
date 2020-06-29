@@ -1,4 +1,5 @@
 import { AnalysisTypes, ActionMap } from "../actions/types";
+import { DcmImage } from "./dicomImagesReducer";
 
 export type IAnalysis = {
   image: string;
@@ -9,6 +10,7 @@ export type IAnalysis = {
   predPneumonia: number;
   predNormal: number;
   imageId: string;
+  dcmImage: DcmImage | null;
 }
 
 export type IPrevAnalysesState = {

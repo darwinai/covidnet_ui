@@ -31,30 +31,30 @@ const CreateAnalysis: React.FC = () => {
     });
   }
 
-  const submitFile = () => {
-    openLocalFilePicker().then(async (files: LocalFile[]) => {
-      const res: boolean = await ChrisIntegration.processNewAnalysis(files)
-      if (res) {
-        const analysisList = await ChrisIntegration.getPastAnalaysis(page, perpage)
-        dispatch({
-          type: AnalysisTypes.Update_list,
-          payload: { list: analysisList }
-        })
-        const total = await ChrisIntegration.getTotalAnalyses()
-        dispatch({
-          type: AnalysisTypes.Update_total,
-          payload: { total: total }
-        })
-      }
-    })
-  }
+  // const submitFile = () => {
+  //   openLocalFilePicker().then(async (files: LocalFile[]) => {
+  //     const res: boolean = await ChrisIntegration.processNewAnalysis(files)
+  //     if (res) {
+  //       const analysisList = await ChrisIntegration.getPastAnalaysis(page, perpage)
+  //       dispatch({
+  //         type: AnalysisTypes.Update_list,
+  //         payload: { list: analysisList }
+  //       })
+  //       const total = await ChrisIntegration.getTotalAnalyses()
+  //       dispatch({
+  //         type: AnalysisTypes.Update_total,
+  //         payload: { total: total }
+  //       })
+  //     }
+  //   })
+  // }
 
   return (
     <Stack>
-      <StackItem>Create a new predicative analysis</StackItem>
+      <StackItem>Create a new Predictive analysis</StackItem>
       <StackItem isFilled>
         <PatientLookup isOnDashboard={true}></PatientLookup>
-        <Button onClick={submitFile}>Choose File...</Button>
+        {/* <Button onClick={submitFile}>Choose File...</Button> */}
       </StackItem>
     </Stack>
   );

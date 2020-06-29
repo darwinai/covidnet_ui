@@ -14,6 +14,7 @@ import TopBar from "./TopBar";
 import { useHistory, Link } from 'react-router-dom'
 import { AppContext } from "../../context/context";
 import { Types } from "../../context/actions/types";
+import logo from "../../assets/images/logo-white.png"
 
 const Header = () => {
   const history = useHistory()
@@ -60,7 +61,8 @@ const Header = () => {
     className="header"
     aria-label="Page Header"
     toolbar={pageToolbar}
-    logo={<span className='logo-text'>COVID-Net</span>}
+    logo={(<React.Fragment><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/>
+    <span className='logo-text'>COVID-Net</span></React.Fragment>)}
     topNav={<TopBar />}
   />;
 }

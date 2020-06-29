@@ -51,7 +51,7 @@ const PastAnalysis = () => {
   }
 
   //something wrong with donut-chart that caused the key error
-  const rows = listOfAnalyses.map(analysis => ({
+  const rows = listOfAnalyses.map((analysis, index) => (page-1)*perpage <= index && index < (page*perpage) ? ({
     cells: [
       {
         title: (<div>
@@ -66,11 +66,11 @@ const PastAnalysis = () => {
       }, {
         title: (<PredictionCircle covidCircle={false} predictionNumber={analysis.predNormal} />)
       }]
-  }))
+  }) : null).filter(element => element)
 
   return (
     <React.Fragment>
-      <h2 className="PastAnalysisTitle">Past predicative analysis</h2>
+      <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
       <Pagination
         itemCount={totalResults}
         perPage={perpage}

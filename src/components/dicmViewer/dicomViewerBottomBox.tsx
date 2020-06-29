@@ -53,11 +53,11 @@ const DicomViewerBottomBox = () => {
               <div className="topMargin">NORMAL</div>
             </div>
             <div className="padding-l-2rem">
-              <p><span>GEOGRAPHIC SEVERITY</span> 0.604</p>
-              <p><span>GEOGRAPHIC EXTENT</span> 4.835</p>
+              <p><span>GEOGRAPHIC SEVERITY</span> 60%</p>
+              <p><span>GEOGRAPHIC EXTENT</span> 1.1</p>
               <br />
-              <p><span>OPACITY SEVERITY</span> 0.604</p>
-              <p><span>OPACITY EXTENT</span> 3.604</p>
+              <p><span>OPACITY SEVERITY</span> 50%</p>
+              <p><span>OPACITY EXTENT</span> 0.3</p>
             </div>
           </div>
         </div>
