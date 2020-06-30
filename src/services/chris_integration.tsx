@@ -1,5 +1,5 @@
 import ChrisAPIClient from "../api/chrisapiclient"
-import { IAnalysis } from "../context/reducers/analyseReducer";
+import { StudyInstanceWithSeries, ISeries } from "../context/reducers/analyseReducer";
 import { PluginInstance, IPluginCreateData } from "@fnndsc/chrisapi";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 
@@ -36,7 +36,7 @@ export const pollingBackend = async (pluginInstance: PluginInstance) => {
 export const modifyDatetime = (oldDay: string): string => {
   let today = new Date().setHours(0, 0, 0, 0)
   let diff = Math.abs(+today - +new Date(oldDay.split('T')[0]))
-  diff = Math.floor(diff / (1000 * 60 * 60 * 24)) // diff is in days
+  diff = Math.floor(diff / (1000 * 60 * 60 * 24)) // diff is in days, 1ms * 1000 * 60 * 60 * 24
   let description = "days ago"
   let rvtVal = `${diff} ${description}`
   if (diff / 30 >= 1) {
@@ -147,16 +147,9 @@ class ChrisIntegration {
     }
   }
 
-  static async getDicomImageData(fileName: string, analysis: IAnalysis) {
-    const client: any = ChrisAPIClient.getClient();
-    const imgDatas: DcmImage[] = (await client.getPACSFiles({ fname_exact: fileName })).data;
-    if (imgDatas.length > 0) {
-      analysis.dcmImage = imgDatas[0];
-    }
-  }
-
-  static async getPastAnalaysis(page: number, perpage: number): Promise<IAnalysis[]> {
-    let pastAnalyses: IAnalysis[] = []
+  static async getPastAnalaysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
+    const pastAnalysis: StudyInstanceWithSeries[] = [];
+    const pastAnalysisMap: { [time: number]: { studyUID: string, indexInArr: number } } = {}
 
     // since we want to have offset = 0 for page 1
     --page;
@@ -174,29 +167,56 @@ class ChrisIntegration {
       // iterate it over all feeds
       const pluginlists = pluginInstances.getItems()
       for (let plugin of pluginlists) {
-        const analysis: IAnalysis = {
-          image: '',
-          // patientMRN: 0,
-          createdTime: '',
-          study: '',
-          predCovid: 0,
-          predPneumonia: 0,
-          predNormal: 0,
-          imageId: '',
-          dcmImage: null
-        }
+        let studyInstance: StudyInstanceWithSeries | null = null
 
         // ignore plugins that are not pl_covidnet
         if (plugin.data.plugin_name !== this.PL_COVIDNET) continue;
 
         // get dicom image data
-        if (plugin.data.title != '') this.getDicomImageData(plugin.data.title, analysis);
+        if (plugin.data.title !== '') {
+          const imgDatas: DcmImage[] = (await client.getPACSFiles({ fname_exact: plugin.data.title })).data;
+          if (imgDatas.length > 0) {
+            // use dircopy start time to check
+            for (let findDircopy of pluginlists) {
+              if (findDircopy.data.plugin_name === this.FS_PLUGIN) {
+                const startedTimeInSeconds = Math.floor((new Date(plugin.data.start_date)).getTime() / 1000);
+                // already exists so push it to te seriesList
+                if (!!pastAnalysisMap[startedTimeInSeconds]
+                  && pastAnalysisMap[startedTimeInSeconds].studyUID === imgDatas[0].StudyInstanceUID) {
+                  studyInstance = pastAnalysis[pastAnalysisMap[startedTimeInSeconds].indexInArr]
+                } else { // doesn't already exist so we create one
+                  studyInstance = {
+                    studyDescription: imgDatas[0].StudyDescription,
+                    patientMRN: imgDatas[0].PatientID,
+                    patientDOB: imgDatas[0].PatientBirthDate,
+                    patientAge: imgDatas[0].PatientAge,
+                    analysisCreated: imgDatas[0].creation_date,
+                    series: []
+                  }
+                  // first update map with the index then push to the result array
+                  pastAnalysisMap[startedTimeInSeconds] = { studyUID: imgDatas[0].StudyInstanceUID, indexInArr: pastAnalysis.length };
+                  pastAnalysis.push(studyInstance)
+                }
+              }
+            }
+          }
+        } else {
+          return [];
+        }
 
-        analysis.createdTime = modifyDatetime(plugin.data.start_date);
         const pluginInstanceFiles = await plugin.getFiles({
           limit: 25,
           offset: page * perpage,
         });
+        const newSeries: ISeries = {
+          imageName: '',
+          imageId: '',
+          predCovid: 0,
+          predPneumonia: 0,
+          predNormal: 0,
+          geographic: null,
+          opacity: null
+        }
         for (let fileObj of pluginInstanceFiles.getItems()) {
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
             let file = await client.getFile(fileObj.data.id);
@@ -204,13 +224,24 @@ class ChrisIntegration {
             let content = await blob.text();
             const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
             content = JSON.parse(content)
-            analysis.predCovid = formatNumber(content['COVID-19'])
-            analysis.predNormal = formatNumber(content['Normal'])
-            analysis.predPneumonia = formatNumber(content['Pneumonia'])
-            // pastAnalyses.append(content)
+            newSeries.predCovid = formatNumber(content['COVID-19'])
+            newSeries.predNormal = formatNumber(content['Normal'])
+            newSeries.predPneumonia = formatNumber(content['Pneumonia'])
+          } else if (fileObj.data.fname === 'severity.json') {
+            let file = await client.getFile(fileObj.data.id);
+            let blob = await file.getFileBlob();
+            let content = await blob.text();
+            newSeries.geographic = {
+              severity: content['Geographic severity'],
+              extentScore: content['Geographic extent score']
+            }
+            newSeries.opacity = {
+              severity: content['Opacity severity'],
+              extentScore: content['Opacity extent score']
+            }
           } else if (!fileObj.data.fname.includes('json')) {
             // picture file
-            analysis.imageId = fileObj.data.id;
+            newSeries.imageId = fileObj.data.id;
 
             // get dcmImageId from dircopy
             const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === this.FS_PLUGIN)]
@@ -219,14 +250,13 @@ class ChrisIntegration {
               offset: page * perpage,
             })).data;
             const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => !file.fname.includes('.json'))]
-            analysis.image = dcmImageFile.fname;
+            newSeries.imageName = dcmImageFile.fname;
           }
         }
-        if (pluginInstanceFiles.getItems().length > 0)
-          pastAnalyses.push(analysis);
+        if (studyInstance) studyInstance.series.push(newSeries)
       }
     }
-    return pastAnalyses;
+    return pastAnalysis;
   }
 
   static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {

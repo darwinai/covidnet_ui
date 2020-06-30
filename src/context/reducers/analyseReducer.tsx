@@ -1,25 +1,51 @@
 import { AnalysisTypes, ActionMap } from "../actions/types";
 import { DcmImage } from "./dicomImagesReducer";
 
-export type IAnalysis = {
-  image: string;
-  patientMRN?: number;
-  createdTime: string;
-  study: string;
-  predCovid: number;
-  predPneumonia: number;
-  predNormal: number;
-  imageId: string;
-  dcmImage: DcmImage | null;
+// export type IAnalysis = {
+//   image: string;
+//   patientMRN?: number;
+//   createdTime: string;
+//   study: string;
+//   predCovid: number;
+//   predPneumonia: number;
+//   predNormal: number;
+//   imageId: string;
+//   dcmImage: DcmImage | null;
+//   createdAtDateType?: Date; 
+// }
+
+export type riskStratifcation = {
+  severity: number,
+  extentScore: number
+}
+
+export type ISeries = {
+  imageName: string,
+  imageId: string,
+  predCovid: number,
+  predPneumonia: number,
+  predNormal: number,
+  geographic: riskStratifcation | null,
+  opacity: riskStratifcation | null
+}
+
+// change chrisIntegration to return this instead of Ianalysis
+export type StudyInstanceWithSeries = {
+  studyDescription: string,
+  patientMRN: string,
+  patientDOB: string,
+  patientAge: number,
+  analysisCreated: string, 
+  series: ISeries[]
 }
 
 export type IPrevAnalysesState = {
-  listOfAnalyses: IAnalysis[];
+  listOfAnalyses: StudyInstanceWithSeries[];
   page: number;
   perpage: number;
   totalResults: number;
   areNewImgsAvailable: boolean;
-  selectedImage: IAnalysis | null;
+  selectedImage: ISeries | null;
 }
 
 export let initialIPrevAnalysesState: IPrevAnalysesState = {
@@ -28,16 +54,16 @@ export let initialIPrevAnalysesState: IPrevAnalysesState = {
   perpage: 10,
   totalResults: 50, // fake initial number
   areNewImgsAvailable: false,
-  selectedImage: null
+  selectedImage: null,
 }
 
 type AnalysesPayload = {
   [AnalysisTypes.Update_page]: { page: number },
   [AnalysisTypes.Update_perpage]: { perpage: number },
-  [AnalysisTypes.Update_list]: { list: IAnalysis[] }
+  [AnalysisTypes.Update_list]: { list: StudyInstanceWithSeries[] }
   [AnalysisTypes.Update_total]: { total: number },
   [AnalysisTypes.Update_are_new_imgs_available]: { isAvailable: boolean },
-  [AnalysisTypes.Update_selected_image]: { selectedImage: IAnalysis | null }
+  [AnalysisTypes.Update_selected_image]: { selectedImage: ISeries | null }
 }
 
 export type AnalysisActions = ActionMap<AnalysesPayload>[

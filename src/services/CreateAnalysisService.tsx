@@ -78,9 +78,13 @@ class CreateAnalysisService {
   }
 
   static async analyzeImages(imgs: DcmImage[]): Promise<void> {
-    for (let img of imgs) { 
-      await ChrisIntegration.processOneImg(img)
+    const promises = []
+    for (let img of imgs) {
+      promises.push(ChrisIntegration.processOneImg(img))
     }
+    const result = await Promise.all(promises);
+    console.log(result)
+    return;
   }
 }
 

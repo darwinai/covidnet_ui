@@ -3,10 +3,10 @@ import { RouteComponentProps } from "react-router-dom";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { CreateAnalysisSection } from "../../components/CreateAnalysis/CreateAnalysis";
-import PastAnalysis from "../../components/PastAnalyses";
 import { AppContext } from "../../context/context";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 import { StagingDcmImagesTypes, CreateAnalysisTypes, AnalysisTypes } from "../../context/actions/types";
+import PastAnalysisTable from "../../components/pastAnalysis/PastAnalysisTable";
 
 type AllProps = RouteComponentProps;
 
@@ -44,7 +44,8 @@ const DashboardPage: React.FC<AllProps> = () => {
           <CreateAnalysisSection />
         </PageSection>
         <PageSection variant={PageSectionVariants.light}>
-          <PastAnalysis></PastAnalysis>
+          <PastAnalysisTable></PastAnalysisTable>
+          {/* <PastAnalysis></PastAnalysis> */}
         </PageSection>
       </PageSection>
     </Wrapper>

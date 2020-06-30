@@ -5,7 +5,7 @@ export interface DcmImage {
   id: number,
   creation_date: string,
   fname: string,
-  PatientId: string
+  PatientID: string
   PatientName: string,
   PatientBirthDate: string,
   PatientAge: number,
