@@ -20,7 +20,7 @@ $sectionAreaSpacing: 15px;
 .anaylsisTableRow {
   td {
     margin: 0px !important;
-    max-width: 40px;
+    // max-width: 50px;
     vertical-align: top !important;
   }
   tspan {
@@ -34,4 +34,11 @@ $sectionAreaSpacing: 15px;
   &:hover {
     text-decoration: underline;
   }
+}
+
+.MRNsearchBar {
+  width: 20vw;
+  position: absolute;
+  padding-left: 1rem;
+  padding-top: 5px;
 }

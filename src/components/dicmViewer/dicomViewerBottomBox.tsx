@@ -1,9 +1,7 @@
 import React, { useContext } from "react";
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowDropUp from '@material-ui/icons/ArrowDropDown';
-import PredictionCircle from '../PredictionCircle'
-import { AppContext } from "../../context/context";
 import { ImageViewerTypes } from "../../context/actions/types";
+import { AppContext } from "../../context/context";
+import PredictionCircle from '../PredictionCircle';
 
 const DicomViewerBottomBox = () => {
   const { state: { imgViewer: { isBottomHided } }, dispatch } = useContext(AppContext)
@@ -41,15 +39,15 @@ const DicomViewerBottomBox = () => {
           <span className='logo-text'>COVID-Net</span>
           <div className="flex_row">
             <div className="PredictionArea">
-              <PredictionCircle covidCircle={true} predictionNumber={80} />
+              <PredictionCircle largeCircle={true} predictionNumber={80} />
               <div className="topMargin">COVID-19</div>
             </div>
             <div className="PredictionArea padding-l-2rem">
-              <PredictionCircle covidCircle={false} predictionNumber={10} />
+              <PredictionCircle largeCircle={false} predictionNumber={10} />
               <div className="topMargin">PNEUMONIA</div>
             </div>
             <div className="PredictionArea padding-l-2rem">
-              <PredictionCircle covidCircle={false} predictionNumber={10} />
+              <PredictionCircle largeCircle={false} predictionNumber={10} />
               <div className="topMargin">NORMAL</div>
             </div>
             <div className="padding-l-2rem">

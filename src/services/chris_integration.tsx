@@ -190,7 +190,7 @@ class ChrisIntegration {
                     patientMRN: imgDatas[0].PatientID,
                     patientDOB: imgDatas[0].PatientBirthDate,
                     patientAge: imgDatas[0].PatientAge,
-                    analysisCreated: imgDatas[0].creation_date,
+                    analysisCreated: modifyDatetime(imgDatas[0].creation_date),
                     series: []
                   }
                   // first update map with the index then push to the result array

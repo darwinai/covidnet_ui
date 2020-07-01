@@ -40,7 +40,7 @@ export type StudyInstanceWithSeries = {
 }
 
 export type IPrevAnalysesState = {
-  listOfAnalyses: StudyInstanceWithSeries[];
+  listOfAnalysis: StudyInstanceWithSeries[];
   page: number;
   perpage: number;
   totalResults: number;
@@ -49,7 +49,7 @@ export type IPrevAnalysesState = {
 }
 
 export let initialIPrevAnalysesState: IPrevAnalysesState = {
-  listOfAnalyses: [],
+  listOfAnalysis: [],
   page: 1,
   perpage: 10,
   totalResults: 50, // fake initial number
@@ -88,7 +88,7 @@ export const analysesReducer = (
     case AnalysisTypes.Update_list:
       return {
         ...state,
-        listOfAnalyses: action.payload.list
+        listOfAnalysis: action.payload.list
       }
     case AnalysisTypes.Update_total:
       return {

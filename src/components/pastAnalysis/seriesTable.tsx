@@ -19,10 +19,14 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ analysisList }) => {
     { title: (<span>Predictions<br /><span className='classificationText'>COVID-19</span></span>) },
     { title: (<span><br /><span className='classificationText'>Pneumonia</span></span>) },
     { title: (<span><br /><span className='classificationText'>Normal</span></span>) },
-    { title: (<span className='classificationText'><br /><span>Geographic Severity</span></span>) },
-    { title: (<span className='classificationText'><br /><span>Opacity Extent</span></span>) },
+    { title: (<span className='classificationText'><span>Geographic<br/>Severity</span></span>) },
+    { title: (<span className='classificationText'><span>Opacity<br/>Extent</span></span>) },
     { title: (<span></span>) }
   ]
+
+  const isLargestNumber = (num: number, compare1: number, compare2: number) => {
+    return num > compare1 && num > compare2;
+  }
 
   const rows = analysisList.map((analysis: ISeries) => ({
     cells: [
@@ -30,17 +34,23 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ analysisList }) => {
         title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>)
       },
       {
-        title: (<PredictionCircle covidCircle={true} predictionNumber={analysis.predCovid} />)
+        title: (<PredictionCircle
+          largeCircle={isLargestNumber(analysis.predCovid, analysis.predNormal, analysis.predPneumonia)}
+          predictionNumber={analysis.predCovid} />)
       }, {
-        title: (<PredictionCircle covidCircle={false} predictionNumber={analysis.predPneumonia} />)
+        title: (<PredictionCircle
+          largeCircle={isLargestNumber(analysis.predPneumonia, analysis.predNormal, analysis.predCovid)}
+          predictionNumber={analysis.predPneumonia} />)
       }, {
-        title: (<PredictionCircle covidCircle={false} predictionNumber={analysis.predNormal} />)
+        title: (<PredictionCircle
+          largeCircle={isLargestNumber(analysis.predNormal, analysis.predPneumonia, analysis.predCovid)}
+          predictionNumber={analysis.predNormal} />)
       }, {
-        title: `${analysis.geographic ? `${analysis.geographic.severity}`: 'N/A'}`
+        title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
       }, {
-        title: `${analysis.opacity ? `${analysis.opacity.extentScore}`: 'N/A'}`
+        title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
       }, {
-        title: (<Button variant="secondary" onClick={()=>viewImage(analysis)}>View</Button>)
+        title: (<Button variant="secondary" onClick={() => viewImage(analysis)}>View</Button>)
       }
     ]
   }))

@@ -2,15 +2,15 @@ import React from "react";
 import { ChartDonutUtilization } from '@patternfly/react-charts';
 
 interface circleProps {
-  covidCircle: boolean;
+  largeCircle: boolean;
   predictionNumber: number;
 }
 
 const PredictionCircle = (props: circleProps) => {
-  const { covidCircle, predictionNumber } = props
+  const { largeCircle, predictionNumber } = props
   let size = 120
   let divSize = '100px'
-  if (!covidCircle) {
+  if (!largeCircle) {
     size = 150
     divSize = "80px"
   }

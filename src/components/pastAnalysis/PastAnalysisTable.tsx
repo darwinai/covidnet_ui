@@ -1,17 +1,13 @@
-import React, { useState, useEffect, ReactNode } from 'react';
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableVariant,
-  expandable
-} from '@patternfly/react-table';
-import { Pagination } from '@patternfly/react-core';
+import { InputGroup, InputGroupText, Pagination, TextInput } from '@patternfly/react-core';
+import { FilterIcon, SearchIcon } from '@patternfly/react-icons';
+import { expandable, Table, TableBody, TableHeader } from '@patternfly/react-table';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
 import ChrisIntegration from '../../services/chris_integration';
 import PastAnalysisService from '../../services/pastAnalysisService';
 import SeriesTable from './seriesTable';
+import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer'
 
 
 interface tableRowsParent {
@@ -23,12 +19,12 @@ interface tableRowsChild {
   isOpen: boolean,
   parent: number,
   fullWidth: boolean,
-  cells: {[title: string]: ReactNode}[]
+  cells: { [title: string]: ReactNode }[]
 }
 
 const PastAnalysisTable = () => {
   const { state: {
-    prevAnalyses: { page, perpage, totalResults, areNewImgsAvailable } },
+    prevAnalyses: { page, perpage, totalResults, areNewImgsAvailable, listOfAnalysis } },
     dispatch } = React.useContext(AppContext);
 
   const columns = [
@@ -43,29 +39,13 @@ const PastAnalysisTable = () => {
   useEffect(() => {
     PastAnalysisService.groupIAnalysisToStudyGroups(page, perpage)
       .then(listOfAnalyses => {
-        const rows: (tableRowsChild | tableRowsParent)[] = []
-        for (const analysis of listOfAnalyses) {
-          const indexInRows: number = rows.length;
-          rows.push({
-            isOpen: false,
-            cells: [analysis.studyDescription, analysis.patientMRN, analysis.patientDOB, `${analysis.patientAge}`, analysis.analysisCreated]
-          })
-          rows.push({
-            isOpen: false,
-            parent: indexInRows,
-            fullWidth: true,
-            cells: [{
-              title: (<SeriesTable analysisList={analysis.series}></SeriesTable>)
-            }]
-          })
-        }
-        setRows(rows)
-        // dispatch({
-        //   type: AnalysisTypes.Update_list,
-        //   payload: {
-        //     list: res
-        //   }
-        // })
+        dispatch({
+          type: AnalysisTypes.Update_list,
+          payload: {
+            list: listOfAnalyses
+          }
+        })
+        updateRows(listOfAnalyses)
       })
     ChrisIntegration.getTotalAnalyses()
       .then(total => {
@@ -78,20 +58,52 @@ const PastAnalysisTable = () => {
       })
   }, [page, perpage, dispatch, areNewImgsAvailable])
 
+  const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
+    const rows: (tableRowsChild | tableRowsParent)[] = []
+    for (const analysis of listOfAnalysis) {
+      const indexInRows: number = rows.length;
+      rows.push({
+        isOpen: false,
+        cells: [analysis.studyDescription, analysis.patientMRN, analysis.patientDOB, `${analysis.patientAge}`, analysis.analysisCreated]
+      })
+      rows.push({
+        isOpen: false,
+        parent: indexInRows,
+        fullWidth: true,
+        cells: [{
+          title: (<SeriesTable analysisList={analysis.series}></SeriesTable>)
+        }]
+      })
+    }
+    setRows(rows)
+  }
+
   const onCollapse = (event: any, rowKey: number, isOpen: any) => {
     /**
      * Please do not use rowKey as row index for more complex tables.
      * Rather use some kind of identifier like ID passed with each row.
      */
     const rowsCopy = [...rows]
-    console.log(rowsCopy)
     rowsCopy[rowKey].isOpen = isOpen;
     setRows(rowsCopy)
+  }
+
+  const searchMRN = (text: string) => {
+    updateRows(listOfAnalysis.filter((analysis: StudyInstanceWithSeries) => analysis.patientMRN.includes(text)))
   }
 
   return (
     <React.Fragment>
       <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
+      <div className="MRNsearchBar">
+        <InputGroup>
+          <InputGroupText>
+            <FilterIcon />
+          </InputGroupText>
+          <TextInput id="textInput5" type="number" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
+          <InputGroupText> <SearchIcon /> </InputGroupText>
+        </InputGroup>
+      </div>
       <Pagination
         itemCount={totalResults}
         perPage={perpage}
