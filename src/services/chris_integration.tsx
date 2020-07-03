@@ -107,7 +107,7 @@ class ChrisIntegration {
     return true;
   }
 
-  static async processOneImg(img: DcmImage) {
+  static async processOneImg(img: DcmImage): Promise<void> {
     let client: any = await ChrisAPIClient.getClient();
     try {
       const dircopyPlugin = (await client.getPlugins({ "name_exact": this.FS_PLUGIN })).getItems()[0];
