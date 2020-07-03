@@ -147,6 +147,11 @@ class ChrisIntegration {
     }
   }
 
+  static async getDcmImageDetailByFilePathName(imgTitle: string): Promise<DcmImage[]> {
+    const client: any = ChrisAPIClient.getClient();
+    return (await client.getPACSFiles({ fname_exact: imgTitle })).data
+  }
+
   static async getPastAnalaysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
     const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
@@ -174,7 +179,7 @@ class ChrisIntegration {
 
         // get dicom image data
         if (plugin.data.title !== '') {
-          const imgDatas: DcmImage[] = (await client.getPACSFiles({ fname_exact: plugin.data.title })).data;
+          const imgDatas: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
           if (imgDatas.length > 0) {
             // use dircopy start time to check
             for (let findDircopy of pluginlists) {
@@ -186,10 +191,7 @@ class ChrisIntegration {
                   studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr]
                 } else { // doesn't already exist so we create one
                   studyInstance = {
-                    studyDescription: imgDatas[0].StudyDescription,
-                    patientMRN: imgDatas[0].PatientID,
-                    patientDOB: imgDatas[0].PatientBirthDate,
-                    patientAge: imgDatas[0].PatientAge,
+                    dcmImage: imgDatas[0],
                     analysisCreated: modifyDatetime(imgDatas[0].creation_date),
                     series: []
                   }

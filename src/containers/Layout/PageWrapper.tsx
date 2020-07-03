@@ -26,7 +26,7 @@ const Wrapper = (props: WrapperProps) => {
         }
       });
     }
-  },[])
+  },[dispatch])
 
   const { children } = props
 

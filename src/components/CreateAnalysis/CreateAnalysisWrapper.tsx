@@ -13,7 +13,6 @@ const CreateAnalysisWrapper = () => {
   const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext)
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  let submitMethod = () => { console.log('got here instead') }
   const history = useHistory();
 
   const submitAnalysis = () => {

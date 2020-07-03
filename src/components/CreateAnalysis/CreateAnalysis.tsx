@@ -1,35 +1,32 @@
-import { Button, Stack, StackItem, Divider } from '@patternfly/react-core';
-import React, { useContext } from "react";
-import ChrisIntegration, { LocalFile } from '../../services/chris_integration';
-import { AppContext } from '../../context/context';
-import { AnalysisTypes } from '../../context/actions/types';
+import { Stack, StackItem } from '@patternfly/react-core';
+import React from "react";
 import PatientLookup from '../PatientLookup';
 
 const CreateAnalysis: React.FC = () => {
-  const { state, dispatch } = useContext(AppContext);
-  const { prevAnalyses } = state;
-  const { page, perpage } = prevAnalyses;
+  // const { state, dispatch } = useContext(AppContext);
+  // const { prevAnalyses } = state;
+  // const { page, perpage } = prevAnalyses;
 
-  const openLocalFilePicker = (): Promise<LocalFile[]> => {
+  // const openLocalFilePicker = (): Promise<LocalFile[]> => {
 
-    const input = document.createElement("input");
-    input.type = "file";
-    input.multiple = true;
-    input.click();
-    return new Promise(res => {
-      input.onchange = async () => {
-        if (input.files) {
-          const files = Array.from(input.files).map(file => {
-            return {
-              name: file.name,
-              blob: file
-            };
-          });
-          res(files); // resolve
-        }
-      };
-    });
-  }
+  //   const input = document.createElement("input");
+  //   input.type = "file";
+  //   input.multiple = true;
+  //   input.click();
+  //   return new Promise(res => {
+  //     input.onchange = async () => {
+  //       if (input.files) {
+  //         const files = Array.from(input.files).map(file => {
+  //           return {
+  //             name: file.name,
+  //             blob: file
+  //           };
+  //         });
+  //         res(files); // resolve
+  //       }
+  //     };
+  //   });
+  // }
 
   // const submitFile = () => {
   //   openLocalFilePicker().then(async (files: LocalFile[]) => {

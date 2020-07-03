@@ -1,26 +1,27 @@
 import { Button } from '@patternfly/react-core';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
 import React, { useContext } from 'react';
-import { ISeries } from '../../context/reducers/analyseReducer';
+import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
 import { AppContext } from '../../context/context';
 import { AnalysisTypes } from '../../context/actions/types';
 import { useHistory } from 'react-router-dom';
 
 interface SeriesTableProps {
-  analysisList: ISeries[]
+  studyInstance: StudyInstanceWithSeries
 }
 
-const SeriesTable: React.FC<SeriesTableProps> = ({ analysisList }) => {
+const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
+  const { series: analysisList } = studyInstance
   const columns = [
     { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) },
     { title: (<span>Predictions<br /><span className='classificationText'>COVID-19</span></span>) },
     { title: (<span><br /><span className='classificationText'>Pneumonia</span></span>) },
     { title: (<span><br /><span className='classificationText'>Normal</span></span>) },
-    { title: (<span className='classificationText'><span>Geographic<br/>Severity</span></span>) },
-    { title: (<span className='classificationText'><span>Opacity<br/>Extent</span></span>) },
+    { title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
+    { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
     { title: (<span></span>) }
   ]
 
@@ -28,7 +29,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ analysisList }) => {
     return num > compare1 && num > compare2;
   }
 
-  const rows = analysisList.map((analysis: ISeries) => ({
+  const rows = analysisList.map((analysis: ISeries, index: number) => ({
     cells: [
       {
         title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>)
@@ -50,15 +51,20 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ analysisList }) => {
       }, {
         title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
       }, {
-        title: (<Button variant="secondary" onClick={() => viewImage(analysis)}>View</Button>)
+        title: (<Button variant="secondary" onClick={() => viewImage(index)}>View</Button>)
       }
     ]
   }))
 
-  const viewImage = (analysis: ISeries) => {
+  const viewImage = (index: number) => {
     dispatch({
       type: AnalysisTypes.Update_selected_image,
-      payload: { selectedImage: analysis }
+      payload: {
+        selectedImage: {
+          studyInstance: studyInstance,
+          index
+        }
+      }
     })
     history.push('/viewImage')
   }

@@ -1,10 +1,7 @@
-import { Button, Modal } from '@patternfly/react-core';
-import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import React, { Dispatch, SetStateAction, useContext, useEffect } from "react";
 import avator from '../../assets/images/avator.png';
-import { CreateAnalysisTypes, StagingDcmImagesTypes } from "../../context/actions/types";
+import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
 import SelectedStudyDetail from "./SelectedStudyDetail";

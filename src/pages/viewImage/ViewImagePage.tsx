@@ -97,24 +97,24 @@ const ViewImagePage = () => {
     // possible load from location
     dwv.utils.loadFromUri(window.location.href, app);
 
-    DicomViewerService.fetchImageFile(selectedImage.imageId)
-      .then((imgBlob: any) => {
-        const myImage: any = document.querySelector('#dicomViewerImg');
-        const urlCreator = window.URL || window.webkitURL;
-        var objectURL = urlCreator.createObjectURL(imgBlob);
-        if (myImage) myImage.src = objectURL;
-        // app.loadURLs([objectURL]);
-        // imgBlob['name'] = 'patientdata.dcm'
-        // imgBlob['filename'] = 'patientdata.dcm'
-        // console.log(app)
-        // console.log(imgBlob)
-        // app.loadImageObject([imgBlob]);
-        // // console.log('setted dwvApp')
-        // const file = new File([imgBlob], 'PatientDicom.dcm', {type: 'application/dicom', lastModified: Date.now()})
-        // console.log(file)
-        // app.loadFiles([file])
-        // setDwvApp(app);
-      })
+    // DicomViewerService.fetchImageFile(selectedImage.imageId)
+    //   .then((imgBlob: any) => {
+    //     const myImage: any = document.querySelector('#dicomViewerImg');
+    //     const urlCreator = window.URL || window.webkitURL;
+    //     var objectURL = urlCreator.createObjectURL(imgBlob);
+    //     if (myImage) myImage.src = objectURL;
+    //     // app.loadURLs([objectURL]);
+    //     // imgBlob['name'] = 'patientdata.dcm'
+    //     // imgBlob['filename'] = 'patientdata.dcm'
+    //     // console.log(app)
+    //     // console.log(imgBlob)
+    //     // app.loadImageObject([imgBlob]);
+    //     // // console.log('setted dwvApp')
+    //     // const file = new File([imgBlob], 'PatientDicom.dcm', {type: 'application/dicom', lastModified: Date.now()})
+    //     // console.log(file)
+    //     // app.loadFiles([file])
+    //     // setDwvApp(app);
+    //   })
 
     // test using a drop box
     console.log(app)

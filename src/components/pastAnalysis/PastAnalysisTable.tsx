@@ -68,14 +68,19 @@ const PastAnalysisTable = () => {
       const indexInRows: number = rows.length;
       rows.push({
         isOpen: false,
-        cells: [analysis.studyDescription, analysis.patientMRN, analysis.patientDOB, `${analysis.patientAge}`, analysis.analysisCreated]
+        cells: [
+          analysis.dcmImage.StudyDescription,
+          analysis.dcmImage.PatientID,
+          analysis.dcmImage.PatientBirthDate,
+          `${analysis.dcmImage.PatientAge}`,
+          analysis.analysisCreated]
       })
       rows.push({
         isOpen: false,
         parent: indexInRows,
         fullWidth: true,
         cells: [{
-          title: (<SeriesTable analysisList={analysis.series}></SeriesTable>)
+          title: (<SeriesTable studyInstance={analysis}></SeriesTable>)
         }]
       })
     }
@@ -93,7 +98,7 @@ const PastAnalysisTable = () => {
   }
 
   const searchMRN = (text: string) => {
-    updateRows(listOfAnalysis.filter((analysis: StudyInstanceWithSeries) => analysis.patientMRN.includes(text)))
+    updateRows(listOfAnalysis.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
   }
 
   return (

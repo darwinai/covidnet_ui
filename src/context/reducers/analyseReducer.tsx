@@ -1,4 +1,4 @@
-import { AnalysisTypes, ActionMap } from "../actions/types";
+import { ActionMap, AnalysisTypes } from "../actions/types";
 import { DcmImage } from "./dicomImagesReducer";
 
 // export type IAnalysis = {
@@ -31,12 +31,14 @@ export type ISeries = {
 
 // change chrisIntegration to return this instead of Ianalysis
 export type StudyInstanceWithSeries = {
-  studyDescription: string,
-  patientMRN: string,
-  patientDOB: string,
-  patientAge: number,
+  dcmImage: DcmImage,
   analysisCreated: string, 
   series: ISeries[]
+}
+
+export type selectedImageType = {
+  studyInstance: StudyInstanceWithSeries | null,
+  index: number
 }
 
 export type IPrevAnalysesState = {
@@ -45,7 +47,7 @@ export type IPrevAnalysesState = {
   perpage: number;
   totalResults: number;
   areNewImgsAvailable: boolean;
-  selectedImage: ISeries | null;
+  selectedImage: selectedImageType;
 }
 
 export let initialIPrevAnalysesState: IPrevAnalysesState = {
@@ -54,7 +56,10 @@ export let initialIPrevAnalysesState: IPrevAnalysesState = {
   perpage: 10,
   totalResults: 50, // fake initial number
   areNewImgsAvailable: false,
-  selectedImage: null,
+  selectedImage: {
+    studyInstance: null,
+    index: 0
+  },
 }
 
 type AnalysesPayload = {
@@ -63,7 +68,7 @@ type AnalysesPayload = {
   [AnalysisTypes.Update_list]: { list: StudyInstanceWithSeries[] }
   [AnalysisTypes.Update_total]: { total: number },
   [AnalysisTypes.Update_are_new_imgs_available]: { isAvailable: boolean },
-  [AnalysisTypes.Update_selected_image]: { selectedImage: ISeries | null }
+  [AnalysisTypes.Update_selected_image]: { selectedImage: selectedImageType }
 }
 
 export type AnalysisActions = ActionMap<AnalysesPayload>[
