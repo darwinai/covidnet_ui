@@ -46,6 +46,10 @@ const PastAnalysisTable = () => {
           }
         })
         updateRows(listOfAnalyses)
+        dispatch({
+          type: AnalysisTypes.Update_are_new_imgs_available,
+          payload: { isAvailable: false }
+        })
       })
     ChrisIntegration.getTotalAnalyses()
       .then(total => {
@@ -93,7 +97,7 @@ const PastAnalysisTable = () => {
   }
 
   return (
-    <React.Fragment>
+    <div className="PastAnalysis">
       <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
       <div className="MRNsearchBar">
         <InputGroup>
@@ -122,7 +126,7 @@ const PastAnalysisTable = () => {
         <TableHeader />
         <TableBody />
       </Table>
-    </React.Fragment>
+    </div>
   );
 }
 

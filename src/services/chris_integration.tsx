@@ -149,7 +149,7 @@ class ChrisIntegration {
 
   static async getPastAnalaysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
-    const pastAnalysisMap: { [time: number]: { studyUID: string, indexInArr: number } } = {}
+    const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
 
     // since we want to have offset = 0 for page 1
     --page;
@@ -181,9 +181,9 @@ class ChrisIntegration {
               if (findDircopy.data.plugin_name === this.FS_PLUGIN) {
                 const startedTimeInSeconds = Math.floor((new Date(plugin.data.start_date)).getTime() / 1000);
                 // already exists so push it to te seriesList
-                if (!!pastAnalysisMap[startedTimeInSeconds]
-                  && pastAnalysisMap[startedTimeInSeconds].studyUID === imgDatas[0].StudyInstanceUID) {
-                  studyInstance = pastAnalysis[pastAnalysisMap[startedTimeInSeconds].indexInArr]
+                const possibileIndex = startedTimeInSeconds.toString() + imgDatas[0].StudyInstanceUID;
+                if (!!pastAnalysisMap[possibileIndex]) {
+                  studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr]
                 } else { // doesn't already exist so we create one
                   studyInstance = {
                     studyDescription: imgDatas[0].StudyDescription,
@@ -194,7 +194,7 @@ class ChrisIntegration {
                     series: []
                   }
                   // first update map with the index then push to the result array
-                  pastAnalysisMap[startedTimeInSeconds] = { studyUID: imgDatas[0].StudyInstanceUID, indexInArr: pastAnalysis.length };
+                  pastAnalysisMap[possibileIndex] = { indexInArr: pastAnalysis.length };
                   pastAnalysis.push(studyInstance)
                 }
               }

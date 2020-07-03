@@ -24,6 +24,7 @@ const DashboardPage: React.FC<AllProps> = () => {
           type: StagingDcmImagesTypes.UpdateStaging,
           payload: { imgs: [] }
         })
+        // clear the selecting images step
         dispatch({
           type: CreateAnalysisTypes.Clear_selected_studies_UID
         })
