@@ -80,10 +80,7 @@ class CreateAnalysisService {
   static async analyzeImages(imgs: DcmImage[]): Promise<void> {
     const promises = []
     for (let img of imgs) {
-      promises.push(new Promise((resolve)=> {
-        ChrisIntegration.processOneImg(img)
-          .then(() => resolve())
-      }))
+      promises.push(ChrisIntegration.processOneImg(img))
     }
     const result = await Promise.allSettled(promises);
     console.log(result)

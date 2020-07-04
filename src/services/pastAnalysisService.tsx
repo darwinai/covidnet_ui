@@ -5,6 +5,7 @@ class PastAnalysisService {
 
   static async groupIAnalysisToStudyGroups(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
     const analysisList = await ChrisIntegration.getPastAnalaysis(page, perpage);
+    console.log(analysisList)
     return analysisList
   }
 }

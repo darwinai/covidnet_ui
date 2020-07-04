@@ -173,7 +173,6 @@ class ChrisIntegration {
       const pluginlists = pluginInstances.getItems()
       for (let plugin of pluginlists) {
         let studyInstance: StudyInstanceWithSeries | null = null
-
         // ignore plugins that are not pl_covidnet
         if (plugin.data.plugin_name !== this.PL_COVIDNET) continue;
 
@@ -185,6 +184,7 @@ class ChrisIntegration {
             for (let findDircopy of pluginlists) {
               if (findDircopy.data.plugin_name === this.FS_PLUGIN) {
                 const startedTimeInSeconds = Math.floor((new Date(plugin.data.start_date)).getTime() / 1000);
+                console.log(startedTimeInSeconds)
                 // already exists so push it to te seriesList
                 const possibileIndex = startedTimeInSeconds.toString() + imgDatas[0].StudyInstanceUID;
                 if (!!pastAnalysisMap[possibileIndex]) {
@@ -192,7 +192,7 @@ class ChrisIntegration {
                 } else { // doesn't already exist so we create one
                   studyInstance = {
                     dcmImage: imgDatas[0],
-                    analysisCreated: modifyDatetime(imgDatas[0].creation_date),
+                    analysisCreated: modifyDatetime(findDircopy.data.start_date),
                     series: []
                   }
                   // first update map with the index then push to the result array
@@ -258,6 +258,7 @@ class ChrisIntegration {
         if (studyInstance) studyInstance.series.push(newSeries)
       }
     }
+    console.log(pastAnalysisMap)
     return pastAnalysis;
   }
 
