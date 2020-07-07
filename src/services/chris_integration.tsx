@@ -33,6 +33,10 @@ export const pollingBackend = async (pluginInstance: PluginInstance) => {
   }
 }
 
+export const formatTime = (oldDay: string): string => {
+  return oldDay.split('.')[0]
+}
+
 export const modifyDatetime = (oldDay: string): string => {
   let today = new Date().setHours(0, 0, 0, 0)
   let diff = Math.abs(+today - +new Date(oldDay.split('T')[0]))
@@ -183,10 +187,9 @@ class ChrisIntegration {
             // use dircopy start time to check
             for (let findDircopy of pluginlists) {
               if (findDircopy.data.plugin_name === this.FS_PLUGIN) {
-                const startedTimeInSeconds = Math.floor((new Date(plugin.data.start_date)).getTime() / 1000);
-                console.log(startedTimeInSeconds)
+                const startedTime = formatTime(findDircopy.data.start_date);
                 // already exists so push it to te seriesList
-                const possibileIndex = startedTimeInSeconds.toString() + imgDatas[0].StudyInstanceUID;
+                const possibileIndex = startedTime + imgDatas[0].StudyInstanceUID;
                 if (!!pastAnalysisMap[possibileIndex]) {
                   studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr]
                 } else { // doesn't already exist so we create one
