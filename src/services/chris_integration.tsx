@@ -224,18 +224,13 @@ class ChrisIntegration {
         }
         for (let fileObj of pluginInstanceFiles.getItems()) {
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
-            let file = await client.getFile(fileObj.data.id);
-            let blob = await file.getFileBlob();
-            let content = await blob.text();
+            let content = await this.fetchJsonFiles(fileObj.data.id)
             const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
-            content = JSON.parse(content)
             newSeries.predCovid = formatNumber(content['COVID-19'])
             newSeries.predNormal = formatNumber(content['Normal'])
             newSeries.predPneumonia = formatNumber(content['Pneumonia'])
           } else if (fileObj.data.fname === 'severity.json') {
-            let file = await client.getFile(fileObj.data.id);
-            let blob = await file.getFileBlob();
-            let content = await blob.text();
+            let content = await this.fetchJsonFiles(fileObj.data.id)
             newSeries.geographic = {
               severity: content['Geographic severity'],
               extentScore: content['Geographic extent score']
@@ -245,7 +240,6 @@ class ChrisIntegration {
               extentScore: content['Opacity extent score']
             }
           } else if (!fileObj.data.fname.includes('json')) {
-            // picture file
             newSeries.imageId = fileObj.data.id;
 
             // get dcmImageId from dircopy
@@ -254,8 +248,9 @@ class ChrisIntegration {
               limit: 25,
               offset: page * perpage,
             })).data;
-            const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => !file.fname.includes('.json'))]
+            const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => file.fname.includes('.dcm'))]
             newSeries.imageName = dcmImageFile.fname;
+            // newSeries.imageId = dcmImageFile.id;
           }
         }
         if (studyInstance) studyInstance.series.push(newSeries)
@@ -263,6 +258,15 @@ class ChrisIntegration {
     }
     console.log(pastAnalysisMap)
     return pastAnalysis;
+  }
+
+  static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any}> {
+    const client: any = ChrisAPIClient.getClient();
+
+    let file = await client.getFile(fileId);
+    let blob = await file.getFileBlob();
+    let content = await blob.text();
+    return JSON.parse(content)
   }
 
   static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {

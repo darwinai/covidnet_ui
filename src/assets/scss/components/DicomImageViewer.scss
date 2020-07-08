@@ -1,17 +1,22 @@
 $imgViewerBackgroundColour: black;
 $textColor: white;
 $GreyTextColor: #868686;
+$opacityLevel: 0.75;
 
 .invertImg {
-  -webkit-filter: invert(1);
-  filter: invert(1);
+  // -webkit-filter: invert(1);
+  // filter: invert(1);
+
+  filter:brightness(1) !important;
+  filter: contrast(200%) !important;
 }
 
 .dicomViewerHeader {
+  z-index: 2;
   width: 100vw;
   justify-content: space-between;
   align-items: center;
-  background-color: $imgViewerBackgroundColour;
+  background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
   color: $textColor;
   height: 8vh;
   button {
@@ -19,7 +24,7 @@ $GreyTextColor: #868686;
     height: 8vh;
     font-size: 1.5rem;
     color: $textColor;
-    background-color: $imgViewerBackgroundColour;
+    background: rgba(0, 0, 0, 0); //$imgViewerBackgroundColour;
     border: none;
     outline: none;
   }
@@ -38,8 +43,9 @@ $GreyTextColor: #868686;
 }
 
 .dicomViewerBottomBox {
+  z-index: 2;
   width: 100vw;
-  background-color: $imgViewerBackgroundColour;
+  background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
   color: $GreyTextColor;
   h2,
   p {
@@ -101,14 +107,17 @@ $GreyTextColor: #868686;
 }
 
 .layerContainer {
-  height: 100vh;
+  @extend .flex_row;
+  justify-content: center;
+  height: 100%;
+  width: 100vw;
   position: absolute;
-  background-color: white;
-  z-index: -1;
+  top:0;
+  left:0;
 }
 
 .dicomViewerImg {
-  height: 70vh;
+  height: 100%;
 }
 
 .bottomInfoBox{

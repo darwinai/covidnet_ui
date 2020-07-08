@@ -40,7 +40,7 @@ const ViewImagePage = () => {
   }
 
   useEffect(() => {
-    if (!selectedImage) {
+    if (!selectedImage.studyInstance) {
       history.push('/')
       return;
     };
@@ -95,26 +95,28 @@ const ViewImagePage = () => {
     window.addEventListener('resize', app.onResize);
 
     // possible load from location
-    dwv.utils.loadFromUri(window.location.href, app);
-
-    // DicomViewerService.fetchImageFile(selectedImage.imageId)
-    //   .then((imgBlob: any) => {
-    //     const myImage: any = document.querySelector('#dicomViewerImg');
-    //     const urlCreator = window.URL || window.webkitURL;
-    //     var objectURL = urlCreator.createObjectURL(imgBlob);
-    //     if (myImage) myImage.src = objectURL;
-    //     // app.loadURLs([objectURL]);
-    //     // imgBlob['name'] = 'patientdata.dcm'
-    //     // imgBlob['filename'] = 'patientdata.dcm'
-    //     // console.log(app)
-    //     // console.log(imgBlob)
-    //     // app.loadImageObject([imgBlob]);
-    //     // // console.log('setted dwvApp')
-    //     // const file = new File([imgBlob], 'PatientDicom.dcm', {type: 'application/dicom', lastModified: Date.now()})
-    //     // console.log(file)
-    //     // app.loadFiles([file])
-    //     // setDwvApp(app);
-    //   })
+    // dwv.utils.loadFromUri(window.location.href, app);
+    if (selectedImage.studyInstance) {
+      DicomViewerService.fetchImageFile(selectedImage.studyInstance.series[selectedImage.index].imageId)
+        .then((imgBlob: any) => {
+          const myImage: any = document.querySelector('#dicomViewerImg');
+          const urlCreator = window.URL || window.webkitURL;
+          var objectURL = urlCreator.createObjectURL(imgBlob);
+          if (myImage) myImage.src = objectURL;
+          // app.loadURLs([objectURL]);
+          // imgBlob['name'] = 'patientdata.dcm'
+          // imgBlob['filename'] = 'patientdata.dcm'
+          // console.log(app)
+          // console.log(imgBlob)
+          // app.loadImageObject([imgBlob]);
+          // // console.log('setted dwvApp')
+          const file = new File([imgBlob], 'PatientDicom.dcm', { type: 'application/dicom', lastModified: Date.now() })
+          console.log(file)
+          // console.log(file)
+          app.loadFiles([file])
+          // setDwvApp(app);
+        })
+    }
 
     // test using a drop box
     console.log(app)
@@ -128,11 +130,13 @@ const ViewImagePage = () => {
   return (
     <div id="dwv" className="imgViewer">
       <DicomViewerHeader></DicomViewerHeader>
-      <img className={`${isImgInverted ? 'invertImg': ''}`} id="dicomViewerImg" alt="DICOM Viewer" width="600px" height="600px" />
       <div className="layerContainer">
+        <img className={`${isImgInverted ? 'invertImg' : ''}`} id="dicomViewerImg" alt="DICOM Viewer" />
+      </div>
+      {/* <div className="layerContainer">
         <canvas className="imageLayer">Only for HTML5 compatible browsers...</canvas>
         <div className="drawDiv"></div>
-      </div>
+      </div> */}
       <DicomViewerBottomBox></DicomViewerBottomBox>
     </div>
   )
