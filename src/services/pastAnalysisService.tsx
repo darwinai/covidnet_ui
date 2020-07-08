@@ -1,12 +1,27 @@
 import ChrisIntegration from "./chris_integration";
 import { StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
+import { DcmImage } from "../context/reducers/dicomImagesReducer";
+
+export enum Processing {
+  analysisAreProcessing = 'AnalysisAreProcessing'
+}
 
 class PastAnalysisService {
 
-  static async groupIAnalysisToStudyGroups(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
-    const analysisList = await ChrisIntegration.getPastAnalaysis(page, perpage);
-    console.log(analysisList)
-    return analysisList
+  static groupDcmImagesToStudyInstances(dcmImages: DcmImage[]) {
+    const studyInstanceUIDMap: {[uid: string]: boolean} = {}
+    const studyInstances: StudyInstanceWithSeries[] = []
+    dcmImages.forEach((img: DcmImage) => {
+      if (!studyInstanceUIDMap[img.StudyInstanceUID]) {
+        studyInstances.push({
+          dcmImage: img,
+          analysisCreated: Processing.analysisAreProcessing, 
+          series: []
+        })
+        studyInstanceUIDMap[img.StudyInstanceUID] = true
+      }
+    })
+    return studyInstances;
   }
 }
 

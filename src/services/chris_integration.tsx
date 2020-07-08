@@ -256,7 +256,6 @@ class ChrisIntegration {
         if (studyInstance) studyInstance.series.push(newSeries)
       }
     }
-    console.log(pastAnalysisMap)
     return pastAnalysis;
   }
 

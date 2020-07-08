@@ -1,13 +1,15 @@
-import { InputGroup, InputGroupText, Pagination, TextInput } from '@patternfly/react-core';
+import { InputGroup, InputGroupText, Pagination, TextInput, Spinner } from '@patternfly/react-core';
 import { FilterIcon, SearchIcon } from '@patternfly/react-icons';
 import { expandable, Table, TableBody, TableHeader } from '@patternfly/react-table';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
 import ChrisIntegration from '../../services/chris_integration';
-import PastAnalysisService from '../../services/pastAnalysisService';
+import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
 import SeriesTable from './seriesTable';
 import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer'
+import { css } from '@patternfly/react-styles';
+import styles from '@patternfly/react-styles/css/components/Table/table';
 
 
 interface tableRowsParent {
@@ -24,7 +26,9 @@ interface tableRowsChild {
 
 const PastAnalysisTable = () => {
   const { state: {
-    prevAnalyses: { page, perpage, totalResults, areNewImgsAvailable, listOfAnalysis } },
+    prevAnalyses: { page, perpage, totalResults, areNewImgsAvailable, listOfAnalysis },
+    stagingDcmImages
+  },
     dispatch } = React.useContext(AppContext);
 
   const columns = [
@@ -37,15 +41,14 @@ const PastAnalysisTable = () => {
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
   useEffect(() => {
-    PastAnalysisService.groupIAnalysisToStudyGroups(page, perpage)
+    ChrisIntegration.getPastAnalaysis(page, perpage)
       .then(listOfAnalyses => {
         dispatch({
           type: AnalysisTypes.Update_list,
-          payload: {
-            list: listOfAnalyses
-          }
+          payload: { list: listOfAnalyses }
         })
-        updateRows(listOfAnalyses)
+        const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
+        updateRows(imagesAnalyzing.concat(listOfAnalyses))
         dispatch({
           type: AnalysisTypes.Update_are_new_imgs_available,
           payload: { isAvailable: false }
@@ -60,41 +63,74 @@ const PastAnalysisTable = () => {
           }
         })
       })
-  }, [page, perpage, dispatch, areNewImgsAvailable])
+  }, [page, perpage, dispatch, areNewImgsAvailable, stagingDcmImages])
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = []
     for (const analysis of listOfAnalysis) {
       const indexInRows: number = rows.length;
+      const cells: any[] = [
+        analysis.dcmImage.StudyDescription,
+        analysis.dcmImage.PatientID,
+        analysis.dcmImage.PatientBirthDate,
+        `${analysis.dcmImage.PatientAge}`,
+        analysis.analysisCreated
+      ];
+      if (cells[cells.length - 1] === Processing.analysisAreProcessing) {
+        cells[cells.length - 1] = {
+          title: (<div><Spinner size="md" /> Processing</div>)
+        }
+      }
       rows.push({
         isOpen: false,
-        cells: [
-          analysis.dcmImage.StudyDescription,
-          analysis.dcmImage.PatientID,
-          analysis.dcmImage.PatientBirthDate,
-          `${analysis.dcmImage.PatientAge}`,
-          analysis.analysisCreated]
+        cells: cells
       })
-      rows.push({
-        isOpen: false,
-        parent: indexInRows,
-        fullWidth: true,
-        cells: [{
-          title: (<SeriesTable studyInstance={analysis}></SeriesTable>)
-        }]
-      })
+      if (analysis.series.length > 0) { // the study instance has dicom Images
+        rows.push({
+          isOpen: false,
+          parent: indexInRows,
+          fullWidth: true,
+          cells: [{
+            title: (<SeriesTable studyInstance={analysis}></SeriesTable>)
+          }]
+        })
+      }
     }
     setRows(rows)
   }
 
   const onCollapse = (event: any, rowKey: number, isOpen: any) => {
-    /**
-     * Please do not use rowKey as row index for more complex tables.
-     * Rather use some kind of identifier like ID passed with each row.
-     */
     const rowsCopy = [...rows]
     rowsCopy[rowKey].isOpen = isOpen;
     setRows(rowsCopy)
+  }
+
+  const customRowWrapper = (tableRow: any) => {
+    const {
+      trRef,
+      className,
+      rowProps,
+      row: { isExpanded, isHeightAuto, cells},
+      ...props
+    } = tableRow;
+    const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the last index in row
+    const backgroundStyle = { 'backgroundColor': `${isAnalyzing ? '#F9E0A2':'#FFFFFF' }` };
+    return (
+      <tr
+        {...props}
+        ref={trRef}
+        className={css(
+          className,
+          // (isOddRow ? 'odd-row-class' : 'even-row-class'),
+          'custom-static-class',
+          isExpanded !== undefined && styles.tableExpandableRow,
+          isExpanded && styles.modifiers.expanded,
+          isHeightAuto && styles.modifiers.heightAuto
+        )}
+        hidden={isExpanded !== undefined && !isExpanded}
+        style={backgroundStyle}
+      />
+    );
   }
 
   const searchMRN = (text: string) => {
@@ -127,7 +163,10 @@ const PastAnalysisTable = () => {
           payload: { page: perPage }
         })}
       />
-      <Table aria-label="Collapsible table" onCollapse={onCollapse} rows={rows} cells={columns}>
+      <Table aria-label="Collapsible table" id="pastAnalysisTable"
+        onCollapse={onCollapse} rows={rows} cells={columns}
+        rowWrapper={customRowWrapper}
+      >
         <TableHeader />
         <TableBody />
       </Table>

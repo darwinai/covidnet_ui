@@ -15,9 +15,6 @@ const TopBar = () => {
             <NavItem itemId={1} isActive={location.pathname === "/createAnalysis"}>
             <Link to={`/createAnalysis`}> Create Analysis</Link>
             </NavItem>
-            <NavItem itemId={1} isActive={location.pathname === "/tab3"}>
-            <Link to={`/`}> Dashboard</Link>
-            </NavItem>
         </NavList>
         </Nav>
     );
