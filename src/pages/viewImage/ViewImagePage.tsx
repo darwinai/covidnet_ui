@@ -33,6 +33,15 @@ const ViewImagePage = () => {
             let mouseDown = false;
             let brightness: number = 100;
             let contrast: number = 100;
+            const showContrastBrightness = (brightness: number, contrast: number) => {
+              const imgBrightnesss = document.getElementById('imgBrightness');
+              const imgContrast = document.getElementById('imgContrast')
+              if (imgBrightnesss && imgContrast) { 
+                imgBrightnesss.innerHTML = brightness.toString();
+                imgContrast.innerHTML = contrast.toString();
+              }
+            }
+            showContrastBrightness(brightness, contrast)
             container.addEventListener("wheel", (event) => {
               const direction = Math.sign(event.deltaY) > 0 ? 1 : -1
               event.preventDefault();
@@ -74,8 +83,8 @@ const ViewImagePage = () => {
               contrast = DicomViewerService.maxMinWindowLevel(contrast + event.movementX, windowLevelType.contrast);
               const img = document.getElementById('dicomViewerImg')
               if (img) {
-                img.style.filter = `brightness(${brightness}%)`;
-                img.style.filter = `contrast(${contrast}%)`;
+                img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+                showContrastBrightness(brightness, contrast);
               }
             })
             container.addEventListener('mousedown', e => {

@@ -38,11 +38,11 @@ const DicomViewerHeader = () => {
           onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon/></button> */}
         Tools
         <button
-          onClick={() => {switchMode(ImagesViewerMods.ZOOM)}}><i className="fas fa-search-plus"></i></button>
+          onClick={() => { switchMode(ImagesViewerMods.ZOOM) }}><i className="fas fa-search-plus"></i></button>
         <button
           onClick={() => switchMode(ImagesViewerMods.PAN)}><PanToolOutlinedIcon></PanToolOutlinedIcon></button>
         <button
-          onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon/></button>
+          onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon /></button>
       </div>
       <div className='padding_left_right_2rem flex_row'>
         <button onClick={() => dispatch({
@@ -66,7 +66,7 @@ const DicomViewerHeader = () => {
               <div>
                 Pan: LMB + Drag <br></br>
                 Zoom: Scroll <br></br>
-                Window/Level: ctrl+LMB+Drag <br></br> 
+                Window/Level: ctrl+LMB+Drag <br></br>
                 &nbsp;&nbsp;&nbsp;&nbsp;Horizontal movement adjusts contrast <br></br>
                 &nbsp;&nbsp;&nbsp;&nbsp;Vertical movement adjusts brightness
               </div>
@@ -77,6 +77,10 @@ const DicomViewerHeader = () => {
         </button>
         <div className='padding_left_right_2rem'></div>
         <button><i className="fas fa-compress"></i></button>
+        <div className="predictionValues moveDown rightMargin">
+          <p>Brightness <span id="imgBrightness"></span></p>
+          <p>Contrast <span id="imgContrast"></span></p>
+        </div>
       </div >
     </div >
   )

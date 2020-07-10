@@ -40,23 +40,32 @@ $opacityLevel: 0.75;
   }
 }
 
+.predictionValues {
+  position: absolute;
+  right: 0;
+  p {
+    color: $textColor !important;
+    .blueText {
+      color: $headerBlue;
+      font-weight: bold;
+    }
+  }
+  &.moveUp {
+    top: -100px;
+  }
+  &.moveDown {
+    top: 8vh;
+  }
+  &.rightMargin {
+    margin-right: 5rem;
+  }
+}
+
 .dicomViewerBottomBox {
   z-index: 2;
   width: 100vw;
   background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
   color: $GreyTextColor;
-  .predictionValues {
-    position: absolute;
-    right: 0;
-    top: -100px;
-    p {
-      color: $textColor !important;
-      span {
-        color: $headerBlue;
-        font-weight: bold;
-      }
-    }
-  }
   h2,
   p {
     color: $GreyTextColor;

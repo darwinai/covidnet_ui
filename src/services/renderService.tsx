@@ -1,8 +1,8 @@
 export enum windowLevelBounds {
   MIN_CONTRAST = 20,
-  MAX_CONTRAST = 510,
+  MAX_CONTRAST = 1000,
   MIN_BRIGHTNESS = 5,
-  MAX_BRIGHTNESS = 255
+  MAX_BRIGHTNESS = 400
 }
 
 const hasPositionChanged = ({ pos, prevPos }: any) => pos !== prevPos;

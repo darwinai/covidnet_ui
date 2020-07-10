@@ -11,6 +11,12 @@ interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries
 }
 
+export const isLargestNumber = (num: number | undefined, compare1: number | undefined, compare2: number | undefined) => {
+  if (num !== undefined && compare1 !== undefined && compare2 !== undefined)
+    return num === Math.max(num, compare1, compare2);
+  else return false
+}
+
 const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
@@ -24,10 +30,6 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
     { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
     { title: (<span></span>) }
   ]
-
-  const isLargestNumber = (num: number, compare1: number, compare2: number) => {
-    return num > compare1 && num > compare2;
-  }
 
   const rows = analysisList.map((analysis: ISeries, index: number) => ({
     cells: [

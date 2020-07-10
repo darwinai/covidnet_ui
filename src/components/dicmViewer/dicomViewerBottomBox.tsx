@@ -4,6 +4,7 @@ import { AppContext } from "../../context/context";
 import { ISeries } from "../../context/reducers/analyseReducer";
 import PredictionCircle from '../PredictionCircle';
 import CreateAnalysisService from "../../services/CreateAnalysisService";
+import { isLargestNumber } from "../pastAnalysis/seriesTable";
 
 
 const DicomViewerBottomBox = () => {
@@ -32,12 +33,12 @@ const DicomViewerBottomBox = () => {
   let imageDetail = studyInstance ? studyInstance.series[index] : null;
   return (
     <div id="ViewerbottomBox"
-     className={`flex_col dicomViewerBottomBox ${!isBottomHided ? 'expandedBottom' : 'collapsedBottom'}`}>
+      className={`flex_col dicomViewerBottomBox ${!isBottomHided ? 'expandedBottom' : 'collapsedBottom'}`}>
       <div className="hideButton">
-        <div className='predictionValues'>
-          <p>NORMAL <span>{imageDetail ? imageDetail.predNormal : 0}</span></p>
-          <p>PNEUMONIA <span>{imageDetail ? imageDetail.predPneumonia : 0}</span></p>
-          <p>COVID-19 <span>{imageDetail ? imageDetail.predCovid : 0}</span></p>
+        <div className='predictionValues moveUp'>
+          <p>NORMAL <span className="blueText">{imageDetail ? imageDetail.predNormal : 0}</span></p>
+          <p>PNEUMONIA <span className="blueText">{imageDetail ? imageDetail.predPneumonia : 0}</span></p>
+          <p>COVID-19 <span className="blueText">{imageDetail ? imageDetail.predCovid : 0}</span></p>
         </div>
         <span className="pointer" onClick={toggle}>{!isBottomHided ? 'hide ' : 'expand '}</span>	&nbsp;
         <span className="pointer" onClick={toggle}>
@@ -64,17 +65,17 @@ const DicomViewerBottomBox = () => {
           <span className='logo-text'>COVID-Net</span>
           <div className="flex_row">
             <div className="PredictionArea">
-              <PredictionCircle largeCircle={true}
+              <PredictionCircle largeCircle={isLargestNumber(imageDetail?.predCovid, imageDetail?.predPneumonia, imageDetail?.predNormal)}
                 predictionNumber={imageDetail ? imageDetail.predCovid : 0} />
               <div className="topMargin">COVID-19</div>
             </div>
             <div className="PredictionArea padding-l-2rem">
-              <PredictionCircle largeCircle={false}
+              <PredictionCircle largeCircle={isLargestNumber(imageDetail?.predPneumonia, imageDetail?.predCovid, imageDetail?.predNormal)}
                 predictionNumber={imageDetail ? imageDetail.predPneumonia : 0} />
               <div className="topMargin">PNEUMONIA</div>
             </div>
             <div className="PredictionArea padding-l-2rem">
-              <PredictionCircle largeCircle={false}
+              <PredictionCircle largeCircle={isLargestNumber(imageDetail?.predNormal, imageDetail?.predCovid, imageDetail?.predPneumonia)}
                 predictionNumber={imageDetail ? imageDetail.predNormal : 0} />
               <div className="topMargin">NORMAL</div>
             </div>
