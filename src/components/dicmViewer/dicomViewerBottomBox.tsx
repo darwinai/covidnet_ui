@@ -33,12 +33,17 @@ const DicomViewerBottomBox = () => {
   return (
     <div className={`flex_col dicomViewerBottomBox ${!isBottomHided ? 'expandedBottom' : 'collapsedBottom'}`}>
       <div className="hideButton">
+        <div className='predictionValues'>
+          <p>NORMAL <span>{imageDetail ? imageDetail.predNormal : 0}</span></p>
+          <p>PNEUMONIA <span>{imageDetail ? imageDetail.predPneumonia : 0}</span></p>
+          <p>COVID-19 <span>{imageDetail ? imageDetail.predCovid : 0}</span></p>
+        </div>
         <span className="pointer" onClick={toggle}>{!isBottomHided ? 'hide ' : 'expand '}</span>	&nbsp;
         <span className="pointer" onClick={toggle}>
           {!isBottomHided ? (<i className="fas fa-angle-down"></i>) : (<i className="fas fa-angle-up"></i>)}
         </span>
       </div>
-      <div className="flex_row bottomInfoBox">
+      <div className={`flex_row bottomInfoBox ${!isBottomHided ? '' : 'displayNone'}`}>
         <div className="padding-l-2rem">
           <h2><span><i className="pf-icon pf-icon-info"></i></span></h2>
         </div>
@@ -46,7 +51,7 @@ const DicomViewerBottomBox = () => {
           <h2>{studyInstance?.dcmImage.PatientName}</h2>
           <p><span>MRN</span> #{studyInstance?.dcmImage.PatientID}</p>
           <p><span>DOB</span> {studyInstance?.dcmImage.PatientBirthDate}</p>
-          <p><span>GENDER</span> {studyInstance? CreateAnalysisService.formatGender(studyInstance.dcmImage.PatientSex): ''}</p>
+          <p><span>GENDER</span> {studyInstance ? CreateAnalysisService.formatGender(studyInstance.dcmImage.PatientSex) : ''}</p>
         </div>
         <div className="padding-l-2rem">
           <h2>{studyInstance?.dcmImage.StudyDescription}</h2>

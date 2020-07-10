@@ -7,7 +7,7 @@ export enum ImagesViewerMods {
 }
 
 export type IimgViewerState = {
-  mod: null | ImagesViewerMods;
+  mod: ImagesViewerMods;
   isBottomHided: boolean;
   isImgInverted: boolean;
 }

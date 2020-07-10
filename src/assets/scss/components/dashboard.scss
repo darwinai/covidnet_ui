@@ -47,8 +47,8 @@ $sectionAreaSpacing: 15px;
   position: relative;
 }
 
-// #pastAnalysisTable {
-//   tbody:nth-child(-n+4) {
-//     background-color: #F9E0A2;
-//   }
-// }
+#pastAnalysisTable {
+  .pf-c-button {
+    color: black;
+  }
+}

@@ -4,11 +4,9 @@ $GreyTextColor: #868686;
 $opacityLevel: 0.75;
 
 .invertImg {
-  // -webkit-filter: invert(1);
-  // filter: invert(1);
-
-  filter:brightness(1) !important;
-  filter: contrast(200%) !important;
+  filter: invert(1) brightness(200%) !important;
+  // filter:brightness(1) !important;
+  // filter: contrast(200%) !important;
 }
 
 .dicomViewerHeader {
@@ -47,6 +45,18 @@ $opacityLevel: 0.75;
   width: 100vw;
   background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
   color: $GreyTextColor;
+  .predictionValues {
+    position: absolute;
+    right: 0;
+    top: -100px;
+    p {
+      color: $textColor !important;
+      span {
+        color: $headerBlue;
+        font-weight: bold;
+      }
+    }
+  }
   h2,
   p {
     color: $GreyTextColor;
@@ -56,6 +66,7 @@ $opacityLevel: 0.75;
   }
   .hideButton {
     @extend .flex_row;
+    position: relative;
     justify-content: flex-end;
     margin-right: 1.5rem;
   }
@@ -91,7 +102,7 @@ $opacityLevel: 0.75;
 .collapsedBottom {
   height: 3vh;
   transition: height 1s;
-  overflow: hidden;
+  // overflow: hidden;
 }
 
 .imgViewer {
@@ -112,14 +123,23 @@ $opacityLevel: 0.75;
   height: 100%;
   width: 100vw;
   position: absolute;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
+}
+
+#imageContainer {
+  overflow: hidden !important;
 }
 
 .dicomViewerImg {
   height: 100%;
 }
 
-.bottomInfoBox{
+.bottomInfoBox {
   justify-content: space-around;
+}
+
+.displayNone {
+  transition: 1s;
+  display: none !important;
 }
