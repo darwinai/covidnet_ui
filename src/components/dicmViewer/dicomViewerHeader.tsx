@@ -20,7 +20,7 @@ const DicomViewerHeader = () => {
   }
 
   return (
-    <div className="flex_row dicomViewerHeader">
+    <div id="ViewerHeaderBox" className="flex_row dicomViewerHeader">
       <div className="headerlogo padding_left_right_2rem">
         <span className='logo-text'>COVID-Net</span>
         <a onClick={() => history.push('/')}> <i className="fas fa-angle-left"></i> Back to Dashboard</a>

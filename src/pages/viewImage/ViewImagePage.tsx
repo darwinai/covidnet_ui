@@ -73,12 +73,10 @@ const ViewImagePage = () => {
               brightness = DicomViewerService.maxMinWindowLevel(brightness + event.movementY, windowLevelType.brightness);
               contrast = DicomViewerService.maxMinWindowLevel(contrast + event.movementX, windowLevelType.contrast);
               const img = document.getElementById('dicomViewerImg')
-              // img?.setAttribute('style', `filter: brightness(${brightness}%) contrast(${contrast}%);`);
               if (img) {
                 img.style.filter = `brightness(${brightness}%)`;
                 img.style.filter = `contrast(${contrast}%)`;
               }
-              console.log(brightness, contrast)
             })
             container.addEventListener('mousedown', e => {
               mouseDown = true;
@@ -86,6 +84,13 @@ const ViewImagePage = () => {
             container.addEventListener('mouseup', e => {
               mouseDown = false;
             })
+
+            const bottomBox = document.getElementById('ViewerbottomBox');
+            const upperBox = document.getElementById('ViewerHeaderBox');
+            if (bottomBox && upperBox) {
+              bottomBox.addEventListener('mousemove', e => mouseDown = false);
+              upperBox.addEventListener('mousemove', e => mouseDown = false);
+            }
           }
         })
     }

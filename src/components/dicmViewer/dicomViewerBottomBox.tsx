@@ -31,7 +31,8 @@ const DicomViewerBottomBox = () => {
   const { studyInstance, index } = selectedImage;
   let imageDetail = studyInstance ? studyInstance.series[index] : null;
   return (
-    <div className={`flex_col dicomViewerBottomBox ${!isBottomHided ? 'expandedBottom' : 'collapsedBottom'}`}>
+    <div id="ViewerbottomBox"
+     className={`flex_col dicomViewerBottomBox ${!isBottomHided ? 'expandedBottom' : 'collapsedBottom'}`}>
       <div className="hideButton">
         <div className='predictionValues'>
           <p>NORMAL <span>{imageDetail ? imageDetail.predNormal : 0}</span></p>
