@@ -53,7 +53,7 @@ export type IPrevAnalysesState = {
 export let initialIPrevAnalysesState: IPrevAnalysesState = {
   listOfAnalysis: [],
   page: 1,
-  perpage: 10,
+  perpage: 20,
   totalResults: 50, // fake initial number
   areNewImgsAvailable: false,
   selectedImage: {
@@ -86,6 +86,7 @@ export const analysesReducer = (
         page: action.payload.page
       }
     case AnalysisTypes.Update_perpage:
+      console.log(action.payload.perpage)
       return {
         ...state,
         perpage: action.payload.perpage

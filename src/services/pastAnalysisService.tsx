@@ -1,4 +1,3 @@
-import ChrisIntegration from "./chris_integration";
 import { StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 

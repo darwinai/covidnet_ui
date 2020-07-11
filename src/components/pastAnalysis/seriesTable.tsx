@@ -37,15 +37,15 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
         title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>)
       },
       {
-        title: (<PredictionCircle
+        title: (<PredictionCircle key={index}
           largeCircle={isLargestNumber(analysis.predCovid, analysis.predNormal, analysis.predPneumonia)}
           predictionNumber={analysis.predCovid} />)
       }, {
-        title: (<PredictionCircle
+        title: (<PredictionCircle key={index}
           largeCircle={isLargestNumber(analysis.predPneumonia, analysis.predNormal, analysis.predCovid)}
           predictionNumber={analysis.predPneumonia} />)
       }, {
-        title: (<PredictionCircle
+        title: (<PredictionCircle key={index}
           largeCircle={isLargestNumber(analysis.predNormal, analysis.predPneumonia, analysis.predCovid)}
           predictionNumber={analysis.predNormal} />)
       }, {

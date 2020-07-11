@@ -27,7 +27,6 @@ const PredictionCircle = (props: circleProps) => {
         thresholds={[{ value: 60 }, { value: 90 }]}
       />
     </div>
-    // <span>{predictionNumber}%</span>
   )
 }
 

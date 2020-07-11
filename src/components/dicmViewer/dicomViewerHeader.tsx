@@ -9,7 +9,7 @@ import { AppContext } from "../../context/context";
 import { ImagesViewerMods } from '../../context/reducers/imgViewerReducer';
 
 const DicomViewerHeader = () => {
-  const { state: { imgViewer: { mod, isImgInverted } }, dispatch } = useContext(AppContext);
+  const { state: { imgViewer: { isImgInverted } }, dispatch } = useContext(AppContext);
   const history = useHistory()
 
   const switchMode = (mod: ImagesViewerMods) => {

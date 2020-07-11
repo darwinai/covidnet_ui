@@ -30,6 +30,7 @@ const PastAnalysisTable = () => {
     stagingDcmImages
   },
     dispatch } = React.useContext(AppContext);
+  const [loading, setLoading] = useState(true);
 
   const columns = [
     {
@@ -41,18 +42,20 @@ const PastAnalysisTable = () => {
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
   useEffect(() => {
+    setLoading(true);
     ChrisIntegration.getPastAnalaysis(page, perpage)
       .then(listOfAnalyses => {
         dispatch({
           type: AnalysisTypes.Update_list,
           payload: { list: listOfAnalyses }
-        })
+        });
         const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
         updateRows(imagesAnalyzing.concat(listOfAnalyses))
         dispatch({
           type: AnalysisTypes.Update_are_new_imgs_available,
           payload: { isAvailable: false }
         })
+        setLoading(false);
       })
     ChrisIntegration.getTotalAnalyses()
       .then(total => {
@@ -110,18 +113,17 @@ const PastAnalysisTable = () => {
       trRef,
       className,
       rowProps,
-      row: { isExpanded, isHeightAuto, cells},
+      row: { isExpanded, isHeightAuto, cells },
       ...props
     } = tableRow;
     const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the last index in row
-    const backgroundStyle = { 'backgroundColor': `${isAnalyzing ? '#F9E0A2':'#FFFFFF' }` };
+    const backgroundStyle = { 'backgroundColor': `${isAnalyzing ? '#F9E0A2' : '#FFFFFF'}` };
     return (
       <tr
         {...props}
         ref={trRef}
         className={css(
           className,
-          // (isOddRow ? 'odd-row-class' : 'even-row-class'),
           'custom-static-class',
           isExpanded !== undefined && styles.tableExpandableRow,
           isExpanded && styles.modifiers.expanded,
@@ -158,9 +160,9 @@ const PastAnalysisTable = () => {
           payload: { page: pageNumber }
         })}
         widgetId="pagination-options-menu-top"
-        onPerPageSelect={(_event, perPage) => dispatch({
+        onPerPageSelect={(_event, perPageValue) => dispatch({
           type: AnalysisTypes.Update_perpage,
-          payload: { page: perPage }
+          payload: { perpage: perPageValue }
         })}
       />
       <Table aria-label="Collapsible table" id="pastAnalysisTable"
@@ -170,6 +172,9 @@ const PastAnalysisTable = () => {
         <TableHeader />
         <TableBody />
       </Table>
+      {loading && <div className="loading">
+        <Spinner size="xl" /> &nbsp; Loading
+      </div>}
     </div>
   );
 }

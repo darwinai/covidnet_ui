@@ -66,7 +66,7 @@ class ChrisIntegration {
   static async getTotalAnalyses(): Promise<number> {
     let client: any = await ChrisAPIClient.getClient();
     const feeds = await client.getFeeds({
-      limit: 25,
+      limit: 100,
       offset: 0,
     });
     let count = 0;
@@ -162,15 +162,16 @@ class ChrisIntegration {
 
     // since we want to have offset = 0 for page 1
     --page;
+    console.log(page, perpage)
     const client: any = ChrisAPIClient.getClient();
     const feeds = await client.getFeeds({
-      limit: 25,
+      limit: perpage,
       offset: page * perpage,
     });
     const feedArray = feeds.getItems();
     for (let feed of feedArray) {
       const pluginInstances = await feed.getPluginInstances({
-        limit: 25,
+        limit: 100,
         offset: page * perpage,
       });
       // iterate it over all feeds
@@ -210,7 +211,7 @@ class ChrisIntegration {
         }
 
         const pluginInstanceFiles = await plugin.getFiles({
-          limit: 25,
+          limit: 100,
           offset: page * perpage,
         });
         const newSeries: ISeries = {
@@ -245,7 +246,7 @@ class ChrisIntegration {
             // get dcmImageId from dircopy
             const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === this.FS_PLUGIN)]
             const dircopyFiles = (await dircopyPlugin.getFiles({
-              limit: 25,
+              limit: 100,
               offset: page * perpage,
             })).data;
             const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => file.fname.includes('.dcm'))]

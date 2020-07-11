@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
-import DicomViewerService from "../../services/dicomViewerService";
-import { AppContext } from '../../context/context'
+import React, { useContext, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import DicomViewerHeader from "../../components/dicmViewer/dicomViewerHeader";
 import DicomViewerBottomBox from "../../components/dicmViewer/dicomViewerBottomBox";
-import renderer from "../../services/renderService"
-import { windowLevelType } from "../../services/dicomViewerService"
-import { ImagesViewerMods } from '../../context/reducers/imgViewerReducer'
+import DicomViewerHeader from "../../components/dicmViewer/dicomViewerHeader";
+import { AppContext } from '../../context/context';
+import { ImagesViewerMods } from '../../context/reducers/imgViewerReducer';
+import DicomViewerService, { windowLevelType } from "../../services/dicomViewerService";
+import renderer from "../../services/renderService";
 
 const ViewImagePage = () => {
   const { state: { imgViewer: { mod }, prevAnalyses: { selectedImage }, imgViewer: { isImgInverted } } } = useContext(AppContext);
@@ -18,8 +17,6 @@ const ViewImagePage = () => {
       return;
     };
 
-    // possible load from location
-    // dwv.utils.loadFromUri(window.location.href, app);
     if (selectedImage.studyInstance) {
       DicomViewerService.fetchImageFile(selectedImage.studyInstance.series[selectedImage.index].imageId)
         .then((imgBlob: any) => {
