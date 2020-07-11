@@ -162,7 +162,6 @@ class ChrisIntegration {
 
     // since we want to have offset = 0 for page 1
     --page;
-    console.log(page, perpage)
     const client: any = ChrisAPIClient.getClient();
     const feeds = await client.getFeeds({
       limit: perpage,
@@ -174,6 +173,7 @@ class ChrisIntegration {
         limit: 100,
         offset: page * perpage,
       });
+      console.log(pluginInstances)
       // iterate it over all feeds
       const pluginlists = pluginInstances.getItems()
       for (let plugin of pluginlists) {

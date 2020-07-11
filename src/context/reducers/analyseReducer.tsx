@@ -53,7 +53,7 @@ export type IPrevAnalysesState = {
 export let initialIPrevAnalysesState: IPrevAnalysesState = {
   listOfAnalysis: [],
   page: 1,
-  perpage: 20,
+  perpage: 10,
   totalResults: 50, // fake initial number
   areNewImgsAvailable: false,
   selectedImage: {
