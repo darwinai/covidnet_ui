@@ -30,6 +30,10 @@ $opacityLevel: 0.75;
     border-bottom: 3px solid $headerBlue;
     color: $headerBlue;
   }
+  button:hover {
+    border-bottom: 3px solid $headerBlue;
+    color: $headerBlue;
+  }
   .headerlogo {
     @extend .flex_col;
     // padding: 5px;

@@ -37,12 +37,33 @@ const DicomViewerHeader = () => {
           className={`${mod === ImagesViewerMods.WINDOW_LEVEL ? 'highlightedMod' : ''}`}
           onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon/></button> */}
         Tools
-        <button
-          onClick={() => { switchMode(ImagesViewerMods.ZOOM) }}><i className="fas fa-search-plus"></i></button>
-        <button
-          onClick={() => switchMode(ImagesViewerMods.PAN)}><PanToolOutlinedIcon></PanToolOutlinedIcon></button>
-        <button
-          onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon /></button>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          isContentLeftAligned
+          content={<div>LMB + Drag</div>
+          }
+        >
+          <button
+            onClick={() => { switchMode(ImagesViewerMods.ZOOM) }}><i className="fas fa-search-plus"></i></button>
+        </Tooltip>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          isContentLeftAligned
+          content={<div>Scroll<br />Alternatively:<br /> Shift+LMB+Drag Up to zoom out and drag down to zoom in</div>}
+        >
+          <button
+            onClick={() => switchMode(ImagesViewerMods.PAN)}><PanToolOutlinedIcon></PanToolOutlinedIcon></button>
+        </Tooltip>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          isContentLeftAligned
+          content={<div> Window/Level: Ctrl+LMB+Drag <br></br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Horizontal movement adjusts contrast <br></br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Vertical movement adjusts brightness</div>}
+        >
+          <button
+            onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon /></button>
+        </Tooltip>
       </div>
       <div className='padding_left_right_2rem flex_row'>
         <button onClick={() => dispatch({
@@ -65,8 +86,8 @@ const DicomViewerHeader = () => {
             content={
               <div>
                 Pan: LMB + Drag <br></br>
-                Zoom: Scroll <br></br>
-                Window/Level: ctrl+LMB+Drag <br></br>
+                Zoom: Scroll or Shift+LMB+Drag Up to zoom out,drag down to zoom in<br></br>
+                Window/Level: Ctrl+LMB+Drag <br></br>
                 &nbsp;&nbsp;&nbsp;&nbsp;Horizontal movement adjusts contrast <br></br>
                 &nbsp;&nbsp;&nbsp;&nbsp;Vertical movement adjusts brightness
               </div>

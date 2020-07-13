@@ -114,6 +114,7 @@ class ChrisIntegration {
   static async processOneImg(img: DcmImage): Promise<void> {
     let client: any = await ChrisAPIClient.getClient();
     try {
+      console.log(img.fname)
       const dircopyPlugin = (await client.getPlugins({ "name_exact": this.FS_PLUGIN })).getItems()[0];
       // const params = await dircopyPlugin.getPluginParameters();
       const data: DirCreateData = { "dir": img.fname };
@@ -170,10 +171,9 @@ class ChrisIntegration {
     const feedArray = feeds.getItems();
     for (let feed of feedArray) {
       const pluginInstances = await feed.getPluginInstances({
-        limit: 100,
-        offset: page * perpage,
+        limit: 25,
+        offset: 0
       });
-      console.log(pluginInstances)
       // iterate it over all feeds
       const pluginlists = pluginInstances.getItems()
       for (let plugin of pluginlists) {
@@ -189,8 +189,8 @@ class ChrisIntegration {
             for (let findDircopy of pluginlists) {
               if (findDircopy.data.plugin_name === this.FS_PLUGIN) {
                 const startedTime = formatTime(findDircopy.data.start_date);
-                // already exists so push it to te seriesList
                 const possibileIndex = startedTime + imgDatas[0].StudyInstanceUID;
+                // already exists so push it to te seriesList
                 if (!!pastAnalysisMap[possibileIndex]) {
                   studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr]
                 } else { // doesn't already exist so we create one
@@ -211,8 +211,8 @@ class ChrisIntegration {
         }
 
         const pluginInstanceFiles = await plugin.getFiles({
-          limit: 100,
-          offset: page * perpage,
+          limit: 25,
+          offset: 0,
         });
         const newSeries: ISeries = {
           imageName: '',
@@ -247,7 +247,7 @@ class ChrisIntegration {
             const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === this.FS_PLUGIN)]
             const dircopyFiles = (await dircopyPlugin.getFiles({
               limit: 100,
-              offset: page * perpage,
+              offset: 0
             })).data;
             const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => file.fname.includes('.dcm'))]
             newSeries.imageName = dcmImageFile.fname;

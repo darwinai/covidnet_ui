@@ -33,7 +33,7 @@ const ViewImagePage = () => {
             const showContrastBrightness = (brightness: number, contrast: number) => {
               const imgBrightnesss = document.getElementById('imgBrightness');
               const imgContrast = document.getElementById('imgContrast')
-              if (imgBrightnesss && imgContrast) { 
+              if (imgBrightnesss && imgContrast) {
                 imgBrightnesss.innerHTML = brightness.toString();
                 imgContrast.innerHTML = contrast.toString();
               }
@@ -64,24 +64,29 @@ const ViewImagePage = () => {
                 return;
               }
               event.preventDefault();
-
-              // it is panning
-              console.log(mod !== ImagesViewerMods.WINDOW_LEVEL)
-              if (!event.ctrlKey && mod !== ImagesViewerMods.WINDOW_LEVEL) {
-                console.log('panning')
+              if (event.ctrlKey) {
+                // adjust window/level
+                brightness = DicomViewerService.maxMinWindowLevel(brightness + event.movementY, windowLevelType.brightness);
+                contrast = DicomViewerService.maxMinWindowLevel(contrast + event.movementX, windowLevelType.contrast);
+                const img = document.getElementById('dicomViewerImg')
+                if (img) {
+                  img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+                  showContrastBrightness(brightness, contrast);
+                }
+              } else if (event.shiftKey){
+                const direction = event.movementY > 0 ? 1: -1;
+                event.preventDefault();
+                instance.zoom({
+                  deltaScale: direction,
+                  x: event.pageX,
+                  y: event.pageY
+                });
+              } else { // panning
                 instance.panBy({
                   originX: event.movementX,
                   originY: event.movementY
                 });
                 return;
-              }
-              // adjust window/level
-              brightness = DicomViewerService.maxMinWindowLevel(brightness + event.movementY, windowLevelType.brightness);
-              contrast = DicomViewerService.maxMinWindowLevel(contrast + event.movementX, windowLevelType.contrast);
-              const img = document.getElementById('dicomViewerImg')
-              if (img) {
-                img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
-                showContrastBrightness(brightness, contrast);
               }
             })
             container.addEventListener('mousedown', e => {
