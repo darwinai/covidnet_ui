@@ -45,6 +45,9 @@ $sectionAreaSpacing: 15px;
 
 .PastAnalysis{
   position: relative;
+  .pf-c-options-menu {
+    display: none !important;
+  }
 }
 
 .loading {
