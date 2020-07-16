@@ -78,6 +78,7 @@ class ChrisIntegration {
     return count;
   }
 
+  // old code used for manually uploaded image analysis
   static async processNewAnalysis(files: LocalFile[]): Promise<boolean> {
     let client: any = await ChrisAPIClient.getClient();
     try {
@@ -137,8 +138,9 @@ class ChrisIntegration {
       const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
       console.log("Converter Running")
       await pollingBackend(imgConverterInstance)
-
-      const covidnetPlugin = (await client.getPlugins({ "name_exact": this.PL_COVIDNET })).getItems()[0];
+      
+      const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET: this.PL_CT_COVIDNET;
+      const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
       const plcovidnet_data: PlcovidnetData = {
         previous_id: imgConverterInstance.data.id,
         title: img.fname,
@@ -180,8 +182,8 @@ class ChrisIntegration {
       const pluginlists = pluginInstances.getItems()
       for (let plugin of pluginlists) {
         let studyInstance: StudyInstanceWithSeries | null = null
-        // ignore plugins that are not pl_covidnet
-        if (plugin.data.plugin_name !== this.PL_COVIDNET) continue;
+        // ignore plugins that are not pl-covidnet or pl-ct-covidnet
+        if (plugin.data.plugin_name !== this.PL_COVIDNET && plugin.data.plugin_name !== this.PL_CT_COVIDNET) continue;
 
         // get dicom image data
         if (plugin.data.title !== '') {
@@ -242,7 +244,7 @@ class ChrisIntegration {
               severity: content['Opacity severity'],
               extentScore: content['Opacity extent score']
             }
-          } else if (!fileObj.data.fname.includes('json')) {
+          } else if (!fileObj.data.fname.includes('json')) { // fetch image
             newSeries.imageId = fileObj.data.id;
 
             // get dcmImageId from dircopy
