@@ -62,6 +62,7 @@ class ChrisIntegration {
   private static PL_COVIDNET = 'pl-covidnet';
   private static FS_PLUGIN = 'pl-dircopy'; // 'pl-dircopy';
   private static MED2IMG = 'pl-med2img';
+  private static PL_CT_COVIDNET = 'pl-ct-covidnet'
 
   static async getTotalAnalyses(): Promise<number> {
     let client: any = await ChrisAPIClient.getClient();
@@ -128,6 +129,7 @@ class ChrisIntegration {
       console.log(filename)
       const imgData = {
         inputFile: img.fname.split('/').pop(),
+        sliceToConvert: 0, 
         outputFileStem: `${filename}.jpg`, //-slice000
         previous_id: dircopyPluginInstance.data.id
       }
@@ -140,7 +142,7 @@ class ChrisIntegration {
       const plcovidnet_data: PlcovidnetData = {
         previous_id: imgConverterInstance.data.id,
         title: img.fname,
-        imagefile: `${filename}-slice000.jpg`
+        imagefile: `${filename}.jpg`
       }
       const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
 
@@ -230,7 +232,7 @@ class ChrisIntegration {
             newSeries.predCovid = formatNumber(content['COVID-19'])
             newSeries.predNormal = formatNumber(content['Normal'])
             newSeries.predPneumonia = formatNumber(content['Pneumonia'])
-          } else if (fileObj.data.fname === 'severity.json') {
+          } else if (fileObj.data.fname.includes('severity.json')) {
             let content = await this.fetchJsonFiles(fileObj.data.id)
             newSeries.geographic = {
               severity: content['Geographic severity'],
@@ -273,7 +275,8 @@ class ChrisIntegration {
     let client: any = await ChrisAPIClient.getClient();
 
     const res = await client.getPACSFiles({
-      PatientID: patientID
+      PatientID: patientID,
+      limit: 25
     })
     const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
     return patientImages;

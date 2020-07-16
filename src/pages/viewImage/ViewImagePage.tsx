@@ -3,7 +3,6 @@ import { useHistory } from "react-router-dom";
 import DicomViewerBottomBox from "../../components/dicmViewer/dicomViewerBottomBox";
 import DicomViewerHeader from "../../components/dicmViewer/dicomViewerHeader";
 import { AppContext } from '../../context/context';
-import { ImagesViewerMods } from '../../context/reducers/imgViewerReducer';
 import DicomViewerService, { windowLevelType } from "../../services/dicomViewerService";
 import renderer from "../../services/renderService";
 

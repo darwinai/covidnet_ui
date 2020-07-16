@@ -13,7 +13,8 @@ export interface DcmImage {
   StudyInstanceUID: string,
   StudyDescription: string,
   SeriesInstanceUID: string,
-  SeriesDescription: string
+  SeriesDescription: string,
+  Modality: string
 }
 
 export type IDcmImagesState = DcmImage[];

@@ -44,7 +44,7 @@ class CreateAnalysisService {
         studyInstances.push({
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
-          modality: 'XRAY',
+          modality: img.Modality,
           createdDate: this.formatDate(img.creation_date)
         })
         seenUID[img.StudyInstanceUID] = true;
