@@ -1,12 +1,12 @@
-import React, { useState } from "react";
 import { LoginForm } from "@patternfly/react-core";
-import { AppContext } from "../../../context/context";
-import { Types } from "../../../context/actions/types";
-import { handleLogin } from "../../../services/login";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { Types } from "../../../context/actions/types";
+import { AppContext } from "../../../context/context";
+import { handleLogin } from "../../../services/login";
 
 const LoginFormComponent = () => {
-  const history = useHistory()
+  const history = useHistory();
   const [showHelperText] = useState(false);
   const [usernameValue, setUsernameValue] = useState('chris');
   const [isValidUsername] = useState(true);

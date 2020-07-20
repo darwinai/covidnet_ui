@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { LoginPage } from "@patternfly/react-core";
 import LoginFormComponent from "./components/LoginForm";
 import "./login.scss";
-import brandImg from "../../assets/images/logo_chris_dashboard.png";
+import brandImg from "../../assets/images/logo.gif";
 type AllProps = RouteComponentProps;
 
 class LogInPage extends React.Component<AllProps> {

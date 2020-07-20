@@ -10,6 +10,7 @@ import SeriesTable from './seriesTable';
 import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer'
 import { css } from '@patternfly/react-styles';
 import styles from '@patternfly/react-styles/css/components/Table/table';
+import { useHistory } from 'react-router-dom';
 
 
 interface tableRowsParent {
@@ -31,6 +32,7 @@ const PastAnalysisTable = () => {
   },
     dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
+  const history = useHistory();
 
   const columns = [
     {
@@ -56,6 +58,11 @@ const PastAnalysisTable = () => {
           payload: { isAvailable: false }
         })
         setLoading(false);
+      })
+      .catch(err => {
+        if (err.response.data.includes('Authentication credentials')) {
+          history.push('/login')
+        }
       })
     ChrisIntegration.getTotalAnalyses()
       .then(total => {
