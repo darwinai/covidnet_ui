@@ -280,7 +280,6 @@ class ChrisIntegration {
       PatientID: patientID,
       limit: 1000
     })
-    console.log(res)
     const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
     return patientImages;
   }
