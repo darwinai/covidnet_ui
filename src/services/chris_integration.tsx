@@ -278,8 +278,9 @@ class ChrisIntegration {
 
     const res = await client.getPACSFiles({
       PatientID: patientID,
-      limit: 25
+      limit: 1000
     })
+    console.log(res)
     const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
     return patientImages;
   }
