@@ -1,20 +1,19 @@
-import * as React from "react";
-import {
-  Dropdown,
-  DropdownToggle,
-  PageHeader,
-  Toolbar,
-  ToolbarItem,
-  ToolbarGroup,
-  DropdownItem,
-} from "@patternfly/react-core";
-import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
+import { 
+  Dropdown, 
+  DropdownItem, 
+  DropdownToggle, 
+  PageHeader, 
+  Toolbar, 
+  ToolbarGroup, 
+  ToolbarItem } from "@patternfly/react-core";
 import { css } from '@patternfly/react-styles';
-import TopBar from "./TopBar";
-import { useHistory, Link } from 'react-router-dom'
-import { AppContext } from "../../context/context";
+import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
+import React from "react";
+import { Link, useHistory } from 'react-router-dom';
+import logo from "../../assets/images/logo-white.png";
 import { Types } from "../../context/actions/types";
-import logo from "../../assets/images/logo-white.png"
+import { AppContext } from "../../context/context";
+import TopBar from "./TopBar";
 
 const Header = () => {
   const history = useHistory()

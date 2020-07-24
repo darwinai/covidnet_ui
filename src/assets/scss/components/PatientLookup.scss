@@ -11,12 +11,19 @@
     label {
       font-weight: bold;
     }
-    #toggle-Privacy-Level{
+    #toggle-Privacy-Level {
       width: 1000px;
     }
   }
 }
 
-.PatientLookupWrapper{
+.PatientLookupWrapper {
   padding-bottom: 0px;
+}
+
+.noImagesFound {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

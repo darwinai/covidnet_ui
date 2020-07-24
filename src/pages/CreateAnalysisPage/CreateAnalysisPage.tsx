@@ -5,6 +5,7 @@ import Wrapper from "../../containers/Layout/PageWrapper";
 import PatientLookup from "../../components/PatientLookup";
 import CreateAnalysisWrapper from "../../components/CreateAnalysis/CreateAnalysisWrapper";
 import { AppContext } from "../../context/context";
+import Error from "../../shared/error";
 
 const CreateAnalysisPage = () => {
   const { state } = React.useContext(AppContext);
@@ -16,12 +17,16 @@ const CreateAnalysisPage = () => {
         <PageSection className="PatientLookupWrapper" variant={PageSectionVariants.light}>
           <PatientLookup isOnDashboard={false}></PatientLookup>
         </PageSection>
-        <PageSection className="pfPageSectionGrey">
-          {dcmImages.length > 0 ?
-            (<CreateAnalysisWrapper></CreateAnalysisWrapper>)
-            : <p>No images found</p>
-          }
-        </PageSection>
+        {
+          dcmImages.length > 0 ?
+            <PageSection className="pfPageSectionGrey">
+              <CreateAnalysisWrapper></CreateAnalysisWrapper>
+            </PageSection>
+            :
+            <PageSection variant={PageSectionVariants.light}>
+              <Error>No studies found</Error>
+            </PageSection>
+        }
       </Wrapper>
     </div>
   )

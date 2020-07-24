@@ -1,14 +1,16 @@
+import AspectRatioIcon from '@material-ui/icons/AspectRatio';
 import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
 import InvertColorsIcon from '@material-ui/icons/InvertColors';
 import PanToolOutlinedIcon from '@material-ui/icons/PanToolOutlined';
 import { Tooltip, TooltipPosition } from '@patternfly/react-core';
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { ImageViewerTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ImagesViewerMods } from '../../context/reducers/imgViewerReducer';
 
 const DicomViewerHeader = () => {
+  const [isFullScreen, setFullScreen] = useState(false);
   const { state: { imgViewer: { isImgInverted } }, dispatch } = useContext(AppContext);
   const history = useHistory()
 
@@ -17,6 +19,24 @@ const DicomViewerHeader = () => {
     //   type: ImageViewerTypes.Update_view_mod,
     //   payload: { mod }
     // })
+  }
+
+  const switchFullScreen = () => {
+    const elem: any = document.getElementById('dicomImgViewer')
+    if (!isFullScreen) {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) { /* Firefox */
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        elem?.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { /* IE/Edge */
+        elem.msRequestFullscreen();
+      }
+    } else {
+        document.exitFullscreen();
+    }
+    setFullScreen(!isFullScreen);
   }
 
   return (
@@ -97,7 +117,11 @@ const DicomViewerHeader = () => {
           </Tooltip>
         </button>
         <div className='padding_left_right_2rem'></div>
-        <button><i className="fas fa-compress"></i></button>
+        <button onClick={() => switchFullScreen()}>
+          {
+            isFullScreen ? <i className="fas fa-compress"></i> : <AspectRatioIcon></AspectRatioIcon>
+          }
+        </button>
         <div className="predictionValues moveDown rightMargin">
           <p>Brightness <span id="imgBrightness"></span></p>
           <p>Contrast <span id="imgContrast"></span></p>

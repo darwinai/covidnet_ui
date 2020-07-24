@@ -107,7 +107,7 @@ const ViewImagePage = () => {
   }, [selectedImage, history, mod])
 
   return (
-    <div id="dwv" className="imgViewer">
+    <div id="dicomImgViewer" className="imgViewer">
       <DicomViewerHeader></DicomViewerHeader>
       <div className="layerContainer" id="imageContainer">
         <img className={`${isImgInverted ? 'invertImg' : ''}`} id="dicomViewerImg" alt="DICOM Viewer" />
