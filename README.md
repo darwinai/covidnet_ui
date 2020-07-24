@@ -34,6 +34,10 @@ cd covidnet_integration
 ./uploadPlugins.sh
 ```
 
+Optionally, upload mock dicom images for testing
+```
+ ./run_mock.sh
+```
 
 Note: You can Install the required python packages using this script
 ```
