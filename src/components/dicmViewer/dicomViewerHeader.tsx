@@ -2,16 +2,19 @@ import AspectRatioIcon from '@material-ui/icons/AspectRatio';
 import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
 import InvertColorsIcon from '@material-ui/icons/InvertColors';
 import PanToolOutlinedIcon from '@material-ui/icons/PanToolOutlined';
-import { Tooltip, TooltipPosition } from '@patternfly/react-core';
+import { Tooltip, TooltipPosition, Spinner } from '@patternfly/react-core';
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { ImageViewerTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
+import GetAppIcon from '@material-ui/icons/GetApp';
 import { ImagesViewerMods } from '../../context/reducers/imgViewerReducer';
+import ChrisIntegration from '../../services/chris_integration';
 
 const DicomViewerHeader = () => {
+  const [loading, setLoading] = useState(false);
   const [isFullScreen, setFullScreen] = useState(false);
-  const { state: { imgViewer: { isImgInverted } }, dispatch } = useContext(AppContext);
+  const { state: { imgViewer: { isImgInverted }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext);
   const history = useHistory()
 
   const switchMode = (mod: ImagesViewerMods) => {
@@ -34,9 +37,15 @@ const DicomViewerHeader = () => {
         elem.msRequestFullscreen();
       }
     } else {
-        document.exitFullscreen();
+      document.exitFullscreen();
     }
     setFullScreen(!isFullScreen);
+  }
+
+  const printPDF = () => {
+    setLoading(true)
+    ChrisIntegration.pdfGeneration(selectedImage)
+      .then(() => setLoading(false))
   }
 
   return (
@@ -116,6 +125,7 @@ const DicomViewerHeader = () => {
             <i className="pf-icon pf-icon-info"></i>
           </Tooltip>
         </button>
+        <button onClick={printPDF}>{!loading ? <GetAppIcon /> : <Spinner size="lg"/>}</button>
         <div className='padding_left_right_2rem'></div>
         <button onClick={() => switchFullScreen()}>
           {

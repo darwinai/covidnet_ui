@@ -1,5 +1,7 @@
 import ChrisAPIClient from "../api/chrisapiclient"
 import { windowLevelBounds } from '../services/renderService'
+import { selectedImageType } from "../context/reducers/analyseReducer";
+import ChrisIntegration from "./chris_integration";
 
 export enum windowLevelType {
   brightness,

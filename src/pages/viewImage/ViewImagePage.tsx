@@ -89,7 +89,7 @@ const ViewImagePage = () => {
               }
             })
             container.addEventListener('mousedown', e => {
-              mouseDown = true;
+              if (e.button === 0) mouseDown = true;
             })
             container.addEventListener('mouseup', e => {
               mouseDown = false;

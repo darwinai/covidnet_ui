@@ -1,6 +1,6 @@
-import ChrisAPIClient from "../api/chrisapiclient"
-import { StudyInstanceWithSeries, ISeries } from "../context/reducers/analyseReducer";
-import { PluginInstance, IPluginCreateData } from "@fnndsc/chrisapi";
+import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../api/chrisapiclient";
+import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 
 export interface LocalFile {
@@ -62,7 +62,8 @@ class ChrisIntegration {
   private static PL_COVIDNET = 'pl-covidnet';
   private static FS_PLUGIN = 'pl-dircopy'; // 'pl-dircopy';
   private static MED2IMG = 'pl-med2img';
-  private static PL_CT_COVIDNET = 'pl-ct-covidnet'
+  private static PL_CT_COVIDNET = 'pl-ct-covidnet';
+  private static PL_PDFGENERATION = 'pl-pdfgeneration';
 
   static async getTotalAnalyses(): Promise<number> {
     let client: any = await ChrisAPIClient.getClient();
@@ -130,16 +131,15 @@ class ChrisIntegration {
       console.log(filename)
       const imgData = {
         inputFile: img.fname.split('/').pop(),
-        sliceToConvert: 0, 
+        sliceToConvert: 0,
         outputFileStem: `${filename}.jpg`, //-slice000
         previous_id: dircopyPluginInstance.data.id
       }
-      console.log(imgData)
       const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
       console.log("Converter Running")
       await pollingBackend(imgConverterInstance)
-      
-      const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET: this.PL_CT_COVIDNET;
+
+      const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET : this.PL_CT_COVIDNET;
       const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
       const plcovidnet_data: PlcovidnetData = {
         previous_id: imgConverterInstance.data.id,
@@ -219,6 +219,7 @@ class ChrisIntegration {
           offset: 0,
         });
         const newSeries: ISeries = {
+          covidnetPluginId: plugin.data.id,
           imageName: '',
           imageId: '',
           predCovid: 0,
@@ -264,7 +265,7 @@ class ChrisIntegration {
     return pastAnalysis;
   }
 
-  static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any}> {
+  static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {
     const client: any = ChrisAPIClient.getClient();
 
     let file = await client.getFile(fileId);
@@ -282,6 +283,57 @@ class ChrisIntegration {
     })
     const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
     return patientImages;
+  }
+
+  static async findFilesGeneratedByPlugin(pluginId: number): Promise<any[]> {
+    const client: any = ChrisAPIClient.getClient();
+    const pluginInstance = await client.getPluginInstances({
+      limit: 25,
+      offset: 0,
+      id: pluginId
+    });
+    const plugin = pluginInstance.getItems()[0]
+    const pluginInstanceFiles = await plugin.getFiles({
+      limit: 25,
+      offset: 0,
+    });
+    return pluginInstanceFiles.getItems();
+  }
+
+  static async pdfGeneration(selectedImage: selectedImageType) {
+    const covidnetPluginId = selectedImage.studyInstance?.series[selectedImage.index].covidnetPluginId;
+    if (covidnetPluginId ===  null || covidnetPluginId ===  undefined) return;
+    const client: any = ChrisAPIClient.getClient();
+    const pluginfiles = await this.findFilesGeneratedByPlugin(covidnetPluginId);
+    let imgName: string = '';
+    pluginfiles.forEach(file => {
+      if (file.data.fname.split('.').pop() === 'jpg') {
+        imgName = file.data.fname.split('/').pop()
+      }
+    })
+    if (!imgName) return;
+    const pdfgenerationPlugin = (await client.getPlugins({ "name_exact": this.PL_PDFGENERATION })).getItems()[0];
+    const pluginData = {
+      imagefile: imgName,
+      previous_id: covidnetPluginId
+    }
+    const imgConverterInstance: PluginInstance = await client.createPluginInstance(pdfgenerationPlugin.data.id, pluginData);
+    await pollingBackend(imgConverterInstance);
+
+    const files = await this.findFilesGeneratedByPlugin(imgConverterInstance.data.id);
+    for (let file of files) {
+      if (file.data.fname.includes('.pdf')) {
+        let pdf = await client.getFile(file.data.id);
+        let pdfBlob = await pdf.getFileBlob();
+        const url = window.URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${imgName.split('.')[0]}_prediction.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
   }
 }
 

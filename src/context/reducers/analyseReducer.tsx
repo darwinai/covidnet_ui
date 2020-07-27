@@ -20,6 +20,7 @@ export type riskStratifcation = {
 }
 
 export type ISeries = {
+  covidnetPluginId: number, 
   imageName: string,
   imageId: string,
   predCovid: number,
