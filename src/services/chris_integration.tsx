@@ -315,7 +315,8 @@ class ChrisIntegration {
     const pdfgenerationPlugin = (await client.getPlugins({ "name_exact": this.PL_PDFGENERATION })).getItems()[0];
     const pluginData = {
       imagefile: imgName,
-      previous_id: covidnetPluginId
+      previous_id: covidnetPluginId,
+      patientId: selectedImage.studyInstance?.dcmImage.PatientID
     }
     const imgConverterInstance: PluginInstance = await client.createPluginInstance(pdfgenerationPlugin.data.id, pluginData);
     await pollingBackend(imgConverterInstance);
