@@ -318,10 +318,10 @@ class ChrisIntegration {
       previous_id: covidnetPluginId,
       patientId: selectedImage.studyInstance?.dcmImage.PatientID
     }
-    const imgConverterInstance: PluginInstance = await client.createPluginInstance(pdfgenerationPlugin.data.id, pluginData);
-    await pollingBackend(imgConverterInstance);
+    const pdfgeneratorInstance: PluginInstance = await client.createPluginInstance(pdfgenerationPlugin.data.id, pluginData);
+    await pollingBackend(pdfgeneratorInstance);
 
-    const files = await this.findFilesGeneratedByPlugin(imgConverterInstance.data.id);
+    const files = await this.findFilesGeneratedByPlugin(pdfgeneratorInstance.data.id);
     for (let file of files) {
       if (file.data.fname.includes('.pdf')) {
         let pdf = await client.getFile(file.data.id);
