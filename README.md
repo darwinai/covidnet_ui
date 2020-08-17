@@ -1,10 +1,8 @@
 
-## Covidnet UI repo
+## COVID-Net UI Initiative
 
-### UI demo
+This repo contains the front-end UI for the COVID-Net initiative, a global open-source initiative started by DarwinAI and the Vision and Image Processing Research Group at the University of Waterloo, with a focus on advancing deep learning AI in the fight against the COVID-19 pandemic.  This COVID-Net UI platform enables easy use of the COVID-Net deep learning models from the main COVID-Net repo (https://github.com/lindawangg/COVID-Net) designed for a variety of tasks such as COVID-19 detection from chest x-rays and CT scans, as well as predict severity of COVID-19 infection from chest x-rays.  The COVID-Net UI platform is being developed by DarwinAI in close partnership with the ChRIS team at the Boston Children's Hospital led by Dr. Rudolph Pienaar (https://www.bu.edu/rhcollab/projects/radiology/) on top of the ChRIS platform.
 
-You can find a demo of UI at the following link, 
-<a href="https://drive.google.com/file/d/16SV1JR-K3NXXOc9AN-LZdXIj_9r71ZN6/view?usp=sharing">Link to UI demo</a>
 
 ### Installation
 
