@@ -24,12 +24,12 @@ const SelectedStudyDetail = () => {
   }
 
   if (images.length > 0) {
-    const { StudyDescription, StudyInstanceUID, PatientAge } = images[0]
+    const { StudyDescription, StudyInstanceUID, PatientAge, Modality } = images[0]
     content = (
       <div className="detail-select">
         <div className="flex_row">
           <div className="half_width padding_2rem">
-            <h1 className="study-title"> {StudyDescription} <span className="outtline-box red-small">XRAY</span></h1>
+            <h1 className="study-title"> {StudyDescription} <span className="outtline-box red-small">{Modality}</span></h1>
             <p className="color_grey s-large">Study Instance UID#{StudyInstanceUID}</p>
             <div className="padding_bot_1rem"></div>
             <div className="flex_row">
@@ -44,7 +44,7 @@ const SelectedStudyDetail = () => {
             </div>
           </div>
           <div className="half_width padding_2rem s-large">
-            Chest  X-Ray of suspected patient.
+            Chest  Scans of suspected patient.
       </div>
         </div>
         <div className="padding_left_right_2rem">

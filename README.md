@@ -1,6 +1,11 @@
 
 ## Covidnet UI repo
 
+### UI demo
+
+You can find a demo of UI at the following link, 
+<a href="https://drive.google.com/file/d/16SV1JR-K3NXXOc9AN-LZdXIj_9r71ZN6/view?usp=sharing">Link to UI demo</a>
+
 ### Installation
 
 #### get the ChRIS plugins at the following repos
