@@ -46,7 +46,6 @@ const DashboardPage: React.FC<AllProps> = () => {
         </PageSection>
         <PageSection variant={PageSectionVariants.light}>
           <PastAnalysisTable></PastAnalysisTable>
-          {/* <PastAnalysis></PastAnalysis> */}
         </PageSection>
       </PageSection>
     </Wrapper>

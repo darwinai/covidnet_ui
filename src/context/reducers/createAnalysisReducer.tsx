@@ -24,7 +24,7 @@ export interface SelectedStudies {
 export type ICreateAnalysisState = PatientPersonalInfo & SelectionStates;
 
 export const initialICreateAnalysisState: ICreateAnalysisState = {
-  patientID: '12345678',
+  patientID: '',
   patientName: '',
   patientAge: 0,
   patientBirthdate: '',
@@ -32,7 +32,6 @@ export const initialICreateAnalysisState: ICreateAnalysisState = {
   currSelectedStudyUID: '',
   selectedStudyUIDs: {}
 }
-
 
 type CreateAnalysisPayload = {
   [CreateAnalysisTypes.Update_patient_ID]: { patientID: string },
