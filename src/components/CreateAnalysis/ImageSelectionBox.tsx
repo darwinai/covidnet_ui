@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
 import { DrawerCloseButton } from "@patternfly/react-core";
-import image_placeholder from "../../assets/images/image_placeholder.png"
+import React, { useContext } from "react";
+import image_placeholder from "../../assets/images/image_placeholder.png";
+import { CreateAnalysisTypes } from "../../context/actions/types";
+import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
-import { AppContext } from "../../context/context";
-import { CreateAnalysisTypes } from "../../context/actions/types";
 
 type ImageSelectionBoxProps = {
   img: DcmImage

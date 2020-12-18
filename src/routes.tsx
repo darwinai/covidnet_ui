@@ -2,14 +2,13 @@
 import React from "react";
 import {
   Route,
-  Switch,
+  Switch
 } from "react-router-dom";
-
+import CreateAnalysisPage from "./pages/CreateAnalysisPage/CreateAnalysisPage";
 // Add view routes here
 import { Dashboard } from "./pages/Dashboard/Dashboard";
-import {NotFound} from "./pages/NotFound/NotFound";
 import LogInPage from "./pages/LogIn/Login";
-import CreateAnalysisPage from "./pages/CreateAnalysisPage/CreateAnalysisPage"
+import { NotFound } from "./pages/NotFound/NotFound";
 import ViewImagePage from "./pages/viewImage/ViewImagePage";
 
 const Routes: React.FunctionComponent = () => (

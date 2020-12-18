@@ -1,13 +1,13 @@
 import AspectRatioIcon from '@material-ui/icons/AspectRatio';
 import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
+import GetAppIcon from '@material-ui/icons/GetApp';
 import InvertColorsIcon from '@material-ui/icons/InvertColors';
 import PanToolOutlinedIcon from '@material-ui/icons/PanToolOutlined';
-import { Tooltip, TooltipPosition, Spinner } from '@patternfly/react-core';
+import { Spinner, Tooltip, TooltipPosition } from '@patternfly/react-core';
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { ImageViewerTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import GetAppIcon from '@material-ui/icons/GetApp';
 import { ImagesViewerMods } from '../../context/reducers/imgViewerReducer';
 import ChrisIntegration from '../../services/chris_integration';
 

@@ -2,10 +2,9 @@ import React, { useContext } from "react";
 import { ImageViewerTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries } from "../../context/reducers/analyseReducer";
-import PredictionCircle from '../PredictionCircle';
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 import { isLargestNumber } from "../pastAnalysis/seriesTable";
-
+import PredictionCircle from '../PredictionCircle';
 
 const DicomViewerBottomBox = () => {
   const { state: { imgViewer: { isBottomHided }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext)

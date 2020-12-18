@@ -1,9 +1,8 @@
-import * as React from "react";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
-
-import Wrapper from "../../containers/Layout/PageWrapper";
-import PatientLookup from "../../components/PatientLookup";
+import * as React from "react";
 import CreateAnalysisWrapper from "../../components/CreateAnalysis/CreateAnalysisWrapper";
+import PatientLookup from "../../components/PatientLookup";
+import Wrapper from "../../containers/Layout/PageWrapper";
 import { AppContext } from "../../context/context";
 import Error from "../../shared/error";
 

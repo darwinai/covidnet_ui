@@ -1,9 +1,8 @@
-import React, { useContext } from "react";
 import { Badge } from '@patternfly/react-core';
-import { StudyInstance } from "../../services/CreateAnalysisService";
-import { AppContext } from "../../context/context";
+import React, { useContext } from "react";
 import { CreateAnalysisTypes } from "../../context/actions/types";
-
+import { AppContext } from "../../context/context";
+import { StudyInstance } from "../../services/CreateAnalysisService";
 
 const SelectionStudy: React.FC<StudyInstance> = ({
   studyInstanceUID,

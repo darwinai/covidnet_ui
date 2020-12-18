@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
 import { Alert } from '@patternfly/react-core';
+import React, { useContext } from "react";
+import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
-import { CreateAnalysisTypes } from "../../context/actions/types";
 
 const SelectedStudyDetail = () => {
   const { state: { createAnalysis: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);

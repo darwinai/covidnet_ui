@@ -1,4 +1,4 @@
-import { Types, ActionMap } from "../actions/types";
+import { ActionMap, Types } from "../actions/types";
 
 export type IUserState = {
   username: string;
