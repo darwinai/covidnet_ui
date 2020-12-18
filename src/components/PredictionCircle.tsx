@@ -1,5 +1,5 @@
-import React from "react";
 import { ChartDonutUtilization } from '@patternfly/react-charts';
+import React from "react";
 
 interface circleProps {
   largeCircle: boolean;
@@ -29,5 +29,4 @@ const PredictionCircle = (props: circleProps) => {
     </div>
   )
 }
-
 export default PredictionCircle

@@ -1,13 +1,12 @@
 import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from '@patternfly/react-core';
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
+import { StagingDcmImagesTypes } from '../../context/actions/types';
+import { AppContext } from '../../context/context';
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 import ConfirmAnalysis from './ConfirmAnalysis';
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
-import { AppContext } from '../../context/context';
-import { StagingDcmImagesTypes } from '../../context/actions/types';
-
 
 const CreateAnalysisWrapper = () => {
   const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext)

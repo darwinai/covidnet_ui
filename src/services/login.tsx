@@ -1,5 +1,5 @@
-import { IUserState } from '../context/reducers/userReducer';
 import Client from "@fnndsc/chrisapi";
+import { IUserState } from '../context/reducers/userReducer';
 
 // returns true if login succeed and false otherwises
 export const handleLogin = async (user: IUserState): Promise<boolean> => {

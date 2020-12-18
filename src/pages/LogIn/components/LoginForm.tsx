@@ -53,7 +53,6 @@ const LoginFormComponent = () => {
       rememberMeLabel="Keep me logged in for 30 days."
       isRememberMeChecked={RememberMeClick}
       onChangeRememberMe={() => setRememberMeClick(!RememberMeClick)}
-      rememberMeAriaLabel="Remember me Checkbox"
       onLoginButtonClick={handleSubmit}
     />
   );

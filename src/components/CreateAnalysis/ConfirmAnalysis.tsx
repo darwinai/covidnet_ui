@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
-import ImageSelectionBox from "./ImageSelectionBox";
-import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
+import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
+import ImageSelectionBox from "./ImageSelectionBox";
 
 interface ConfirmAnalysisProps{
   submit: () => void

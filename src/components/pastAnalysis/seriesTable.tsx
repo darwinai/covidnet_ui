@@ -1,11 +1,11 @@
 import { Button } from '@patternfly/react-core';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
 import React, { useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import { AnalysisTypes } from '../../context/actions/types';
+import { AppContext } from '../../context/context';
 import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
-import { AppContext } from '../../context/context';
-import { AnalysisTypes } from '../../context/actions/types';
-import { useHistory } from 'react-router-dom';
 
 interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries

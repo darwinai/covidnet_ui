@@ -1,5 +1,5 @@
+import { ActionMap, StagingDcmImagesTypes } from "../actions/types";
 import { DcmImage } from "./dicomImagesReducer";
-import { StagingDcmImagesTypes, ActionMap } from "../actions/types";
 
 export type IStagingDcmImgs = DcmImage[];
 

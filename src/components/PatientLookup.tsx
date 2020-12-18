@@ -1,16 +1,17 @@
-import React, { useContext, useState } from "react";
 import {
-  Dropdown,
-  DropdownToggle,
-  DropdownItem,
-  Button,
-  TextInput,
+  Button, Dropdown,
+
+  DropdownItem, DropdownToggle,
+
+
+  TextInput
 } from '@patternfly/react-core';
+import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { AppContext } from "../context/context";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
+import { AppContext } from "../context/context";
 import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
-import chris_integration from '../services/chris_integration'
+import chris_integration from '../services/chris_integration';
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
 
 enum PrivacyLevel {

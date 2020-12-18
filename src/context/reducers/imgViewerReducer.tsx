@@ -1,4 +1,4 @@
-import { ImageViewerTypes, ActionMap } from "../actions/types";
+import { ActionMap, ImageViewerTypes } from "../actions/types";
 
 export enum ImagesViewerMods {
   ZOOM = 'ZOOM',

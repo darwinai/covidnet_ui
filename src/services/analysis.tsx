@@ -1,7 +1,6 @@
-import ChrisAPIClient from "../api/chrisapiclient"
-import { Plugin, PluginInstance, IPluginsSearchParams, IPluginCreateData } from "@fnndsc/chrisapi";
+import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../api/chrisapiclient";
 import { LocalFile } from "./chris_integration";
-
 
 // export interface IPluginCreateData {
 //   title?: string,
