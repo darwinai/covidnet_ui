@@ -1,10 +1,10 @@
+import { createBrowserHistory } from "history";
 import React from "react";
 import ReactDOM from "react-dom";
-import { createBrowserHistory } from "history";
+import "./assets/scss/main.scss";
 import "./lib/fontawesome-config";
 import Main from "./main";
 import * as serviceWorker from "./serviceWorker";
-import "./assets/scss/main.scss";
 
 const history = createBrowserHistory();
 ReactDOM.render(

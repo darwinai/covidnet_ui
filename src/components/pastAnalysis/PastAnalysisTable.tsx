@@ -1,16 +1,16 @@
-import { InputGroup, InputGroupText, Pagination, TextInput, Spinner } from '@patternfly/react-core';
+import { InputGroup, InputGroupText, Pagination, Spinner, TextInput } from '@patternfly/react-core';
 import { FilterIcon, SearchIcon } from '@patternfly/react-icons';
+import { css } from '@patternfly/react-styles';
+import styles from '@patternfly/react-styles/css/components/Table/table';
 import { expandable, Table, TableBody, TableHeader } from '@patternfly/react-table';
 import React, { ReactNode, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
+import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import ChrisIntegration from '../../services/chris_integration';
 import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
 import SeriesTable from './seriesTable';
-import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer'
-import { css } from '@patternfly/react-styles';
-import styles from '@patternfly/react-styles/css/components/Table/table';
-import { useHistory } from 'react-router-dom';
 
 
 interface tableRowsParent {
@@ -73,7 +73,7 @@ const PastAnalysisTable = () => {
           }
         })
       })
-  }, [page, perpage, dispatch, areNewImgsAvailable, stagingDcmImages])
+  }, [page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages])
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = []
@@ -120,7 +120,7 @@ const PastAnalysisTable = () => {
       trRef,
       className,
       rowProps,
-      row: { isExpanded, isHeightAuto, cells },
+      row: { isExpanded, cells },
       ...props
     } = tableRow;
     const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the last index in row
@@ -133,8 +133,7 @@ const PastAnalysisTable = () => {
           className,
           'custom-static-class',
           isExpanded !== undefined && styles.tableExpandableRow,
-          isExpanded && styles.modifiers.expanded,
-          isHeightAuto && styles.modifiers.heightAuto
+          isExpanded && styles.modifiers.expanded
         )}
         hidden={isExpanded !== undefined && !isExpanded}
         style={backgroundStyle}
