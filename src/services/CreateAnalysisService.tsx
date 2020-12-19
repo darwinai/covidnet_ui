@@ -1,12 +1,19 @@
-import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { PatientPersonalInfo, SelectedStudies } from "../context/reducers/createAnalysisReducer";
-import ChrisIntegration from "./chris_integration";
+import { DcmImage } from "../context/reducers/dicomImagesReducer";
+import { NotificationItem } from "../context/reducers/notificationReducer";
+import ChrisIntegration, { BackendPollResult } from "./chris_integration";
+import NotificationService from "./notificationService";
 
 export interface StudyInstance {
   studyInstanceUID: string;
   studyDescription: string;
   modality: string;
   createdDate: string;
+}
+
+export interface AnalyzedImageResult {
+  image: DcmImage,
+  processedResults: BackendPollResult[];
 }
 
 class CreateAnalysisService {
@@ -77,14 +84,26 @@ class CreateAnalysisService {
     return imgs.filter((img: DcmImage) => this.isImgSelected(selectedStudyUIDs, img));
   }
 
-  static async analyzeImages(imgs: DcmImage[]): Promise<void> {
-    const promises = []
-    for (let img of imgs) {
-      promises.push(ChrisIntegration.processOneImg(img))
+  static async analyzeImages(dcmImages: DcmImage[]): Promise<NotificationItem[]> {
+    const promises = [];
+    for (let img of dcmImages) {
+      promises.push(ChrisIntegration.processOneImg(img));
     }
-    const result = await Promise.allSettled(promises);
-    console.log(result)
-    return;
+    const processedImages = await Promise.allSettled(promises);
+
+    const results: AnalyzedImageResult[] = [];
+    processedImages.forEach((processedImage, index) => {
+      if (processedImage.status === "fulfilled") {
+        results.push({
+          image: dcmImages[index],
+          processedResults: processedImage.value
+        })
+      }
+    });
+
+    const notifications = results.map(result => NotificationService.analyzedImageToNotification(result));
+
+    return notifications;
   }
 }
 

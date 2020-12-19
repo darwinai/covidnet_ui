@@ -2,9 +2,10 @@ import React, { createContext, useReducer } from 'react';
 import { analysesReducer, initialIPrevAnalysesState, IPrevAnalysesState } from './reducers/analyseReducer';
 import { createAnalysisReducer, ICreateAnalysisState, initialICreateAnalysisState } from './reducers/createAnalysisReducer';
 import { dicomImagesReducer, IDcmImagesState, initialIDcmImagesState } from './reducers/dicomImagesReducer';
+import { IimgViewerState, imgViewerReducer, initialIimgViewer } from './reducers/imgViewerReducer';
+import { initialNotificationsState, notificationsReducer, NotificationState } from './reducers/notificationReducer';
+import { initialIStagingDcmImgsState, IStagingDcmImgs, stagingDcmImgsReducer } from './reducers/stagingDcmImgsReducer';
 import { initialIUserState, IUserState, userReducer } from './reducers/userReducer';
-import { IStagingDcmImgs, initialIStagingDcmImgsState, stagingDcmImgsReducer } from './reducers/stagingDcmImgsReducer';
-import { IimgViewerState, initialIimgViewer, imgViewerReducer } from './reducers/imgViewerReducer';
 
 type InitialStateType = {
   user: IUserState;
@@ -13,6 +14,7 @@ type InitialStateType = {
   dcmImages: IDcmImagesState;
   stagingDcmImages: IStagingDcmImgs;
   imgViewer: IimgViewerState;
+  notifications: NotificationState;
 }
 
 const initialState: InitialStateType = {
@@ -21,7 +23,8 @@ const initialState: InitialStateType = {
   createAnalysis: initialICreateAnalysisState,
   dcmImages: initialIDcmImagesState,
   stagingDcmImages: initialIStagingDcmImgsState,
-  imgViewer: initialIimgViewer
+  imgViewer: initialIimgViewer,
+  notifications: initialNotificationsState,
 }
 
 const AppContext = createContext<{
@@ -33,7 +36,7 @@ const AppContext = createContext<{
 });
 
 const mainReducer = (
-  { user, prevAnalyses, createAnalysis, dcmImages, stagingDcmImages, imgViewer}: InitialStateType,
+  { user, prevAnalyses, createAnalysis, dcmImages, stagingDcmImages, imgViewer, notifications}: InitialStateType,
   action: any, // or UserActions | AnalysisActions
 ) => ({
   user: userReducer(user, action),
@@ -41,7 +44,8 @@ const mainReducer = (
   createAnalysis: createAnalysisReducer(createAnalysis, action),
   dcmImages: dicomImagesReducer(dcmImages, action),
   stagingDcmImages: stagingDcmImgsReducer(stagingDcmImages, action),
-  imgViewer: imgViewerReducer(imgViewer, action)
+  imgViewer: imgViewerReducer(imgViewer, action),
+  notifications: notificationsReducer(notifications, action)
 });
 
 // a function component for Provider

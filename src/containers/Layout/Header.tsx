@@ -1,11 +1,13 @@
-import { 
-  Dropdown, 
-  DropdownItem, 
-  DropdownToggle, 
-  PageHeader, 
-  Toolbar, 
-  ToolbarGroup, 
-  ToolbarItem } from "@patternfly/react-core";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownToggle,
+  NotificationBadge,
+  PageHeader,
+  PageHeaderTools,
+  PageHeaderToolsGroup,
+  PageHeaderToolsItem
+} from "@patternfly/react-core";
 import { css } from '@patternfly/react-styles';
 import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
 import React from "react";
@@ -13,12 +15,16 @@ import { Link, useHistory } from 'react-router-dom';
 import logo from "../../assets/images/logo-white.png";
 import { Types } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import TopBar from "./TopBar";
+import { NotificationItemVariant } from "../../context/reducers/notificationReducer";
+import PageNav from "./PageNav";
 
-const Header = () => {
+interface HeaderProps {
+  onNotificationBadgeClick: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
   const history = useHistory()
   const { state, dispatch } = React.useContext(AppContext);
-  //const pageToolbar = <Link to="/login">Log In</Link>;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
 
   const onDropdownSelect = () => {
@@ -39,10 +45,23 @@ const Header = () => {
     <DropdownItem key={'Sign out'} onClick={logout} >Sign out</DropdownItem>,
   ];
 
+  const variant = state.notifications.length > 0
+    ? state.notifications.some(notification => notification.variant === NotificationItemVariant.DANGER)
+      ? "attention" : "unread"
+      : "read";
+
   const pageToolbar = state.user.loggedIn ? (
-    <Toolbar>
-      <ToolbarGroup>
-        <ToolbarItem className={css(accessibleStyles.screenReader, accessibleStyles.visibleOnMd)}>
+    <PageHeaderTools>
+      <PageHeaderToolsItem>
+        <NotificationBadge
+          variant={variant}
+          count={state.notifications.length}
+          onClick={onNotificationBadgeClick}
+          aria-label="Notifications">
+        </NotificationBadge>
+      </PageHeaderToolsItem>
+      <PageHeaderToolsGroup>
+        <PageHeaderToolsItem className={css(accessibleStyles.screenReader, accessibleStyles.visibleOnMd)}>
           <Dropdown
             isPlain
             position="right"
@@ -51,9 +70,9 @@ const Header = () => {
             onSelect={onDropdownSelect}
             dropdownItems={userDropdownItems}
           />
-        </ToolbarItem>
-      </ToolbarGroup>
-    </Toolbar>
+        </PageHeaderToolsItem>
+      </PageHeaderToolsGroup>
+    </PageHeaderTools>
   ) : (<Link to="/login">Log In</Link>)
 
   return <PageHeader
@@ -62,7 +81,7 @@ const Header = () => {
     headerTools={pageToolbar}
     logo={(<React.Fragment><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/>
     <span className='logo-text'>COVID-Net</span></React.Fragment>)}
-    topNav={<TopBar />}
+    topNav={<PageNav />}
   />;
 }
 
