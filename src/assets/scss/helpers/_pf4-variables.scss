@@ -27,8 +27,6 @@ $pf-global--image-path: "~@patternfly/patternfly/assets/images";
 // use the following steps to update your configuration in the src/patternfly/utilities/variables.scss file to state false
 // $pf-global--enable-reset:           false; // NOTE: removes resets in _base.scss!!!!!
 
-$pf-global--BorderRadius--sm: 0; // Changed to override button radius might need to override actual styles
-
 // Color overrides
 // --------------------------------------------------------------------
 $pf-color-black-900: #282d33;

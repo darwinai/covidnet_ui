@@ -16,20 +16,49 @@ interface PlcovidnetData extends IPluginCreateData {
   imagefile: string;
 }
 
+enum PluginPollStatus {
+  STARTED = "started",
+  SUCCESS = "finishedSuccessfully",
+  ERROR = "finishedWithError",
+  CANCELLED = "cancelled"
+}
 
-export const pollingBackend = async (pluginInstance: PluginInstance) => {
-  let waitTime = 1000;
+export interface BackendPollResult {
+  plugin: string;
+  status?: PluginPollStatus;
+  error?: Error;
+}
+
+export const pollingBackend = async (pluginInstance: PluginInstance): Promise<BackendPollResult> => {
+  const maxWaitInterval = 600000; // 10 minutes
+  let waitInterval = 1000;
   const timeout = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-  while (true) {
-    await timeout(waitTime)
-    const res: any = await pluginInstance.get()
-    console.log(`${res.data.plugin_name}: ${res.data.status}`)
-    if (res.data.status === "finishedSuccessfully") {
-      break;
-    }
-    waitTime *= 2;
+  await timeout(waitInterval);
+  let res: any = await pluginInstance.get();
+
+  const shouldWait = () => (waitInterval < maxWaitInterval
+    && ![PluginPollStatus.CANCELLED, PluginPollStatus.ERROR, PluginPollStatus.SUCCESS].includes(res.data.status))
+
+  while (shouldWait()) {
+    await timeout(waitInterval);
+    res = await pluginInstance.get(); // This is not async!!
+    console.log(`${res.data.plugin_name}: ${res.data.status}`);
+    waitInterval *= 2;
+  }
+
+  const result = {
+    plugin: res.data.plugin_name,
+    status: res.data.status
+  }
+
+  if (waitInterval > maxWaitInterval) {
+    return { error: new Error('terminated due to timeout'), ...result }
+  } else if ([PluginPollStatus.CANCELLED, PluginPollStatus.ERROR].includes(res.data.status)) {
+    return { error: new Error(`exited with status '${res.data.status}'`), ...result }
+  } else {
+    return result;
   }
 }
 
@@ -114,7 +143,7 @@ class ChrisIntegration {
     return true;
   }
 
-  static async processOneImg(img: DcmImage): Promise<void> {
+  static async processOneImg(img: DcmImage): Promise<BackendPollResult[]> {
     let client: any = await ChrisAPIClient.getClient();
     try {
       console.log(img.fname)
@@ -123,7 +152,10 @@ class ChrisIntegration {
       const data: DirCreateData = { "dir": img.fname };
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
-      await pollingBackend(dircopyPluginInstance)
+      const dirCopyResult = await pollingBackend(dircopyPluginInstance);
+      if (dirCopyResult.error) {
+        return [dirCopyResult];
+      }
 
       //med2img
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": this.MED2IMG })).getItems()[0];
@@ -135,9 +167,18 @@ class ChrisIntegration {
         outputFileStem: `${filename}.jpg`, //-slice000
         previous_id: dircopyPluginInstance.data.id
       }
+      if (imgConverterPlugin === undefined || imgConverterPlugin.data === undefined) {
+        return [{
+          plugin: this.MED2IMG,
+          error: new Error('not registered')
+        }];
+      }
       const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
       console.log("Converter Running")
-      await pollingBackend(imgConverterInstance)
+      const imgConverterResult = await pollingBackend(imgConverterInstance);
+      if (imgConverterResult.error) {
+        return [imgConverterResult];
+      }
 
       const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET : this.PL_CT_COVIDNET;
       const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
@@ -146,13 +187,23 @@ class ChrisIntegration {
         title: img.fname,
         imagefile: `${filename}.jpg`
       }
+      if (covidnetPlugin === undefined || covidnetPlugin.data === undefined) {
+        return [{
+          plugin: pluginNeeded,
+          error: new Error('not registered')
+        }];
+      }
       const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      console.log("Covidnet Running");
+      const covidnetResult = await pollingBackend(covidnetInstance);
+      if (covidnetResult.error) {
+        return [covidnetResult];
+      }
 
-      console.log("Covidnet Running")
-      await pollingBackend(covidnetInstance)
+      return [dirCopyResult, imgConverterResult, covidnetResult];
     } catch (err) {
       console.log(err);
-      return;
+      return [];
     }
   }
 

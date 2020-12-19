@@ -46,3 +46,7 @@ export enum ImageViewerTypes {
   Update_is_bottom_hidded = 'UPDATE_IS_BOTTOM_HIDED',
   Update_is_img_inverted = 'UPDATE_IS_IMG_INVETED'
 }
+
+export enum NotificationActionTypes {
+  SEND
+}

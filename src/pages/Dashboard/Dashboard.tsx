@@ -1,12 +1,12 @@
-import React, { useEffect, useContext } from "react";
-import { RouteComponentProps } from "react-router-dom";
-import Wrapper from "../../containers/Layout/PageWrapper";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
+import React, { useContext, useEffect } from "react";
+import { RouteComponentProps } from "react-router-dom";
 import { CreateAnalysisSection } from "../../components/CreateAnalysis/CreateAnalysis";
+import PastAnalysisTable from "../../components/pastAnalysis/PastAnalysisTable";
+import Wrapper from "../../containers/Layout/PageWrapper";
+import { AnalysisTypes, CreateAnalysisTypes, NotificationActionTypes, StagingDcmImagesTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
-import { StagingDcmImagesTypes, CreateAnalysisTypes, AnalysisTypes } from "../../context/actions/types";
-import PastAnalysisTable from "../../components/pastAnalysis/PastAnalysisTable";
 
 type AllProps = RouteComponentProps;
 
@@ -19,7 +19,7 @@ const DashboardPage: React.FC<AllProps> = () => {
 
     // process the images
     CreateAnalysisService.analyzeImages(stagingDcmImages)
-      .then(() => {
+      .then((notifications) => {
         dispatch({
           type: StagingDcmImagesTypes.UpdateStaging,
           payload: { imgs: [] }
@@ -31,6 +31,10 @@ const DashboardPage: React.FC<AllProps> = () => {
         dispatch({
           type: AnalysisTypes.Update_are_new_imgs_available,
           payload: { isAvailable: true }
+        })
+        dispatch({
+          type: NotificationActionTypes.SEND,
+          payload: { notifications }
         })
       })
   }, [dispatch, stagingDcmImages])
