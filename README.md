@@ -52,14 +52,14 @@ Note: You can install the required Python packages using this script:
 
 Now register the plugins on ChRIS:
 1. Navigate to http://localhost:8000/chris-admin
-2. login with default account with
+2. Log in with default account with:
 * Username: chris
 * password: chris1234
 3. Navigate to plugins page: http://localhost:8000/chris-admin/plugins/plugin/
-4. Click `ADD PLUGIN` on top right
-5. choose host as compute resource
-6. enter plugin name pl-covidnet
-7. then save
+4. Click `ADD PLUGIN` on the top right.
+5. Choose host as compute resource.
+6. Enter plugin name pl-covidnet.
+7. Save.
 
 Repeat this process for all other plugins with their respective names.
 
