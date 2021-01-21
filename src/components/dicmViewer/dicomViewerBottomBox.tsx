@@ -29,15 +29,46 @@ const DicomViewerBottomBox = () => {
 
   //2018 01 05 2y 6m
   const { studyInstance, index } = selectedImage;
-  let imageDetail = studyInstance ? studyInstance.series[index] : null;
+  let imageDetail = studyInstance ? studyInstance.series[index] : null; //HERE. MAKE SURE TO FIX AND UPDATE AND CHANGE AND COME BACK TO THIS. Make sure to come back to this and update and change this back if doesn't work. look here for issues in future. properly fix and reflect and look over and reflect on this later.
+
+  const generateBottomDisplay = (series: ISeries | null) => {
+    let viewerBottomBoxDIsplay = [];
+    for (let classification in series?.columnNames) { //what if this part is null?
+      viewerBottomBoxDIsplay.push(
+        <p>{series?.columnNames[Number(classification)]} <span className="blueText">{series ? series.columnValues[Number(classification)] : 0}</span></p>
+      );
+    }
+//what was the original? what did i change or am missing?
+    return viewerBottomBoxDIsplay;
+  }
+
+  const generateDisplayCircles = (series: ISeries | null) => {
+    let viewerPredictionDIsplay = [];
+    for (let classification in series?.columnNames) {
+      if (series == null) {
+        //move this iff outside.
+      } else {
+        viewerPredictionDIsplay.push(
+          <div className="PredictionArea">
+                <PredictionCircle largeCircle={isLargestNumber(series?.columnValues[Number(classification)], series.columnValues)}
+                  predictionNumber={series ? series.columnValues[Number(classification)] : 0} />
+                <div className="topMargin">series.columnNames[Number(classification)]</div>
+              </div>
+        );
+      }
+    }
+
+    return viewerPredictionDIsplay;
+  }
+
   return (
     <div id="ViewerbottomBox"
       className={`flex_col dicomViewerBottomBox ${!isBottomHided ? 'expandedBottom' : 'collapsedBottom'}`}>
       <div className="hideButton">
         <div className='predictionValues moveUp'>
-          <p>NORMAL <span className="blueText">{imageDetail ? imageDetail.predNormal : 0}</span></p>
-          <p>PNEUMONIA <span className="blueText">{imageDetail ? imageDetail.predPneumonia : 0}</span></p>
-          <p>COVID-19 <span className="blueText">{imageDetail ? imageDetail.predCovid : 0}</span></p>
+
+          {generateBottomDisplay(imageDetail)}
+
         </div>
         <span className="pointer" onClick={toggle}>{!isBottomHided ? 'hide ' : 'expand '}</span>	&nbsp;
         <span className="pointer" onClick={toggle}>
@@ -63,21 +94,9 @@ const DicomViewerBottomBox = () => {
         <div className="predictions padding-l-2rem">
           <span className='logo-text'>COVID-Net</span>
           <div className="flex_row">
-            <div className="PredictionArea">
-              <PredictionCircle largeCircle={isLargestNumber(imageDetail?.predCovid, imageDetail?.predPneumonia, imageDetail?.predNormal)}
-                predictionNumber={imageDetail ? imageDetail.predCovid : 0} />
-              <div className="topMargin">COVID-19</div>
-            </div>
-            <div className="PredictionArea padding-l-2rem">
-              <PredictionCircle largeCircle={isLargestNumber(imageDetail?.predPneumonia, imageDetail?.predCovid, imageDetail?.predNormal)}
-                predictionNumber={imageDetail ? imageDetail.predPneumonia : 0} />
-              <div className="topMargin">PNEUMONIA</div>
-            </div>
-            <div className="PredictionArea padding-l-2rem">
-              <PredictionCircle largeCircle={isLargestNumber(imageDetail?.predNormal, imageDetail?.predCovid, imageDetail?.predPneumonia)}
-                predictionNumber={imageDetail ? imageDetail.predNormal : 0} />
-              <div className="topMargin">NORMAL</div>
-            </div>
+          
+            {generateDisplayCircles(imageDetail)}
+
             <div className="padding-l-2rem">
               <p><span>GEOGRAPHIC SEVERITY</span>&nbsp;{geoOpacityNumbers(imageDetail, 'geographic', 'severity')}</p>
               <p><span>GEOGRAPHIC EXTENT</span>&nbsp;{geoOpacityNumbers(imageDetail, 'geographic', 'extentScore')}</p>

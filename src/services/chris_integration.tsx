@@ -234,7 +234,7 @@ class ChrisIntegration {
       for (let plugin of pluginlists) {
         let studyInstance: StudyInstanceWithSeries | null = null
         // ignore plugins that are not pl-covidnet or pl-ct-covidnet
-        if (plugin.data.plugin_name !== this.PL_COVIDNET && plugin.data.plugin_name !== this.PL_CT_COVIDNET) continue;
+        if (plugin.data.plugin_name !== this.PL_COVIDNET && plugin.data.plugin_name !== this.PL_CT_COVIDNET) continue; //xray + chest
 
         // get dicom image data
         if (plugin.data.title !== '') {
@@ -273,21 +273,31 @@ class ChrisIntegration {
           covidnetPluginId: plugin.data.id,
           imageName: '',
           imageId: '',
-          predCovid: 0,
-          predPneumonia: 0,
-          predNormal: 0,
+          columnNames: [],
+          columnValues: [],
           geographic: null,
           opacity: null
         }
+
         for (let fileObj of pluginInstanceFiles.getItems()) {
+          //console.log(fileObj.data.fname)
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
             let content = await this.fetchJsonFiles(fileObj.data.id)
+            console.log(fileObj.data.fname)
             const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
-            newSeries.predCovid = formatNumber(content['COVID-19'])
-            newSeries.predNormal = formatNumber(content['Normal'])
-            newSeries.predPneumonia = formatNumber(content['Pneumonia'])
+            console.log(content); //LOOK AT FILE CONTENTS HERE.
+            Object.keys(content).map(function(key: string) {
+              if (key !== 'prediction') {
+                if (key !== '**DISCLAIMER**') { //why was this disclaimer? it wasn't even in the file. check with janakitti's and original to see if orders are pairing correctly. compare with the json file that i can print out too.
+                  newSeries.columnNames.push(key);
+                  newSeries.columnValues.push(formatNumber(content[key]));
+                }
+              } return 1;
+            });
+
           } else if (fileObj.data.fname.includes('severity.json')) {
             let content = await this.fetchJsonFiles(fileObj.data.id)
+            console.log(content)
             newSeries.geographic = {
               severity: content['Geographic severity'],
               extentScore: content['Geographic extent score']
@@ -322,7 +332,8 @@ class ChrisIntegration {
     let file = await client.getFile(fileId);
     let blob = await file.getFileBlob();
     let content = await blob.text();
-    return JSON.parse(content)
+    console.log(content)
+    return JSON.parse(content);
   }
 
   static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {

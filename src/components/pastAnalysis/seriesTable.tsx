@@ -11,9 +11,10 @@ interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries
 }
 
-export const isLargestNumber = (num: number | undefined, compare1: number | undefined, compare2: number | undefined) => {
-  if (num !== undefined && compare1 !== undefined && compare2 !== undefined)
-    return num === Math.max(num, compare1, compare2);
+export const isLargestNumber = (num: number | undefined, numArray: number[]) => {
+  if (num !== undefined && numArray !== undefined) {
+    return num === Math.max(...numArray);
+  }
   else return false
 }
 
@@ -21,42 +22,46 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
   const { series: analysisList } = studyInstance
-  const columns = [
-    { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) },
-    { title: (<span>Predictions<br /><span className='classificationText'>COVID-19</span></span>) },
-    { title: (<span><br /><span className='classificationText'>Pneumonia</span></span>) },
-    { title: (<span><br /><span className='classificationText'>Normal</span></span>) },
-    { title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
-    { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
-    { title: (<span></span>) }
-  ]
+  let titles = [{ title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }];
 
-  const rows = analysisList.map((analysis: ISeries, index: number) => ({
-    cells: [
+  for (let title of analysisList[0].columnNames) { 
+    //what if item 0 doesn't exist here. what if all of them have different column names? how to do the title here? investigate why some of them had more than 1, and if this caused issues?
+    //analysis list size 0.
+    titles.push({ title: (<span><br /><span className='classificationText'>{title}</span></span>) });
+  }
+
+  titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
+              { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
+              { title: (<span></span>) });
+
+  const columns = titles;
+
+  const rows = analysisList.map(function(analysis: ISeries, index: number) {
+    let analysisCells: any = [
       {
         title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>)
-      },
-      {
+      }
+    ]
+
+    for (let classification in analysis.columnNames) {
+      analysisCells.push({
         title: (<PredictionCircle key={index}
-          largeCircle={isLargestNumber(analysis.predCovid, analysis.predNormal, analysis.predPneumonia)}
-          predictionNumber={analysis.predCovid} />)
-      }, {
-        title: (<PredictionCircle key={index}
-          largeCircle={isLargestNumber(analysis.predPneumonia, analysis.predNormal, analysis.predCovid)}
-          predictionNumber={analysis.predPneumonia} />)
-      }, {
-        title: (<PredictionCircle key={index}
-          largeCircle={isLargestNumber(analysis.predNormal, analysis.predPneumonia, analysis.predCovid)}
-          predictionNumber={analysis.predNormal} />)
-      }, {
+          largeCircle={isLargestNumber(analysis.columnValues[classification], analysis.columnValues)}
+          predictionNumber={analysis.columnValues[classification]} />)
+      });
+    }
+    
+      analysisCells.push({
         title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
       }, {
         title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
       }, {
         title: (<Button variant="secondary" onClick={() => viewImage(index)}>View</Button>)
-      }
-    ]
-  }))
+      });
+
+    return { cells: analysisCells }
+  })
+
 
   const viewImage = (index: number) => {
     dispatch({

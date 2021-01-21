@@ -47,7 +47,7 @@ const PastAnalysisTable = () => {
     setLoading(true);
     ChrisIntegration.getPastAnalaysis(page, perpage)
       .then(listOfAnalyses => {
-        dispatch({
+        dispatch({ //this is where it updates
           type: AnalysisTypes.Update_list,
           payload: { list: listOfAnalyses }
         });
@@ -60,6 +60,8 @@ const PastAnalysisTable = () => {
         setLoading(false);
       })
       .catch(err => {
+        console.log("ERROR IS HEREEEEE")
+        console.log(err)
         if (err.response.data.includes('Authentication credentials')) {
           history.push('/login')
         }
@@ -101,11 +103,13 @@ const PastAnalysisTable = () => {
           parent: indexInRows,
           fullWidth: true,
           cells: [{
-            title: (<SeriesTable studyInstance={analysis}></SeriesTable>)
+            title: (<SeriesTable studyInstance={analysis}></SeriesTable>) //this is why multiple calls.
           }]
         })
       }
     }
+    console.log("JANAKITTI ");
+    console.log(rows)
     setRows(rows)
   }
 

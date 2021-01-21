@@ -40,7 +40,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
           <div className="detail-top-left">
             <h1>Create a new predictive analysis</h1>
             <p>Select at least one image series below and select the "Analyze" button to receive COVID, pneumonia
-            and normal predictions per image.</p>
+            and normal predictions per image.</p> 
+            {/* should change this to be dynamic */}
             <div className="detail-patient">
               <div>
                 <img src={avator} alt="avator" width="100px" height="100px"></img>
