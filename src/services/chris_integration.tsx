@@ -109,41 +109,6 @@ class ChrisIntegration {
     return count;
   }
 
-  // old code used for manually uploaded image analysis
-  // static async processNewAnalysis(files: LocalFile[]): Promise<boolean> {
-  //   let client: any = await ChrisAPIClient.getClient();
-  //   try {
-  //     // upload file
-  //     const uploadedFile = await client.uploadFile({
-  //       "upload_path": `chris/uploads/covidnet/${files[0].name}`
-  //     }, { "fname": files[0].blob })
-
-  //     // create dircopy plugin
-  //     const dircopyPlugin = (await client.getPlugins({ 'name_exact': this.FS_PLUGIN })).getItems()[0];
-  //     const data: DirCreateData = { "dir": uploadedFile.data.fname }
-  //     const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
-
-  //     await pollingBackend(pluginInstance)
-
-  //     const filename = uploadedFile.data.fname.split('/').pop()
-  //     // create covidnet plugin
-  //     const plcovidnet_data: PlcovidnetData = { //possibly because of this?
-  //       previous_id: pluginInstance.data.id,
-  //       // title: this.PL_COVIDNET,
-  //       imagefile: filename
-  //     }
-  //     const plcovidnet = await client.getPlugins({ "name_exact": "pl-covidnet-two" })
-  //     const covidnetPlugin = plcovidnet.getItems()[0]
-  //     const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data); //how do we actually go from click to here? what triggers it?
-  //     console.log("Covidnet Running")
-  //     await pollingBackend(covidnetInstance)
-  //   } catch (err) {
-  //     console.log(err)
-  //     return false
-  //   }
-  //   return true;
-  // }
-
   static async processOneImg(img: DcmImage): Promise<BackendPollResult[]> {
     let client: any = await ChrisAPIClient.getClient();
     try {
@@ -281,12 +246,9 @@ class ChrisIntegration {
         }
 
         for (let fileObj of pluginInstanceFiles.getItems()) {
-          //console.log(fileObj.data.fname)
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
             let content = await this.fetchJsonFiles(fileObj.data.id)
-            console.log(fileObj.data.fname)
             const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
-            console.log(content); //LOOK AT FILE CONTENTS HERE.
             Object.keys(content).map(function(key: string) {
               if (key !== 'prediction') {
                 if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
@@ -298,7 +260,6 @@ class ChrisIntegration {
 
           } else if (fileObj.data.fname.includes('severity.json')) {
             let content = await this.fetchJsonFiles(fileObj.data.id)
-            console.log(content)
             newSeries.geographic = {
               severity: content['Geographic severity'],
               extentScore: content['Geographic extent score']
@@ -333,7 +294,6 @@ class ChrisIntegration {
     let file = await client.getFile(fileId);
     let blob = await file.getFileBlob();
     let content = await blob.text();
-    console.log(content)
     return JSON.parse(content);
   }
 

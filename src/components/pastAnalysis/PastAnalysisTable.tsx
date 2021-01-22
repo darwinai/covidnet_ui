@@ -60,8 +60,6 @@ const PastAnalysisTable = () => {
         setLoading(false);
       })
       .catch(err => {
-        console.log("ERROR IS HEREEEEE")
-        console.log(err)
         if (err.response.data.includes('Authentication credentials')) {
           history.push('/login')
         }
