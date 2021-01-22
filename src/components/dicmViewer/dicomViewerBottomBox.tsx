@@ -32,10 +32,13 @@ const DicomViewerBottomBox = () => {
   let imageDetail = studyInstance ? studyInstance.series[index] : null; //HERE. MAKE SURE TO FIX AND UPDATE AND CHANGE AND COME BACK TO THIS. Make sure to come back to this and update and change this back if doesn't work. look here for issues in future. properly fix and reflect and look over and reflect on this later.
 
   const generateBottomDisplay = (series: ISeries | null) => {
+    if (series == null) {
+      return;
+    }
     let viewerBottomBoxDIsplay = [];
-    for (let classification in series?.columnNames) { //what if this part is null?
+    for (let classification in series.columnNames) { //what if this part is null?
       viewerBottomBoxDIsplay.push(
-        <p>{series?.columnNames[Number(classification)]} <span className="blueText">{series ? series.columnValues[Number(classification)] : 0}</span></p>
+        <p>{series.columnNames[Number(classification)]}: <span className="blueText">{series ? series.columnValues[Number(classification)] : 0}</span></p>
       );
     }
 //what was the original? what did i change or am missing?
@@ -43,21 +46,21 @@ const DicomViewerBottomBox = () => {
   }
 
   const generateDisplayCircles = (series: ISeries | null) => {
+    if (series == null) {
+      return;
+    } 
     let viewerPredictionDIsplay = [];
     for (let classification in series?.columnNames) {
-      if (series == null) {
-        //move this iff outside.
-      } else {
+      {
         viewerPredictionDIsplay.push(
           <div className="PredictionArea">
-                <PredictionCircle largeCircle={isLargestNumber(series?.columnValues[Number(classification)], series.columnValues)}
+                <PredictionCircle largeCircle={isLargestNumber(series.columnValues[Number(classification)], series.columnValues)}
                   predictionNumber={series ? series.columnValues[Number(classification)] : 0} />
                 <div className="topMargin">{series.columnNames[Number(classification)]}</div>
               </div>
         );
       }
     }
-
     return viewerPredictionDIsplay;
   }
 

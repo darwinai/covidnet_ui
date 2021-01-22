@@ -11,8 +11,8 @@ interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries
 }
 
-export const isLargestNumber = (num: number | undefined, numArray: number[]) => {
-  if (num !== undefined && numArray !== undefined) {
+export const isLargestNumber = (num: number | null, numArray: number[]) => {
+  if (num !== null && numArray !== null) {
     return num === Math.max(...numArray);
   }
   else return false
@@ -24,7 +24,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const { series: analysisList } = studyInstance
   let titles = [{ title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }];
 
-  for (let title of analysisList[0].columnNames) { 
+  for (let title of analysisList[0]?.columnNames) { 
     //what if item 0 doesn't exist here. what if all of them have different column names? how to do the title here? investigate why some of them had more than 1, and if this caused issues?
     //analysis list size 0.
     titles.push({ title: (<span><br /><span className='classificationText'>{title}</span></span>) });

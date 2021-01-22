@@ -108,8 +108,6 @@ const PastAnalysisTable = () => {
         })
       }
     }
-    console.log("JANAKITTI ");
-    console.log(rows)
     setRows(rows)
   }
 

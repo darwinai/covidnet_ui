@@ -93,6 +93,7 @@ class ChrisIntegration {
   private static MED2IMG = 'pl-med2img';
   private static PL_CT_COVIDNET = 'pl-ct-covidnet';
   private static PL_PDFGENERATION = 'pl-pdfgeneration';
+  private static PL_COVIDNET_2 = 'pl-covidnet-two';
 
   static async getTotalAnalyses(): Promise<number> {
     let client: any = await ChrisAPIClient.getClient();
@@ -109,39 +110,39 @@ class ChrisIntegration {
   }
 
   // old code used for manually uploaded image analysis
-  static async processNewAnalysis(files: LocalFile[]): Promise<boolean> {
-    let client: any = await ChrisAPIClient.getClient();
-    try {
-      // upload file
-      const uploadedFile = await client.uploadFile({
-        "upload_path": `chris/uploads/covidnet/${files[0].name}`
-      }, { "fname": files[0].blob })
+  // static async processNewAnalysis(files: LocalFile[]): Promise<boolean> {
+  //   let client: any = await ChrisAPIClient.getClient();
+  //   try {
+  //     // upload file
+  //     const uploadedFile = await client.uploadFile({
+  //       "upload_path": `chris/uploads/covidnet/${files[0].name}`
+  //     }, { "fname": files[0].blob })
 
-      // create dircopy plugin
-      const dircopyPlugin = (await client.getPlugins({ 'name_exact': this.FS_PLUGIN })).getItems()[0];
-      const data: DirCreateData = { "dir": uploadedFile.data.fname }
-      const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+  //     // create dircopy plugin
+  //     const dircopyPlugin = (await client.getPlugins({ 'name_exact': this.FS_PLUGIN })).getItems()[0];
+  //     const data: DirCreateData = { "dir": uploadedFile.data.fname }
+  //     const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
-      await pollingBackend(pluginInstance)
+  //     await pollingBackend(pluginInstance)
 
-      const filename = uploadedFile.data.fname.split('/').pop()
-      // create covidnet plugin
-      const plcovidnet_data: PlcovidnetData = {
-        previous_id: pluginInstance.data.id,
-        // title: this.PL_COVIDNET,
-        imagefile: filename
-      }
-      const plcovidnet = await client.getPlugins({ "name_exact": "pl-covidnet" })
-      const covidnetPlugin = plcovidnet.getItems()[0]
-      const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
-      console.log("Covidnet Running")
-      await pollingBackend(covidnetInstance)
-    } catch (err) {
-      console.log(err)
-      return false
-    }
-    return true;
-  }
+  //     const filename = uploadedFile.data.fname.split('/').pop()
+  //     // create covidnet plugin
+  //     const plcovidnet_data: PlcovidnetData = { //possibly because of this?
+  //       previous_id: pluginInstance.data.id,
+  //       // title: this.PL_COVIDNET,
+  //       imagefile: filename
+  //     }
+  //     const plcovidnet = await client.getPlugins({ "name_exact": "pl-covidnet-two" })
+  //     const covidnetPlugin = plcovidnet.getItems()[0]
+  //     const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data); //how do we actually go from click to here? what triggers it?
+  //     console.log("Covidnet Running")
+  //     await pollingBackend(covidnetInstance)
+  //   } catch (err) {
+  //     console.log(err)
+  //     return false
+  //   }
+  //   return true;
+  // }
 
   static async processOneImg(img: DcmImage): Promise<BackendPollResult[]> {
     let client: any = await ChrisAPIClient.getClient();
@@ -180,7 +181,7 @@ class ChrisIntegration {
         return [imgConverterResult];
       }
 
-      const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET : this.PL_CT_COVIDNET;
+      const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET_2 : this.PL_CT_COVIDNET; /////CHANGE THIS LOGIC.
       const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
       const plcovidnet_data: PlcovidnetData = {
         previous_id: imgConverterInstance.data.id,
@@ -234,8 +235,8 @@ class ChrisIntegration {
       for (let plugin of pluginlists) {
         let studyInstance: StudyInstanceWithSeries | null = null
         // ignore plugins that are not pl-covidnet or pl-ct-covidnet
-        if (plugin.data.plugin_name !== this.PL_COVIDNET && plugin.data.plugin_name !== this.PL_CT_COVIDNET) continue; //xray + chest
-
+        if (plugin.data.plugin_name !== this.PL_COVIDNET_2 && plugin.data.plugin_name !== this.PL_CT_COVIDNET) continue;
+              //extract above checking into function to make it dynamic.
         // get dicom image data
         if (plugin.data.title !== '') {
           const imgDatas: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
@@ -288,7 +289,7 @@ class ChrisIntegration {
             console.log(content); //LOOK AT FILE CONTENTS HERE.
             Object.keys(content).map(function(key: string) {
               if (key !== 'prediction') {
-                if (key !== '**DISCLAIMER**') { //why was this disclaimer? it wasn't even in the file. check with janakitti's and original to see if orders are pairing correctly. compare with the json file that i can print out too.
+                if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
                   newSeries.columnNames.push(key);
                   newSeries.columnValues.push(formatNumber(content[key]));
                 }
