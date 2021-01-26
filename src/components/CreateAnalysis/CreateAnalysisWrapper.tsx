@@ -14,18 +14,25 @@ const CreateAnalysisWrapper = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const history = useHistory();
 
-  const submitAnalysis = () => {
-    const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
-    if (imagesSelected.length <= 0) {
-      setIsModalOpen(true);
-      return;
+  const submitAnalysis = (XrayModel: string | void, CTModel: string | void) => {
+    return () => {
+      const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
+      if (imagesSelected.length <= 0) {
+        setIsModalOpen(true);
+        return;
+      }
+      // update staging images
+      dispatch({
+        type: StagingDcmImagesTypes.UpdateStaging,
+        payload: { imgs: imagesSelected }
+      })
+      history.push({
+        pathname: "/",
+        state: { 
+          XrayModel: XrayModel,
+          CTModel: CTModel
+        }});
     }
-    // update staging images
-    dispatch({
-      type: StagingDcmImagesTypes.UpdateStaging,
-      payload: { imgs: imagesSelected }
-    })
-    history.push("/");
   }
 
 

@@ -9,6 +9,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   studyDescription,
   modality,
   createdDate,
+  setModelType
 }) => {
   const { state: { createAnalysis: { selectedStudyUIDs, currSelectedStudyUID } }, dispatch } = useContext(AppContext);
   const imagesSelectedDict = selectedStudyUIDs[studyInstanceUID]
@@ -19,7 +20,8 @@ const SelectionStudy: React.FC<StudyInstance> = ({
       payload: {
         studyUID: studyInstanceUID
       }
-    })
+    });
+    setModelType();
   }
 
   const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0;

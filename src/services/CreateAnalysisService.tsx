@@ -9,6 +9,7 @@ export interface StudyInstance {
   studyDescription: string;
   modality: string;
   createdDate: string;
+  setModelType: () => void;
 }
 
 export interface AnalyzedImageResult {
@@ -52,7 +53,8 @@ class CreateAnalysisService {
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          createdDate: this.formatDate(img.creation_date)
+          createdDate: this.formatDate(img.creation_date),
+          setModelType: () => {} //how to do this better? is this design okay? TO-DO
         })
         seenUID[img.StudyInstanceUID] = true;
       }
@@ -84,10 +86,10 @@ class CreateAnalysisService {
     return imgs.filter((img: DcmImage) => this.isImgSelected(selectedStudyUIDs, img));
   }
 
-  static async analyzeImages(dcmImages: DcmImage[]): Promise<NotificationItem[]> {
+  static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
     const promises = [];
     for (let img of dcmImages) {
-      promises.push(ChrisIntegration.processOneImg(img));
+      promises.push(ChrisIntegration.processOneImg(img, XrayModel, CTModel));
     }
     const processedImages = await Promise.allSettled(promises);
 

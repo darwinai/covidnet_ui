@@ -79,9 +79,11 @@ const PatientLookup = (props: PatientLookupProps) => {
     </DropdownItem>,
   ];
 
-  const navigateToCreateAnalysis = async () => {
-    await newLookup();
-    history.push("/createAnalysis");
+  const navigateToCreateAnalysis = (XrayModel: string | void, CTModel: string | void) => {
+    return async () => {
+      await newLookup();
+      history.push("/createAnalysis");
+    }
   }
 
   const submitButton = props.isOnDashboard ? (

@@ -1,6 +1,6 @@
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import React, { useContext, useEffect } from "react";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, useLocation } from "react-router-dom";
 import { CreateAnalysisSection } from "../../components/CreateAnalysis/CreateAnalysis";
 import PastAnalysisTable from "../../components/pastAnalysis/PastAnalysisTable";
 import Wrapper from "../../containers/Layout/PageWrapper";
@@ -13,12 +13,27 @@ type AllProps = RouteComponentProps;
 const DashboardPage: React.FC<AllProps> = () => {
   const { state: { stagingDcmImages }, dispatch } = useContext(AppContext);
 
+  const location: any = useLocation();
+  let XrayModel: string = "";
+  let CTModel: string = "";
+
+  if (Object.keys(location.state).includes("XrayModel")) {
+      XrayModel = location.state.XrayModel;
+      console.log(XrayModel);
+  }
+
+  if (Object.keys(location.state).includes("CTModel")) {
+      CTModel = location.state.CTModel;
+      console.log(CTModel);
+  }
+  
+
   useEffect(() => {
     document.title = "Analysis - CovidNet UI";
     if (stagingDcmImages.length <= 0) return;
 
     // process the images
-    CreateAnalysisService.analyzeImages(stagingDcmImages)
+    CreateAnalysisService.analyzeImages(stagingDcmImages, XrayModel, CTModel)
       .then((notifications) => {
         dispatch({
           type: StagingDcmImagesTypes.UpdateStaging,
@@ -37,7 +52,7 @@ const DashboardPage: React.FC<AllProps> = () => {
           payload: { notifications }
         })
       })
-  }, [dispatch, stagingDcmImages])
+  }, [dispatch, stagingDcmImages, XrayModel, CTModel]) //dependency array? what if any of these change? isn't it meant as trigger? will xray model and ct model changing involuntarily and unintentionally trigger this? causes issue?
 
   return (
     <Wrapper>

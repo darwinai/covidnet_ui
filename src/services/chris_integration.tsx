@@ -88,12 +88,16 @@ export const modifyDatetime = (oldDay: string): string => {
 
 class ChrisIntegration {
 
+  //extract these into global data object? context/redux store?
   private static PL_COVIDNET = 'pl-covidnet';
   private static FS_PLUGIN = 'pl-dircopy'; // 'pl-dircopy';
   private static MED2IMG = 'pl-med2img';
   private static PL_CT_COVIDNET = 'pl-ct-covidnet';
+  private static PL_CT_COVIDNET_2 = 'pl-ct-covidnet-two';
   private static PL_PDFGENERATION = 'pl-pdfgeneration';
   private static PL_COVIDNET_2 = 'pl-covidnet-two';
+  private static XRayModel = "";
+  private static CTModel = "";
 
   static async getTotalAnalyses(): Promise<number> {
     let client: any = await ChrisAPIClient.getClient();
@@ -109,8 +113,13 @@ class ChrisIntegration {
     return count;
   }
 
-  static async processOneImg(img: DcmImage): Promise<BackendPollResult[]> {
+  static async processOneImg(img: DcmImage, XrayModel: string, CTModel: string): Promise<BackendPollResult[]> {
     let client: any = await ChrisAPIClient.getClient();
+    this.XRayModel = XrayModel;
+    this.CTModel = CTModel;
+
+    console.log("THE XRAY IS " + this.XRayModel)
+
     try {
       console.log(img.fname)
       const dircopyPlugin = (await client.getPlugins({ "name_exact": this.FS_PLUGIN })).getItems()[0];
@@ -146,7 +155,7 @@ class ChrisIntegration {
         return [imgConverterResult];
       }
 
-      const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET_2 : this.PL_CT_COVIDNET; /////CHANGE THIS LOGIC.
+      const pluginNeeded = img.Modality === 'CR' ? this.XRayModel : this.CTModel;
       const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
       const plcovidnet_data: PlcovidnetData = {
         previous_id: imgConverterInstance.data.id,
@@ -178,9 +187,14 @@ class ChrisIntegration {
     return (await client.getPACSFiles({ fname_exact: imgTitle })).data
   }
 
+
   static async getPastAnalaysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
     const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
+
+    const nameExists = (pluginName: string): boolean => { //extract this outside of the method and into the class.
+      return pluginName !== this.PL_COVIDNET_2 && pluginName !== this.PL_CT_COVIDNET && pluginName !== this.PL_COVIDNET && pluginName !== this.PL_CT_COVIDNET_2;
+    }
 
     // since we want to have offset = 0 for page 1
     --page;
@@ -200,7 +214,7 @@ class ChrisIntegration {
       for (let plugin of pluginlists) {
         let studyInstance: StudyInstanceWithSeries | null = null
         // ignore plugins that are not pl-covidnet or pl-ct-covidnet
-        if (plugin.data.plugin_name !== this.PL_COVIDNET_2 && plugin.data.plugin_name !== this.PL_CT_COVIDNET) continue;
+        if (nameExists(plugin.data.plugin_name)) continue; // come b ack and fix this with new logic and solution.
               //extract above checking into function to make it dynamic.
         // get dicom image data
         if (plugin.data.title !== '') {
