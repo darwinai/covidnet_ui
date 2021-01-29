@@ -10,23 +10,23 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 
 type AllProps = RouteComponentProps;
 
+interface ModelLocation {
+    XrayModel: string,
+    CTModel: string
+}
+
+
 const DashboardPage: React.FC<AllProps> = () => {
   const { state: { stagingDcmImages }, dispatch } = useContext(AppContext);
 
-  const location: any = useLocation();
+  const location = useLocation<ModelLocation>();
   let XrayModel: string = "";
   let CTModel: string = "";
 
-  if (Object.keys(location.state).includes("XrayModel")) {
+  if (location?.state) {
       XrayModel = location.state.XrayModel;
-      console.log(XrayModel);
-  }
-
-  if (Object.keys(location.state).includes("CTModel")) {
       CTModel = location.state.CTModel;
-      console.log(CTModel);
   }
-  
 
   useEffect(() => {
     document.title = "Analysis - CovidNet UI";
@@ -52,7 +52,7 @@ const DashboardPage: React.FC<AllProps> = () => {
           payload: { notifications }
         })
       })
-  }, [dispatch, stagingDcmImages, XrayModel, CTModel]) //dependency array? what if any of these change? isn't it meant as trigger? will xray model and ct model changing involuntarily and unintentionally trigger this? causes issue?
+  }, [dispatch, stagingDcmImages, XrayModel, CTModel])
 
   return (
     <Wrapper>

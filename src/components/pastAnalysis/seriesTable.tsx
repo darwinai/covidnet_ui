@@ -25,8 +25,6 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   let titles = [{ title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }];
 
   for (let title of analysisList[0]?.columnNames) { 
-    //what if item 0 doesn't exist here. what if all of them have different column names? how to do the title here? investigate why some of them had more than 1, and if this caused issues?
-    //analysis list size 0.
     titles.push({ title: (<span><br /><span className='classificationText'>{title}</span></span>) });
   }
 

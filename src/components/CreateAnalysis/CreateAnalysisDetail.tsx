@@ -37,15 +37,12 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
   const { submitAnalysis } = props;
 
-  const handleXrayChange = (event: any) => {
+  const handleXrayChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setXrayModel(event.target.value);
-    console.log(event.target.value);
-    console.log("Hello World XRAY!");
   }
 
-  const handleCTChange = (event: any) => { //fix "any" typing here
+  const handleCTChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setCTModel(event.target.value);
-    console.log("Hello World CT!");
   }
 
   const setModelType = () => {
@@ -66,7 +63,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
                 <label htmlFor="modelSelection"> Please select a model
                   <select value={CTModel} onChange={handleCTChange} name="modelSelection" required>
                     <option value="pl-ct-covidnet">CT COVID-Net</option>
-                    <option value="pl-ct-covidnet-two">CT COVID-Net 2</option>
+                    <option value="pl-ct-4">CT COVID-Net 4</option>
                   </select>
                 </label>
               </form>;

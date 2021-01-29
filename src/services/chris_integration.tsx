@@ -44,7 +44,7 @@ export const pollingBackend = async (pluginInstance: PluginInstance): Promise<Ba
   while (shouldWait()) {
     await timeout(waitInterval);
     res = await pluginInstance.get(); // This is not async!!
-    console.log(`${res.data.plugin_name}: ${res.data.status}`);
+    console.log(`${res.data.plugin_name}: ${res.data.status}`); //error here.
     waitInterval *= 2;
   }
 
@@ -90,10 +90,10 @@ class ChrisIntegration {
 
   //extract these into global data object? context/redux store?
   private static PL_COVIDNET = 'pl-covidnet';
-  private static FS_PLUGIN = 'pl-dircopy'; // 'pl-dircopy';
+  private static FS_PLUGIN = 'pl-dircopy';
   private static MED2IMG = 'pl-med2img';
   private static PL_CT_COVIDNET = 'pl-ct-covidnet';
-  private static PL_CT_COVIDNET_2 = 'pl-ct-covidnet-two';
+  private static PL_CT_COVIDNET_4 = 'pl-ct-4';
   private static PL_PDFGENERATION = 'pl-pdfgeneration';
   private static PL_COVIDNET_2 = 'pl-covidnet-two';
   private static XRayModel = "";
@@ -117,8 +117,6 @@ class ChrisIntegration {
     let client: any = await ChrisAPIClient.getClient();
     this.XRayModel = XrayModel;
     this.CTModel = CTModel;
-
-    console.log("THE XRAY IS " + this.XRayModel)
 
     try {
       console.log(img.fname)
@@ -193,7 +191,7 @@ class ChrisIntegration {
     const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
 
     const nameExists = (pluginName: string): boolean => { //extract this outside of the method and into the class.
-      return pluginName !== this.PL_COVIDNET_2 && pluginName !== this.PL_CT_COVIDNET && pluginName !== this.PL_COVIDNET && pluginName !== this.PL_CT_COVIDNET_2;
+      return pluginName !== this.PL_COVIDNET_2 && pluginName !== this.PL_CT_COVIDNET && pluginName !== this.PL_COVIDNET && pluginName !== this.PL_CT_COVIDNET_4;
     }
 
     // since we want to have offset = 0 for page 1
@@ -261,7 +259,7 @@ class ChrisIntegration {
 
         for (let fileObj of pluginInstanceFiles.getItems()) {
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
-            let content = await this.fetchJsonFiles(fileObj.data.id)
+            let content = await this.fetchJsonFiles(fileObj.data.id);
             const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
             Object.keys(content).map(function(key: string) {
               if (key !== 'prediction') {
