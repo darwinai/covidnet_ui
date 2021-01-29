@@ -9,7 +9,7 @@ The COVID-Net app is being developed by DarwinAI in close collaboration with the
 
 #### Getting the ChRIS Plugins
 
-1) Clone plugin repositories
+1) Clone the plugin repositories
 
 ```
 https://github.com/darwinai/pl-covidnet
@@ -20,10 +20,10 @@ https://github.com/darwinai/pl-pdfgeneration
 ```
 
 2) Download the models into plugin folders:
-    a) Download models COVIDNet-CXR4-B, COVIDNet-SEV-GEO, COVIDNet-SEV-OPC from https://github.com/lindawangg/COVID-Net/blob/master/docs/models.md and place them into the subfolder covidnet/models of pl-covidnet plugin.
-    b) Download model COVIDNet-CT-A from https://drive.google.com/drive/folders/13Cb8yvAW0V_Hh-AvUEDrMEpwLhD3zv-F and place them into the subfolder ct_covidnet/models of pl-CT-covidnet plugin.
+    a) Download the models COVIDNet-CXR4-B, COVIDNet-SEV-GEO, COVIDNet-SEV-OPC from https://github.com/lindawangg/COVID-Net/blob/master/docs/models.md and place them into the covidnet/models subfolder of the pl-covidnet plugin.
+    b) Download the model COVIDNet-CT-A from https://drive.google.com/drive/folders/13Cb8yvAW0V_Hh-AvUEDrMEpwLhD3zv-F and place them into the ct_covidnet/models subfolder of the pl-CT-covidnet plugin.
 
-3) Build the docker container images for these plugins by running:
+3) Build the Docker Container images for these plugins by running:
 ```
 docker build -t local/pl-covidnet .
 docker build -t local/pl-ct-covidnet .
@@ -34,7 +34,7 @@ docker build -t local/pl-pdfgeneration .
 ```
 docker image -ls
 ```
-NOTE: If pl-covidnet plugin fails to build with version compatibility error, open the file requirements.txt and remove version numbers near tensorflow-estimator and tensorboard.
+NOTE: If the pl-covidnet plugin fails to build with version compatibility error, open the file requirements.txt and remove the version numbers near tensorflow-estimator and tensorboard.
 
 #### Getting the ChRIS Backend Running
 
@@ -75,14 +75,14 @@ Now register the plugins on ChRIS:
 Repeat this process for all other plugins with their respective names (pl-med2img, pl-ct-covidnet, pl-pdfgeneration).
 
 #### Deployment:
-For running inside docker container:
+To run inside Docker Container:
 ```
 cd covidnet_ui
 docker build -t covidnet_ui .
 docker run --rm --name covidnet_ui -p 3000:3000 -d covidnet_ui
 ```
 
-For running directly from VS Code:
+To run directly from VS Code:
 ```
 yarn or npm install
 yarn start
