@@ -19,6 +19,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
 
   const [XrayModel, setXrayModel] = useState('pl-covidnet');
   const [CTModel, setCTModel] = useState('pl-ct-covidnet');
+  const [modelValue, setModelValue] = useState(0);
   const [useXray, setUseXray] = useState(true);
 
   useEffect(() => {
@@ -45,8 +46,11 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
     setCTModel(event.target.value);
   }
 
-  const setModelType = () => {
-    setUseXray(!useXray);
+  const setModelType = (index: number) => {
+    if (index !== modelValue) {
+      setUseXray(!useXray);
+      setModelValue(index);
+    }
   }
 
   const XrayDropdown = <form className="modelForm">
@@ -111,6 +115,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
           <div className="detail-select-studies">
             {studyInstances.map((study: StudyInstance, i) => {
               study.setModelType = setModelType;
+              study.index = i;
               return <SelectionStudy key={i} {...study}></SelectionStudy>;
             })}
           </div>

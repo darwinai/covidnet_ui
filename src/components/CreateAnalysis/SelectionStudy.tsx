@@ -9,26 +9,27 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   studyDescription,
   modality,
   createdDate,
-  setModelType
+  setModelType,
+  index
 }) => {
   const { state: { createAnalysis: { selectedStudyUIDs, currSelectedStudyUID } }, dispatch } = useContext(AppContext);
   const imagesSelectedDict = selectedStudyUIDs[studyInstanceUID]
 
-  const selectThisStudy = () => {
+  const selectThisStudy = (index: number) => {
     dispatch({
       type: CreateAnalysisTypes.UpdateCurrSelectedStudyUID,
       payload: {
         studyUID: studyInstanceUID
       }
     });
-    setModelType();
+    setModelType(index);
   }
 
   const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0;
   return (
     <div
       className={`SelectionStudy ${isSelected ? 'selected' : ''}`}
-      onClick={selectThisStudy}
+      onClick={() => selectThisStudy(index)}
     >
       <h1 className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText' : ''}`}>
         {isSelected ?

@@ -9,7 +9,8 @@ export interface StudyInstance {
   studyDescription: string;
   modality: string;
   createdDate: string;
-  setModelType: () => void;
+  setModelType: (index: number) => void;
+  index: number;
 }
 
 export interface AnalyzedImageResult {
@@ -54,7 +55,8 @@ class CreateAnalysisService {
           studyDescription: img.StudyDescription,
           modality: img.Modality,
           createdDate: this.formatDate(img.creation_date),
-          setModelType: () => {} //how to do this better? is this design okay? TO-DO
+          setModelType: () => {},
+          index: 0
         })
         seenUID[img.StudyInstanceUID] = true;
       }
