@@ -9,8 +9,8 @@ export interface StudyInstance {
   studyDescription: string;
   modality: string;
   createdDate: string;
-  setModelType: (index: number) => void;
-  index: number;
+  setModelType?: (index: number) => void;
+  index?: number;
 }
 
 export interface AnalyzedImageResult {
@@ -54,9 +54,7 @@ class CreateAnalysisService {
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          createdDate: this.formatDate(img.creation_date),
-          setModelType: () => {},
-          index: 0
+          createdDate: this.formatDate(img.creation_date)
         })
         seenUID[img.StudyInstanceUID] = true;
       }

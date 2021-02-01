@@ -22,14 +22,16 @@ const SelectionStudy: React.FC<StudyInstance> = ({
         studyUID: studyInstanceUID
       }
     });
-    setModelType(index);
+    if (setModelType) {
+      setModelType(index);
+    }
   }
 
   const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0;
   return (
     <div
       className={`SelectionStudy ${isSelected ? 'selected' : ''}`}
-      onClick={() => selectThisStudy(index)}
+      onClick={() => {if (index !== undefined) selectThisStudy(index)}}
     >
       <h1 className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText' : ''}`}>
         {isSelected ?
