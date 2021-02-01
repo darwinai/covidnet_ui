@@ -49,23 +49,20 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
     setUseXray(!useXray);
   }
 
-  const XrayDropdown = <form>
-                <label htmlFor="modelSelection"> Please select a model
-                  <select value={XrayModel} onChange={handleXrayChange} name="modelSelection" required> 
-                  {/* //needed "this" here? why? how does it work in javascript? */}
+  const XrayDropdown = <form className="modelForm">
+                <label htmlFor="modelSelection"> Please select a model</label>
+                <select value={XrayModel} onChange={handleXrayChange} id="modelSelection" required> 
                     <option value="pl-covidnet">COVID-Net</option>
                     <option value="pl-covidnet-two">COVID-Net 2</option>
                   </select>
-                </label>
               </form>;
 
-  const CTDropdown = <form>
-                <label htmlFor="modelSelection"> Please select a model
-                  <select value={CTModel} onChange={handleCTChange} name="modelSelection" required>
+  const CTDropdown = <form className="modelForm">
+                <label htmlFor="modelSelection"> Please select a model</label>
+                <select value={CTModel} onChange={handleCTChange} id="modelSelection" required>
                     <option value="pl-ct-covidnet">CT COVID-Net</option>
                     <option value="pl-ct-4">CT COVID-Net 4</option>
                   </select>
-                </label>
               </form>;
   
   return (

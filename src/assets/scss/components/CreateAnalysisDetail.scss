@@ -1,6 +1,16 @@
 $full: 100%;
 $description-top-padding: 0.3rem;
 
+.modelForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  label {
+    white-space: nowrap;
+  }
+}
+
 .detail-wrapper {
   @include flex(column);
   min-height: 70vh;
@@ -76,7 +86,7 @@ $description-top-padding: 0.3rem;
       align-items: center;
       line-height: 1.5;
       Button {
-        margin-top: 1.3rem;
+        margin: 0.8rem 0;
       }
       .numberCircle {
         border-radius: 50%;
