@@ -6,7 +6,8 @@ import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
-import { initialICreateAnalysisState } from '../../context/reducers/createAnalysisReducer';
+import FileLookup from './FileLookup';
+import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 
 
 interface CreateAnalysisDetailProps {
@@ -15,26 +16,8 @@ interface CreateAnalysisDetailProps {
 }
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
-  const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
+  const { state: { dcmImages, createAnalysis } } = useContext(AppContext);
   const { selectedStudyUIDs } = createAnalysis;
-
-  useEffect(() => {
-    if(dcmImages.filteredDcmImages[0]) {
-      const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages.filteredDcmImages[0])
-      dispatch({
-        type: CreateAnalysisTypes.Update_patient_personal_info,
-        payload: {
-          ...patientInfo
-        }
-      })
-    } else {
-      dispatch({
-        type: CreateAnalysisTypes.Update_patient_personal_info,
-        payload: initialICreateAnalysisState
-      })
-    }  
-
-  }, [dcmImages, dispatch])
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
@@ -83,6 +66,9 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
             </div>
           </div>
         </div>
+        <PageSection className="PatientLookupWrapper" variant={PageSectionVariants.light}>
+          <FileLookup />
+        </PageSection>
         <div className="detail-bottom-wrapper">
           <div className="detail-select-studies">
             {studyInstances.map((study: StudyInstance, i) => (

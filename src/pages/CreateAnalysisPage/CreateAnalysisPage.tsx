@@ -17,7 +17,7 @@ const CreateAnalysisPage = () => {
           <PatientLookup isOnDashboard={false}></PatientLookup>
         </PageSection>
         {
-          dcmImages.filteredDcmImages.length > 0 ?
+          dcmImages.allDcmImages.length > 0 ?
             <PageSection className="pfPageSectionGrey">
               <CreateAnalysisWrapper></CreateAnalysisWrapper>
             </PageSection>
