@@ -7,6 +7,7 @@ import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 import ConfirmAnalysis from './ConfirmAnalysis';
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
+import pacs_integration from '../../services/pacs_integration';
 
 const CreateAnalysisWrapper = () => {
   const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext)
@@ -15,11 +16,16 @@ const CreateAnalysisWrapper = () => {
   const history = useHistory();
 
   const submitAnalysis = () => {
-    const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
+    const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages.filteredDcmImages, selectedStudyUIDs);
+    console.log(dcmImages);
     if (imagesSelected.length <= 0) {
       setIsModalOpen(true);
       return;
     }
+    // Send request to have PACS files pushed from PACS server
+    imagesSelected.forEach(dcmImage => {
+      pacs_integration.retrievePatientFiles(dcmImage.StudyInstanceUID, dcmImage.SeriesInstanceUID)
+    })
     // update staging images
     dispatch({
       type: StagingDcmImagesTypes.UpdateStaging,

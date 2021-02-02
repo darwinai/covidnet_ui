@@ -12,6 +12,7 @@ import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types"
 import { AppContext } from "../context/context";
 import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
 import chris_integration from '../services/chris_integration';
+import pacs_integration from '../services/pacs_integration';
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
 
 enum PrivacyLevel {
@@ -43,13 +44,18 @@ const PatientLookup = (props: PatientLookupProps) => {
   };
 
   const newLookup = async () => {
-    const dcmImages = await chris_integration.fetchPacFiles(createAnalysis.patientID);
+    const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
+      await pacs_integration.queryPatientFiles(createAnalysis.patientID) :
+      await chris_integration.fetchPacFiles(createAnalysis.patientID);
+
     dispatch({
-      type: DicomImagesTypes.UpdateImages,
+      type: DicomImagesTypes.Update_all_images,
       payload: {
         images: dcmImages
       }
-    })
+    }) 
+    
+    // Select first study instance by default
     const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
     if (studyInstances.length > 0) {
       dispatch({

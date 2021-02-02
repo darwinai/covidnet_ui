@@ -1,6 +1,5 @@
 import { ActionMap, DicomImagesTypes } from "../actions/types";
 
-
 export interface DcmImage {
   id: number,
   creation_date: string,
@@ -14,7 +13,8 @@ export interface DcmImage {
   StudyDescription: string,
   SeriesInstanceUID: string,
   SeriesDescription: string,
-  Modality: string
+  Modality: string,
+  pacs_identifier: string
 }
 
 export interface PACSResponseProperty {
@@ -63,26 +63,40 @@ export interface PACSMainResponse extends PACSBaseResponse {
   series: PACSSeries[];
 }
 
-export type IDcmImagesState = DcmImage[];
+export type IDcmImagesState = {
+  allDcmImages: DcmImage[];
+  filteredDcmImages: DcmImage[];
+}
 
-export const initialIDcmImagesState: IDcmImagesState = []
+export const initialIDcmImagesState: IDcmImagesState = {
+  allDcmImages: [],
+  filteredDcmImages: []
+}
 
 type IDcmImagesStatePayload = {
-  [DicomImagesTypes.UpdateImages]: { images: DcmImage[] }
+  [DicomImagesTypes.Update_all_images]: { images: DcmImage[] },
+  [DicomImagesTypes.Update_filtered_images]: { images: DcmImage[] }
 }
 
 export type DicomImagesActions = ActionMap<IDcmImagesStatePayload>[
   keyof ActionMap<IDcmImagesStatePayload>
 ]
 
-
 export const dicomImagesReducer = (
   state: IDcmImagesState,
   action: DicomImagesActions
 ) => {
   switch (action.type) {
-    case DicomImagesTypes.UpdateImages:
-      return action.payload.images
+    case DicomImagesTypes.Update_all_images:
+      return {
+        allDcmImages: action.payload.images,
+        filteredDcmImages: action.payload.images
+      }
+    case DicomImagesTypes.Update_filtered_images:
+      return {
+        ...state,
+        filteredDcmImages: action.payload.images
+      }
     default:
       return state;
   }

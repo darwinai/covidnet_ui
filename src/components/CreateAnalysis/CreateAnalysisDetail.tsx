@@ -6,6 +6,7 @@ import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
+import { initialICreateAnalysisState } from '../../context/reducers/createAnalysisReducer';
 
 
 interface CreateAnalysisDetailProps {
@@ -18,16 +19,24 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const { selectedStudyUIDs } = createAnalysis;
 
   useEffect(() => {
-    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
-    dispatch({
-      type: CreateAnalysisTypes.Update_patient_personal_info,
-      payload: {
-        ...patientInfo
-      }
-    })
+    if(dcmImages.filteredDcmImages[0]) {
+      const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages.filteredDcmImages[0])
+      dispatch({
+        type: CreateAnalysisTypes.Update_patient_personal_info,
+        payload: {
+          ...patientInfo
+        }
+      })
+    } else {
+      dispatch({
+        type: CreateAnalysisTypes.Update_patient_personal_info,
+        payload: initialICreateAnalysisState
+      })
+    }  
+
   }, [dcmImages, dispatch])
 
-  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
+  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
 
   const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
