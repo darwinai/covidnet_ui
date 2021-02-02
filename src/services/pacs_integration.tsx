@@ -49,7 +49,7 @@ class PACSIntegration {
                 patientData.push({
                     id: series.uid.value,
                     creation_date: series.StudyDate.value,
-                    fname: this.basePACSFilePath + 'PatientF.dcm',
+                    fname: this.basePACSFilePath + series.SeriesInstanceUID.value,
                     PatientID: series.PatientID.value,
                     PatientName: series.PatientName.value,
                     PatientBirthDate: series.PatientBirthDate.value,
