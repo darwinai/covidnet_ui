@@ -1,10 +1,11 @@
 import { DcmImage, PACSMainResponse } from "../context/reducers/dicomImagesReducer";
+import axios from 'axios';
 
 declare var process: {
     env: {
         REACT_APP_CHRIS_UI_PFDCM_URL: string,
     }
-  };
+};
 
 class PACSIntegration {
 
@@ -19,37 +20,31 @@ class PACSIntegration {
         return responseJSON;
     }
 
+    /**
+     * Performs a PACS query on the given PatientID and returns an array of DcmImages containing metadata 
+     * of the DICOM files associated with that patient
+     * @param {string | undefined} patientID 
+     */
     static async queryPatientFiles(patientID: string | undefined): Promise<DcmImage[]> {
-        const options: RequestInit = {
-            method:         'POST',
-            mode:           'cors',
-            cache:          'no-cache',
-            credentials:    'same-origin',
-            headers:        {'Content-Type': 'text/plain'},
-            redirect:       'follow',
-            referrerPolicy: 'no-referrer',
-            body: JSON.stringify({
-                action:"PACSinteract",
-                meta:{
-                    do:"query",
-                    on:{PatientID: patientID},
-                    PACS:"orthanc"
-                }
-            })
-        }
-
-        let patientData: DcmImage[] = [];
-        const rawResponse = await fetch(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, options);
-        const textResponse = await rawResponse.text();
-        const parsedResponse = PACSIntegration.parseResponse(textResponse);
-        const data: PACSMainResponse[] = parsedResponse.query.data;
+        if (!patientID) return [];
         
+        let patientData: DcmImage[] = [];
+        const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
+            action:"PACSinteract",
+            meta:{
+                do:"query",
+                on:{PatientID: patientID},
+                PACS:"orthanc"
+            }
+        }), {headers: {'Content-Type': 'text/plain'}})
+        const parsedResponse = PACSIntegration.parseResponse(rawResponse.data);
+        const data: PACSMainResponse[] = parsedResponse.query.data;
         data.forEach(study => {
             study.series.forEach(series => {
                 patientData.push({
                     id: series.uid.value,
                     creation_date: series.StudyDate.value,
-                    fname: this.basePACSFilePath + series.SeriesInstanceUID.value,
+                    fname: this.basePACSFilePath + 'PatientF.dcm',
                     PatientID: series.PatientID.value,
                     PatientName: series.PatientName.value,
                     PatientBirthDate: series.PatientBirthDate.value,
@@ -64,31 +59,17 @@ class PACSIntegration {
                 })
             });
         });
+
         return patientData;
     }
 
+    /**
+     * Performs a PACS retrieve request for a DICOM file based on StudyInstanceUID and SeriesInstanceUID, 
+     * returning true if request was successfully sent
+     * @param {string | undefined} StudyInstanceUID 
+     * @param {string | undefined} SeriesInstanceUID 
+     */
     static async retrievePatientFiles(StudyInstanceUID: string | undefined, SeriesInstanceUID: string | undefined): Promise<boolean> {
-        const options: RequestInit  = {
-            method:         'POST',
-            mode:           'cors',
-            cache:          'no-cache',
-            credentials:    'same-origin',
-            headers:        {'Content-Type': 'text/plain'},
-            redirect:       'follow',
-            referrerPolicy: 'no-referrer',
-            body: JSON.stringify({
-                action:"PACSinteract",
-                meta:{
-                    do:"retrieve",
-                    on:{
-                        StudyInstanceUID: StudyInstanceUID, 
-                        SeriesInstanceUID: SeriesInstanceUID
-                    },
-                        PACS:"orthanc"
-                    }
-                })
-        };
-
         interface RetrieveResponse {
             status: boolean;
             retrieve: {
@@ -99,9 +80,19 @@ class PACSIntegration {
             }
         }
 
-        const rawResponse = await fetch(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, options);
-        const textResponse = await rawResponse.text();
-        const parsedResponse: RetrieveResponse = PACSIntegration.parseResponse(textResponse);
+        const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
+            action:"PACSinteract",
+            meta:{
+                do:"retrieve",
+                on:{
+                    StudyInstanceUID, 
+                    SeriesInstanceUID
+                },
+                PACS:"orthanc"
+            }
+        }), {headers: {'Content-Type': 'text/plain'}})
+        
+        const parsedResponse: RetrieveResponse = PACSIntegration.parseResponse(rawResponse.data);
         return parsedResponse.retrieve.status === 'success';
     }
 }
