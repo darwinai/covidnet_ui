@@ -21,7 +21,7 @@ export const isLargestNumber = (num: number | null, numArray: number[]) => {
 const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
-  const { series: analysisList } = studyInstance
+  const { series: analysisList } = studyInstance;
   let titles = [{ title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }];
 
   for (let title of analysisList[0]?.columnNames) { 

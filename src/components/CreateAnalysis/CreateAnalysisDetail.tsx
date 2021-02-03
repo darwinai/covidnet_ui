@@ -4,6 +4,7 @@ import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
+import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
 
@@ -53,22 +54,6 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
     }
   }
 
-  const XrayDropdown = <form className="modelForm">
-                <label htmlFor="modelSelection"> Please select a model</label>
-                <select value={XrayModel} onChange={handleXrayChange} id="modelSelection" required> 
-                    <option value="pl-covidnet">COVID-Net</option>
-                    <option value="pl-covidnet-two">COVID-Net 2</option>
-                  </select>
-              </form>;
-
-  const CTDropdown = <form className="modelForm">
-                <label htmlFor="modelSelection"> Please select a model</label>
-                <select value={CTModel} onChange={handleCTChange} id="modelSelection" required>
-                    <option value="pl-ct-covidnet">CT COVID-Net</option>
-                    <option value="pl-ct-4">CT COVID-Net 4</option>
-                  </select>
-              </form>;
-  
   return (
     <React.Fragment>
       <div className="detail-wrapper">
@@ -106,8 +91,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
               <RightArrowButton click={submitAnalysis} XrayModel={XrayModel} CTModel={CTModel}>
                 Analyze
               </RightArrowButton>
-              {useXray && XrayDropdown}
-              {!useXray && CTDropdown}
+              <ModelSelection useXray={useXray} handleXrayChange={handleXrayChange} handleCTChange={handleCTChange} xrayValue={XrayModel} ctValue={CTModel}></ModelSelection>
             </div>
           </div>
         </div>
