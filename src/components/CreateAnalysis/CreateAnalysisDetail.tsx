@@ -7,6 +7,7 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
 import FileLookup from './FileLookup';
+import Error from "../../shared/error";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 
 
@@ -69,14 +70,23 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
         <PageSection className="PatientLookupWrapper" variant={PageSectionVariants.light}>
           <FileLookup />
         </PageSection>
-        <div className="detail-bottom-wrapper">
-          <div className="detail-select-studies">
-            {studyInstances.map((study: StudyInstance, i) => (
-              <SelectionStudy key={i} {...study}></SelectionStudy>
-            ))}
-          </div>
-          <SelectedStudyDetail></SelectedStudyDetail>
-        </div>
+        {
+          studyInstances.length > 0 ?
+            <div className="detail-bottom-wrapper">
+              <div className="detail-select-studies">
+                {studyInstances.map((study: StudyInstance, i) => (
+                  <SelectionStudy key={i} {...study}></SelectionStudy>
+                ))}
+              </div>
+              <SelectedStudyDetail></SelectedStudyDetail>
+            </div>
+            :
+            <div className="detail-bottom-wrapper">
+              <PageSection variant={PageSectionVariants.light}>
+                <Error>No series found</Error>
+              </PageSection>
+            </div>
+        }
       </div>
     </React.Fragment>
   )
