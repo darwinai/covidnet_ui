@@ -87,3 +87,19 @@ To run directly from VS Code:
 yarn or npm install
 yarn start
 ```
+
+### PACS Integration
+
+Instructions for setting up and configuring a local Orthanc PACS server for development can be found [here](https://github.com/FNNDSC/CHRIS_docs/blob/master/usecases/PACS_integration/pacs_integration.adoc). Follow the steps up until the section titled **Query the PACS server**.
+
+Note: PACS integration into `covidnet_ui` is only partially complete. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem and a method for transporting these files into the Swift filesystem to be used by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files uploaded to the PACS server must also be manually uploaded to the Swift storage during setup.
+
+#### Setting environment variables
+
+In the `.env` file of the `covidnet_ui` repository, set the following environment variables to enable PACS integration, replacing `<HOST_IP>` and `<HOST_PORT>` with their respective values taken from the PACS setup instructions linked above:
+
+```
+REACT_APP_CHRIS_UI_DICOM_SOURCE="pacs"
+REACT_APP_CHRIS_UI_PFDCM_URL="http://<HOST_IP>:<HOST_PORT>/api/v1/cmd/"
+```
+
