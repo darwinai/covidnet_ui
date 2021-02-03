@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Button, TextInput, DatePicker, Split, SplitItem, isValidDate } from '@patternfly/react-core';
 import { AppContext } from "../../context/context";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../../context/actions/types";
@@ -11,9 +11,9 @@ const FileLookup = () => {
     const [minCreationDate, setMinCreationDate] = useState<string>('');
     const [maxCreationDate, setMaxCreationDate] = useState<string>('');
 
-    const patientLookup = async () => {
+    useEffect(() => {
       const filteredDcmImages = dcmImages.allDcmImages.filter(image => {
-        if (seriesInstanceUID !== '' && (image.SeriesInstanceUID !== seriesInstanceUID)) return false
+        if (seriesInstanceUID !== '' && (!image.SeriesInstanceUID.includes(seriesInstanceUID))) return false
         if (minCreationDate !== '' && (Date.parse(image.creation_date) < Date.parse(minCreationDate))) return false
         if (maxCreationDate !== '' && (Date.parse(image.creation_date) > Date.parse(maxCreationDate))) return false
         return true
@@ -25,7 +25,7 @@ const FileLookup = () => {
           images: filteredDcmImages
         }
       })
-      const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages.filteredDcmImages);
+      const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(filteredDcmImages);
       if (studyInstances.length > 0) {
         dispatch({
           type: CreateAnalysisTypes.UpdateCurrSelectedStudyUID,
@@ -34,6 +34,12 @@ const FileLookup = () => {
           }
         })
       }
+    }, [seriesInstanceUID, minCreationDate, maxCreationDate]);
+
+    const clearFilters = async () => {
+      setSeriesInstanceUID('');
+      setMinCreationDate('');
+      setMaxCreationDate('');
     }
 
     const maxDateValidator = (date: Date) => isValidDate(new Date(minCreationDate)) && date >= new Date(minCreationDate) ? '' : 'Minimum date must be less than maximum date';
@@ -59,6 +65,7 @@ const FileLookup = () => {
             <Split hasGutter>
               <SplitItem>
                 <DatePicker
+                  value={minCreationDate}
                   onChange={onMinDateChange}
                   aria-label="Start date"
                 />
@@ -79,10 +86,10 @@ const FileLookup = () => {
         </div>
         <div className="InputRow">
           <div className="InputRowField">
-              <Button variant="secondary" onClick={patientLookup}>
-                  <b>Search Patient Data</b>
-              </Button>
-            </div>
+            <Button variant="secondary" onClick={clearFilters}>
+                <b>Clear Filters</b>
+            </Button>
+          </div>
         </div>
       </React.Fragment>
     )
