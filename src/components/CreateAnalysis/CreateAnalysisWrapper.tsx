@@ -22,10 +22,14 @@ const CreateAnalysisWrapper = () => {
       setIsModalOpen(true);
       return;
     }
-    // Send request to have PACS files pushed from PACS server
-    imagesSelected.forEach(dcmImage => {
-      pacs_integration.retrievePatientFiles(dcmImage.StudyInstanceUID, dcmImage.SeriesInstanceUID)
-    })
+    
+    if (process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs') {
+      // Send request to have PACS files pushed from PACS server
+      imagesSelected.forEach(dcmImage => {
+        pacs_integration.retrievePatientFiles(dcmImage.StudyInstanceUID, dcmImage.SeriesInstanceUID)
+      })
+    }
+
     // update staging images
     dispatch({
       type: StagingDcmImagesTypes.UpdateStaging,
