@@ -7,6 +7,7 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
+import plugins from '../../api/app.config'
 
 
 interface CreateAnalysisDetailProps {
@@ -18,8 +19,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
   const { selectedStudyUIDs } = createAnalysis;
 
-  const [XrayModel, setXrayModel] = useState('pl-covidnet');
-  const [CTModel, setCTModel] = useState('pl-ct-covidnet');
+  const [XrayModel, setXrayModel] = useState(Object.keys(plugins.XrayModels)[0]);
+  const [CTModel, setCTModel] = useState(Object.keys(plugins.CTModels)[0]);
   const [modelValue, setModelValue] = useState(0);
   const [useXray, setUseXray] = useState(true);
 
@@ -39,12 +40,12 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
   const { submitAnalysis } = props;
 
-  const handleXrayChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setXrayModel(event.target.value);
+  const handleXrayChange = (model: string) => {
+    setXrayModel(model);
   }
 
-  const handleCTChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setCTModel(event.target.value);
+  const handleCTChange = (model: string) => {
+    setCTModel(model);
   }
 
   const setModelType = (index: number) => {

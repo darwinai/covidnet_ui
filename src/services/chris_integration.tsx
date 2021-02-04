@@ -124,11 +124,15 @@ class ChrisIntegration {
 
   static async processOneImg(img: DcmImage, xrayModel: string, ctModel: string): Promise<BackendPollResult[]> {
     let client: any = await ChrisAPIClient.getClient();
-    let XRayModel: string = xrayModel;
-    let CTModel: string = ctModel;
+    
+    let XRayModels: { [id: string]: string } = app.XrayModels;
+    let CTModels: { [id: string]: string } = app.CTModels;
+
+    let XRayModel: string = XRayModels[xrayModel];
+    let CTModel: string = CTModels[ctModel];
 
     try {
-      console.log(img.fname)
+      console.log(img.fname);
       const dircopyPlugin = (await client.getPlugins({ "name_exact": app.Plugins.FS_PLUGIN })).getItems()[0];
       // const params = await dircopyPlugin.getPluginParameters();
       const data: DirCreateData = { "dir": img.fname };
