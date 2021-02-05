@@ -45,42 +45,45 @@ const PatientLookup = (props: PatientLookupProps) => {
   };
 
   const newLookup = async () => {
-    const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
-      await pacs_integration.queryPatientFiles(createAnalysis.patientID) :
-      await chris_integration.fetchPacFiles(createAnalysis.patientID);
+    try {
+      const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
+        await pacs_integration.queryPatientFiles(createAnalysis.patientID) :
+        await chris_integration.fetchPacFiles(createAnalysis.patientID);
+      // Extract patient information from the first queried DICOM file
+      if(dcmImages[0]) {
+        const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
+        dispatch({
+          type: CreateAnalysisTypes.Update_patient_personal_info,
+          payload: {
+            ...patientInfo
+          }
+        })
+      } else {
+        dispatch({
+          type: CreateAnalysisTypes.Update_patient_personal_info,
+          payload: initialICreateAnalysisState
+        })
+      }  
 
-    // Extract patient information from the first queried DICOM file
-    if(dcmImages[0]) {
-      const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
       dispatch({
-        type: CreateAnalysisTypes.Update_patient_personal_info,
+        type: DicomImagesTypes.Update_all_images,
         payload: {
-          ...patientInfo
+          images: dcmImages
         }
-      })
-    } else {
-      dispatch({
-        type: CreateAnalysisTypes.Update_patient_personal_info,
-        payload: initialICreateAnalysisState
-      })
-    }  
-
-    dispatch({
-      type: DicomImagesTypes.Update_all_images,
-      payload: {
-        images: dcmImages
+      }) 
+      
+      // Select first study instance by default
+      const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
+      if (studyInstances.length > 0) {
+        dispatch({
+          type: CreateAnalysisTypes.UpdateCurrSelectedStudyUID,
+          payload: {
+            studyUID: studyInstances[0].studyInstanceUID
+          }
+        })
       }
-    }) 
-    
-    // Select first study instance by default
-    const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
-    if (studyInstances.length > 0) {
-      dispatch({
-        type: CreateAnalysisTypes.UpdateCurrSelectedStudyUID,
-        payload: {
-          studyUID: studyInstances[0].studyInstanceUID
-        }
-      })
+    } catch (err) {
+      console.error(err);
     }
   }
 
