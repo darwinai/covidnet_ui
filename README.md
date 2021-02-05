@@ -87,3 +87,29 @@ To run directly from VS Code:
 yarn or npm install
 yarn start
 ```
+
+#### Adding More Plug-ins and Models
+If another plug-in is wished to be added to the COVID-Net project:
+
+```
+1. Download the plug-in to local computer
+2. Follow the above steps of creating the docker image, uploading the plug-in, and registering the plug-in on ChRIS
+3. Navigate to app.config.tsx, add the appropriate entry (in Xray Models, CT Models, or Plug-ins)
+```
+
+#### Example: Incorporating Multiple Models
+The app supports the user to choose from multiple models. For testing purposes of the UI functionality, mocked models that give 2 and 4 are retrievable from the pl-covidnet and pl-ct-covidnet repository on separate branches:
+
+```
+1. After downloading both mocked plug-ins and installing the assiocated models, build the docker images
+2. Run upload scripts for these two plug-ins:
+    2a. http -a cubeadmin:cubeadmin1234 -f POST http://localhost:8010/api/v1/plugins/ dock_image=local/{NAME OF PLUG-IN} \
+        descriptor_file@jsonRepresentations/covidnet.json public_repo=https://github.com/FNNDSC/pl-simplefsapp name={NAME OF PLUG-IN}
+    2b. http -a cubeadmin:cubeadmin1234 -f POST http://localhost:8010/api/v1/plugins/ dock_image=local/{NAME OF PLUG-IN} \
+        descriptor_file@jsonRepresentations/ct_covidnet.json public_repo=https://github.com/FNNDSC/pl-simplefsapp name={NAME OF PLUG-IN}
+3. Register the plug-ins via http://localhost:8000/chris-admin/plugins/plugin/
+4. In the app.config.tsx file, add the correct entries into the Xray and CT Models section, where the key can be anything (which will be displayed to user on front-end), and the value is the plug-in name from 2a and 2b
+5. Now, the front-end will present the user the added models to select from (in the drop-down menu), when creating an analysis
+    5a. The mocked pl-covidnet and pl-ct-covidnet models should be displayed on the drop-down and able to be selected by the user
+    5b. After creating the analysis, the results will be shown on the dashboard, where there will now be 2 or 4 classifications displayed for the scan now
+```

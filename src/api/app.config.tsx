@@ -1,11 +1,9 @@
 export default {
     XrayModels: {
-        'COVID-Net': 'pl-covidnet',
-        'COVID-Net 2': 'pl-covidnet-two'
+        'COVID-Net': 'pl-covidnet'
     },
     CTModels: {
-        'CT-Covid-Net': 'pl-ct-covidnet',
-        'CT-Covid-Net 4': 'pl-ct-4'
+        'CT-Covid-Net': 'pl-ct-covidnet'
     },
     Plugins: {
         'FS_PLUGIN': 'pl-dircopy',
