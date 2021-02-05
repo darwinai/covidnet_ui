@@ -12,12 +12,11 @@ const FileLookup = () => {
     const [maxCreationDate, setMaxCreationDate] = useState<string>('');
 
     useEffect(() => {
-      const filteredDcmImages = dcmImages.allDcmImages.filter(image => {
-        if (seriesInstanceUID !== '' && (!image.SeriesInstanceUID.includes(seriesInstanceUID))) return false
-        if (minCreationDate !== '' && (Date.parse(image.creation_date) < Date.parse(minCreationDate))) return false
-        if (maxCreationDate !== '' && (Date.parse(image.creation_date) > Date.parse(maxCreationDate))) return false
-        return true
-      })
+      const filteredDcmImages = dcmImages.allDcmImages.filter(image => (
+        (seriesInstanceUID === '' || image.SeriesInstanceUID.includes(seriesInstanceUID)) &&
+        (minCreationDate === '' || Date.parse(image.creation_date) >= Date.parse(minCreationDate)) &&
+        (maxCreationDate === '' || Date.parse(image.creation_date) <= Date.parse(maxCreationDate))
+      ));
 
       dispatch({
         type: DicomImagesTypes.Update_filtered_images,
@@ -42,15 +41,16 @@ const FileLookup = () => {
       setMaxCreationDate('');
     }
 
-    const maxDateValidator = (date: Date) => isValidDate(new Date(minCreationDate)) && date >= new Date(minCreationDate) ? '' : 'Minimum date must be less than maximum date';
+    const maxDateValidator = (date: Date) => (
+      isValidDate(new Date(minCreationDate)) && date >= new Date(minCreationDate) ? '' : 'Minimum date must be less than maximum date'
+    )
 
     const onMinDateChange = (_str: string, date: Date | undefined) => {
       if (date && isValidDate(date)) {
         setMinCreationDate(date.toISOString().substring(0, 10));
         date.setDate(date.getDate() + 1);
         setMaxCreationDate(date.toISOString().substring(0, 10));
-      }
-      else setMaxCreationDate('');
+      } else setMaxCreationDate('');
     };
 
     return (
@@ -58,7 +58,7 @@ const FileLookup = () => {
         <div className="InputRow">
           <div className="InputRowField">
             <label>Series UID</label>
-            <TextInput value={seriesInstanceUID} type="text" onChange={setSeriesInstanceUID} aria-label="text input example" />
+            <TextInput value={seriesInstanceUID} type="text" onChange={setSeriesInstanceUID} aria-label="Series UID" />
           </div>
           <div className="InputRowField">
             <label>Creation Date</label>
@@ -67,10 +67,10 @@ const FileLookup = () => {
                 <DatePicker
                   value={minCreationDate}
                   onChange={onMinDateChange}
-                  aria-label="Start date"
+                  aria-label="Min date"
                 />
               </SplitItem>
-              <SplitItem style={{ padding: '6px 12px 0 12px' }}>to</SplitItem>
+              <SplitItem>to</SplitItem>
               <SplitItem>
                 <DatePicker
                   value={maxCreationDate}
@@ -78,7 +78,7 @@ const FileLookup = () => {
                   isDisabled={!isValidDate(new Date(minCreationDate))}
                   rangeStart={new Date(minCreationDate)}
                   validators={[maxDateValidator]}
-                  aria-label="End date"
+                  aria-label="Max date"
                 />
               </SplitItem>
             </Split>
