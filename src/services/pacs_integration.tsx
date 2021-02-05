@@ -29,38 +29,42 @@ class PACSIntegration {
         if (!patientID) return [];
         
         let patientData: DcmImage[] = [];
-        const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
-            action:"PACSinteract",
-            meta:{
-                do:"query",
-                on:{PatientID: patientID},
-                PACS:"orthanc"
-            }
-        }), {headers: {'Content-Type': 'text/plain'}})
-        const parsedResponse = PACSIntegration.parseResponse(rawResponse.data);
-        const data: PACSMainResponse[] = parsedResponse.query.data;
-        data.forEach(study => {
-            study.series.forEach(series => {
-                patientData.push({
-                    id: series.uid.value,
-                    creation_date: series.StudyDate.value,
-                    fname: this.basePACSFilePath + series.SeriesInstanceUID.value,
-                    PatientID: series.PatientID.value,
-                    PatientName: series.PatientName.value,
-                    PatientBirthDate: series.PatientBirthDate.value,
-                    PatientAge: series.PatientAge.value,
-                    PatientSex: series.PatientSex.value,
-                    StudyInstanceUID: series.StudyInstanceUID.value,
-                    StudyDescription: series.StudyDescription.value,
-                    SeriesInstanceUID: series.SeriesInstanceUID.value,
-                    SeriesDescription: series.SeriesDescription.value,
-                    Modality: series.Modality.value,
-                    pacs_identifier: 'covidnet'
-                })
+        try {
+            const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
+                action:"PACSinteract",
+                meta:{
+                    do:"query",
+                    on:{PatientID: patientID},
+                    PACS:"orthanc"
+                }
+            }), {headers: {'Content-Type': 'text/plain'}})
+            const parsedResponse = PACSIntegration.parseResponse(rawResponse.data);
+            const data: PACSMainResponse[] = parsedResponse.query.data;
+            data.forEach(study => {
+                study.series.forEach(series => {
+                    patientData.push({
+                        id: series.uid.value,
+                        creation_date: series.StudyDate.value,
+                        fname: this.basePACSFilePath + series.SeriesInstanceUID.value,
+                        PatientID: series.PatientID.value,
+                        PatientName: series.PatientName.value,
+                        PatientBirthDate: series.PatientBirthDate.value,
+                        PatientAge: series.PatientAge.value,
+                        PatientSex: series.PatientSex.value,
+                        StudyInstanceUID: series.StudyInstanceUID.value,
+                        StudyDescription: series.StudyDescription.value,
+                        SeriesInstanceUID: series.SeriesInstanceUID.value,
+                        SeriesDescription: series.SeriesDescription.value,
+                        Modality: series.Modality.value,
+                        pacs_identifier: 'covidnet'
+                    })
+                });
             });
-        });
-
-        return patientData;
+            
+            return patientData;
+        } catch (err) {
+            return Promise.reject(err);
+        }
     }
 
     /**
@@ -80,20 +84,27 @@ class PACSIntegration {
             }
         }
 
-        const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
-            action:"PACSinteract",
-            meta:{
-                do:"retrieve",
-                on:{
-                    StudyInstanceUID, 
-                    SeriesInstanceUID
-                },
-                PACS:"orthanc"
+        try {
+            const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
+                action:"PACSinteract",
+                meta:{
+                    do:"retrieve",
+                    on:{
+                        StudyInstanceUID, 
+                        SeriesInstanceUID
+                    },
+                    PACS:"orthanc"
+                }
+            }), {headers: {'Content-Type': 'text/plain'}})
+            const parsedResponse: RetrieveResponse = PACSIntegration.parseResponse(rawResponse.data);
+            if (parsedResponse.retrieve.status === 'success') {
+                return true;
+            } else {
+                return Promise.reject(new Error('Unable to fetch DICOM with StudyInstanceUID:' + StudyInstanceUID + ', SeriesInstanceUID: ' + SeriesInstanceUID));
             }
-        }), {headers: {'Content-Type': 'text/plain'}})
-        
-        const parsedResponse: RetrieveResponse = PACSIntegration.parseResponse(rawResponse.data);
-        return parsedResponse.retrieve.status === 'success';
+        } catch (err) {
+            return Promise.reject(err);
+        }
     }
 }
 
