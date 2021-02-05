@@ -15,36 +15,6 @@ interface ModelSelectionProps {
     ctValue: string
   }
 
-// const ModelSelection: React.FC<ModelSelectionProps> = (props) => {
-//     let modelOptions: any = [];
-    
-//     if (props.useXray) {
-//         for (const [key, value] of Object.entries(plugins.XrayModels)) {
-//             modelOptions.push(<option value={value} key={key}>{key}</option>);      
-//         }
-//         return (
-//             <form className="modelForm">
-//                     <label htmlFor="modelSelection">Please select a model</label>
-//                     <select value={props.xrayValue} onChange={props.handleXrayChange} id="modelSelection" required> 
-//                         {modelOptions}
-//                       </select>
-//                   </form>
-//         )
-//     } else {
-//         for (const [key, value] of Object.entries(plugins.CTModels)) {
-//             modelOptions.push(<option value={value} key={key}>{key}</option>);             
-//         }
-//         return (
-//             <form className="modelForm">
-//                     <label htmlFor="modelSelection">Please select a model</label>
-//                     <select value={props.ctValue} onChange={props.handleCTChange} id="modelSelection" required> 
-//                         {modelOptions}
-//                       </select>
-//                   </form>
-//         )
-//     }
-// }
-
 const ModelSelection: React.FC<ModelSelectionProps> = (props) => {
 
     const [isOpen, setIsOpen] = useState(false);
@@ -82,9 +52,9 @@ const ModelSelection: React.FC<ModelSelectionProps> = (props) => {
         }
       }
 
-    return ( //DEFAULT VALUE
+    return (
       <React.Fragment>
-        <label>Please select a model</label>
+        <label className="dropdown-label">Select a model</label>
         <Dropdown
           onSelect={onSelect}
           toggle={

@@ -1,15 +1,10 @@
 $full: 100%;
 $description-top-padding: 0.3rem;
 
-.modelForm {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  label {
+.dropdown-label {
     white-space: nowrap;
+    margin-top: 1rem;
   }
-}
 
 .detail-wrapper {
   @include flex(column);
@@ -85,9 +80,7 @@ $description-top-padding: 0.3rem;
       justify-content: center;
       align-items: center;
       line-height: 1.5;
-      Button {
-        margin: 0.8rem 0;
-      }
+      
       .numberCircle {
         border-radius: 50%;
         width: 60px;
