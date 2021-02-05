@@ -28,11 +28,9 @@ const PatientLookup = (props: PatientLookupProps) => {
   const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
   const history = useHistory();
 
-  // dropdown
   const [isDropDownOpen, setDropDownOpen] = React.useState(false);
 
   const onSelect = (value: any) => {
-    console.log(value)
     setDropDownOpen(!isDropDownOpen);
     onFocus();
   }

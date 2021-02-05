@@ -16,11 +16,10 @@ export type ISeries = {
   opacity: riskStratifcation | null
 }
 
-// change chrisIntegration to return this instead of Ianalysis
 export type StudyInstanceWithSeries = {
   dcmImage: DcmImage,
   analysisCreated: string, 
-  series: ISeries[] //ideally is 1. it DOES represent one individual thing, but why it holds multiple series (more than one) doesn't make sense.
+  series: ISeries[]
 }
 
 export type selectedImageType = {

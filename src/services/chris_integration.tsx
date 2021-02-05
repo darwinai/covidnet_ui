@@ -134,8 +134,9 @@ class ChrisIntegration {
     try {
       console.log(img.fname);
       const dircopyPlugin = (await client.getPlugins({ "name_exact": app.Plugins.FS_PLUGIN })).getItems()[0];
-      // const params = await dircopyPlugin.getPluginParameters();
+    
       const data: DirCreateData = { "dir": img.fname };
+
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
       const dirCopyResult = await pollingBackend(dircopyPluginInstance);
@@ -255,6 +256,7 @@ class ChrisIntegration {
           limit: 25,
           offset: 0,
         });
+
         const newSeries: ISeries = {
           covidnetPluginId: plugin.data.id,
           imageName: '',
@@ -358,7 +360,7 @@ class ChrisIntegration {
     const pluginData = {
       imagefile: imgName,
       previous_id: covidnetPluginId,
-      patientId: selectedImage.studyInstance?.dcmImage.PatientID
+      patientId: selectedImage.studyInstance?.dcmImage.PatientID //add in here
     }
     const pdfgeneratorInstance: PluginInstance = await client.createPluginInstance(pdfgenerationPlugin.data.id, pluginData);
     await pollingBackend(pdfgeneratorInstance);

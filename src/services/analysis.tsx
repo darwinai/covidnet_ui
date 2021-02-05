@@ -25,8 +25,7 @@ export const pollingBackend = async (pluginInstance: PluginInstance) =>{
   }
   while (true) {
     await timeout(1000)
-    const res: any = await pluginInstance.get()
-    console.log(res.data.status)
+    const res: any = await pluginInstance.get();
     if (res.data.status === "finishedSuccessfully") {
       console.log('reached')
       break;

@@ -27,7 +27,7 @@ const CreateAnalysisWrapper = () => {
         payload: { imgs: imagesSelected }
       })
       history.push({
-        pathname: "/", //describe this as interface and not use any.
+        pathname: "/",
         state: { 
           XrayModel: XrayModel,
           CTModel: CTModel

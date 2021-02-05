@@ -47,7 +47,7 @@ const PastAnalysisTable = () => {
     setLoading(true);
     ChrisIntegration.getPastAnalaysis(page, perpage)
       .then(listOfAnalyses => {
-        dispatch({ //this is where it updates
+        dispatch({
           type: AnalysisTypes.Update_list,
           payload: { list: listOfAnalyses }
         });
@@ -95,13 +95,13 @@ const PastAnalysisTable = () => {
         isOpen: false,
         cells: cells
       })
-      if (analysis.series.length > 0) { // the study instance has dicom Images
+      if (analysis.series.length > 0) {
         rows.push({
           isOpen: false,
           parent: indexInRows,
           fullWidth: true,
           cells: [{
-            title: (<SeriesTable studyInstance={analysis}></SeriesTable>) //this is why multiple calls.
+            title: (<SeriesTable studyInstance={analysis}></SeriesTable>)
           }]
         })
       }

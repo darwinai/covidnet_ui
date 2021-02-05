@@ -51,9 +51,9 @@ const DicomViewerBottomBox = () => {
     let viewerPredictionDIsplay = [];
     for (let classification in series?.columnNames) {
         viewerPredictionDIsplay.push(
-          <div className="PredictionArea">
+          <div className="PredictionArea" key={classification}>
                 <PredictionCircle largeCircle={isLargestNumber(series.columnValues[Number(classification)], series.columnValues)}
-                  predictionNumber={series ? series.columnValues[Number(classification)] : 0} key={classification}/>
+                  predictionNumber={series ? series.columnValues[Number(classification)] : 0}/>
                 <div className="topMargin">{series.columnNames[Number(classification)]}</div>
               </div>
         );

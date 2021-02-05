@@ -21,7 +21,7 @@ const ModelSelection: React.FC<ModelSelectionProps> = (props) => {
     const [dropdownValue, setDropdownValue] = useState((props.useXray) ? props.xrayValue : props.ctValue);
     useEffect(() => {
       setDropdownValue((props.useXray) ? props.xrayValue : props.ctValue);
-    }, [props.useXray])
+    }, [props.useXray, props.ctValue, props.xrayValue])
 
     const onToggle = (isOpen: boolean) => {
         setIsOpen(isOpen);
