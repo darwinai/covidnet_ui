@@ -29,19 +29,18 @@ const DicomViewerBottomBox = () => {
 
   //2018 01 05 2y 6m
   const { studyInstance, index } = selectedImage;
-  let imageDetail = studyInstance ? studyInstance.series[index] : null; //HERE. MAKE SURE TO FIX AND UPDATE AND CHANGE AND COME BACK TO THIS. Make sure to come back to this and update and change this back if doesn't work. look here for issues in future. properly fix and reflect and look over and reflect on this later.
+  let imageDetail = studyInstance ? studyInstance.series[index] : null;
 
   const generateBottomDisplay = (series: ISeries | null) => {
     if (series == null) {
       return;
     }
     let viewerBottomBoxDIsplay = [];
-    for (let classification in series.columnNames) { //what if this part is null?
+    for (let classification in series.columnNames) {
       viewerBottomBoxDIsplay.push(
-        <p>{series.columnNames[Number(classification)]}: <span className="blueText">{series ? series.columnValues[Number(classification)] : 0}</span></p>
+        <p key={classification}>{series.columnNames[Number(classification)]}: <span className="blueText">{series ? series.columnValues[Number(classification)] : 0}</span></p>
       );
     }
-//what was the original? what did i change or am missing?
     return viewerBottomBoxDIsplay;
   }
 
@@ -54,7 +53,7 @@ const DicomViewerBottomBox = () => {
         viewerPredictionDIsplay.push(
           <div className="PredictionArea">
                 <PredictionCircle largeCircle={isLargestNumber(series.columnValues[Number(classification)], series.columnValues)}
-                  predictionNumber={series ? series.columnValues[Number(classification)] : 0} />
+                  predictionNumber={series ? series.columnValues[Number(classification)] : 0} key={classification}/>
                 <div className="topMargin">{series.columnNames[Number(classification)]}</div>
               </div>
         );
