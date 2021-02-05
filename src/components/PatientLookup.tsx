@@ -14,7 +14,6 @@ import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
 import chris_integration from '../services/chris_integration';
 import pacs_integration from '../services/pacs_integration';
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
-import { initialICreateAnalysisState } from '../context/reducers/createAnalysisReducer';
 
 enum PrivacyLevel {
   ANONYMIZE_ALL_DATA = "Anonymize all data",
@@ -49,21 +48,6 @@ const PatientLookup = (props: PatientLookupProps) => {
       const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
         await pacs_integration.queryPatientFiles(createAnalysis.patientID) :
         await chris_integration.fetchPacFiles(createAnalysis.patientID);
-      // Extract patient information from the first queried DICOM file
-      if(dcmImages[0]) {
-        const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
-        dispatch({
-          type: CreateAnalysisTypes.Update_patient_personal_info,
-          payload: {
-            ...patientInfo
-          }
-        })
-      } else {
-        dispatch({
-          type: CreateAnalysisTypes.Update_patient_personal_info,
-          payload: initialICreateAnalysisState
-        })
-      }  
 
       dispatch({
         type: DicomImagesTypes.Update_all_images,

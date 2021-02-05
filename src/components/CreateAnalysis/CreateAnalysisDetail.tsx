@@ -17,8 +17,18 @@ interface CreateAnalysisDetailProps {
 }
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
-  const { state: { dcmImages, createAnalysis } } = useContext(AppContext);
+  const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
   const { selectedStudyUIDs } = createAnalysis;
+
+  useEffect(() => {
+    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages.allDcmImages[0])
+    dispatch({
+      type: CreateAnalysisTypes.Update_patient_personal_info,
+      payload: {
+        ...patientInfo
+      }
+    })
+  }, [dcmImages, dispatch])
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
