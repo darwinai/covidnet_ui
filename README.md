@@ -90,9 +90,19 @@ yarn start
 
 ### PACS Integration
 
+#### Setting up an Orthanc PACS server
+
 Instructions for setting up and configuring a local Orthanc PACS server for development can be found [here](https://github.com/FNNDSC/CHRIS_docs/blob/master/usecases/PACS_integration/pacs_integration.adoc). Follow the steps up until the section titled **Query the PACS server**.
 
+#### Uploading DICOM data to Swift
+
 Note: PACS integration into `covidnet_ui` is only partially complete. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem and a method for transporting these files into the Swift filesystem to be used by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files uploaded to the PACS server must also be manually uploaded to the Swift storage during setup.
+
+When testing out COVID-Net with PACS integration, be sure to delete any PACS files currently in the Swift storage and re-upload the DICOM files from `covidnet_integration` without the `mock` flag:
+
+```
+python3 upload_swift_notify_cube.py
+```
 
 #### Setting environment variables
 
@@ -103,3 +113,4 @@ REACT_APP_CHRIS_UI_DICOM_SOURCE="pacs"
 REACT_APP_CHRIS_UI_PFDCM_URL="http://<HOST_IP>:<HOST_PORT>/api/v1/cmd/"
 ```
 
+Note: for `REACT_APP_CHRIS_UI_DICOM_SOURCE`, using any value other than `pacs` will default COVID-Net to fetching files directly from Swift.
