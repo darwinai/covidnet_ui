@@ -12,11 +12,12 @@ const FileLookup = () => {
     const [maxCreationDate, setMaxCreationDate] = useState<string>('');
 
     useEffect(() => {
-      const filteredDcmImages = dcmImages.allDcmImages.filter(image => (
-        (seriesInstanceUID === '' || image.SeriesInstanceUID.includes(seriesInstanceUID)) &&
-        (minCreationDate === '' || Date.parse(image.creation_date) >= Date.parse(minCreationDate)) &&
-        (maxCreationDate === '' || Date.parse(image.creation_date) <= Date.parse(maxCreationDate))
-      ));
+      const filteredDcmImages = dcmImages.allDcmImages.filter(image => {
+        const imageCreationDate = Date.parse(image.creation_date.substring(0, 10));
+        return (seriesInstanceUID === '' || image.SeriesInstanceUID.includes(seriesInstanceUID)) &&
+        (minCreationDate === '' || imageCreationDate >= Date.parse(minCreationDate)) &&
+        (maxCreationDate === '' || imageCreationDate <= Date.parse(maxCreationDate))
+      });
 
       dispatch({
         type: DicomImagesTypes.Update_filtered_images,
@@ -41,16 +42,22 @@ const FileLookup = () => {
       setMaxCreationDate('');
     }
 
-    const maxDateValidator = (date: Date) => (
-      isValidDate(new Date(minCreationDate)) && date >= new Date(minCreationDate) ? '' : 'Minimum date must be less than maximum date'
-    )
-
     const onMinDateChange = (_str: string, date: Date | undefined) => {
       if (date && isValidDate(date)) {
         setMinCreationDate(date.toISOString().substring(0, 10));
-        date.setDate(date.getDate() + 1);
+        if (date >= new Date(maxCreationDate)) {
+          setMaxCreationDate('');
+        }
+      }
+    };
+
+    const onMaxDateChange = (_str: string, date: Date | undefined) => {
+      if (date && isValidDate(date)) {
         setMaxCreationDate(date.toISOString().substring(0, 10));
-      } else setMaxCreationDate('');
+        if (date <= new Date(minCreationDate)) {
+          setMinCreationDate('');
+        }
+      }
     };
 
     return (
@@ -61,24 +68,21 @@ const FileLookup = () => {
             <TextInput value={seriesInstanceUID} type="text" onChange={setSeriesInstanceUID} aria-label="Series UID" />
           </div>
           <div className="InputRowField">
-            <label>Creation Date</label>
+            <label>File Creation Date</label>
             <Split hasGutter>
               <SplitItem>
                 <DatePicker
                   value={minCreationDate}
                   onChange={onMinDateChange}
-                  aria-label="Min date"
+                  aria-label="From date"
                 />
               </SplitItem>
               <SplitItem>to</SplitItem>
               <SplitItem>
                 <DatePicker
                   value={maxCreationDate}
-                  onChange={date => setMaxCreationDate(date.toString())}
-                  isDisabled={!isValidDate(new Date(minCreationDate))}
-                  rangeStart={new Date(minCreationDate)}
-                  validators={[maxDateValidator]}
-                  aria-label="Max date"
+                  onChange={onMaxDateChange}
+                  aria-label="To date"
                 />
               </SplitItem>
             </Split>
