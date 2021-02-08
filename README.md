@@ -90,15 +90,21 @@ yarn start
 
 ### PACS Integration
 
-#### Setting up an Orthanc PACS server
+The following section provides a guide for enabling COVID-Net to query and retrieve DICOM files from a local PACS server, as opposed to using mock files directly uploaded to Swift.
 
-Instructions for setting up and configuring a local Orthanc PACS server for development can be found [here](https://github.com/FNNDSC/CHRIS_docs/blob/master/usecases/PACS_integration/pacs_integration.adoc). Follow the steps up until the section titled **Query the PACS server**.
+#### Setting up an Orthanc PACS server and `pfdcm`
+
+Instructions for setting up a local Orthanc PACS server and `pfdcm` can be found [here](https://github.com/FNNDSC/CHRIS_docs/blob/master/usecases/PACS_integration/pacs_integration.adoc). There are a few things to note when following the steps:
+
+- Follow the steps up until the section titled **Query the PACS server**. The steps that follow are simply for querying and retrieving from PACS via the command line. 
+- At the step for uploading DICOM files to Orthanc, use the DICOM files from `/covidnet_integration/images` .
+- Make note of the `HOST_IP` and `HOST_PORT` values used.
 
 #### Uploading DICOM data to Swift
 
-Note: PACS integration into `covidnet_ui` is only partially complete. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem and a method for transporting these files into the Swift filesystem to be used by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files uploaded to the PACS server must also be manually uploaded to the Swift storage during setup.
+Note: PACS integration into `covidnet_ui` is still under development. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem. A method for transporting these files into the Swift filesystem to be accessible by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files that were uploaded to the PACS server must also be manually uploaded to the Swift storage during setup:
 
-When testing out COVID-Net with PACS integration, be sure to delete any PACS files currently in the Swift storage and re-upload the DICOM files from `covidnet_integration` without the `mock` flag:
+When testing out COVID-Net with PACS integration, be sure to delete any PACS files currently in the Swift storage and upload the DICOM files from `/covidnet_integration/images` without the `mock` flag:
 
 ```
 python3 upload_swift_notify_cube.py
