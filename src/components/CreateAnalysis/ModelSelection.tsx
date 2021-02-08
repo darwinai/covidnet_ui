@@ -15,11 +15,12 @@ interface ModelSelectionProps {
     ctValue: string
   }
 
-const ModelSelection: React.FC<ModelSelectionProps> = (props) => {
+const ModelSelection: React.FC<ModelSelectionProps> = (props) => { // Drop-down for selecting which model to use when performing analysis
 
     const [isOpen, setIsOpen] = useState(false);
     const [dropdownValue, setDropdownValue] = useState((props.useXray) ? props.xrayValue : props.ctValue);
-    useEffect(() => {
+
+    useEffect(() => { // Display the currently chosen Xray/CT model
       setDropdownValue((props.useXray) ? props.xrayValue : props.ctValue);
     }, [props.useXray, props.ctValue, props.xrayValue])
 

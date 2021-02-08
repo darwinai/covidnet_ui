@@ -10,7 +10,7 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 
 type AllProps = RouteComponentProps;
 
-interface ModelLocation {
+interface ModelLocation { // Route parameters passed through the history hook
     XrayModel: string,
     CTModel: string
 }

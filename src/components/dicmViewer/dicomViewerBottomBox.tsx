@@ -49,7 +49,7 @@ const DicomViewerBottomBox = () => {
       return;
     } 
     let viewerPredictionDIsplay = [];
-    for (let classification in series?.columnNames) {
+    for (let classification in series?.columnNames) { // Dynamically display the prediction classes/values in the dicomviewerbottombox
         viewerPredictionDIsplay.push(
           <div className="PredictionArea" key={classification}>
                 <PredictionCircle largeCircle={isLargestNumber(series.columnValues[Number(classification)], series.columnValues)}

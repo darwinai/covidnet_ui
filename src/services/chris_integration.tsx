@@ -87,7 +87,7 @@ export const modifyDatetime = (oldDay: string): string => {
   return rvtVal
 }
 
-export const isNotModel = (modelName: string): boolean => {
+export const isNotModel = (modelName: string): boolean => { // Dynamically loop through all model plug-ins and check if the current plug-in is valid
   let xrayKey: keyof typeof app.XrayModels;
   let ctKey: keyof typeof app.CTModels;
   
@@ -125,11 +125,11 @@ class ChrisIntegration {
   static async processOneImg(img: DcmImage, xrayModel: string, ctModel: string): Promise<BackendPollResult[]> {
     let client: any = await ChrisAPIClient.getClient();
     
-    let XRayModels: { [id: string]: string } = app.XrayModels;
+    let XRayModels: { [id: string]: string } = app.XrayModels; // Destructuring
     let CTModels: { [id: string]: string } = app.CTModels;
 
-    let XRayModel: string = XRayModels[xrayModel];
-    let CTModel: string = CTModels[ctModel];
+    let XRayModel: string = XRayModels[xrayModel]; // Configuring ChRIS to use the correct Xray model
+    let CTModel: string = CTModels[ctModel]; // Configuring ChRIS to use the correct CT model
 
     try {
       console.log(img.fname);
@@ -271,7 +271,7 @@ class ChrisIntegration {
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
             let content = await this.fetchJsonFiles(fileObj.data.id);
             const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
-            Object.keys(content).map(function(key: string) {
+            Object.keys(content).map(function(key: string) { // Reading in the classifcation titles and values
               if (key !== 'prediction') {
                 if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
                   newSeries.columnNames.push(key);

@@ -21,12 +21,12 @@ const CreateAnalysisWrapper = () => {
         setIsModalOpen(true);
         return;
       }
-      // update staging images
+      // Updating staging images
       dispatch({
         type: StagingDcmImagesTypes.UpdateStaging,
         payload: { imgs: imagesSelected }
       })
-      history.push({
+      history.push({ // Passing route parameters between components to determine which models are to be used for the analysis
         pathname: "/",
         state: { 
           XrayModel: XrayModel,

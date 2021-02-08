@@ -24,7 +24,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const { series: analysisList } = studyInstance;
   let titles = [{ title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }];
 
-  for (let title of analysisList[0]?.columnNames) { 
+  for (let title of analysisList[0]?.columnNames) { // Adding the column titles for each analysis
     titles.push({ title: (<span><br /><span className='classificationText'>{title}</span></span>) });
   }
 
@@ -41,7 +41,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
       }
     ]
 
-    for (let classification in analysis.columnNames) {
+    for (let classification in analysis.columnNames) { // Dynamically displaying each prediction class
       analysisCells.push({
         title: (<PredictionCircle key={index}
           largeCircle={isLargestNumber(analysis.columnValues[classification], analysis.columnValues)}

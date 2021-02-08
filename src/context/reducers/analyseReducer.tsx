@@ -10,7 +10,7 @@ export type ISeries = {
   covidnetPluginId: number, 
   imageName: string,
   imageId: string,
-  columnNames: string[],
+  columnNames: string[], // Holding classification classes/values in array
   columnValues: number[],
   geographic: riskStratifcation | null,
   opacity: riskStratifcation | null
