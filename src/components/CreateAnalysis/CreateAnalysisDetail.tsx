@@ -89,10 +89,10 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
               <div className="numberCircle">{numOfSelectedImages}</div>
               <h3>Series selected</h3>
               <a onClick={() => props.setIsExpanded(true)}>(More details)</a>
-              <RightArrowButton click={submitAnalysis} XrayModel={XrayModel} CTModel={CTModel}>
+              <ModelSelection useXray={useXray} handleXrayChange={handleXrayChange} handleCTChange={handleCTChange} xrayValue={XrayModel} ctValue={CTModel}></ModelSelection>
+              <RightArrowButton click={submitAnalysis(XrayModel, CTModel)}>
                 Analyze
               </RightArrowButton>
-              <ModelSelection useXray={useXray} handleXrayChange={handleXrayChange} handleCTChange={handleCTChange} xrayValue={XrayModel} ctValue={CTModel}></ModelSelection>
             </div>
           </div>
         </div>

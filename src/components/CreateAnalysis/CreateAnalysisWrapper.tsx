@@ -15,7 +15,7 @@ const CreateAnalysisWrapper = () => {
   const history = useHistory();
 
   const submitAnalysis = (XrayModel?: string, CTModel?: string) => {
-    return () => {
+    return (() => {
       const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
       if (imagesSelected.length <= 0) {
         setIsModalOpen(true);
@@ -32,7 +32,7 @@ const CreateAnalysisWrapper = () => {
           XrayModel: XrayModel,
           CTModel: CTModel
         }});
-    }
+    })
   }
 
 
