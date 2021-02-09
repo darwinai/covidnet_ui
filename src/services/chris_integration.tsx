@@ -89,22 +89,7 @@ export const modifyDatetime = (oldDay: string): string => {
 }
 
 export const isNotModel = (modelName: string): boolean => { // Dynamically loop through all model plug-ins and check if the current plug-in is valid
-  let xrayKey: keyof typeof app.XrayModels;
-  let ctKey: keyof typeof app.CTModels;
-  
-  for (xrayKey in app.XrayModels) {
-    if (modelName === app.XrayModels[xrayKey]) {
-      return false;
-    }
-  }
-
-  for (ctKey in app.CTModels) {
-    if (modelName === app.CTModels[ctKey]) {
-      return false;
-    }
-  }
-
-  return true;
+  return !(Object.values(app.XrayModels).includes(modelName) || !(Object.values(app.CTModels).includes(modelName)));
 }
 
 class ChrisIntegration {
@@ -123,14 +108,49 @@ class ChrisIntegration {
     return count;
   }
 
-  static async processOneImg(img: DcmImage, xrayModel: string, ctModel: string): Promise<BackendPollResult[]> {
+  // old code used for manually uploaded image analysis
+  static async processNewAnalysis(files: LocalFile[]): Promise<boolean> {
+    let client: any = await ChrisAPIClient.getClient();
+    try {
+      // upload file
+      const uploadedFile = await client.uploadFile({
+        "upload_path": `chris/uploads/covidnet/${files[0].name}`
+      }, { "fname": files[0].blob })
+
+      // create dircopy plugin
+      const dircopyPlugin = (await client.getPlugins({ 'name_exact': app.Plugins.FS_PLUGIN })).getItems()[0];
+      const data: DirCreateData = { "dir": uploadedFile.data.fname }
+      const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+
+      await pollingBackend(pluginInstance)
+
+      const filename = uploadedFile.data.fname.split('/').pop()
+      // create covidnet plugin
+      const plcovidnet_data: PlcovidnetData = {
+        previous_id: pluginInstance.data.id,
+        // title: this.PL_COVIDNET,
+        imagefile: filename
+      }
+      const plcovidnet = await client.getPlugins({ "name_exact": "pl-covidnet" })
+      const covidnetPlugin = plcovidnet.getItems()[0]
+      const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      console.log("Covidnet Running")
+      await pollingBackend(covidnetInstance)
+    } catch (err) {
+      console.log(err)
+      return false
+    }
+    return true;
+  }
+
+  static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult[]> {
     let client: any = await ChrisAPIClient.getClient();
     
     let XRayModels: { [id: string]: string } = app.XrayModels; // Destructuring
     let CTModels: { [id: string]: string } = app.CTModels;
 
-    let XRayModel: string = XRayModels[xrayModel]; // Configuring ChRIS to use the correct Xray model
-    let CTModel: string = CTModels[ctModel]; // Configuring ChRIS to use the correct CT model
+    let XRayModel: string = XRayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
+    let CTModel: string = CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
 
     try {
       console.log(img.fname);
@@ -361,7 +381,7 @@ class ChrisIntegration {
     const pluginData = {
       imagefile: imgName,
       previous_id: covidnetPluginId,
-      patientId: selectedImage.studyInstance?.dcmImage.PatientID //add in here
+      patientId: selectedImage.studyInstance?.dcmImage.PatientID
     }
     const pdfgeneratorInstance: PluginInstance = await client.createPluginInstance(pdfgenerationPlugin.data.id, pluginData);
     await pollingBackend(pdfgeneratorInstance);

@@ -15,43 +15,31 @@ interface ModelSelectionProps {
     ctValue: string
   }
 
-const ModelSelection: React.FC<ModelSelectionProps> = (props) => { // Drop-down for selecting which model to use when performing analysis
+const ModelSelection: React.FC<ModelSelectionProps> = ({useXray, handleCTChange, handleXrayChange, xrayValue, ctValue}) => { // Drop-down for selecting which model to use when performing analysis
 
     const [isOpen, setIsOpen] = useState(false);
-    const [dropdownValue, setDropdownValue] = useState((props.useXray) ? props.xrayValue : props.ctValue);
+    const [dropdownValue, setDropdownValue] = useState((useXray) ? xrayValue : ctValue);
 
     useEffect(() => { // Display the currently chosen Xray/CT model
-      setDropdownValue((props.useXray) ? props.xrayValue : props.ctValue);
-    }, [props.useXray, props.ctValue, props.xrayValue])
-
-    const onToggle = (isOpen: boolean) => {
-        setIsOpen(isOpen);
-      };
+      setDropdownValue((useXray) ? xrayValue : ctValue);
+    }, [useXray, ctValue, xrayValue])
       
     const onSelect = (event: SyntheticEvent<HTMLDivElement, Event> | undefined) => {
         setIsOpen(!isOpen);
         
         if (event !== undefined) {
-            if (props.useXray) {
-                props.handleXrayChange(event.currentTarget.innerText);
+            if (useXray) {
+                handleXrayChange(event.currentTarget.innerText);
             } else {
-                props.handleCTChange(event.currentTarget.innerText);
+                handleCTChange(event.currentTarget.innerText);
             }
             setDropdownValue(event.currentTarget.innerText);
         }
       };
 
-      let dropdownItems: any = [];
-
-      if (props.useXray) {
-        for (const [key] of Object.entries(plugins.XrayModels)) {
-            dropdownItems.push(<DropdownItem key={key}>{key}</DropdownItem>);            
-        }
-      } else {
-        for (const [key] of Object.entries(plugins.CTModels)) {
-            dropdownItems.push(<DropdownItem key={key}>{key}</DropdownItem>);     
-        }
-      }
+      let dropdownItems = Object.keys(useXray ? plugins.XrayModels : plugins.CTModels).map((key: string) => {
+        return (<DropdownItem key={key}>{key}</DropdownItem>);
+      });
 
     return (
       <React.Fragment>
@@ -59,7 +47,7 @@ const ModelSelection: React.FC<ModelSelectionProps> = (props) => { // Drop-down 
         <Dropdown
           onSelect={onSelect}
           toggle={
-            <DropdownToggle onToggle={onToggle} toggleIndicator={CaretDownIcon} isPrimary id="toggle-id-4">
+            <DropdownToggle onToggle={setIsOpen} toggleIndicator={CaretDownIcon} isPrimary id="toggle-id-4">
               {dropdownValue}
             </DropdownToggle>
           }

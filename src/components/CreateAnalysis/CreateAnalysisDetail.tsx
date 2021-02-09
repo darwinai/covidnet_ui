@@ -12,7 +12,7 @@ import plugins from '../../api/app.config'
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
-  submitAnalysis: (XrayModel: string | void, CTModel: string | void) => (() => void)
+  submitAnalysis: (XrayModel?: string, CTModel?: string) => (() => void)
 }
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
@@ -98,10 +98,10 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
         </div>
         <div className="detail-bottom-wrapper">
           <div className="detail-select-studies">
-            {studyInstances.map((study: StudyInstance, i) => {
+            {studyInstances.map((study: StudyInstance, index: number) => {
               study.setModelType = setModelType; // Passing function to change parent's state (Xray/CT)
-              study.index = i; // Unique index to distinguish the two types of image tabs
-              return <SelectionStudy key={i} {...study}></SelectionStudy>;
+              study.index = index; // Unique index to distinguish the two types of image tabs
+              return <SelectionStudy key={index} {...study}></SelectionStudy>;
             })}
           </div>
           <SelectedStudyDetail></SelectedStudyDetail>

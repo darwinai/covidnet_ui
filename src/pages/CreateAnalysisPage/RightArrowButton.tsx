@@ -3,7 +3,7 @@ import { ArrowRightIcon } from '@patternfly/react-icons';
 import React from "react";
 
 interface RightArrowButtonProps { 
-  click: (XrayModel: string | void, CTModel: string | void) => (() => void) // Factory function to take in the chosen models and pass a function that will have the correct state in the history hook
+  click: (XrayModel?: string, CTModel?: string) => (() => void) // Factory function to take in the chosen models and pass a function that will have the correct state in the history hook
   className?: string
   XrayModel?: string
   CTModel?: string

@@ -38,7 +38,7 @@ const DicomViewerBottomBox = () => {
 
     return ( // Dynamically generate the titles to display for the classifications
       Object.keys(series.columnNames).map((value: string, index: number) => {
-        <p key={value}>{value}: <span className="blueText">{series.columnValues[index]}</span></p>
+        return (<p key={value}>{value}: <span className="blueText">{series.columnValues[index]}</span></p>);
       })
     )
   }
@@ -50,11 +50,11 @@ const DicomViewerBottomBox = () => {
     
     return ( // Dynamically display the prediction classes/values in the dicomviewerbottombox
       Object.keys(series.columnNames).map((value: string, index: number) => {
-        <div className="PredictionArea" key={value}>
+        return (<div className="PredictionArea" key={value}>
                 <PredictionCircle largeCircle={isLargestNumber(series.columnValues[index], series.columnValues)}
                   predictionNumber={series.columnValues[index]}/>
                 <div className="topMargin">{series.columnNames[index]}</div>
-              </div>
+              </div>);
       })
     )
   }

@@ -11,11 +11,13 @@ interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries
 }
 
-export const isLargestNumber = (num: number | null, numArray: number[]) => {
-  if (num !== null && numArray !== null) {
+export const isLargestNumber = (num: number | null | undefined, numArray: number[]) => {
+  if (num && numArray) {
     return num === Math.max(...numArray);
   }
-  else return false
+  else {
+    return false;
+  }
 }
 
 const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
@@ -34,18 +36,14 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
 
   const columns = titles;
 
-  const rows = analysisList.map(function(analysis: ISeries, index: number) {
-    let analysisCells: any = [
-      {
-        title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>)
-      }
-    ]
+  const rows = analysisList.map((analysis: ISeries, index: number) => {
+    let analysisCells: any = [{ title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }]
 
     for (let classification in analysis.columnNames) { // Dynamically displaying each prediction class
       analysisCells.push({
-        title: (<PredictionCircle key={index}
-          largeCircle={isLargestNumber(analysis.columnValues[classification], analysis.columnValues)}
-          predictionNumber={analysis.columnValues[classification]} />)
+        title: (<PredictionCircle key={analysis?.columnNames[classification]}
+          largeCircle={isLargestNumber(analysis?.columnValues[classification], analysis?.columnValues)}
+          predictionNumber={analysis?.columnValues[classification]} />)
       });
     }
     
@@ -57,7 +55,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
         title: (<Button variant="secondary" onClick={() => viewImage(index)}>View</Button>)
       });
 
-    return { cells: analysisCells }
+    return { cells: analysisCells };
   })
 
 
@@ -71,7 +69,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
         }
       }
     })
-    history.push('/viewImage')
+    history.push('/viewImage');
   }
 
   return (

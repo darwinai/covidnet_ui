@@ -20,12 +20,12 @@ const DashboardPage: React.FC<AllProps> = () => {
   const { state: { stagingDcmImages }, dispatch } = useContext(AppContext);
 
   const location = useLocation<ModelLocation>();
-  let XrayModel: string = "";
-  let CTModel: string = "";
+  let xrayModel: string = "";
+  let ctModel: string = "";
 
   if (location?.state) {
-      XrayModel = location.state.XrayModel;
-      CTModel = location.state.CTModel;
+      xrayModel = location.state.XrayModel;
+      ctModel = location.state.CTModel;
   }
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const DashboardPage: React.FC<AllProps> = () => {
     if (stagingDcmImages.length <= 0) return;
 
     // process the images
-    CreateAnalysisService.analyzeImages(stagingDcmImages, XrayModel, CTModel)
+    CreateAnalysisService.analyzeImages(stagingDcmImages, xrayModel, ctModel)
       .then((notifications) => {
         dispatch({
           type: StagingDcmImagesTypes.UpdateStaging,
@@ -52,7 +52,7 @@ const DashboardPage: React.FC<AllProps> = () => {
           payload: { notifications }
         })
       })
-  }, [dispatch, stagingDcmImages, XrayModel, CTModel])
+  }, [dispatch, stagingDcmImages, xrayModel, ctModel])
 
   return (
     <Wrapper>

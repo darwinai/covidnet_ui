@@ -77,7 +77,7 @@ const PatientLookup = (props: PatientLookupProps) => {
     </DropdownItem>,
   ];
 
-  const navigateToCreateAnalysis = (XrayModel: string | void, CTModel: string | void) => {
+  const navigateToCreateAnalysis = () => {
     return async () => {
       await newLookup();
       history.push("/createAnalysis");
