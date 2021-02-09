@@ -38,7 +38,7 @@ class PACSIntegration {
                     PACS:"orthanc"
                 }
             }), {headers: {'Content-Type': 'text/plain'}})
-            const parsedResponse = PACSIntegration.parseResponse(rawResponse.data);
+            const parsedResponse = this.parseResponse(rawResponse.data);
             const data: PACSMainResponse[] = parsedResponse.query.data;
             data.forEach(study => {
                 study.series.forEach(series => {
@@ -96,7 +96,7 @@ class PACSIntegration {
                     PACS:"orthanc"
                 }
             }), {headers: {'Content-Type': 'text/plain'}})
-            const parsedResponse: RetrieveResponse = PACSIntegration.parseResponse(rawResponse.data);
+            const parsedResponse: RetrieveResponse = this.parseResponse(rawResponse.data);
             if (parsedResponse.retrieve.status === 'success') {
                 return true;
             } else {
