@@ -89,6 +89,7 @@ export const dicomImagesReducer = (
   switch (action.type) {
     case DicomImagesTypes.Update_all_images:
       return {
+        ...state,
         allDcmImages: action.payload.images,
         filteredDcmImages: action.payload.images
       }
