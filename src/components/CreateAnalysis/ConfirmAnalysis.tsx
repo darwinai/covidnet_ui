@@ -14,7 +14,7 @@ const ConfirmAnalysis: React.FC<ConfirmAnalysisProps> = ({submit}) => {
 
   return (
     <div className="ConfirmAnalysis">
-      {dcmImages.filteredDcmImages.map((img: DcmImage, i) => {
+      {dcmImages.allDcmImages.map((img: DcmImage, i) => {
         const isSelected: boolean = CreateAnalysisService.isImgSelected(selectedStudyUIDs, img);
         if (!isSelected) return null;
         return (

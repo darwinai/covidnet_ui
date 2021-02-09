@@ -17,7 +17,7 @@ const CreateAnalysisWrapper = () => {
   const history = useHistory();
 
   const submitAnalysis = async () => {
-    let imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages.filteredDcmImages, selectedStudyUIDs);
+    let imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages.allDcmImages, selectedStudyUIDs);
     if (imagesSelected.length <= 0) {
       setIsModalOpen(true);
       return;
