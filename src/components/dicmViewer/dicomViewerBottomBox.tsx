@@ -17,7 +17,7 @@ const DicomViewerBottomBox = () => {
   }
 
   const geoOpacityNumbers = (
-    dcmImage: ISeries | null,
+    dcmImage: ISeries | null | undefined,
     geoOpacity: 'geographic' | 'opacity',
     type: 'severity' | 'extentScore'
   ): string => {
@@ -29,36 +29,34 @@ const DicomViewerBottomBox = () => {
 
   //2018 01 05 2y 6m
   const { studyInstance, index } = selectedImage;
-  let imageDetail = studyInstance ? studyInstance.series[index] : null;
+  let imageDetail = studyInstance?.series[index];
 
-  const generateBottomDisplay = (series: ISeries | null) => {
-    if (series == null) {
+  const generateBottomDisplay = (series?: ISeries) => {
+    if (!series) {
       return;
     }
-    let viewerBottomBoxDIsplay = [];
-    for (let classification in series.columnNames) {
-      viewerBottomBoxDIsplay.push(
-        <p key={classification}>{series.columnNames[Number(classification)]}: <span className="blueText">{series ? series.columnValues[Number(classification)] : 0}</span></p>
-      );
-    }
-    return viewerBottomBoxDIsplay;
+
+    return ( // Dynamically generate the titles to display for the classifications
+      Object.keys(series.columnNames).map((value: string, index: number) => {
+        <p key={value}>{value}: <span className="blueText">{series.columnValues[index]}</span></p>
+      })
+    )
   }
 
-  const generateDisplayCircles = (series: ISeries | null) => {
-    if (series == null) {
+  const generateDisplayCircles = (series?: ISeries) => {
+    if (!series) {
       return;
     } 
-    let viewerPredictionDIsplay = [];
-    for (let classification in series?.columnNames) { // Dynamically display the prediction classes/values in the dicomviewerbottombox
-        viewerPredictionDIsplay.push(
-          <div className="PredictionArea" key={classification}>
-                <PredictionCircle largeCircle={isLargestNumber(series.columnValues[Number(classification)], series.columnValues)}
-                  predictionNumber={series ? series.columnValues[Number(classification)] : 0}/>
-                <div className="topMargin">{series.columnNames[Number(classification)]}</div>
+    
+    return ( // Dynamically display the prediction classes/values in the dicomviewerbottombox
+      Object.keys(series.columnNames).map((value: string, index: number) => {
+        <div className="PredictionArea" key={value}>
+                <PredictionCircle largeCircle={isLargestNumber(series.columnValues[index], series.columnValues)}
+                  predictionNumber={series.columnValues[index]}/>
+                <div className="topMargin">{series.columnNames[index]}</div>
               </div>
-        );
-    }
-    return viewerPredictionDIsplay;
+      })
+    )
   }
 
   return (
@@ -68,7 +66,7 @@ const DicomViewerBottomBox = () => {
         <div className='predictionValues moveUp'>
 
           {generateBottomDisplay(imageDetail)}
-
+        
         </div>
         <span className="pointer" onClick={toggle}>{!isBottomHided ? 'hide ' : 'expand '}</span>	&nbsp;
         <span className="pointer" onClick={toggle}>

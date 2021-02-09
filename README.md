@@ -89,12 +89,11 @@ yarn start
 ```
 
 #### Adding More Plug-ins and Models
-If another plug-in is wished to be added to the COVID-Net project:
+If another plug-in is wished to be added to the COVID-Net UI project:
 
 ```
-1. Download the plug-in to local computer
-2. Follow the above steps of creating the docker image, uploading the plug-in, and registering the plug-in on ChRIS
-3. Navigate to app.config.tsx, add the appropriate entry (in Xray Models, CT Models, or Plug-ins)
+1. Follow corresponding steps of installation, creating the docker image, uploading, and registering the plug-in on ChRIS
+2. Navigate to app.config.tsx, add the appropriate entry (in Xray Models, CT Models, or Plug-ins) with the plug-in's name and its alias to be used in the app
 ```
 
 #### Example: Incorporating Multiple Models
