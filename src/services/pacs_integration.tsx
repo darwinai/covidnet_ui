@@ -1,4 +1,5 @@
 import { DcmImage, PFDCMResponse, PACSMainResponse, PACSSeries} from "../context/reducers/dicomImagesReducer";
+import { BASE_PACS_FILE_PATH } from '../api/app.config';
 import axios from 'axios';
 
 declare var process: {
@@ -8,8 +9,6 @@ declare var process: {
 };
 
 class PACSIntegration {
-
-    private static basePACSFilePath = 'SERVICES/PACS/covidnet/';
 
     static parseResponse(rawResponse: string): PFDCMResponse | undefined {
         try {
@@ -47,7 +46,7 @@ class PACSIntegration {
                 study.series.map((series: PACSSeries): DcmImage => ({
                         id: series.uid.value,
                         creation_date: series.StudyDate.value,
-                        fname: this.basePACSFilePath + series.SeriesInstanceUID.value,
+                        fname: BASE_PACS_FILE_PATH + series.SeriesInstanceUID.value,
                         PatientID: series.PatientID.value,
                         PatientName: series.PatientName.value,
                         PatientBirthDate: series.PatientBirthDate.value,
