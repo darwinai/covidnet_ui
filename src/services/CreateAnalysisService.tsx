@@ -9,8 +9,7 @@ export interface StudyInstance {
   studyDescription: string;
   modality: string;
   createdDate: string;
-  setModelType?: (index: number) => void;
-  index?: number;
+  setModelType?: (modality: string) => void;
 }
 
 export interface AnalyzedImageResult {

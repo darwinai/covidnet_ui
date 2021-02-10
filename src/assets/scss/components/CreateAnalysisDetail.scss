@@ -6,6 +6,10 @@ $description-top-padding: 0.3rem;
     margin-top: 1rem;
   }
 
+  // .pf-c-button-pf-m-primary {
+  //   position: relative;
+  // }
+
 .detail-wrapper {
   @include flex(column);
   min-height: 70vh;

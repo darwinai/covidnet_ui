@@ -6,7 +6,7 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 import ImageSelectionBox from "./ImageSelectionBox";
 
 interface ConfirmAnalysisProps{
-  submit: (XrayModel?: string, CTModel?: string) => (() => void)
+  submit: () => void
 }
 
 const ConfirmAnalysis: React.FC<ConfirmAnalysisProps> = ({submit}) => {

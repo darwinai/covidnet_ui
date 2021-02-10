@@ -1,5 +1,5 @@
 import { Badge } from '@patternfly/react-core';
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { StudyInstance } from "../../services/CreateAnalysisService";
@@ -9,29 +9,35 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   studyDescription,
   modality,
   createdDate,
-  setModelType,
-  index
+  setModelType
 }) => {
   const { state: { createAnalysis: { selectedStudyUIDs, currSelectedStudyUID } }, dispatch } = useContext(AppContext);
   const imagesSelectedDict = selectedStudyUIDs[studyInstanceUID]
 
-  const selectThisStudy = (index: number) => {
+  useEffect(() => {
+    if (currSelectedStudyUID === studyInstanceUID) { // Setting the drop-down display options, according to the study's modality (Xray/CT)
+    if (setModelType) {
+      setModelType(modality);
+    }
+    console.log("cheese");
+    }
+  }, [currSelectedStudyUID, studyInstanceUID, modality])
+
+  const selectThisStudy = () => {
     dispatch({
       type: CreateAnalysisTypes.UpdateCurrSelectedStudyUID,
       payload: {
         studyUID: studyInstanceUID
       }
     });
-    if (setModelType) {
-      setModelType(index);
-    }
   }
 
   const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0;
+  
   return (
     <div
       className={`SelectionStudy ${isSelected ? 'selected' : ''}`}
-      onClick={() => {if (index !== undefined) selectThisStudy(index)}}
+      onClick={selectThisStudy}
     >
       <h1 className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText' : ''}`}>
         {isSelected ?

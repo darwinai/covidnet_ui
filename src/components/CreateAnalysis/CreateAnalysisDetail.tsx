@@ -21,8 +21,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
 
   const [XrayModel, setXrayModel] = useState(Object.keys(plugins.XrayModels)[0]);
   const [CTModel, setCTModel] = useState(Object.keys(plugins.CTModels)[0]);
-  const [modelValue, setModelValue] = useState(0);
-  const [useXray, setUseXray] = useState(true);
+  const [useXray, setUseXray] = useState(false);
 
   useEffect(() => {
     const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
@@ -32,7 +31,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
         ...patientInfo
       }
     })
-  }, [dcmImages, dispatch])
+  }, [dcmImages, dispatch]);
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
@@ -48,11 +47,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
     setCTModel(model);
   }
 
-  const setModelType = (index: number) => {
-    if (index !== modelValue) { // Checking that clicked image tab is not current image tab
-      setUseXray(!useXray);
-      setModelValue(index);
-    }
+  const setModelType = (modality: string) => {
+      setUseXray(modality === 'CR'); // Determining whether the current selection study which drop-down models (Xray/CT) should be displayed
   }
 
   return (
@@ -89,19 +85,18 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
               <div className="numberCircle">{numOfSelectedImages}</div>
               <h3>Series selected</h3>
               <a onClick={() => props.setIsExpanded(true)}>(More details)</a>
-              <ModelSelection useXray={useXray} handleXrayChange={handleXrayChange} handleCTChange={handleCTChange} xrayValue={XrayModel} ctValue={CTModel}></ModelSelection>
               <RightArrowButton click={submitAnalysis(XrayModel, CTModel)}>
                 Analyze
               </RightArrowButton>
+              <ModelSelection useXray={useXray} handleXrayChange={handleXrayChange} handleCTChange={handleCTChange} xrayValue={XrayModel} ctValue={CTModel}></ModelSelection>
             </div>
           </div>
         </div>
         <div className="detail-bottom-wrapper">
           <div className="detail-select-studies">
-            {studyInstances.map((study: StudyInstance, index: number) => {
+            {studyInstances.map((study: StudyInstance) => {
               study.setModelType = setModelType; // Passing function to change parent's state (Xray/CT)
-              study.index = index; // Unique index to distinguish the two types of image tabs
-              return <SelectionStudy key={index} {...study}></SelectionStudy>;
+              return <SelectionStudy key={study.studyInstanceUID} {...study}></SelectionStudy>;
             })}
           </div>
           <SelectedStudyDetail></SelectedStudyDetail>
