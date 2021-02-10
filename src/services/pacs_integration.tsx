@@ -25,7 +25,7 @@ class PACSIntegration {
      * of the DICOM files associated with that patient
      * @param {string | undefined} patientID 
      */
-    static async queryPatientFiles(patientID: string | undefined): Promise<DcmImage[]> {
+    static async queryPatientFiles(patientID?: string): Promise<DcmImage[]> {
         if (!patientID) return [];
         
         let patientData: DcmImage[] = [];
@@ -40,8 +40,8 @@ class PACSIntegration {
             }), {headers: {'Content-Type': 'text/plain'}});
             const parsedResponse = this.parseResponse(rawResponse.data);
             const data: PACSMainResponse[] = parsedResponse.query.data;
-            data.forEach(study => {
-                study.series.forEach(series => {
+            data.forEach((study: PACSMainResponse) => {
+                study.series.forEach((series: PACSSeries) => {
                     patientData.push({
                         id: series.uid.value,
                         creation_date: series.StudyDate.value,
