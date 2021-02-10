@@ -37,7 +37,7 @@ class PACSIntegration {
                     on:{PatientID: patientID},
                     PACS:"orthanc"
                 }
-            }), {headers: {'Content-Type': 'text/plain'}})
+            }), {headers: {'Content-Type': 'text/plain'}});
             const parsedResponse = this.parseResponse(rawResponse.data);
             const data: PACSMainResponse[] = parsedResponse.query.data;
             data.forEach(study => {
@@ -95,7 +95,7 @@ class PACSIntegration {
                     },
                     PACS:"orthanc"
                 }
-            }), {headers: {'Content-Type': 'text/plain'}})
+            }), {headers: {'Content-Type': 'text/plain'}});
             const parsedResponse: RetrieveResponse = this.parseResponse(rawResponse.data);
             if (parsedResponse?.retrieve?.status === 'success') {
                 return true;

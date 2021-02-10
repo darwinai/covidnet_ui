@@ -24,7 +24,7 @@ const FileLookup = () => {
         payload: {
           images: filteredDcmImages
         }
-      })
+      });
       const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(filteredDcmImages);
       if (studyInstances.length > 0) {
         dispatch({
@@ -32,7 +32,7 @@ const FileLookup = () => {
           payload: {
             studyUID: studyInstances[0].studyInstanceUID
           }
-        })
+        });
       }
     }, [seriesInstanceUID, minCreationDate, maxCreationDate]);
 

@@ -219,7 +219,7 @@ class ChrisIntegration {
       StudyInstanceUID,
       SeriesInstanceUID,
       limit: 1
-    })
+    });
     const patientImages: DcmImage = res.getItems().map((img: any) => img.data)[0];
     return patientImages.fname;
   }
