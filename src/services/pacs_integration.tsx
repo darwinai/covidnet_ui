@@ -42,7 +42,7 @@ class PACSIntegration {
             }), {headers: {'Content-Type': 'text/plain'}});
             const parsedResponse = this.parseResponse(rawResponse.data);
             const data = parsedResponse?.query?.data;
-            const patientData = data ? data.map((study: PACSMainResponse): DcmImage[] => (
+            const patientData = data ? data.flatMap((study: PACSMainResponse): DcmImage[] => (
                 study.series.map((series: PACSSeries): DcmImage => ({
                         id: series.uid.value,
                         creation_date: series.StudyDate.value,
@@ -59,7 +59,7 @@ class PACSIntegration {
                         Modality: series.Modality.value,
                         pacs_identifier: 'covidnet'
                 }))
-            )).flat() : [];
+            )) : [];
             
             return patientData;
         } catch (err) {
