@@ -12,9 +12,8 @@ class PACSIntegration {
     private static basePACSFilePath = 'SERVICES/PACS/covidnet/';
 
     static parseResponse(rawResponse: string): PFDCMResponse | undefined {
-        let responseHeader = rawResponse.split('\r');
-
         try {
+            let responseHeader = rawResponse.split('\r');
             // the 4th element of responseHeader contains the stringified JSON body return payload
             const responseBody = responseHeader?.[4];
             const responseJSON: PFDCMResponse = JSON.parse(responseBody);
@@ -33,7 +32,6 @@ class PACSIntegration {
     static async queryPatientFiles(patientID?: string): Promise<DcmImage[]> {
         if (!patientID) return [];
         
-        let patientData: DcmImage[] = [];
         try {
             const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
                 action:"PACSinteract",
@@ -45,9 +43,8 @@ class PACSIntegration {
             }), {headers: {'Content-Type': 'text/plain'}});
             const parsedResponse = this.parseResponse(rawResponse.data);
             const data = parsedResponse?.query?.data;
-            data?.forEach((study: PACSMainResponse) => {
-                study.series.forEach((series: PACSSeries) => {
-                    patientData.push({
+            const patientData = data ? data.map((study: PACSMainResponse): DcmImage[] => (
+                study.series.map((series: PACSSeries): DcmImage => ({
                         id: series.uid.value,
                         creation_date: series.StudyDate.value,
                         fname: this.basePACSFilePath + series.SeriesInstanceUID.value,
@@ -62,9 +59,8 @@ class PACSIntegration {
                         SeriesDescription: series.SeriesDescription.value,
                         Modality: series.Modality.value,
                         pacs_identifier: 'covidnet'
-                    })
-                });
-            });
+                }))
+            )).flat() : [];
             
             return patientData;
         } catch (err) {
