@@ -1,4 +1,4 @@
-import { DcmImage, PACSMainResponse } from "../context/reducers/dicomImagesReducer";
+import { DcmImage, PFDCMResponse, PACSMainResponse, } from "../context/reducers/dicomImagesReducer";
 import axios from 'axios';
 
 declare var process: {
@@ -11,13 +11,18 @@ class PACSIntegration {
 
     private static basePACSFilePath = 'SERVICES/PACS/covidnet/';
 
-    static parseResponse(rawResponse: string) {
+    static parseResponse(rawResponse: string): PFDCMResponse | undefined {
         let responseHeader = rawResponse.split('\r');
 
-        // the 4th element of responseHeader contains the stringified JSON body return payload
-        const responseBody = responseHeader[4];
-        const responseJSON = JSON.parse(responseBody);
-        return responseJSON;
+        try {
+            // the 4th element of responseHeader contains the stringified JSON body return payload
+            const responseBody = responseHeader?.[4];
+            const responseJSON: PFDCMResponse = JSON.parse(responseBody);
+            return responseJSON;
+        } catch (err) {
+            console.log(err);
+            return undefined;
+        }
     }
 
     /**
@@ -25,7 +30,7 @@ class PACSIntegration {
      * of the DICOM files associated with that patient
      * @param {string | undefined} patientID 
      */
-    static async queryPatientFiles(patientID: string | undefined): Promise<DcmImage[]> {
+    static async queryPatientFiles(patientID?: string): Promise<DcmImage[]> {
         if (!patientID) return [];
         
         let patientData: DcmImage[] = [];
@@ -39,8 +44,8 @@ class PACSIntegration {
                 }
             }), {headers: {'Content-Type': 'text/plain'}});
             const parsedResponse = this.parseResponse(rawResponse.data);
-            const data: PACSMainResponse[] = parsedResponse.query.data;
-            data.forEach(study => {
+            const data = parsedResponse?.query?.data;
+            data?.forEach(study => {
                 study.series.forEach(series => {
                     patientData.push({
                         id: series.uid.value,
@@ -74,16 +79,6 @@ class PACSIntegration {
      * @param {string | undefined} SeriesInstanceUID 
      */
     static async retrievePatientFiles(StudyInstanceUID?: string, SeriesInstanceUID?: string): Promise<boolean> {
-        interface RetrieveResponse {
-            status: boolean;
-            retrieve: {
-                status: string;
-                data: any[];
-                command: string;
-                returncode: number;
-            }
-        }
-
         try {
             const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
                 action:"PACSinteract",
@@ -96,7 +91,7 @@ class PACSIntegration {
                     PACS:"orthanc"
                 }
             }), {headers: {'Content-Type': 'text/plain'}});
-            const parsedResponse: RetrieveResponse = this.parseResponse(rawResponse.data);
+            const parsedResponse = this.parseResponse(rawResponse.data);
             if (parsedResponse?.retrieve?.status === 'success') {
                 return true;
             } else {

@@ -68,6 +68,22 @@ export type IDcmImagesState = {
   filteredDcmImages: DcmImage[];
 }
 
+export interface PFDCMResponse {
+  status: boolean;
+  query?: {
+    status: string;
+    data: PACSMainResponse[];
+    command: string;
+    report: object;
+}
+  retrieve?: {
+    status: string;
+    data: any[];
+    command: string;
+    returncode: number;
+  }
+}
+
 export const initialIDcmImagesState: IDcmImagesState = {
   allDcmImages: [],
   filteredDcmImages: []
