@@ -48,7 +48,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   }
 
   const setModelType = (modality: string) => {
-      setUseXray(modality === 'CR'); // Determining whether the current selection study which drop-down models (Xray/CT) should be displayed
+      setUseXray(modality === 'CR'); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
   }
 
   return (
@@ -85,10 +85,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
               <div className="numberCircle">{numOfSelectedImages}</div>
               <h3>Series selected</h3>
               <a onClick={() => props.setIsExpanded(true)}>(More details)</a>
-              <RightArrowButton click={submitAnalysis(XrayModel, CTModel)}>
-                Analyze
-              </RightArrowButton>
               <ModelSelection useXray={useXray} handleXrayChange={handleXrayChange} handleCTChange={handleCTChange} xrayValue={XrayModel} ctValue={CTModel}></ModelSelection>
+              <RightArrowButton click={submitAnalysis(XrayModel, CTModel)}>Analyze</RightArrowButton>
             </div>
           </div>
         </div>

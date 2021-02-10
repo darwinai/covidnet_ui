@@ -88,6 +88,4 @@ export const uploadTest = async (files: LocalFile[]): Promise<void> => {
 
 }
 
-export const testGetPacs = async () => {
-
-}
+export const testGetPacs = async () => {}

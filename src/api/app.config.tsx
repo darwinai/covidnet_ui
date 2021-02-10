@@ -1,5 +1,5 @@
 export default {
-    XrayModels: { // Place Xray models here + modality xray, ct, expected # of classes
+    XrayModels: { // Place Xray models here
         'COVID-Net': 'pl-covidnet'
     },
     CTModels: { // Place CT models here

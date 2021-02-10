@@ -20,7 +20,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
         setModelType(modality);
       }
     }
-  }, [currSelectedStudyUID, studyInstanceUID, modality])
+  }, [currSelectedStudyUID, studyInstanceUID, modality, setModelType]);
 
   const selectThisStudy = () => {
     dispatch({

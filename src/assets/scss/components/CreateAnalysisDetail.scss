@@ -1,14 +1,14 @@
 $full: 100%;
 $description-top-padding: 0.3rem;
 
-.dropdown-label {
+  .dropdown-label {
     white-space: nowrap;
-    margin-top: 1rem;
+    margin-top: 0.4rem;
   }
 
-  // .pf-c-button-pf-m-primary {
-  //   position: relative;
-  // }
+  .pf-c-button.pf-m-primary {
+    margin-top: 0.5rem;
+  }
 
 .detail-wrapper {
   @include flex(column);
