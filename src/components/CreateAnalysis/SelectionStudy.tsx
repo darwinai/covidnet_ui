@@ -16,10 +16,9 @@ const SelectionStudy: React.FC<StudyInstance> = ({
 
   useEffect(() => {
     if (currSelectedStudyUID === studyInstanceUID) { // Setting the drop-down display options, according to the study's modality (Xray/CT)
-    if (setModelType) {
-      setModelType(modality);
-    }
-    console.log("cheese");
+      if (setModelType) {
+        setModelType(modality);
+      }
     }
   }, [currSelectedStudyUID, studyInstanceUID, modality])
 
