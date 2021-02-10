@@ -1,4 +1,4 @@
-import { DcmImage, PFDCMResponse, PACSMainResponse, } from "../context/reducers/dicomImagesReducer";
+import { DcmImage, PFDCMResponse, PACSMainResponse, PACSSeries} from "../context/reducers/dicomImagesReducer";
 import axios from 'axios';
 
 declare var process: {
@@ -45,8 +45,8 @@ class PACSIntegration {
             }), {headers: {'Content-Type': 'text/plain'}});
             const parsedResponse = this.parseResponse(rawResponse.data);
             const data = parsedResponse?.query?.data;
-            data?.forEach(study => {
-                study.series.forEach(series => {
+            data?.forEach((study: PACSMainResponse) => {
+                study.series.forEach((series: PACSSeries) => {
                     patientData.push({
                         id: series.uid.value,
                         creation_date: series.StudyDate.value,
