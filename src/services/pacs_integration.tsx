@@ -73,7 +73,7 @@ class PACSIntegration {
      * @param {string | undefined} StudyInstanceUID 
      * @param {string | undefined} SeriesInstanceUID 
      */
-    static async retrievePatientFiles(StudyInstanceUID: string | undefined, SeriesInstanceUID: string | undefined): Promise<boolean> {
+    static async retrievePatientFiles(StudyInstanceUID?: string, SeriesInstanceUID?: string): Promise<boolean> {
         interface RetrieveResponse {
             status: boolean;
             retrieve: {
