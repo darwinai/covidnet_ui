@@ -21,7 +21,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const { selectedStudyUIDs } = createAnalysis;
 
   useEffect(() => {
-    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages.allDcmImages[0])
+    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages?.allDcmImages[0])
     dispatch({
       type: CreateAnalysisTypes.Update_patient_personal_info,
       payload: {
@@ -30,7 +30,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
     })
   }, [dcmImages, dispatch])
 
-  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages.filteredDcmImages);
+  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
 
   const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;

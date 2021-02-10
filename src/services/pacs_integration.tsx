@@ -97,7 +97,7 @@ class PACSIntegration {
                 }
             }), {headers: {'Content-Type': 'text/plain'}})
             const parsedResponse: RetrieveResponse = this.parseResponse(rawResponse.data);
-            if (parsedResponse.retrieve.status === 'success') {
+            if (parsedResponse?.retrieve?.status === 'success') {
                 return true;
             } else {
                 return Promise.reject(new Error('Unable to fetch DICOM with StudyInstanceUID:' + StudyInstanceUID + ', SeriesInstanceUID: ' + SeriesInstanceUID));
