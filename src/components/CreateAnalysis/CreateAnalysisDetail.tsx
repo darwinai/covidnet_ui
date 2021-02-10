@@ -84,7 +84,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
           studyInstances.length > 0 ?
             <div className="detail-bottom-wrapper">
               <div className="detail-select-studies">
-                {studyInstances.map((study: StudyInstance, i) => (
+                {studyInstances.map((study: StudyInstance, i: number) => (
                   <SelectionStudy key={i} {...study}></SelectionStudy>
                 ))}
               </div>

@@ -26,7 +26,7 @@ const CreateAnalysisWrapper = () => {
     if (process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs') {
       // Send request to have DICOM files pushed from PACS server to pypx
       const retrievePromises: Promise<boolean>[] = [];
-      imagesSelected.forEach(image => {
+      imagesSelected.forEach((image: DcmImage) => {
         retrievePromises.push(pacs_integration.retrievePatientFiles(image.StudyInstanceUID, image.SeriesInstanceUID))
       })
       const retrieveResults = await Promise.allSettled(retrievePromises);
@@ -39,7 +39,7 @@ const CreateAnalysisWrapper = () => {
 
       // Update fname property of each image to be the filepath in Swift filesystem
       try {
-        imagesSelected = await Promise.all(imagesSelected.map(async image => ({
+        imagesSelected = await Promise.all(imagesSelected.map(async (image: DcmImage) => ({
           ...image,
           fname: await chris_integration.getFilePathNameByUID(image.StudyInstanceUID, image.SeriesInstanceUID)
         })));

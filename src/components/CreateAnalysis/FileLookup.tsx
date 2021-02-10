@@ -42,7 +42,7 @@ const FileLookup = () => {
       setMaxCreationDate('');
     }
 
-    const onMinDateChange = (_str: string, date: Date | undefined) => {
+    const onMinDateChange = (_str: string, date?: Date) => {
       if (date && isValidDate(date)) {
         setMinCreationDate(date.toISOString().substring(0, 10));
         if (date >= new Date(maxCreationDate)) {
@@ -51,7 +51,7 @@ const FileLookup = () => {
       }
     };
 
-    const onMaxDateChange = (_str: string, date: Date | undefined) => {
+    const onMaxDateChange = (_str: string, date?: Date) => {
       if (date && isValidDate(date)) {
         setMaxCreationDate(date.toISOString().substring(0, 10));
         if (date <= new Date(minCreationDate)) {
