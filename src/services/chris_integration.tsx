@@ -122,8 +122,6 @@ class ChrisIntegration {
       const data: DirCreateData = { "dir": uploadedFile.data.fname }
       const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
-      await pollingBackend(pluginInstance)
-
       const filename = uploadedFile.data.fname.split('/').pop()
       // create covidnet plugin
       const plcovidnet_data: PlcovidnetData = {
@@ -152,11 +150,6 @@ class ChrisIntegration {
       const data: DirCreateData = { "dir": img.fname };
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
-      const dirCopyResult = await pollingBackend(dircopyPluginInstance);
-      if (dirCopyResult.error) {
-        return [dirCopyResult];
-      }
-
       //med2img
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": this.MED2IMG })).getItems()[0];
       const filename = img.fname.split('/').pop()?.split('.')[0]
@@ -175,10 +168,6 @@ class ChrisIntegration {
       }
       const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
       console.log("Converter Running")
-      const imgConverterResult = await pollingBackend(imgConverterInstance);
-      if (imgConverterResult.error) {
-        return [imgConverterResult];
-      }
 
       const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET : this.PL_CT_COVIDNET;
       const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
@@ -200,7 +189,7 @@ class ChrisIntegration {
         return [covidnetResult];
       }
 
-      return [dirCopyResult, imgConverterResult, covidnetResult];
+      return [covidnetResult];
     } catch (err) {
       console.log(err);
       return [];
