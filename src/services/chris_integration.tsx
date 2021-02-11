@@ -16,6 +16,16 @@ interface PlcovidnetData extends IPluginCreateData {
   imagefile: string;
 }
 
+interface PACSFile {
+  url: string;
+  auth: {
+    token: string;
+  };
+  contentType: string;
+  collection: Object;
+  data: DcmImage;
+}
+
 enum PluginPollStatus {
   STARTED = "started",
   SUCCESS = "finishedSuccessfully",
@@ -220,7 +230,7 @@ class ChrisIntegration {
       SeriesInstanceUID,
       limit: 1
     });
-    const patientImages: DcmImage = res.getItems().map((img: any) => img.data)?.[0];
+    const patientImages: DcmImage = res.getItems().map((img: PACSFile) => img.data)?.[0];
     return patientImages.fname;
   }
 
@@ -344,7 +354,7 @@ class ChrisIntegration {
       PatientID: patientID,
       limit: 1000
     })
-    const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
+    const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data)
     return patientImages;
   }
 
