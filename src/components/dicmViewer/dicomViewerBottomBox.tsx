@@ -38,7 +38,8 @@ const DicomViewerBottomBox = () => {
 
     return ( // Dynamically generate the titles to display for the classifications
       Object.keys(series.columnNames).map((value: string, index: number) => {
-        return (<p key={value}>{value}: <span className="blueText">{series.columnValues[index]}</span></p>);
+        console.log("CHEEEEEEEEEEEEESE: " + value)
+        return (<p key={value}>{series.columnNames[Number(value)]}: <span className="blueText">{series.columnValues[index]}</span></p>);
       })
     )
   }
