@@ -145,12 +145,15 @@ class ChrisIntegration {
     let client: any = await ChrisAPIClient.getClient();
     try {
       console.log(img.fname)
+
+      // PL-DIRCOPY
       const dircopyPlugin = (await client.getPlugins({ "name_exact": this.FS_PLUGIN })).getItems()[0];
       // const params = await dircopyPlugin.getPluginParameters();
       const data: DirCreateData = { "dir": img.fname };
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+      console.log("PL-DIRCOPY task sent into the task queue")
 
-      //med2img
+      // PL-MED2IMG
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": this.MED2IMG })).getItems()[0];
       const filename = img.fname.split('/').pop()?.split('.')[0]
       console.log(filename)
@@ -160,14 +163,16 @@ class ChrisIntegration {
         outputFileStem: `${filename}.jpg`, //-slice000
         previous_id: dircopyPluginInstance.data.id
       }
+
       if (imgConverterPlugin === undefined || imgConverterPlugin.data === undefined) {
         return [{
           plugin: this.MED2IMG,
           error: new Error('not registered')
         }];
       }
+
       const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
-      console.log("Converter Running")
+      console.log("PL-MED2IMG task sent into the task queue")
 
       const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET : this.PL_CT_COVIDNET;
       const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
@@ -176,6 +181,7 @@ class ChrisIntegration {
         title: img.fname,
         imagefile: `${filename}.jpg`
       }
+
       if (covidnetPlugin === undefined || covidnetPlugin.data === undefined) {
         return [{
           plugin: pluginNeeded,
@@ -183,7 +189,8 @@ class ChrisIntegration {
         }];
       }
       const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
-      console.log("Covidnet Running");
+      console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
+
       const covidnetResult = await pollingBackend(covidnetInstance);
       if (covidnetResult.error) {
         return [covidnetResult];
