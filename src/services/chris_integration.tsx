@@ -57,7 +57,6 @@ export const pollingBackend = async (pluginInstance: PluginInstance): Promise<Ba
   if (waitInterval > maxWaitInterval) {
     return { error: new Error('terminated due to timeout'), ...result }
   } else if ([PluginPollStatus.CANCELLED, PluginPollStatus.ERROR].includes(res.data.status)) {
-    console.log(res);
     return { error: new Error(`exited with status '${res.data.status}'`), ...result }
   } else {
     return result;
