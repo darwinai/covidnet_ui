@@ -17,6 +17,9 @@ interface PlcovidnetData extends IPluginCreateData {
 }
 
 enum PluginPollStatus {
+  CREATED = "created",
+  SCHEDULED = "scheduled",
+  WAITING = "waitingForPrevious",
   STARTED = "started",
   SUCCESS = "finishedSuccessfully",
   ERROR = "finishedWithError",
