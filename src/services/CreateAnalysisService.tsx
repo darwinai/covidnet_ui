@@ -13,7 +13,7 @@ export interface StudyInstance {
 
 export interface AnalyzedImageResult {
   image: DcmImage,
-  processedResults: BackendPollResult[];
+  processedResults: BackendPollResult;
 }
 
 class CreateAnalysisService {

@@ -144,7 +144,7 @@ class ChrisIntegration {
     return true;
   }
 
-  static async processOneImg(img: DcmImage): Promise<BackendPollResult[]> {
+  static async processOneImg(img: DcmImage): Promise<BackendPollResult> {
     let client: any = await ChrisAPIClient.getClient();
     try {
       console.log(img.fname)
@@ -168,10 +168,10 @@ class ChrisIntegration {
       }
 
       if (imgConverterPlugin === undefined || imgConverterPlugin.data === undefined) {
-        return [{
+        return {
           plugin: this.MED2IMG,
           error: new Error('not registered')
-        }];
+        };
       }
 
       const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
@@ -186,23 +186,26 @@ class ChrisIntegration {
       }
 
       if (covidnetPlugin === undefined || covidnetPlugin.data === undefined) {
-        return [{
+        return {
           plugin: pluginNeeded,
           error: new Error('not registered')
-        }];
+        };
       }
       const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
 
       const covidnetResult = await pollingBackend(covidnetInstance);
       if (covidnetResult.error) {
-        return [covidnetResult];
+        return covidnetResult;
       }
 
-      return [covidnetResult];
+      return covidnetResult;
     } catch (err) {
       console.log(err);
-      return [];
+      return {
+        plugin: 'plugins',
+        error: new Error('failed')
+      };
     }
   }
 
