@@ -22,6 +22,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const { dispatch } = useContext(AppContext);
   const { series: analysisList } = studyInstance
   const columns = [
+    { title: (<span><br />Preview<span className='classificationText'>&nbsp;</span></span>) },
     { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) },
     { title: (<span>Predictions<br /><span className='classificationText'>COVID-19</span></span>) },
     { title: (<span><br /><span className='classificationText'>Pneumonia</span></span>) },
@@ -33,6 +34,9 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
 
   const rows = analysisList.map((analysis: ISeries, index: number) => ({
     cells: [
+      {
+        title: (<div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div>)
+      },
       {
         title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>)
       },

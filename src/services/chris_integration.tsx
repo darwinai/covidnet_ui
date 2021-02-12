@@ -2,6 +2,7 @@ import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
+import DicomViewerService from "../services/dicomViewerService";
 
 export interface LocalFile {
   name: string;
@@ -277,7 +278,8 @@ class ChrisIntegration {
           predPneumonia: 0,
           predNormal: 0,
           geographic: null,
-          opacity: null
+          opacity: null,
+          imageUrl: '',
         }
         for (let fileObj of pluginInstanceFiles.getItems()) {
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
@@ -296,8 +298,13 @@ class ChrisIntegration {
               severity: content['Opacity severity'],
               extentScore: content['Opacity extent score']
             }
-          } else if (!fileObj.data.fname.includes('json')) { // fetch image
+          } else if (!fileObj.data.fname.includes('json')) {
             newSeries.imageId = fileObj.data.id;
+            
+            // Fetch image URL
+            const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
+            const urlCreator = window.URL || window.webkitURL;
+            newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
 
             // get dcmImageId from dircopy
             const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === this.FS_PLUGIN)]

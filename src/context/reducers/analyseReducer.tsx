@@ -27,7 +27,8 @@ export type ISeries = {
   predPneumonia: number,
   predNormal: number,
   geographic: riskStratifcation | null,
-  opacity: riskStratifcation | null
+  opacity: riskStratifcation | null,
+  imageUrl: string
 }
 
 // change chrisIntegration to return this instead of Ianalysis
