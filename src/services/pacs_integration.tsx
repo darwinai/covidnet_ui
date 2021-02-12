@@ -40,9 +40,9 @@ class PACSIntegration {
                     PACS:"orthanc"
                 }
             }), {headers: {'Content-Type': 'text/plain'}});
-            const parsedResponse = this.parseResponse(rawResponse.data);
+            const parsedResponse = this.parseResponse(rawResponse?.data);
             const data = parsedResponse?.query?.data;
-            const patientData = data ? data.flatMap((study: PACSMainResponse): DcmImage[] => (
+            const patientData = data?.flatMap((study: PACSMainResponse): DcmImage[] => (
                 study.series.map((series: PACSSeries): DcmImage => ({
                         id: series.uid.value,
                         creation_date: series.StudyDate.value,
@@ -59,9 +59,9 @@ class PACSIntegration {
                         Modality: series.Modality.value,
                         pacs_identifier: 'covidnet'
                 }))
-            )) : [];
+            ));
             
-            return patientData;
+            return patientData ? patientData : [];
         } catch (err) {
             return Promise.reject(err);
         }
@@ -86,7 +86,7 @@ class PACSIntegration {
                     PACS:"orthanc"
                 }
             }), {headers: {'Content-Type': 'text/plain'}});
-            const parsedResponse = this.parseResponse(rawResponse.data);
+            const parsedResponse = this.parseResponse(rawResponse?.data);
             if (parsedResponse?.retrieve?.status === 'success') {
                 return true;
             } else {
