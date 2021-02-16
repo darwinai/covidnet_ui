@@ -302,9 +302,11 @@ class ChrisIntegration {
             newSeries.imageId = fileObj.data.id;
             
             // Fetch image URL
-            const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
-            const urlCreator = window.URL || window.webkitURL;
-            newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
+            if (newSeries.imageId) {
+              const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
+              const urlCreator = window.URL || window.webkitURL;
+              newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
+            }
 
             // get dcmImageId from dircopy
             const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === this.FS_PLUGIN)]

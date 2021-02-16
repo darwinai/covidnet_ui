@@ -9,6 +9,7 @@ import PredictionCircle from '../PredictionCircle';
 
 interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries
+  isProcessing: boolean
 }
 
 export const isLargestNumber = (num: number | undefined, compare1: number | undefined, compare2: number | undefined) => {
@@ -17,7 +18,7 @@ export const isLargestNumber = (num: number | undefined, compare1: number | unde
   else return false
 }
 
-const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
+const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
   const { series: analysisList } = studyInstance
@@ -35,29 +36,29 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const rows = analysisList.map((analysis: ISeries, index: number) => ({
     cells: [
       {
-        title: (<div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div>)
+        title: (analysis.imageUrl ? <div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div> : <p>Preview not available</p>)
       },
       {
         title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>)
       },
       {
-        title: (<PredictionCircle key={index}
+        title: (analysis.predCovid ? <PredictionCircle key={index}
           largeCircle={isLargestNumber(analysis.predCovid, analysis.predNormal, analysis.predPneumonia)}
-          predictionNumber={analysis.predCovid} />)
+          predictionNumber={analysis.predCovid} /> : <p>Not available</p>)
       }, {
-        title: (<PredictionCircle key={index}
+        title: (analysis.predPneumonia ? <PredictionCircle key={index}
           largeCircle={isLargestNumber(analysis.predPneumonia, analysis.predNormal, analysis.predCovid)}
-          predictionNumber={analysis.predPneumonia} />)
+          predictionNumber={analysis.predPneumonia} /> : <p>Not available</p>)
       }, {
-        title: (<PredictionCircle key={index}
+        title: (analysis.predNormal ? <PredictionCircle key={index}
           largeCircle={isLargestNumber(analysis.predNormal, analysis.predPneumonia, analysis.predCovid)}
-          predictionNumber={analysis.predNormal} />)
+          predictionNumber={analysis.predNormal} /> : <p>Not available</p>)
       }, {
         title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
       }, {
         title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
       }, {
-        title: (<Button variant="secondary" onClick={() => viewImage(index)}>View</Button>)
+        title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>)
       }
     ]
   }))

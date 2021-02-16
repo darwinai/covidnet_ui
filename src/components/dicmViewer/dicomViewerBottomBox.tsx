@@ -65,17 +65,17 @@ const DicomViewerBottomBox = () => {
           <div className="flex_row">
             <div className="PredictionArea">
               <PredictionCircle largeCircle={isLargestNumber(imageDetail?.predCovid, imageDetail?.predPneumonia, imageDetail?.predNormal)}
-                predictionNumber={imageDetail ? imageDetail.predCovid : 0} />
+                predictionNumber={imageDetail?.predCovid ? imageDetail.predCovid : 0} />
               <div className="topMargin">COVID-19</div>
             </div>
             <div className="PredictionArea padding-l-2rem">
               <PredictionCircle largeCircle={isLargestNumber(imageDetail?.predPneumonia, imageDetail?.predCovid, imageDetail?.predNormal)}
-                predictionNumber={imageDetail ? imageDetail.predPneumonia : 0} />
+                predictionNumber={imageDetail?.predPneumonia ? imageDetail.predPneumonia : 0} />
               <div className="topMargin">PNEUMONIA</div>
             </div>
             <div className="PredictionArea padding-l-2rem">
               <PredictionCircle largeCircle={isLargestNumber(imageDetail?.predNormal, imageDetail?.predCovid, imageDetail?.predPneumonia)}
-                predictionNumber={imageDetail ? imageDetail.predNormal : 0} />
+                predictionNumber={imageDetail?.predNormal ? imageDetail.predNormal : 0} />
               <div className="topMargin">NORMAL</div>
             </div>
             <div className="padding-l-2rem">

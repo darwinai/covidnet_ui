@@ -20,15 +20,15 @@ export type riskStratifcation = {
 }
 
 export type ISeries = {
-  covidnetPluginId: number, 
+  covidnetPluginId?: number, 
   imageName: string,
-  imageId: string,
-  predCovid: number,
-  predPneumonia: number,
-  predNormal: number,
-  geographic: riskStratifcation | null,
-  opacity: riskStratifcation | null,
-  imageUrl: string
+  imageId?: string,
+  predCovid?: number,
+  predPneumonia?: number,
+  predNormal?: number,
+  geographic?: riskStratifcation | null,
+  opacity?: riskStratifcation | null,
+  imageUrl?: string
 }
 
 // change chrisIntegration to return this instead of Ianalysis

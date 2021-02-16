@@ -16,8 +16,10 @@ const ViewImagePage = () => {
       return;
     };
 
-    if (selectedImage.studyInstance) {
-      DicomViewerService.fetchImageFile(selectedImage.studyInstance.series[selectedImage.index].imageId)
+    const imageId = selectedImage.studyInstance.series[selectedImage.index].imageId;
+
+    if (imageId) {
+      DicomViewerService.fetchImageFile(imageId)
         .then((imgBlob: any) => {
           const myImage: any = document.querySelector('#dicomViewerImg');
           const urlCreator = window.URL || window.webkitURL;
