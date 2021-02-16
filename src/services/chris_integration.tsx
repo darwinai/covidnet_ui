@@ -2,7 +2,7 @@ import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
-import app from "../api/app.config";
+import { PluginModels } from "../api/app.config";
 
 export interface LocalFile {
   name: string;
@@ -88,8 +88,8 @@ export const modifyDatetime = (oldDay: string): string => {
 }
 
 export const isModel = (modelName: string): boolean => { // Dynamically loop through all model plug-ins and check if the current plug-in is valid
-  if (Object.values(app.XrayModels).includes(modelName)) return true;
-  if (Object.values(app.CTModels).includes(modelName)) return true;
+  if (Object.values(PluginModels.XrayModels).includes(modelName)) return true;
+  if (Object.values(PluginModels.CTModels).includes(modelName)) return true;
   return false;
 }
 
@@ -119,13 +119,13 @@ class ChrisIntegration {
       }, { "fname": files[0].blob })
 
       // create dircopy plugin
-      const dircopyPlugin = (await client.getPlugins({ 'name_exact': app.Plugins.FS_PLUGIN })).getItems()[0];
+      const dircopyPlugin = (await client.getPlugins({ 'name_exact': PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
       const data: DirCreateData = { "dir": uploadedFile.data.fname }
       const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
       await pollingBackend(pluginInstance)
 
-      const filename = uploadedFile.data.fname.split('/').pop()
+      const filename = uploadedFile.data.fname.split('/').pop();
       // create covidnet plugin
       const plcovidnet_data: PlcovidnetData = {
         previous_id: pluginInstance.data.id,
@@ -146,16 +146,13 @@ class ChrisIntegration {
 
   static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult[]> {
     let client: any = await ChrisAPIClient.getClient();
-    
-    let XRayModels: { [id: string]: string } = app.XrayModels; // Destructuring
-    let CTModels: { [id: string]: string } = app.CTModels;
 
-    let XRayModel: string = XRayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
-    let CTModel: string = CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
+    let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
+    let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
 
     try {
       console.log(img.fname);
-      const dircopyPlugin = (await client.getPlugins({ "name_exact": app.Plugins.FS_PLUGIN })).getItems()[0];
+      const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
     
       const data: DirCreateData = { "dir": img.fname };
 
@@ -167,7 +164,7 @@ class ChrisIntegration {
       }
 
       //med2img
-      const imgConverterPlugin = (await client.getPlugins({ "name_exact": app.Plugins.MED2IMG })).getItems()[0];
+      const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
       const filename = img.fname.split('/').pop()?.split('.')[0]
       console.log(filename)
       const imgData = {
@@ -178,7 +175,7 @@ class ChrisIntegration {
       }
       if (imgConverterPlugin === undefined || imgConverterPlugin.data === undefined) {
         return [{
-          plugin: app.Plugins.MED2IMG,
+          plugin: PluginModels.Plugins.MED2IMG,
           error: new Error('not registered')
         }];
       }
@@ -251,7 +248,7 @@ class ChrisIntegration {
           if (imgDatas.length > 0) {
             // use dircopy start time to check
             for (let findDircopy of pluginlists) {
-              if (findDircopy.data.plugin_name === app.Plugins.FS_PLUGIN) {
+              if (findDircopy.data.plugin_name === PluginModels.Plugins.FS_PLUGIN) {
                 const startedTime = formatTime(findDircopy.data.start_date);
                 const possibileIndex = startedTime + imgDatas[0].StudyInstanceUID;
                 // already exists so push it to te seriesList
@@ -316,7 +313,7 @@ class ChrisIntegration {
             newSeries.imageId = fileObj.data.id;
 
             // get dcmImageId from dircopy
-            const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === app.Plugins.FS_PLUGIN)]
+            const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
             const dircopyFiles = (await dircopyPlugin.getFiles({
               limit: 100,
               offset: 0
@@ -378,7 +375,7 @@ class ChrisIntegration {
       }
     })
     if (!imgName) return;
-    const pdfgenerationPlugin = (await client.getPlugins({ "name_exact": app.Plugins.PDFGENERATION })).getItems()[0];
+    const pdfgenerationPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.PDFGENERATION })).getItems()[0];
     const pluginData = {
       imagefile: imgName,
       previous_id: covidnetPluginId,

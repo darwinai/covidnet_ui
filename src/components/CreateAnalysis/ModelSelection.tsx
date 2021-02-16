@@ -1,5 +1,5 @@
 import React, { SyntheticEvent, useEffect, useState } from 'react'
-import plugins from '../../api/app.config'
+import { PluginModels } from '../../api/app.config'
 import {
     Dropdown,
     DropdownToggle,
@@ -37,7 +37,7 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({isXray, handleCTChange, 
         }
       };
 
-      let dropdownItems = Object.keys(isXray ? plugins.XrayModels : plugins.CTModels).map((key: string) => {
+      let dropdownItems = Object.keys(isXray ? PluginModels.XrayModels : PluginModels.CTModels).map((key: string) => {
         return (<DropdownItem key={key}>{key}</DropdownItem>);
       });
 

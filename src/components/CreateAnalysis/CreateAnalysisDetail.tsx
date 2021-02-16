@@ -7,7 +7,7 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
-import plugins from '../../api/app.config'
+import { PluginModels } from '../../api/app.config'
 
 
 interface CreateAnalysisDetailProps {
@@ -19,8 +19,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
   const { selectedStudyUIDs } = createAnalysis;
 
-  const [XrayModel, setXrayModel] = useState(Object.keys(plugins.XrayModels)[0]);
-  const [CTModel, setCTModel] = useState(Object.keys(plugins.CTModels)[0]);
+  const [XrayModel, setXrayModel] = useState(Object.keys(PluginModels.XrayModels)[0]);
+  const [CTModel, setCTModel] = useState(Object.keys(PluginModels.CTModels)[0]);
   const [isXray, setIsXray] = useState(false);
 
   useEffect(() => {

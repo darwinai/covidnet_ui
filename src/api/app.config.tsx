@@ -1,4 +1,10 @@
-export default {
+export interface Plugins {
+    XrayModels: { [key: string]: string},
+    CTModels: { [key: string]: string},
+    Plugins: { [key: string]: string}
+}
+
+export const PluginModels: Plugins = {
     XrayModels: { // Place Xray models here
         'COVID-Net': 'pl-covidnet',
         'TEST': 'pl-covidnet-two'
