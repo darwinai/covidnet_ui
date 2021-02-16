@@ -11,9 +11,14 @@ interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries
 }
 
-export const isLargestNumber = (num: number | null | undefined, numArray: number[]) => {
+export const isLargestNumber = (num: number | null | undefined, numArray: Map<string, number>) => {
   if (num && numArray) {
-    return num === Math.max(...numArray);
+    let maxValue: number = 0;
+    numArray.forEach((value: number, key: string) => {
+    maxValue = (!maxValue || maxValue < value) ? value : maxValue;
+    })
+
+    return num === maxValue;
   }
   else {
     return false;
@@ -26,9 +31,9 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const { series: analysisList } = studyInstance;
   let titles = [{ title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }];
 
-  for (let title of analysisList[0]?.columnNames) { // Adding the column titles for each analysis
-    titles.push({ title: (<span><br /><span className='classificationText'>{title}</span></span>) });
-  }
+  analysisList[0]?.classifications.forEach((value: number, key: string) => {
+    titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
+  })
 
   titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
               { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
@@ -39,14 +44,14 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const rows = analysisList.map((analysis: ISeries, index: number) => {
     let analysisCells: any = [{ title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }]
 
-    for (let classification in analysis.columnNames) { // Dynamically displaying each prediction class
+    analysis.classifications.forEach((value: number, key: string) => { // Dynamically displaying each prediction class
       analysisCells.push({
-        title: (<PredictionCircle key={analysis?.columnNames[classification]}
-          largeCircle={isLargestNumber(analysis?.columnValues[classification], analysis?.columnValues)}
-          predictionNumber={analysis?.columnValues[classification]} />)
+        title: (<PredictionCircle key={key}
+          largeCircle={isLargestNumber(value, analysis.classifications)}
+          predictionNumber={value} />)
       });
-    }
-    
+    })
+  
       analysisCells.push({
         title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
       }, {

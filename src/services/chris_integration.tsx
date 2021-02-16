@@ -280,8 +280,7 @@ class ChrisIntegration {
           covidnetPluginId: plugin.data.id,
           imageName: '',
           imageId: '',
-          columnNames: [],
-          columnValues: [],
+          classifications: new Map<string, number>(),
           geographic: null,
           opacity: null
         }
@@ -293,8 +292,7 @@ class ChrisIntegration {
             Object.keys(content).map(function(key: string) { // Reading in the classifcation titles and values
               if ((key !== 'prediction') && (key !== 'Prediction')) {
                 if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
-                  newSeries.columnNames.push(key);
-                  newSeries.columnValues.push(formatNumber(content[key]));
+                  newSeries.classifications.set(key, formatNumber(content[key]));
                 }
               } return 1;
             });

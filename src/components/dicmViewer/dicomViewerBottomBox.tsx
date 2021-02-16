@@ -32,32 +32,38 @@ const DicomViewerBottomBox = () => {
   let imageDetail = studyInstance?.series[index];
 
   const generateBottomDisplay = (series?: ISeries) => {
+    let bottomDisplay: any = [];
+
     if (!series) {
       return;
     }
 
-    return ( // Dynamically generate the titles to display for the classifications
-      Object.keys(series.columnNames).map((value: string, index: number) => {
-        return (<p key={value}>{series.columnNames[Number(value)]}: <span className="blueText">{series.columnValues[index]}</span></p>);
-      })
-    )
+     // Dynamically generate the titles to display for the classifications
+      series.classifications.forEach((value: number, key: string) => {
+        bottomDisplay.push(<p key={key}>{key}: <span className="blueText">{value}</span></p>);
+      });
+
+      return bottomDisplay;
   }
 
   const generateDisplayCircles = (series?: ISeries) => {
+    let displayCircles: any = [];
+
     if (!series) {
       return;
     } 
     
-    return ( // Dynamically display the prediction classes/values in the dicomviewerbottombox
-      Object.keys(series.columnNames).map((value: string, index: number) => {
-        return (<div className="PredictionArea" key={value}>
-                <PredictionCircle largeCircle={isLargestNumber(series.columnValues[index], series.columnValues)}
-                  predictionNumber={series.columnValues[index]}/>
-                <div className="topMargin">{series.columnNames[index]}</div>
-              </div>);
-      })
-    )
-  }
+     // Dynamically display the prediction classes/values in the dicomviewerbottombox
+      series.classifications.forEach((value: number, key: string) => {
+        displayCircles.push(<div className="PredictionArea" key={key}>
+        <PredictionCircle largeCircle={isLargestNumber(value, series.classifications)}
+          predictionNumber={value}/>
+        <div className="topMargin">{key}</div>
+      </div>)
+      });
+
+      return displayCircles;
+    }
 
   return (
     <div id="ViewerbottomBox"
