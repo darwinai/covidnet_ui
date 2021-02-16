@@ -6,7 +6,7 @@ import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
 import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
-
+import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries
   isProcessing: boolean
@@ -36,7 +36,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
   const rows = analysisList.map((analysis: ISeries, index: number) => ({
     cells: [
       {
-        title: (analysis.imageUrl ? <div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div> : <p>Preview not available</p>)
+        title: (analysis.imageUrl ? <div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div> : <div><PreviewNotAvailable /></div>)
       },
       {
         title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>)
