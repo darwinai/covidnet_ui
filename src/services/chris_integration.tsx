@@ -87,10 +87,10 @@ export const modifyDatetime = (oldDay: string): string => {
   return rvtVal
 }
 
-export const isNotModel = (modelName: string): boolean => { // Dynamically loop through all model plug-ins and check if the current plug-in is valid
-  if (Object.values(app.XrayModels).includes(modelName)) return false;
-  if (Object.values(app.CTModels).includes(modelName)) return false;
-  return true;
+export const isModel = (modelName: string): boolean => { // Dynamically loop through all model plug-ins and check if the current plug-in is valid
+  if (Object.values(app.XrayModels).includes(modelName)) return true;
+  if (Object.values(app.CTModels).includes(modelName)) return true;
+  return false;
 }
 
 class ChrisIntegration {
@@ -244,7 +244,7 @@ class ChrisIntegration {
       for (let plugin of pluginlists) {
         let studyInstance: StudyInstanceWithSeries | null = null
         // ignore plugins that are not models
-        if (isNotModel(plugin.data.plugin_name)) continue; 
+        if (!isModel(plugin.data.plugin_name)) continue; 
         // get dicom image data
         if (plugin.data.title !== '') {
           const imgDatas: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
