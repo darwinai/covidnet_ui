@@ -8,27 +8,27 @@ import {
   import CaretDownIcon from '@patternfly/react-icons/dist/js/icons/caret-down-icon';
 
 interface ModelSelectionProps {
-    useXray: boolean,
+    isXray: boolean,
     handleXrayChange: (model: string) => void,
     handleCTChange: (model: string) => void,
     xrayValue: string,
     ctValue: string
   }
 
-const ModelSelection: React.FC<ModelSelectionProps> = ({useXray, handleCTChange, handleXrayChange, xrayValue, ctValue}) => { // Drop-down for selecting which model to use when performing analysis
+const ModelSelection: React.FC<ModelSelectionProps> = ({isXray, handleCTChange, handleXrayChange, xrayValue, ctValue}) => { // Drop-down for selecting which model to use when performing analysis
 
     const [isOpen, setIsOpen] = useState(false);
-    const [dropdownValue, setDropdownValue] = useState((useXray) ? xrayValue : ctValue);
+    const [dropdownValue, setDropdownValue] = useState((isXray) ? xrayValue : ctValue);
 
     useEffect(() => { // Display the currently chosen Xray/CT model
-      setDropdownValue((useXray) ? xrayValue : ctValue);
-    }, [useXray, ctValue, xrayValue])
+      setDropdownValue((isXray) ? xrayValue : ctValue);
+    }, [isXray, ctValue, xrayValue])
       
     const onSelect = (event: SyntheticEvent<HTMLDivElement, Event> | undefined) => {
         setIsOpen(!isOpen);
         
         if (event !== undefined) {
-            if (useXray) {
+            if (isXray) {
                 handleXrayChange(event.currentTarget.innerText);
             } else {
                 handleCTChange(event.currentTarget.innerText);
@@ -37,7 +37,7 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({useXray, handleCTChange,
         }
       };
 
-      let dropdownItems = Object.keys(useXray ? plugins.XrayModels : plugins.CTModels).map((key: string) => {
+      let dropdownItems = Object.keys(isXray ? plugins.XrayModels : plugins.CTModels).map((key: string) => {
         return (<DropdownItem key={key}>{key}</DropdownItem>);
       });
 

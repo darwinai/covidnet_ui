@@ -21,7 +21,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
 
   const [XrayModel, setXrayModel] = useState(Object.keys(plugins.XrayModels)[0]);
   const [CTModel, setCTModel] = useState(Object.keys(plugins.CTModels)[0]);
-  const [useXray, setUseXray] = useState(false);
+  const [isXray, setIsXray] = useState(false);
 
   useEffect(() => {
     const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
@@ -48,7 +48,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   }
 
   const setModelType = (modality: string) => {
-      setUseXray(modality === 'CR'); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
+      setIsXray(modality === 'CR'); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
   }
 
   return (
@@ -85,7 +85,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
               <div className="numberCircle">{numOfSelectedImages}</div>
               <h3>Series selected</h3>
               <a onClick={() => props.setIsExpanded(true)}>(More details)</a>
-              <ModelSelection useXray={useXray} handleXrayChange={handleXrayChange} handleCTChange={handleCTChange} xrayValue={XrayModel} ctValue={CTModel}></ModelSelection>
+              <ModelSelection isXray={isXray} handleXrayChange={handleXrayChange} handleCTChange={handleCTChange} xrayValue={XrayModel} ctValue={CTModel}></ModelSelection>
               <RightArrowButton click={submitAnalysis(XrayModel, CTModel)}>Analyze</RightArrowButton>
             </div>
           </div>
