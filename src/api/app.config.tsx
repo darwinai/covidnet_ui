@@ -9,7 +9,7 @@ export const PluginModels: Plugins = {
         'COVID-Net': 'pl-covidnet'
     },
     CTModels: { // Place CT models here
-        'CT-Covid-Net': 'pl-ct-covidnet'
+        'CT-COVID-Net': 'pl-ct-covidnet'
     },
     Plugins: { // Place other app plug-ins here
         'FS_PLUGIN': 'pl-dircopy',

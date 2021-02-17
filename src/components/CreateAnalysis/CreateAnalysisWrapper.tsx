@@ -15,18 +15,18 @@ const CreateAnalysisWrapper = () => {
   const history = useHistory();
 
   const submitAnalysis = () => {
-      const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
-      if (imagesSelected.length <= 0) {
-        setIsModalOpen(true);
-        return;
-      }
-      // Updating staging images
-      dispatch({
-        type: StagingDcmImagesTypes.UpdateStaging,
-        payload: { imgs: imagesSelected }
-      });
-      history.push("/");
+    const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
+    if (imagesSelected.length <= 0) {
+      setIsModalOpen(true);
+      return;
     }
+    // Updating staging images
+    dispatch({
+      type: StagingDcmImagesTypes.UpdateStaging,
+      payload: { imgs: imagesSelected }
+    });
+    history.push("/");
+  }
 
 
   const panelContent = (
