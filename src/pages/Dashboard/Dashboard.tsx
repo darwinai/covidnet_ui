@@ -37,7 +37,7 @@ const DashboardPage: React.FC<AllProps> = () => {
           payload: { notifications }
         })
       })
-  }, [dispatch, stagingDcmImages, models.ctModel, models.xrayModel])
+  }, [dispatch, stagingDcmImages, models.ctModel, models.xrayModel]);
 
   return (
     <Wrapper>

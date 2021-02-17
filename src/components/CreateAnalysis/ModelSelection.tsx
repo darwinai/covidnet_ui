@@ -1,5 +1,5 @@
-import React, { SyntheticEvent, useContext, useEffect, useState } from 'react'
-import { PluginModels } from '../../api/app.config'
+import React, { SyntheticEvent, useContext, useEffect, useState } from 'react';
+import { PluginModels } from '../../api/app.config';
 import {
     Dropdown,
     DropdownToggle,
@@ -17,16 +17,16 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({isXray}) => { // Drop-do
 
     const [isOpen, setIsOpen] = useState(false);
     const { state: { models }, dispatch } = useContext(AppContext);
-    const [dropdownValue, setDropdownValue] = useState((isXray) ? models.xrayModel : models.ctModel);
+    const [dropdownValue, setDropdownValue] = useState(isXray ? models.xrayModel : models.ctModel);
 
     useEffect(() => { // Display the currently chosen Xray/CT model
-      setDropdownValue((isXray) ? models.xrayModel : models.ctModel);
-    }, [isXray, models.xrayModel, models.ctModel])
+      setDropdownValue(isXray ? models.xrayModel : models.ctModel);
+    }, [isXray, models.xrayModel, models.ctModel]);
       
-    const onSelect = (event: SyntheticEvent<HTMLDivElement, Event> | undefined) => {
+    const onSelect = (event?: SyntheticEvent<HTMLDivElement, Event>) => {
         setIsOpen(!isOpen);
         
-        if (event !== undefined) {
+        if (event) {
             if (isXray) {
               dispatch({
                 type: UpdatingModelSelectionTypes.XrayModelSelection,
@@ -46,9 +46,7 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({isXray}) => { // Drop-do
         }
       };
 
-      let dropdownItems = Object.keys(isXray ? PluginModels.XrayModels : PluginModels.CTModels).map((key: string) => {
-        return (<DropdownItem key={key}>{key}</DropdownItem>);
-      });
+      let dropdownItems = Object.keys(isXray ? PluginModels.XrayModels : PluginModels.CTModels).map((key: string) => (<DropdownItem key={key}>{key}</DropdownItem>));
 
     return (
       <React.Fragment>
@@ -65,7 +63,6 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({isXray}) => { // Drop-do
         />
       </React.Fragment>
       );
-
 }
 
 export default ModelSelection;

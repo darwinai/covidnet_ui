@@ -72,8 +72,8 @@ const PastAnalysisTable = () => {
             total: total
           }
         })
-      });
-  }, [page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages])
+      })
+  }, [page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages]);
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = []

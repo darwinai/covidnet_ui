@@ -14,11 +14,11 @@ export const initialModelSelectionState: ModelSelection = {
 type modelSelectionPayload = {
   [UpdatingModelSelectionTypes.XrayModelSelection]: { xrayModel: string };
   [UpdatingModelSelectionTypes.CTModelSelection]: { ctModel: string };
-}
+};
 
 export type UpdatingModelSelectionActions = ActionMap<modelSelectionPayload>[
   keyof ActionMap<modelSelectionPayload>
-]
+];
 
 export const updatingModelSelectionReducer = (
   state: ModelSelection,
@@ -32,4 +32,4 @@ export const updatingModelSelectionReducer = (
     default: 
       return state;
   }
-}
+};

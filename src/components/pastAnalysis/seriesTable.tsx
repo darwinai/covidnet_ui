@@ -14,7 +14,7 @@ interface SeriesTableProps {
 export const isLargestNumber = (num: number | null | undefined, numArray: Map<string, number>) => {
   if (num && numArray) {
     let maxValue: number = 0;
-    numArray.forEach((value: number, key: string) => {
+    numArray.forEach((value: number) => {
     maxValue = (!maxValue || maxValue < value) ? value : maxValue;
     })
 
@@ -33,7 +33,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
 
   analysisList[0]?.classifications.forEach((value: number, key: string) => {
     titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
-  })
+  });
 
   titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
               { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
@@ -48,9 +48,8 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
       analysisCells.push({
         title: (<PredictionCircle key={key}
           largeCircle={isLargestNumber(value, analysis.classifications)}
-          predictionNumber={value} />)
-      });
-    })
+          predictionNumber={value} />)});
+    });
   
       analysisCells.push({
         title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
@@ -61,7 +60,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
       });
 
     return { cells: analysisCells };
-  })
+  });
 
 
   const viewImage = (index: number) => {

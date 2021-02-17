@@ -87,11 +87,8 @@ export const modifyDatetime = (oldDay: string): string => {
   return rvtVal
 }
 
-export const isModel = (modelName: string): boolean => { // Dynamically loop through all model plug-ins and check if the current plug-in is valid
-  if (Object.values(PluginModels.XrayModels).includes(modelName)) return true;
-  if (Object.values(PluginModels.CTModels).includes(modelName)) return true;
-  return false;
-}
+// Dynamically loop through all model plug-ins and check if the current plug-in is valid
+export const isModel = (modelName: string): boolean => ((Object.values(PluginModels.XrayModels).includes(modelName) || Object.values(PluginModels.CTModels).includes(modelName)));
 
 class ChrisIntegration {
 
