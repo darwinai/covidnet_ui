@@ -18,7 +18,7 @@ const DashboardPage: React.FC<AllProps> = () => {
     if (stagingDcmImages.length <= 0) return;
 
     // process the images
-    CreateAnalysisService.analyzeImages(stagingDcmImages, models.xrayModel, models.ctModel)
+    CreateAnalysisService.analyzeImages(stagingDcmImages, models.xrayModel, models.ctModel) // Passing selected models to Chris_Integration for image analysis
       .then((notifications) => {
         dispatch({
           type: StagingDcmImagesTypes.UpdateStaging,

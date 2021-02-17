@@ -35,7 +35,7 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({isXray}) => { // Drop-do
                 }
               });
             } else {
-              dispatch({
+              dispatch({ // Updating analysis models to selected options through the drop-down
                 type: UpdatingModelSelectionTypes.CTModelSelection,
                 payload: {
                   ctModel: event.currentTarget.innerText
