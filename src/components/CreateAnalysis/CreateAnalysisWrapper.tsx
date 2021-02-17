@@ -9,13 +9,12 @@ import ConfirmAnalysis from './ConfirmAnalysis';
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
 
 const CreateAnalysisWrapper = () => {
-  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext)
+  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const history = useHistory();
 
-  const submitAnalysis = (XrayModel?: string, CTModel?: string) => {
-    return (() => {
+  const submitAnalysis = () => {
       const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
       if (imagesSelected.length <= 0) {
         setIsModalOpen(true);
@@ -25,15 +24,9 @@ const CreateAnalysisWrapper = () => {
       dispatch({
         type: StagingDcmImagesTypes.UpdateStaging,
         payload: { imgs: imagesSelected }
-      })
-      history.push({ // Passing route parameters between components to determine which models are to be used for the analysis
-        pathname: "/",
-        state: { 
-          XrayModel: XrayModel,
-          CTModel: CTModel
-        }});
-    })
-  }
+      });
+      history.push("/");
+    }
 
 
   const panelContent = (

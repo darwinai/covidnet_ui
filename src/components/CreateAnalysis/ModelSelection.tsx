@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, useEffect, useState } from 'react'
+import React, { SyntheticEvent, useContext, useEffect, useState } from 'react'
 import { PluginModels } from '../../api/app.config'
 import {
     Dropdown,
@@ -6,32 +6,41 @@ import {
     DropdownItem
   } from '@patternfly/react-core';
   import CaretDownIcon from '@patternfly/react-icons/dist/js/icons/caret-down-icon';
+  import { UpdatingModelSelectionTypes } from "../../context/actions/types";
+import { AppContext } from '../../context/context';
 
 interface ModelSelectionProps {
-    isXray: boolean,
-    handleXrayChange: (model: string) => void,
-    handleCTChange: (model: string) => void,
-    xrayValue: string,
-    ctValue: string
+    isXray: boolean
   }
 
-const ModelSelection: React.FC<ModelSelectionProps> = ({isXray, handleCTChange, handleXrayChange, xrayValue, ctValue}) => { // Drop-down for selecting which model to use when performing analysis
+const ModelSelection: React.FC<ModelSelectionProps> = ({isXray}) => { // Drop-down for selecting which model to use when performing analysis
 
     const [isOpen, setIsOpen] = useState(false);
-    const [dropdownValue, setDropdownValue] = useState((isXray) ? xrayValue : ctValue);
+    const { state: { models }, dispatch } = useContext(AppContext);
+    const [dropdownValue, setDropdownValue] = useState((isXray) ? models.xrayModel : models.ctModel);
 
     useEffect(() => { // Display the currently chosen Xray/CT model
-      setDropdownValue((isXray) ? xrayValue : ctValue);
-    }, [isXray, ctValue, xrayValue])
+      setDropdownValue((isXray) ? models.xrayModel : models.ctModel);
+    }, [isXray, models.xrayModel, models.ctModel])
       
     const onSelect = (event: SyntheticEvent<HTMLDivElement, Event> | undefined) => {
         setIsOpen(!isOpen);
         
         if (event !== undefined) {
             if (isXray) {
-                handleXrayChange(event.currentTarget.innerText);
+              dispatch({
+                type: UpdatingModelSelectionTypes.XrayModelSelection,
+                payload: {
+                  xrayModel: event.currentTarget.innerText
+                }
+              });
             } else {
-                handleCTChange(event.currentTarget.innerText);
+              dispatch({
+                type: UpdatingModelSelectionTypes.CTModelSelection,
+                payload: {
+                  ctModel: event.currentTarget.innerText
+                }
+              });
             }
             setDropdownValue(event.currentTarget.innerText);
         }

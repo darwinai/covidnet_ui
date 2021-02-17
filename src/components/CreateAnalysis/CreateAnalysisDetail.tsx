@@ -7,20 +7,15 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
-import { PluginModels } from '../../api/app.config'
-
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
-  submitAnalysis: (XrayModel?: string, CTModel?: string) => (() => void)
+  submitAnalysis: () => void
 }
 
-const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
+const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpanded, submitAnalysis}) => {
   const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
   const { selectedStudyUIDs } = createAnalysis;
-
-  const [XrayModel, setXrayModel] = useState(Object.keys(PluginModels.XrayModels)[0]);
-  const [CTModel, setCTModel] = useState(Object.keys(PluginModels.CTModels)[0]);
   const [isXray, setIsXray] = useState(false);
 
   useEffect(() => {
@@ -37,15 +32,6 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
 
   const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
-  const { submitAnalysis } = props;
-
-  const handleXrayChange = (model: string) => {
-    setXrayModel(model);
-  }
-
-  const handleCTChange = (model: string) => {
-    setCTModel(model);
-  }
 
   const setModelType = (modality: string) => {
       setIsXray(modality === 'CR'); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
@@ -84,9 +70,9 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
             <div className="detail-top-right-box">
               <div className="numberCircle">{numOfSelectedImages}</div>
               <h3>Series selected</h3>
-              <a onClick={() => props.setIsExpanded(true)}>(More details)</a>
-              <ModelSelection isXray={isXray} handleXrayChange={handleXrayChange} handleCTChange={handleCTChange} xrayValue={XrayModel} ctValue={CTModel}></ModelSelection>
-              <RightArrowButton click={submitAnalysis(XrayModel, CTModel)}>Analyze</RightArrowButton>
+              <a onClick={() => setIsExpanded(true)}>(More details)</a>
+              <ModelSelection isXray={isXray}></ModelSelection>
+              <RightArrowButton click={submitAnalysis}>Analyze</RightArrowButton>
             </div>
           </div>
         </div>

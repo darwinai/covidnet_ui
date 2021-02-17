@@ -1,6 +1,6 @@
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import React, { useContext, useEffect } from "react";
-import { RouteComponentProps, useLocation } from "react-router-dom";
+import { RouteComponentProps } from "react-router-dom";
 import { CreateAnalysisSection } from "../../components/CreateAnalysis/CreateAnalysis";
 import PastAnalysisTable from "../../components/pastAnalysis/PastAnalysisTable";
 import Wrapper from "../../containers/Layout/PageWrapper";
@@ -10,30 +10,15 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 
 type AllProps = RouteComponentProps;
 
-interface ModelLocation { // Route parameters passed through the history hook
-    XrayModel: string,
-    CTModel: string
-}
-
-
 const DashboardPage: React.FC<AllProps> = () => {
-  const { state: { stagingDcmImages }, dispatch } = useContext(AppContext);
-
-  const location = useLocation<ModelLocation>();
-  let xrayModel: string = "";
-  let ctModel: string = "";
-
-  if (location?.state) {
-      xrayModel = location.state.XrayModel;
-      ctModel = location.state.CTModel;
-  }
+  const { state: { stagingDcmImages, models }, dispatch } = useContext(AppContext);
 
   useEffect(() => {
     document.title = "Analysis - CovidNet UI";
     if (stagingDcmImages.length <= 0) return;
 
     // process the images
-    CreateAnalysisService.analyzeImages(stagingDcmImages, xrayModel, ctModel)
+    CreateAnalysisService.analyzeImages(stagingDcmImages, models.xrayModel, models.ctModel)
       .then((notifications) => {
         dispatch({
           type: StagingDcmImagesTypes.UpdateStaging,
@@ -52,7 +37,7 @@ const DashboardPage: React.FC<AllProps> = () => {
           payload: { notifications }
         })
       })
-  }, [dispatch, stagingDcmImages, xrayModel, ctModel])
+  }, [dispatch, stagingDcmImages, models.ctModel, models.xrayModel])
 
   return (
     <Wrapper>

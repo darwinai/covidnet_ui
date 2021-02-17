@@ -72,7 +72,7 @@ const PastAnalysisTable = () => {
             total: total
           }
         })
-      })
+      });
   }, [page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages])
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
