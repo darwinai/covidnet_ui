@@ -6,8 +6,7 @@ export interface Plugins {
 
 export const PluginModels: Plugins = {
     XrayModels: { // Place Xray models here
-        'COVID-Net': 'pl-covidnet',
-        'TEST': 'pl-covidnet-two'
+        'COVID-Net': 'pl-covidnet'
     },
     CTModels: { // Place CT models here
         'CT-Covid-Net': 'pl-ct-covidnet'
