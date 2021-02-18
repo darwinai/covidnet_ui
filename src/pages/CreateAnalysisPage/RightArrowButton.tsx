@@ -2,8 +2,8 @@ import { Button } from '@patternfly/react-core';
 import { ArrowRightIcon } from '@patternfly/react-icons';
 import React from "react";
 
-interface RightArrowButtonProps {
-  click: () => void,
+interface RightArrowButtonProps { 
+  click: () => void 
   className?: string
 }
 

@@ -291,7 +291,7 @@ class ChrisIntegration {
                 if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
                   newSeries.classifications.set(key, formatNumber(content[key]));
                 }
-              }
+              } return 1;
             });
 
           } else if (fileObj.data.fname.includes('severity.json')) {
