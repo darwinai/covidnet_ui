@@ -1,6 +1,7 @@
 import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { LocalFile } from "./chris_integration";
+import { PluginModels } from "../api/app.config";
 
 // export interface IPluginCreateData {
 //   title?: string,
@@ -25,8 +26,7 @@ export const pollingBackend = async (pluginInstance: PluginInstance) =>{
   }
   while (true) {
     await timeout(1000)
-    const res: any = await pluginInstance.get()
-    console.log(res.data.status)
+    const res: any = await pluginInstance.get();
     if (res.data.status === "finishedSuccessfully") {
       console.log('reached')
       break;
@@ -61,8 +61,8 @@ export const uploadTest = async (files: LocalFile[]): Promise<void> => {
     title: "pl_covidnet",
     imagefile: filename
   }
-  const plcovidnet = await client.getPlugins({ "name_exact": "pl-covidnet" })
-  const covidnetPlugin = plcovidnet.getItems()[0]
+  const plcovidnet = await client.getPlugins({ "name_exact": PluginModels.XrayModels["COVID-Net"] });
+  const covidnetPlugin = plcovidnet.getItems()[0];
   const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
 
   await pollingBackend(covidnetInstance)
@@ -89,6 +89,4 @@ export const uploadTest = async (files: LocalFile[]): Promise<void> => {
 
 }
 
-export const testGetPacs = async () => {
-
-}
+export const testGetPacs = async () => {}

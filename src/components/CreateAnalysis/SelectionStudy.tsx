@@ -1,5 +1,5 @@
 import { Badge } from '@patternfly/react-core';
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { StudyInstance } from "../../services/CreateAnalysisService";
@@ -9,9 +9,18 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   studyDescription,
   modality,
   createdDate,
+  setModelType
 }) => {
   const { state: { createAnalysis: { selectedStudyUIDs, currSelectedStudyUID } }, dispatch } = useContext(AppContext);
   const imagesSelectedDict = selectedStudyUIDs[studyInstanceUID]
+
+  useEffect(() => {
+    if (currSelectedStudyUID === studyInstanceUID) { // Setting the drop-down display options, according to the study's modality (Xray/CT)
+      if (setModelType) {
+        setModelType(modality);
+      }
+    }
+  }, [currSelectedStudyUID, studyInstanceUID, modality, setModelType]);
 
   const selectThisStudy = () => {
     dispatch({
@@ -19,10 +28,11 @@ const SelectionStudy: React.FC<StudyInstance> = ({
       payload: {
         studyUID: studyInstanceUID
       }
-    })
+    });
   }
 
   const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0;
+  
   return (
     <div
       className={`SelectionStudy ${isSelected ? 'selected' : ''}`}

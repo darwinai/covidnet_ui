@@ -11,14 +11,14 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 type AllProps = RouteComponentProps;
 
 const DashboardPage: React.FC<AllProps> = () => {
-  const { state: { stagingDcmImages }, dispatch } = useContext(AppContext);
+  const { state: { stagingDcmImages, models }, dispatch } = useContext(AppContext);
 
   useEffect(() => {
-    document.title = "Anayalsis - CovidNet ui";
+    document.title = "Analysis - CovidNet UI";
     if (stagingDcmImages.length <= 0) return;
 
     // process the images
-    CreateAnalysisService.analyzeImages(stagingDcmImages)
+    CreateAnalysisService.analyzeImages(stagingDcmImages, models.xrayModel, models.ctModel) // Passing selected models to Chris_Integration for image analysis
       .then((notifications) => {
         dispatch({
           type: StagingDcmImagesTypes.UpdateStaging,
@@ -37,7 +37,7 @@ const DashboardPage: React.FC<AllProps> = () => {
           payload: { notifications }
         })
       })
-  }, [dispatch, stagingDcmImages])
+  }, [dispatch, stagingDcmImages, models.ctModel, models.xrayModel]);
 
   return (
     <Wrapper>

@@ -9,7 +9,7 @@ import ConfirmAnalysis from './ConfirmAnalysis';
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
 
 const CreateAnalysisWrapper = () => {
-  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext)
+  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const history = useHistory();
@@ -20,11 +20,11 @@ const CreateAnalysisWrapper = () => {
       setIsModalOpen(true);
       return;
     }
-    // update staging images
+    // Updating staging images
     dispatch({
       type: StagingDcmImagesTypes.UpdateStaging,
       payload: { imgs: imagesSelected }
-    })
+    });
     history.push("/");
   }
 

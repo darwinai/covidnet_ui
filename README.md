@@ -87,3 +87,29 @@ To run directly from VS Code:
 yarn or npm install
 yarn start
 ```
+
+#### Adding More Plug-ins and Models
+If another plug-in is wished to be added to the COVID-Net UI project:
+
+```
+1. Follow corresponding steps of installation, creating the docker image, uploading, and registering the plug-in on ChRIS
+2. Navigate to app.config.tsx, add the appropriate entry (in Xray Models, CT Models, or Plug-ins) with the plug-in's name and its alias to be used in the app
+```
+
+#### Example: Incorporating Multiple Models
+The app supports the user to choose from multiple models. For testing purposes of the UI functionality, mocked models that give 2 and 4 are retrievable from the "extra" directory under src/api/models:
+
+```
+1. Unzip the plug-ins, and follow the above directions for adding the necessary models into pl-covidnet-2 (use the same instructions as pl-covidnet) and pl-ct-covidnet-4 (use same instructions as pl-ct-covidnet)
+2. Build the docker images
+3. Run upload scripts for these two plug-ins:
+    3a. http -a cubeadmin:cubeadmin1234 -f POST http://localhost:8010/api/v1/plugins/ dock_image=local/{NAME OF PLUG-IN} \
+        descriptor_file@jsonRepresentations/covidnet.json public_repo=https://github.com/FNNDSC/pl-simplefsapp name={NAME OF PLUG-IN}
+    3b. http -a cubeadmin:cubeadmin1234 -f POST http://localhost:8010/api/v1/plugins/ dock_image=local/{NAME OF PLUG-IN} \
+        descriptor_file@jsonRepresentations/ct_covidnet.json public_repo=https://github.com/FNNDSC/pl-simplefsapp name={NAME OF PLUG-IN}
+4. Register the plug-ins via http://localhost:8000/chris-admin/plugins/plugin/
+5. In the app.config.tsx file, add the correct entries into the Xray and CT Models section, where the key can be anything (which will be displayed to user on front-end), and the value is the plug-in name from 3a and 3b
+6. Now, the front-end will present the user the added models to select from (in the drop-down menu), when creating an analysis
+    7a. The mocked pl-covidnet and pl-ct-covidnet models should be displayed on the drop-down and able to be selected by the user
+    7b. After creating the analysis, the results will be shown on the dashboard, where there will now be 2 or 4 classifications displayed for the scan now
+```
