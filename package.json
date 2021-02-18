@@ -42,6 +42,7 @@
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "node-sass": "^4.13.1",
+    "patternfly": "^3.59.5",
     "patternfly-react": "^2.39.17",
     "react": "^16.12.0",
     "react-bootstrap-typeahead": "^4.0.0-alpha.5",
