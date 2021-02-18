@@ -129,7 +129,7 @@ class ChrisIntegration {
         // title: this.PL_COVIDNET,
         imagefile: filename
       }
-      const plcovidnet = await client.getPlugins({ "name_exact": "pl-covidnet" })
+      const plcovidnet = await client.getPlugins({ "name_exact": PluginModels.XrayModels["COVID-Net"] })
       const covidnetPlugin = plcovidnet.getItems()[0]
       const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log("Covidnet Running")
