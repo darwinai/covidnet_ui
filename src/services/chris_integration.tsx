@@ -168,7 +168,6 @@ class ChrisIntegration {
       console.log("PL-DIRCOPY task sent into the task queue")
 
       // PL-MED2IMG
-      const imgConverterPlugin = (await client.getPlugins({ "name_exact": this.MED2IMG })).getItems()[0];
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
       const filename = img.fname.split('/').pop()?.split('.')[0]
       console.log(filename)
@@ -180,7 +179,7 @@ class ChrisIntegration {
       }
 
       if (imgConverterPlugin === undefined || imgConverterPlugin.data === undefined) {
-        return [{
+        return {
           plugin: PluginModels.Plugins.MED2IMG,
           error: new Error('not registered')
         };
@@ -251,8 +250,7 @@ class ChrisIntegration {
     });
     const feedArray = feeds.getItems();
     for (let feed of feedArray) {
-      const pluginInstances = await feed.getPluginIn
-stances({
+      const pluginInstances = await feed.getPluginInstances({
         limit: 25,
         offset: 0
       });
