@@ -17,6 +17,16 @@ interface PlcovidnetData extends IPluginCreateData {
   imagefile: string;
 }
 
+interface PACSFile {
+  url: string;
+  auth: {
+    token: string;
+  };
+  contentType: string;
+  collection: Object;
+  data: DcmImage;
+}
+
 enum PluginPollStatus {
   STARTED = "started",
   SUCCESS = "finishedSuccessfully",
@@ -215,6 +225,17 @@ class ChrisIntegration {
     return (await client.getPACSFiles({ fname_exact: imgTitle })).data
   }
 
+  static async getFilePathNameByUID(StudyInstanceUID: string, SeriesInstanceUID: string): Promise<string> {
+    let client: any = await ChrisAPIClient.getClient();
+    
+    const res = await client.getPACSFiles({
+      StudyInstanceUID,
+      SeriesInstanceUID,
+      limit: 1
+    });
+    const patientImages: DcmImage = res.getItems().map((img: PACSFile) => img.data)?.[0];
+    return patientImages.fname;
+  }
 
   static async getPastAnalaysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
@@ -339,7 +360,7 @@ class ChrisIntegration {
       PatientID: patientID,
       limit: 1000
     })
-    const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
+    const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data)
     return patientImages;
   }
 

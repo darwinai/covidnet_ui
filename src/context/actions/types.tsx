@@ -34,7 +34,8 @@ export enum CreateAnalysisTypes {
 }
 
 export enum DicomImagesTypes {
-  UpdateImages = 'UPDATE_DICOM_IMAGES'
+  Update_all_images = 'UPDATE_ALL_DICOM_IMAGES',
+  Update_filtered_images = 'UPDATE_FILTERED_DICOM_IMAGES'
 }
 
 export enum StagingDcmImagesTypes {

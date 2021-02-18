@@ -116,3 +116,35 @@ The app supports the user to choose from multiple models. For testing purposes o
     7a. The mocked pl-covidnet and pl-ct-covidnet models should be displayed on the drop-down and able to be selected by the user
     7b. After creating the analysis, the results will be shown on the dashboard, where there will now be 2 or 4 classifications displayed for the scan now
 ```
+### PACS Integration
+
+The following section provides a guide for enabling COVID-Net to query and retrieve DICOM files from a local PACS server, as opposed to using mock files directly uploaded to Swift.
+
+#### Setting up an Orthanc PACS server and `pfdcm`
+
+Instructions for setting up a local Orthanc PACS server and `pfdcm` can be found [here](https://github.com/FNNDSC/CHRIS_docs/blob/master/usecases/PACS_integration/pacs_integration.adoc). There are a few things to note when following the steps:
+
+- Follow the steps up until the section titled **Query the PACS server**. The steps that follow are simply for querying and retrieving from PACS via the command line. 
+- At the step for uploading DICOM files to Orthanc, use the DICOM files from `/covidnet_integration/images` .
+- Make note of the `HOST_IP` and `HOST_PORT` values used.
+
+#### Uploading DICOM data to Swift
+
+Note: PACS integration into `covidnet_ui` is still under development. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem. A method for transporting these files into the Swift filesystem to be accessible by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files that were uploaded to the PACS server must also be manually uploaded to the Swift storage during setup:
+
+When testing out COVID-Net with PACS integration, be sure to delete any PACS files currently in the Swift storage and upload the DICOM files from `/covidnet_integration/images` without the `mock` flag:
+
+```
+python3 upload_swift_notify_cube.py
+```
+
+#### Setting environment variables
+
+In the `.env` file of the `covidnet_ui` repository, set the following environment variables to enable PACS integration, replacing `<HOST_IP>` and `<HOST_PORT>` with their respective values taken from the PACS setup instructions linked above:
+
+```
+REACT_APP_CHRIS_UI_DICOM_SOURCE="pacs"
+REACT_APP_CHRIS_UI_PFDCM_URL="http://<HOST_IP>:<HOST_PORT>/api/v1/cmd/"
+```
+
+Note: for `REACT_APP_CHRIS_UI_DICOM_SOURCE`, using any value other than `pacs` will default COVID-Net to fetching files directly from Swift.
