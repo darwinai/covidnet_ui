@@ -78,9 +78,9 @@ const PatientLookup = (props: PatientLookupProps) => {
   ];
 
   const navigateToCreateAnalysis = async () => {
-      await newLookup();
-      history.push("/createAnalysis");
-    }
+    await newLookup();
+    history.push("/createAnalysis");
+  }
 
   const submitButton = props.isOnDashboard ? (
     <RightArrowButton click={navigateToCreateAnalysis}>Continue</RightArrowButton>
