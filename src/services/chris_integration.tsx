@@ -2,6 +2,7 @@ import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
+import { PluginModels } from "../api/app.config";
 
 export interface LocalFile {
   name: string;
@@ -14,6 +15,16 @@ interface DirCreateData extends IPluginCreateData {
 
 interface PlcovidnetData extends IPluginCreateData {
   imagefile: string;
+}
+
+interface PACSFile {
+  url: string;
+  auth: {
+    token: string;
+  };
+  contentType: string;
+  collection: Object;
+  data: DcmImage;
 }
 
 enum PluginPollStatus {
@@ -89,13 +100,10 @@ export const modifyDatetime = (oldDay: string): string => {
   return rvtVal
 }
 
-class ChrisIntegration {
+// Dynamically loop through all model plug-ins and check if the current plug-in is valid
+export const isModel = (modelName: string): boolean => ((Object.values(PluginModels.XrayModels).includes(modelName) || Object.values(PluginModels.CTModels).includes(modelName)));
 
-  private static PL_COVIDNET = 'pl-covidnet';
-  private static FS_PLUGIN = 'pl-dircopy'; // 'pl-dircopy';
-  private static MED2IMG = 'pl-med2img';
-  private static PL_CT_COVIDNET = 'pl-ct-covidnet';
-  private static PL_PDFGENERATION = 'pl-pdfgeneration';
+class ChrisIntegration {
 
   static async getTotalAnalyses(): Promise<number> {
     let client: any = await ChrisAPIClient.getClient();
@@ -121,7 +129,7 @@ class ChrisIntegration {
       }, { "fname": files[0].blob })
 
       // create dircopy plugin
-      const dircopyPlugin = (await client.getPlugins({ 'name_exact': this.FS_PLUGIN })).getItems()[0];
+      const dircopyPlugin = (await client.getPlugins({ 'name_exact': PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
       const data: DirCreateData = { "dir": uploadedFile.data.fname }
       const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
@@ -132,7 +140,7 @@ class ChrisIntegration {
         // title: this.PL_COVIDNET,
         imagefile: filename
       }
-      const plcovidnet = await client.getPlugins({ "name_exact": "pl-covidnet" })
+      const plcovidnet = await client.getPlugins({ "name_exact": PluginModels.XrayModels["COVID-Net"] })
       const covidnetPlugin = plcovidnet.getItems()[0]
       const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log("Covidnet Running")
@@ -144,20 +152,24 @@ class ChrisIntegration {
     return true;
   }
 
-  static async processOneImg(img: DcmImage): Promise<BackendPollResult> {
+  static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
     let client: any = await ChrisAPIClient.getClient();
+
+    let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
+    let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
+
     try {
       console.log(img.fname)
 
       // PL-DIRCOPY
-      const dircopyPlugin = (await client.getPlugins({ "name_exact": this.FS_PLUGIN })).getItems()[0];
-      // const params = await dircopyPlugin.getPluginParameters();
+      const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
       const data: DirCreateData = { "dir": img.fname };
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
       console.log("PL-DIRCOPY task sent into the task queue")
 
       // PL-MED2IMG
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": this.MED2IMG })).getItems()[0];
+      const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
       const filename = img.fname.split('/').pop()?.split('.')[0]
       console.log(filename)
       const imgData = {
@@ -168,8 +180,8 @@ class ChrisIntegration {
       }
 
       if (imgConverterPlugin === undefined || imgConverterPlugin.data === undefined) {
-        return {
-          plugin: this.MED2IMG,
+        return [{
+          plugin: PluginModels.Plugins.MED2IMG,
           error: new Error('not registered')
         };
       }
@@ -177,7 +189,7 @@ class ChrisIntegration {
       const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
       console.log("PL-MED2IMG task sent into the task queue")
 
-      const pluginNeeded = img.Modality === 'CR' ? this.PL_COVIDNET : this.PL_CT_COVIDNET;
+      const pluginNeeded = img.Modality === 'CR' ? XRayModel : CTModel;
       const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
       const plcovidnet_data: PlcovidnetData = {
         previous_id: imgConverterInstance.data.id,
@@ -214,6 +226,18 @@ class ChrisIntegration {
     return (await client.getPACSFiles({ fname_exact: imgTitle })).data
   }
 
+  static async getFilePathNameByUID(StudyInstanceUID: string, SeriesInstanceUID: string): Promise<string> {
+    let client: any = await ChrisAPIClient.getClient();
+    
+    const res = await client.getPACSFiles({
+      StudyInstanceUID,
+      SeriesInstanceUID,
+      limit: 1
+    });
+    const patientImages: DcmImage = res.getItems().map((img: PACSFile) => img.data)?.[0];
+    return patientImages.fname;
+  }
+
   static async getPastAnalaysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
     const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
@@ -227,7 +251,8 @@ class ChrisIntegration {
     });
     const feedArray = feeds.getItems();
     for (let feed of feedArray) {
-      const pluginInstances = await feed.getPluginInstances({
+      const pluginInstances = await feed.getPluginIn
+stances({
         limit: 25,
         offset: 0
       });
@@ -235,16 +260,15 @@ class ChrisIntegration {
       const pluginlists = pluginInstances.getItems()
       for (let plugin of pluginlists) {
         let studyInstance: StudyInstanceWithSeries | null = null
-        // ignore plugins that are not pl-covidnet or pl-ct-covidnet
-        if (plugin.data.plugin_name !== this.PL_COVIDNET && plugin.data.plugin_name !== this.PL_CT_COVIDNET) continue;
-
+        // ignore plugins that are not models
+        if (!isModel(plugin.data.plugin_name)) continue; 
         // get dicom image data
         if (plugin.data.title !== '') {
           const imgDatas: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
           if (imgDatas.length > 0) {
             // use dircopy start time to check
             for (let findDircopy of pluginlists) {
-              if (findDircopy.data.plugin_name === this.FS_PLUGIN) {
+              if (findDircopy.data.plugin_name === PluginModels.Plugins.FS_PLUGIN) {
                 const startedTime = formatTime(findDircopy.data.start_date);
                 const possibileIndex = startedTime + imgDatas[0].StudyInstanceUID;
                 // already exists so push it to te seriesList
@@ -271,23 +295,28 @@ class ChrisIntegration {
           limit: 25,
           offset: 0,
         });
+
         const newSeries: ISeries = {
           covidnetPluginId: plugin.data.id,
           imageName: '',
           imageId: '',
-          predCovid: 0,
-          predPneumonia: 0,
-          predNormal: 0,
+          classifications: new Map<string, number>(),
           geographic: null,
           opacity: null
         }
+
         for (let fileObj of pluginInstanceFiles.getItems()) {
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
-            let content = await this.fetchJsonFiles(fileObj.data.id)
+            let content = await this.fetchJsonFiles(fileObj.data.id);
             const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
-            newSeries.predCovid = formatNumber(content['COVID-19'])
-            newSeries.predNormal = formatNumber(content['Normal'])
-            newSeries.predPneumonia = formatNumber(content['Pneumonia'])
+            Object.keys(content).map(function(key: string) { // Reading in the classifcation titles and values
+              if ((key !== 'prediction') && (key !== 'Prediction')) {
+                if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
+                  newSeries.classifications.set(key, formatNumber(content[key]));
+                }
+              }
+            });
+
           } else if (fileObj.data.fname.includes('severity.json')) {
             let content = await this.fetchJsonFiles(fileObj.data.id)
             newSeries.geographic = {
@@ -302,14 +331,13 @@ class ChrisIntegration {
             newSeries.imageId = fileObj.data.id;
 
             // get dcmImageId from dircopy
-            const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === this.FS_PLUGIN)]
+            const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
             const dircopyFiles = (await dircopyPlugin.getFiles({
               limit: 100,
               offset: 0
             })).data;
             const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => file.fname.includes('.dcm'))]
             newSeries.imageName = dcmImageFile.fname;
-            // newSeries.imageId = dcmImageFile.id;
           }
         }
         if (studyInstance) studyInstance.series.push(newSeries)
@@ -324,7 +352,7 @@ class ChrisIntegration {
     let file = await client.getFile(fileId);
     let blob = await file.getFileBlob();
     let content = await blob.text();
-    return JSON.parse(content)
+    return JSON.parse(content);
   }
 
   static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {
@@ -334,7 +362,7 @@ class ChrisIntegration {
       PatientID: patientID,
       limit: 1000
     })
-    const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
+    const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data)
     return patientImages;
   }
 
@@ -365,7 +393,7 @@ class ChrisIntegration {
       }
     })
     if (!imgName) return;
-    const pdfgenerationPlugin = (await client.getPlugins({ "name_exact": this.PL_PDFGENERATION })).getItems()[0];
+    const pdfgenerationPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.PDFGENERATION })).getItems()[0];
     const pluginData = {
       imagefile: imgName,
       previous_id: covidnetPluginId,

@@ -1,19 +1,6 @@
 import { ActionMap, AnalysisTypes } from "../actions/types";
 import { DcmImage } from "./dicomImagesReducer";
 
-// export type IAnalysis = {
-//   image: string;
-//   patientMRN?: number;
-//   createdTime: string;
-//   study: string;
-//   predCovid: number;
-//   predPneumonia: number;
-//   predNormal: number;
-//   imageId: string;
-//   dcmImage: DcmImage | null;
-//   createdAtDateType?: Date; 
-// }
-
 export type riskStratifcation = {
   severity: number,
   extentScore: number
@@ -23,14 +10,11 @@ export type ISeries = {
   covidnetPluginId: number, 
   imageName: string,
   imageId: string,
-  predCovid: number,
-  predPneumonia: number,
-  predNormal: number,
+  classifications: Map<string, number>, // Holding classification classes/values in map
   geographic: riskStratifcation | null,
   opacity: riskStratifcation | null
 }
 
-// change chrisIntegration to return this instead of Ianalysis
 export type StudyInstanceWithSeries = {
   dcmImage: DcmImage,
   analysisCreated: string, 

@@ -1,6 +1,15 @@
 $full: 100%;
 $description-top-padding: 0.3rem;
 
+  .dropdown-label {
+    white-space: nowrap;
+    margin-top: 0.4rem;
+  }
+
+  .pf-c-button.pf-m-primary {
+    margin-top: 0.5rem;
+  }
+
 .detail-wrapper {
   @include flex(column);
   min-height: 70vh;
@@ -75,9 +84,7 @@ $description-top-padding: 0.3rem;
       justify-content: center;
       align-items: center;
       line-height: 1.5;
-      Button {
-        margin-top: 1.3rem;
-      }
+      
       .numberCircle {
         border-radius: 50%;
         width: 60px;

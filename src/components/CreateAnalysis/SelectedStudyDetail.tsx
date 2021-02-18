@@ -7,7 +7,7 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 
 const SelectedStudyDetail = () => {
   const { state: { createAnalysis: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);
-  const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages, currSelectedStudyUID)
+  const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID)
   let content = null;
 
   const addImgToAnalysis = (isSelected: boolean, img: DcmImage): void => {
@@ -66,9 +66,7 @@ const SelectedStudyDetail = () => {
                     <span className="checkmark"></span>
                   </label>
                 </div>
-              )
-            })}
-
+              )})}
           </div>
         </div>
       </div>
