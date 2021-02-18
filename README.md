@@ -74,17 +74,20 @@ Now register the plugins on ChRIS:
 
 Repeat this process for all other plugins with their respective names (pl-med2img, pl-ct-covidnet, pl-pdfgeneration).
 
-#### Deployment:
+#### Deployment
+
 To run inside Docker Container:
+
 ```
 cd covidnet_ui
 docker build -t covidnet_ui .
 docker run --rm --name covidnet_ui -p 3000:3000 -d covidnet_ui
 ```
 
-To run directly from VS Code:
+#### Development
+
 ```
-yarn or npm install
+yarn
 yarn start
 ```
 
