@@ -17,3 +17,29 @@
   margin-bottom: 0px;
   margin-top: 50px;
 }
+
+.footerText {
+  color: white;
+
+}
+.footerLink {
+  display: flex;
+  align-items: center;
+}
+.footerLogo {
+  width: 50px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.pf-c-page__header-tools {
+  // margin: 0 auto;
+  // grid-column: unset;
+}
+
+.pf-c-page__header {
+  display: flex;
+}
+
+.pf-c-page__header-tools:nth-child(3) {
+  justify-content: flex-end;
+}

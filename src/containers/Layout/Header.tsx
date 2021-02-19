@@ -23,7 +23,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
-  const history = useHistory()
+  const history = useHistory();
   const { state, dispatch } = React.useContext(AppContext);
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
 
@@ -79,8 +79,8 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     className="header"
     aria-label="Page Header"
     headerTools={pageToolbar}
-    logo={(<React.Fragment><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/>
-    <span className='logo-text'>COVID-Net</span></React.Fragment>)}
+    logo={(<React.Fragment><a onClick={() => history.push('/')} href="/"><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/></a>
+    <a className='logo-text' onClick={() => history.push('/')} href="/">COVID-Net</a></React.Fragment>)}
     topNav={<PageNav />}
   />;
 }
