@@ -7,6 +7,7 @@ import {
   import { useHistory } from 'react-router-dom';
   import logo from "../../assets/images/logo-white.png";
   import github from "../../assets/images/githubLogo.png";
+  import chris from "../../assets/images/ChRISLogo.png"
   
   const Footer: React.FC = () => {
     const history = useHistory();
@@ -25,6 +26,8 @@ import {
                     <PageHeaderToolsItem className="footerLink">
                         <p className="footerText">Find the Covid-Net project <a href="https://github.com/darwinai" target="_blank" rel="noopener noreferrer">here:</a></p>
                         <a href="https://github.com/darwinai" target="_blank" rel="noopener noreferrer"><img src={github} className="footerLogo" alt="darwinAI"/></a>
+                        <p className="footerText">And the ChRIS project <a href="http://chrisproject.org/" target="_blank" rel="noopener noreferrer">here:</a></p>
+                        <a href="http://chrisproject.org/" target="_blank" rel="noopener noreferrer"><img src={chris} className="footerLogo" alt="ChRIS"/></a>
                     </PageHeaderToolsItem>
             </PageHeaderTools>
         </React.Fragment>
