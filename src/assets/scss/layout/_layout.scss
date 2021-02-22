@@ -1,5 +1,3 @@
-
-
 // Root container
 // ---------------------------------------------------------
 #root {
@@ -9,15 +7,13 @@
 // Page Header:
 // ---------------------------------------------------------
 .header {
-  .pf-c-page__header-brand-toggle {
-    display: flex;
-    .pf-c-button {
+  .pf-c-page__header-brand-toggle .pf-c-button {
       margin-right: 0;
       @media screen and (min-width: 992px) {
         display: none !important;
       }
     }
-  }
+  display: flex;
 }
 
 h1,
