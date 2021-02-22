@@ -11,7 +11,7 @@ import pacs_integration from '../../services/pacs_integration';
 import chris_integration from '../../services/chris_integration';
 
 const CreateAnalysisWrapper = () => {
-  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext)
+  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const history = useHistory();
@@ -48,11 +48,11 @@ const CreateAnalysisWrapper = () => {
       }
     }
 
-    // update staging images
+    // Updating staging images
     dispatch({
       type: StagingDcmImagesTypes.UpdateStaging,
       payload: { imgs: imagesSelected }
-    })
+    });
     history.push("/");
   }
 

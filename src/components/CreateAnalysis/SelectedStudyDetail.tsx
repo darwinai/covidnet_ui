@@ -66,9 +66,7 @@ const SelectedStudyDetail = () => {
                     <span className="checkmark"></span>
                   </label>
                 </div>
-              )
-            })}
-
+              )})}
           </div>
         </div>
       </div>

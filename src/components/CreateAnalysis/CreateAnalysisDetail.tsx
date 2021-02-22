@@ -1,24 +1,25 @@
-import React, { Dispatch, SetStateAction, useContext, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import avator from '../../assets/images/avator.png';
 import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
+import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
 import FileLookup from './FileLookup';
 import Error from "../../shared/error";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 
-
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
   submitAnalysis: () => void
 }
 
-const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
+const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpanded, submitAnalysis}) => {
   const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
   const { selectedStudyUIDs } = createAnalysis;
+  const [isXray, setIsXray] = useState(false);
 
   useEffect(() => {
     const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages?.allDcmImages[0])
@@ -28,22 +29,24 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
         ...patientInfo
       }
     })
-  }, [dcmImages, dispatch])
+  }, [dcmImages, dispatch]);
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
 
   const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
-  const { submitAnalysis } = props;
-  
+
+  const setModelType = (modality: string) => {
+      setIsXray(modality === 'CR'); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
+  }
+
   return (
     <React.Fragment>
       <div className="detail-wrapper">
         <div className="detail-top-wrapper">
           <div className="detail-top-left">
             <h1>Create a new predictive analysis</h1>
-            <p>Select at least one image series below and select the "Analyze" button to receive COVID, pneumonia
-            and normal predictions per image.</p>
+            <p>Select at least one image series below and select the "Analyze" button to receive predictions per image.</p>
             <div className="detail-patient">
               <div>
                 <img src={avator} alt="avator" width="100px" height="100px"></img>
@@ -70,10 +73,9 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
             <div className="detail-top-right-box">
               <div className="numberCircle">{numOfSelectedImages}</div>
               <h3>Series selected</h3>
-              <a onClick={() => props.setIsExpanded(true)}>(More details)</a>
-              <RightArrowButton click={submitAnalysis}>
-                Analyze
-              </RightArrowButton>
+              <a onClick={() => setIsExpanded(true)}>(More details)</a>
+              <ModelSelection isXray={isXray}></ModelSelection>
+              <RightArrowButton click={submitAnalysis}>Analyze</RightArrowButton>
             </div>
           </div>
         </div>
@@ -84,9 +86,10 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = (props) => {
           studyInstances.length > 0 ?
             <div className="detail-bottom-wrapper">
               <div className="detail-select-studies">
-                {studyInstances.map((study: StudyInstance) => (
-                  <SelectionStudy key={study.studyInstanceUID} {...study}></SelectionStudy>
-                ))}
+              {studyInstances.map((study: StudyInstance) => {
+                study.setModelType = setModelType; // Passing function to change parent's state (Xray/CT)
+                return <SelectionStudy key={study.studyInstanceUID} {...study}></SelectionStudy>;
+              })}
               </div>
               <SelectedStudyDetail></SelectedStudyDetail>
             </div>

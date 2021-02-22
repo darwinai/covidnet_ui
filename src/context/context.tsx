@@ -6,6 +6,7 @@ import { IimgViewerState, imgViewerReducer, initialIimgViewer } from './reducers
 import { initialNotificationsState, notificationsReducer, NotificationState } from './reducers/notificationReducer';
 import { initialIStagingDcmImgsState, IStagingDcmImgs, stagingDcmImgsReducer } from './reducers/stagingDcmImgsReducer';
 import { initialIUserState, IUserState, userReducer } from './reducers/userReducer';
+import { initialModelSelectionState, ModelSelection, updatingModelSelectionReducer } from './reducers/modelSelectionReducer';
 
 type InitialStateType = {
   user: IUserState;
@@ -15,6 +16,7 @@ type InitialStateType = {
   stagingDcmImages: IStagingDcmImgs;
   imgViewer: IimgViewerState;
   notifications: NotificationState;
+  models: ModelSelection;
 }
 
 const initialState: InitialStateType = {
@@ -25,6 +27,7 @@ const initialState: InitialStateType = {
   stagingDcmImages: initialIStagingDcmImgsState,
   imgViewer: initialIimgViewer,
   notifications: initialNotificationsState,
+  models: initialModelSelectionState
 }
 
 const AppContext = createContext<{
@@ -36,7 +39,7 @@ const AppContext = createContext<{
 });
 
 const mainReducer = (
-  { user, prevAnalyses, createAnalysis, dcmImages, stagingDcmImages, imgViewer, notifications}: InitialStateType,
+  { user, prevAnalyses, createAnalysis, dcmImages, stagingDcmImages, imgViewer, notifications, models }: InitialStateType,
   action: any, // or UserActions | AnalysisActions
 ) => ({
   user: userReducer(user, action),
@@ -45,7 +48,8 @@ const mainReducer = (
   dcmImages: dicomImagesReducer(dcmImages, action),
   stagingDcmImages: stagingDcmImgsReducer(stagingDcmImages, action),
   imgViewer: imgViewerReducer(imgViewer, action),
-  notifications: notificationsReducer(notifications, action)
+  notifications: notificationsReducer(notifications, action),
+  models: updatingModelSelectionReducer(models, action)
 });
 
 // a function component for Provider

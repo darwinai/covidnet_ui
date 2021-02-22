@@ -30,11 +30,9 @@ const PatientLookup = (props: PatientLookupProps) => {
   const [patientID, setPatientID] = useState<string>("");
   const history = useHistory();
 
-  // dropdown
   const [isDropDownOpen, setDropDownOpen] = React.useState(false);
 
   const onSelect = (value: any) => {
-    console.log(value)
     setDropDownOpen(!isDropDownOpen);
     onFocus();
   }
