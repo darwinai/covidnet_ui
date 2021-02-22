@@ -1,7 +1,6 @@
 import {
     PageHeader,
     PageHeaderTools,
-    PageHeaderToolsGroup,
     PageHeaderToolsItem
   } from "@patternfly/react-core";
   import React from "react";
