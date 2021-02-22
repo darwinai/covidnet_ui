@@ -1,4 +1,4 @@
-@import "../../assets/scss/helpers/variables";
+@import "../../../assets/scss/helpers/variables";
 
 .pf-c-dropdown {
   &__menu {
@@ -9,19 +9,20 @@
 }
 
 .footer {
+  display: flex;
   position: fixed;
-  height: 50px;
+  height: 55px;
   bottom: 0px;
   left: 0px;
   right: 0px;
-  margin-bottom: 0px;
-  margin-top: 50px;
+  width: 100%;
 }
 
 .footerText {
   color: white;
-
+  text-align: center;
 }
+
 .footerLink {
   display: flex;
   align-items: center;
@@ -30,14 +31,6 @@
   width: 50px;
   margin-left: 10px;
   margin-right: 10px;
-}
-.pf-c-page__header-tools {
-  // margin: 0 auto;
-  // grid-column: unset;
-}
-
-.pf-c-page__header {
-  display: flex;
 }
 
 .pf-c-page__header-tools:nth-child(3) {

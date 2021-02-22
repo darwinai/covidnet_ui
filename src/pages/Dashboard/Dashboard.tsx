@@ -48,7 +48,7 @@ const DashboardPage: React.FC<AllProps> = () => {
         <PageSection className='sectionArea' variant={PageSectionVariants.light}>
           <CreateAnalysisSection />
         </PageSection>
-        <PageSection variant={PageSectionVariants.light}>
+        <PageSection variant={PageSectionVariants.light} className="footerStyling">
           <PastAnalysisTable></PastAnalysisTable>
         </PageSection>
       </PageSection>

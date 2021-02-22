@@ -9,7 +9,7 @@ import {
   import logo from "../../assets/images/logo-white.png";
   import github from "../../assets/images/githubLogo.png";
   
-  const Header: React.FC = () => {
+  const Footer: React.FC = () => {
     const history = useHistory();
   
     const pageToolbar = (
@@ -40,5 +40,5 @@ import {
   }
   
   
-  export default Header;
+  export default Footer;
   

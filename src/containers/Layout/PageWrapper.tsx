@@ -4,7 +4,7 @@ import { Types } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import Footer from "./Footer";
 import Header from "./Header";
-import "./layout.scss";
+import "../../assets/scss/layout/layout.scss";
 import NotificationDrawerWrapper from "./NotificationDrawerWrapper";
 
 interface WrapperProps {
