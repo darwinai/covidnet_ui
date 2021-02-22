@@ -354,6 +354,8 @@ class ChrisIntegration {
   }
 
   static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {
+    if (!patientID) return [];
+    
     let client: any = await ChrisAPIClient.getClient();
 
     const res = await client.getPACSFiles({
