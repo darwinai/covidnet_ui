@@ -79,8 +79,8 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     className="header"
     aria-label="Page Header"
     headerTools={pageToolbar}
-    logo={(<React.Fragment><a onClick={() => history.push('/')} href="/#"><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/></a>
-    <a className='logo-text' onClick={() => history.push('/')} href="/#">COVID-Net</a></React.Fragment>)}
+    logo={(<React.Fragment><a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#"><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/></a>
+    <a className='logo-text' onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#">COVID-Net</a></React.Fragment>)}
     topNav={<PageNav />}
   />;
 }

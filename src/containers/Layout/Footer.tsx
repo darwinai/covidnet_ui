@@ -37,7 +37,7 @@ import {
       className="footer"
       aria-label="Page Footer"
       headerTools={pageToolbar}
-      logo={(<React.Fragment><a onClick={() => history.push('/')} href="/#"><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/></a></React.Fragment>)}>
+      logo={(<React.Fragment><a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#"><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/></a></React.Fragment>)}>
     </PageHeader>);
   }
   
