@@ -20,7 +20,7 @@ class LogInPage extends React.Component<AllProps> {
         //footerListVariants="inline"
         brandImgSrc={brandImg}
         brandImgAlt="PatternFly logo"
-        textContent="Lorem ipsum dodafdlor sit amet, consectetur adipiscing elit."
+        textContent=""
         loginTitle="Log in to your account"
       >
           <LoginFormComponent />
