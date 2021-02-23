@@ -3,6 +3,7 @@ import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import brandImg from "../../assets/images/logo.gif";
 import LoginFormComponent from "./components/LoginForm";
+import Footer from "../../containers/Layout/Footer";
 import "./login.scss";
 type AllProps = RouteComponentProps;
 
@@ -23,6 +24,7 @@ class LogInPage extends React.Component<AllProps> {
         loginTitle="Log in to your account"
       >
           <LoginFormComponent />
+          <Footer />
       </LoginPage>
     );
   }
