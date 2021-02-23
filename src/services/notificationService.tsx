@@ -4,15 +4,13 @@ import moment from 'moment';
 
 class NotificationService {
   static analyzedImageToNotification(analyzedImageResult: AnalyzedImageResult): NotificationItem {
-    const hasError = analyzedImageResult.processedResults.some(result => !!result.error);
+    const hasError = analyzedImageResult.processedResults.error;
     if (hasError) {
-      const pluginsWithError = analyzedImageResult.processedResults.filter(result => !!result.error);
-      const formattedMessages = pluginsWithError.map(el => `plugin ${el.plugin} ${el.error!.message}`)
       return ({
         variant: NotificationItemVariant.DANGER,
         title: `Analysis of image '${analyzedImageResult.image.fname.split('/').pop()}' failed`,
-        message: `During the analysis, the following error${pluginsWithError.length > 1 ? 's were' : ' was'} raised:
-          ${formattedMessages.join(';')}.`,
+        message: `During the analysis, the following error was raised:
+          ${analyzedImageResult.processedResults.plugin} ${analyzedImageResult.processedResults.error!.message}.`,
         timestamp: moment()
       });
     }

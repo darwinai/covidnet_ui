@@ -7,6 +7,9 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
+import FileLookup from './FileLookup';
+import Error from "../../shared/error";
+import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
@@ -19,7 +22,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
   const [isXray, setIsXray] = useState(false);
 
   useEffect(() => {
-    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages[0])
+    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages?.allDcmImages[0])
     dispatch({
       type: CreateAnalysisTypes.Update_patient_personal_info,
       payload: {
@@ -28,7 +31,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
     })
   }, [dcmImages, dispatch]);
 
-  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
+  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
 
   const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
@@ -76,15 +79,27 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
             </div>
           </div>
         </div>
-        <div className="detail-bottom-wrapper">
-          <div className="detail-select-studies">
-            {studyInstances.map((study: StudyInstance) => {
-              study.setModelType = setModelType; // Passing function to change parent's state (Xray/CT)
-              return <SelectionStudy key={study.studyInstanceUID} {...study}></SelectionStudy>;
-            })}
-          </div>
-          <SelectedStudyDetail></SelectedStudyDetail>
-        </div>
+        <PageSection className="PatientLookupWrapper" variant={PageSectionVariants.light}>
+          <FileLookup />
+        </PageSection>
+        {
+          studyInstances.length > 0 ?
+            <div className="detail-bottom-wrapper">
+              <div className="detail-select-studies">
+              {studyInstances.map((study: StudyInstance) => {
+                study.setModelType = setModelType; // Passing function to change parent's state (Xray/CT)
+                return <SelectionStudy key={study.studyInstanceUID} {...study}></SelectionStudy>;
+              })}
+              </div>
+              <SelectedStudyDetail></SelectedStudyDetail>
+            </div>
+            :
+            <div className="detail-bottom-wrapper">
+              <PageSection variant={PageSectionVariants.light}>
+                <Error>No series found</Error>
+              </PageSection>
+            </div>
+        }
       </div>
     </React.Fragment>
   )

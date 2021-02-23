@@ -17,7 +17,20 @@ interface PlcovidnetData extends IPluginCreateData {
   imagefile: string;
 }
 
+interface PACSFile {
+  url: string;
+  auth: {
+    token: string;
+  };
+  contentType: string;
+  collection: Object;
+  data: DcmImage;
+}
+
 enum PluginPollStatus {
+  CREATED = "created",
+  SCHEDULED = "scheduled",
+  WAITING = "waitingForPrevious",
   STARTED = "started",
   SUCCESS = "finishedSuccessfully",
   ERROR = "finishedWithError",
@@ -120,9 +133,7 @@ class ChrisIntegration {
       const data: DirCreateData = { "dir": uploadedFile.data.fname }
       const pluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
 
-      await pollingBackend(pluginInstance)
-
-      const filename = uploadedFile.data.fname.split('/').pop();
+      const filename = uploadedFile.data.fname.split('/').pop()
       // create covidnet plugin
       const plcovidnet_data: PlcovidnetData = {
         previous_id: pluginInstance.data.id,
@@ -141,26 +152,22 @@ class ChrisIntegration {
     return true;
   }
 
-  static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult[]> {
+  static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
     let client: any = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
     let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
 
     try {
-      console.log(img.fname);
+      console.log(img.fname)
+
+      // PL-DIRCOPY
       const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
-    
       const data: DirCreateData = { "dir": img.fname };
-
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+      console.log("PL-DIRCOPY task sent into the task queue")
 
-      const dirCopyResult = await pollingBackend(dircopyPluginInstance);
-      if (dirCopyResult.error) {
-        return [dirCopyResult];
-      }
-
-      //med2img
+      // PL-MED2IMG
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
       const filename = img.fname.split('/').pop()?.split('.')[0]
       console.log(filename)
@@ -170,18 +177,16 @@ class ChrisIntegration {
         outputFileStem: `${filename}.jpg`, //-slice000
         previous_id: dircopyPluginInstance.data.id
       }
+
       if (imgConverterPlugin === undefined || imgConverterPlugin.data === undefined) {
-        return [{
+        return {
           plugin: PluginModels.Plugins.MED2IMG,
           error: new Error('not registered')
-        }];
+        };
       }
+
       const imgConverterInstance: PluginInstance = await client.createPluginInstance(imgConverterPlugin.data.id, imgData);
-      console.log("Converter Running")
-      const imgConverterResult = await pollingBackend(imgConverterInstance);
-      if (imgConverterResult.error) {
-        return [imgConverterResult];
-      }
+      console.log("PL-MED2IMG task sent into the task queue")
 
       const pluginNeeded = img.Modality === 'CR' ? XRayModel : CTModel;
       const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
@@ -190,23 +195,28 @@ class ChrisIntegration {
         title: img.fname,
         imagefile: `${filename}.jpg`
       }
+
       if (covidnetPlugin === undefined || covidnetPlugin.data === undefined) {
-        return [{
+        return {
           plugin: pluginNeeded,
           error: new Error('not registered')
-        }];
+        };
       }
       const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
-      console.log("Covidnet Running");
+      console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
+
       const covidnetResult = await pollingBackend(covidnetInstance);
       if (covidnetResult.error) {
-        return [covidnetResult];
+        return covidnetResult;
       }
 
-      return [dirCopyResult, imgConverterResult, covidnetResult];
+      return covidnetResult;
     } catch (err) {
       console.log(err);
-      return [];
+      return {
+        plugin: 'plugins',
+        error: new Error('failed')
+      };
     }
   }
 
@@ -215,6 +225,17 @@ class ChrisIntegration {
     return (await client.getPACSFiles({ fname_exact: imgTitle })).data
   }
 
+  static async getFilePathNameByUID(StudyInstanceUID: string, SeriesInstanceUID: string): Promise<string> {
+    let client: any = await ChrisAPIClient.getClient();
+    
+    const res = await client.getPACSFiles({
+      StudyInstanceUID,
+      SeriesInstanceUID,
+      limit: 1
+    });
+    const patientImages: DcmImage = res.getItems().map((img: PACSFile) => img.data)?.[0];
+    return patientImages.fname;
+  }
 
   static async getPastAnalaysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
@@ -340,7 +361,7 @@ class ChrisIntegration {
       PatientID: patientID,
       limit: 1000
     })
-    const patientImages: DcmImage[] = res.getItems().map((img: any) => img.data)
+    const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data)
     return patientImages;
   }
 
