@@ -7,7 +7,7 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 
 const SelectedStudyDetail = () => {
   const { state: { createAnalysis: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);
-  const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID)
+  const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID);
   let content = null;
 
   const addImgToAnalysis = (isSelected: boolean, img: DcmImage): void => {
@@ -24,7 +24,7 @@ const SelectedStudyDetail = () => {
   }
 
   if (images.length > 0) {
-    const { StudyDescription, StudyInstanceUID, PatientAge, Modality } = images[0]
+    const { StudyDescription, StudyInstanceUID, PatientAge, Modality } = images[0];
     content = (
       <div className="detail-select">
         <div className="flex_row">

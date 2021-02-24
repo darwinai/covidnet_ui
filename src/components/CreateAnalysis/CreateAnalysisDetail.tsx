@@ -22,7 +22,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
   const [isXray, setIsXray] = useState(false);
 
   useEffect(() => {
-    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages?.allDcmImages[0])
+    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages?.allDcmImages[0]);
     dispatch({
       type: CreateAnalysisTypes.Update_patient_personal_info,
       payload: {
