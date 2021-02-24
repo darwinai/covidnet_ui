@@ -29,6 +29,7 @@ class CreateAnalysisService {
   }
 
   static extractPatientPersonalInfo(dcmImage: DcmImage): PatientPersonalInfo {
+    //LOG AND COMPARE HERE. what exactly is wrong/hard-coded/different? the 54Y. inestigate and fix? figure it out.
     return {
       patientName: dcmImage.PatientName,
       patientAge: dcmImage.PatientAge,
