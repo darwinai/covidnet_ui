@@ -10,6 +10,7 @@ import SelectionStudy from "./SelectionStudy";
 import FileLookup from './FileLookup';
 import Error from "../../shared/error";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
+import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
@@ -17,24 +18,26 @@ interface CreateAnalysisDetailProps {
 }
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpanded, submitAnalysis}) => {
-  const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
-  const { selectedStudyUIDs } = createAnalysis;
+  const { state: { createAnalysis, dcmImages }, dispatch } = useContext(AppContext);
   const [isXray, setIsXray] = useState(false);
 
   useEffect(() => {
-    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages?.allDcmImages[0]);
+    const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, createAnalysis.currSelectedStudyUID);
+    if (images[0]) {
+      const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(images[0]); //images[0] is undefined here for some reason.
     dispatch({
       type: CreateAnalysisTypes.Update_patient_personal_info,
       payload: {
         ...patientInfo
       }
-    })
-  }, [dcmImages, dispatch]);
+    });
+
+    console.log("THE AGE IS: " + createAnalysis.patientAge);
+  }
+  }, [dcmImages, dispatch, createAnalysis.currSelectedStudyUID, createAnalysis.patientAge]);
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
-  const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
-
-  const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
+  const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(createAnalysis.selectedStudyUIDs);
 
   const setModelType = (modality: string) => {
       setIsXray(modality === 'CR'); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
@@ -52,8 +55,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
                 <img src={avator} alt="avator" width="100px" height="100px"></img>
               </div>
               <div className="detail-patient-title">
-                <h2>{patientName}</h2>
-                <p>MRN#{patientID}</p>
+                <h2>{createAnalysis.patientName}</h2>
+                <p>MRN#{createAnalysis.patientID}</p>
               </div>
               <div className="detail-patient-name-age">
                 <div className="detail-patient-name-age-title">
@@ -62,9 +65,9 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
                   <h3>Patient Gender</h3>
                 </div>
                 <div className="detail-patient-name-age-info">
-                  <p> {CreateAnalysisService.calculatePatientAge(patientBirthdate)}y </p>
-                  <p> {patientBirthdate} </p>
-                  <p> {patientGender} </p>
+                  <p> {createAnalysis.patientAge}y </p>
+                  <p> {createAnalysis.patientBirthdate} </p>
+                  <p> {createAnalysis.patientGender} </p>
                 </div>
               </div>
             </div>

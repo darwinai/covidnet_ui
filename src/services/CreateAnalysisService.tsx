@@ -30,19 +30,16 @@ class CreateAnalysisService {
 
   static extractPatientPersonalInfo(dcmImage: DcmImage): PatientPersonalInfo {
     //LOG AND COMPARE HERE. what exactly is wrong/hard-coded/different? the 54Y. inestigate and fix? figure it out.
-    console.log(dcmImage);
+    console.log(dcmImage.PatientName);
+    console.log(dcmImage.PatientAge);
+    console.log(this.formatDate(dcmImage.PatientBirthDate));
+    console.log(this.formatGender(dcmImage.PatientSex));
     return {
       patientName: dcmImage.PatientName,
       patientAge: dcmImage.PatientAge,
       patientBirthdate: this.formatDate(dcmImage.PatientBirthDate),
       patientGender: this.formatGender(dcmImage.PatientSex)
     }
-  }
-
-  static calculatePatientAge(patientDOB: string): number {
-    const today = new Date();
-    const dob = new Date(patientDOB);
-    return today.getFullYear() - dob.getFullYear();
   }
 
   static extractStudyInstances(dcmImages: DcmImage[]): StudyInstance[] {
