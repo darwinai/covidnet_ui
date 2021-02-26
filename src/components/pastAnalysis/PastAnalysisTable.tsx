@@ -52,6 +52,8 @@ const PastAnalysisTable = () => {
   // Stores the offset for where to begin the fetching of unseen Feeds
   const [lastOffset, setLastOffset] = useState<number>(0);
 
+  const [lastPage, setLastPage] = useState<number>(-1);
+
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -62,26 +64,11 @@ const PastAnalysisTable = () => {
       // If current page has not yet been cached
       if (page >= cachedPages.length) {
 
-        let curOffset: number = lastOffset;
-        // Fetch one more than # of rows needed for page to ensure that Series that belong to the same Study
-        // do not span across multiple pages
-        const fetchLimit = perpage + 1
+        const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage);
+        setLastOffset(newOffset);
+        curAnalyses = newAnalyses;
 
-        // Will decrement as curAnalyses accumulates to the desired page size
-        let curFetchSize: number = fetchLimit;
-
-        // Keep fetching feeds until entire page can be populated with rows
-        while (curAnalyses.length < fetchLimit) {
-          curFetchSize = fetchLimit - curAnalyses.length;
-          const [newAnalyses, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalaysis(curOffset, curFetchSize);
-          curOffset += curFetchSize;
-          curAnalyses = curAnalyses.concat(newAnalyses);
-          if (isAtEndOfFeeds) break;
-        }
-  
-        // Discard the last row
-        setLastOffset(curOffset - 1);
-        curAnalyses = curAnalyses.slice(0, -1);
+        if (isAtEndOfFeeds) setLastPage(page);
 
         setCachedPages(cachedPages => [...cachedPages, curAnalyses]);
   
@@ -199,7 +186,7 @@ const PastAnalysisTable = () => {
       </span>
       &nbsp; Previous {perpage}
     </button>
-    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => setPage(page + 1)} disabled={loading}>Next {perpage}
+    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => setPage(page + 1)} disabled={loading || page === lastPage}>Next {perpage}
       <span className="pf-c-button__icon pf-m-end">
         <i className="fas fa-arrow-right" aria-hidden="true"></i>
       </span>
