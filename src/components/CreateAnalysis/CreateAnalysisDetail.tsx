@@ -31,10 +31,10 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
         ...patientInfo
       }
     });
-
-    console.log("THE AGE IS: " + createAnalysis.patientAge);
+    console.log("THE AGE IS: " + createAnalysis.patientAge); //starts at 0 for some reason then displays accurate one afterwards.
+    console.log("THE AGE IS: " + createAnalysis.patientBirthdate);
   }
-  }, [dcmImages, dispatch, createAnalysis.currSelectedStudyUID, createAnalysis.patientAge]);
+  }, [dcmImages, dispatch, createAnalysis.currSelectedStudyUID]);
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(createAnalysis.selectedStudyUIDs);

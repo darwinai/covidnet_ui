@@ -21,7 +21,7 @@ class CreateAnalysisService {
 
   static formatDate(dateStr: string): string {
     const date = new Date(dateStr);
-    return `${date.getFullYear()} ${date.getMonth() + 1} ${date.getDate()}`
+    return `${date.getFullYear()} ${date.getMonth() + 1} ${date.getDate() + 1}`
   }
 
   static formatGender(gender: string): string {
@@ -30,16 +30,13 @@ class CreateAnalysisService {
 
   static extractPatientPersonalInfo(dcmImage: DcmImage): PatientPersonalInfo {
     //LOG AND COMPARE HERE. what exactly is wrong/hard-coded/different? the 54Y. inestigate and fix? figure it out.
-    console.log(dcmImage.PatientName);
-    console.log(dcmImage.PatientAge);
-    console.log(this.formatDate(dcmImage.PatientBirthDate));
-    console.log(this.formatGender(dcmImage.PatientSex));
+    console.log(dcmImage);
     return {
       patientName: dcmImage.PatientName,
       patientAge: dcmImage.PatientAge,
       patientBirthdate: this.formatDate(dcmImage.PatientBirthDate),
       patientGender: this.formatGender(dcmImage.PatientSex)
-    }
+    };
   }
 
   static extractStudyInstances(dcmImages: DcmImage[]): StudyInstance[] {
