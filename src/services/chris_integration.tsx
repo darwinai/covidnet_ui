@@ -237,18 +237,20 @@ class ChrisIntegration {
     return patientImages.fname;
   }
 
-  static async getPastAnalaysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
+  static async getPastAnalaysis(offset: number, limit: number): Promise<[StudyInstanceWithSeries[], boolean]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
     const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
 
-    // since we want to have offset = 0 for page 1
-    --page;
     const client: any = ChrisAPIClient.getClient();
     const feeds = await client.getFeeds({
-      limit: perpage,
-      offset: page * perpage,
+      limit,
+      offset,
     });
     const feedArray = feeds.getItems();
+
+    // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
+    const isAtEndOfFeeds = feedArray.length < limit;
+    
     for (let feed of feedArray) {
       const pluginInstances = await feed.getPluginInstances({
         limit: 25,
@@ -286,7 +288,7 @@ class ChrisIntegration {
             }
           }
         } else {
-          return [];
+          return [[], isAtEndOfFeeds];
         }
 
         const pluginInstanceFiles = await plugin.getFiles({
@@ -341,7 +343,7 @@ class ChrisIntegration {
         if (studyInstance) studyInstance.series.push(newSeries)
       }
     }
-    return pastAnalysis;
+    return [pastAnalysis, isAtEndOfFeeds];
   }
 
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {

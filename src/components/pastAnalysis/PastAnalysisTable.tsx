@@ -27,7 +27,7 @@ interface tableRowsChild {
 
 const PastAnalysisTable = () => {
   const { state: {
-    prevAnalyses: { page, perpage, totalResults, areNewImgsAvailable, listOfAnalysis },
+    prevAnalyses: { perpage, totalResults, areNewImgsAvailable, listOfAnalysis },
     stagingDcmImages
   },
     dispatch } = React.useContext(AppContext);
@@ -43,36 +43,70 @@ const PastAnalysisTable = () => {
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
+  // Stores the rows of pages that have already been visited
+  const [cachedPages, setCachedPages] = useState<StudyInstanceWithSeries[][]>([]);
+  
+  // Stores current page number
+  const [page, setPage] = useState<number>(0);
+
+  // Stores the offset for where to begin the fetching of unseen Feeds
+  const [lastOffset, setLastOffset] = useState<number>(0);
+
   useEffect(() => {
-    setLoading(true);
-    ChrisIntegration.getPastAnalaysis(page, perpage)
-      .then(listOfAnalyses => {
+    (async () => {
+      setLoading(true);
+
+      // Accumulates with the rows of current page
+      let curAnalyses: StudyInstanceWithSeries[] = [];
+
+      // If current page has not yet been cached
+      if (page >= cachedPages.length) {
+
+        let curOffset: number = lastOffset;
+        // Fetch one more than # of rows needed for page to ensure that Series that belong to the same Study
+        // do not span across multiple pages
+        const fetchLimit = perpage + 1
+
+        // Will decrement as curAnalyses accumulates to the desired page size
+        let curFetchSize: number = fetchLimit;
+
+        // Keep fetching feeds until entire page can be populated with rows
+        while (curAnalyses.length < fetchLimit) {
+          curFetchSize = fetchLimit - curAnalyses.length;
+          const [newAnalyses, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalaysis(curOffset, curFetchSize);
+          curOffset += curFetchSize;
+          curAnalyses = curAnalyses.concat(newAnalyses);
+          if (isAtEndOfFeeds) break;
+        }
+  
+        // Discard the last row
+        setLastOffset(curOffset - 1);
+        curAnalyses = curAnalyses.slice(0, -1);
+
+        setCachedPages(cachedPages => [...cachedPages, curAnalyses]);
+  
         dispatch({
           type: AnalysisTypes.Update_list,
-          payload: { list: listOfAnalyses }
+          payload: { list: curAnalyses }
         });
-        const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
-        updateRows(imagesAnalyzing.concat(listOfAnalyses))
-        dispatch({
-          type: AnalysisTypes.Update_are_new_imgs_available,
-          payload: { isAvailable: false }
-        })
-        setLoading(false);
+      } else {
+        curAnalyses = cachedPages[page];
+      }
+
+      dispatch({
+        type: AnalysisTypes.Update_list,
+        payload: { list: curAnalyses }
+      });
+
+      const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
+      updateRows(imagesAnalyzing.concat(curAnalyses))
+      dispatch({
+        type: AnalysisTypes.Update_are_new_imgs_available,
+        payload: { isAvailable: false }
       })
-      .catch(err => {
-        if (err.response.data.includes('Authentication credentials')) {
-          history.push('/login')
-        }
-      })
-    ChrisIntegration.getTotalAnalyses()
-      .then(total => {
-        dispatch({
-          type: AnalysisTypes.Update_total,
-          payload: {
-            total: total
-          }
-        })
-      })
+
+      setLoading(false);
+    })();
   }, [page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages]);
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
@@ -157,30 +191,38 @@ const PastAnalysisTable = () => {
           <InputGroupText> <SearchIcon /> </InputGroupText>
         </InputGroup>
       </div>
-      <Pagination
-        itemCount={totalResults}
-        perPage={perpage}
-        page={page}
-        onSetPage={(_event, pageNumber) => dispatch({
-          type: AnalysisTypes.Update_page,
-          payload: { page: pageNumber }
-        })}
-        widgetId="pagination-options-menu-top"
-        onPerPageSelect={(_event, perPageValue) => dispatch({
-          type: AnalysisTypes.Update_perpage,
-          payload: { perpage: perPageValue }
-        })}
-      />
-      <Table aria-label="Collapsible table" id="pastAnalysisTable"
-        onCollapse={onCollapse} rows={rows} cells={columns}
-        rowWrapper={customRowWrapper}
-      >
-        <TableHeader />
-        <TableBody />
-      </Table>
-      {loading && <div className="loading">
-        <Spinner size="xl" /> &nbsp; Loading
-      </div>}
+      
+    <div style={{float: "right"}}>
+    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{marginRight: "1em"}} onClick={() => setPage(page - 1)} disabled={loading || page == 0}>
+      <span className="pf-c-button__icon pf-m-end">
+        <i className="fas fa-arrow-left" aria-hidden="true"></i>
+      </span>
+      &nbsp; Previous {perpage}
+    </button>
+    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => setPage(page + 1)} disabled={loading}>Next {perpage}
+      <span className="pf-c-button__icon pf-m-end">
+        <i className="fas fa-arrow-right" aria-hidden="true"></i>
+      </span>
+    </button>
+    </div>
+
+    { loading ? (
+          <div className="loading">
+            <Spinner size="xl" /> &nbsp; Loading
+          </div>
+          ) : 
+          ( 
+            <>
+          <Table aria-label="Collapsible table" id="pastAnalysisTable"
+            onCollapse={onCollapse} rows={rows} cells={columns}
+            rowWrapper={customRowWrapper}
+            >
+            <TableHeader />
+            <TableBody />
+          </Table>
+          </>
+          )
+    }
     </div>
   );
 }
