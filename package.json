@@ -57,7 +57,7 @@
     "reselect": "^4.0.0",
     "serve": "^11.1.0",
     "string.prototype.matchall": "^3.0.1",
-    "three": "^0.103.0",
+    "three": "^0.125.0",
     "typesafe-actions": "^3.2.1",
     "typescript": "^3.8.3",
     "utility-types": "^3.10.0",
