@@ -10,6 +10,7 @@ import { AppContext } from '../../context/context';
 import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import ChrisIntegration from '../../services/chris_integration';
 import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
+import CreateAnalysisService from "../../services/CreateAnalysisService";
 import SeriesTable from './seriesTable';
 
 
@@ -83,7 +84,7 @@ const PastAnalysisTable = () => {
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.PatientID,
         analysis.dcmImage.PatientBirthDate,
-        `${analysis.dcmImage.PatientAge}`,
+        `${CreateAnalysisService.calculatePatientAge(`${analysis.dcmImage.PatientAge}`)}`,
         analysis.analysisCreated
       ];
       if (cells[cells.length - 1] === Processing.analysisAreProcessing) {

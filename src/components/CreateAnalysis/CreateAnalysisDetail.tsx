@@ -1,6 +1,5 @@
 import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import avator from '../../assets/images/avator.png';
-import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
