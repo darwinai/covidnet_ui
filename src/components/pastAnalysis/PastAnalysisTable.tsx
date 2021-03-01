@@ -52,49 +52,56 @@ const PastAnalysisTable = () => {
   // Stores the offset for where to begin the fetching of unseen Feeds
   const [lastOffset, setLastOffset] = useState<number>(0);
 
+  // Stores the index of the last page in the table to prevent user from clicking next
   const [lastPage, setLastPage] = useState<number>(-1);
+
+  // Stores the Feed ID of the latest Feed in the db when PastAnalysisTable first mounts
+  const [maxFeedId, setMaxFeedId] = useState<number | undefined>(-1);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
 
-      // Accumulates with the rows of current page
-      let curAnalyses: StudyInstanceWithSeries[] = [];
+      // Initialize maxFeedId to the latest Feed ID
+      if (maxFeedId && maxFeedId < 0) {
+        setMaxFeedId(await ChrisIntegration.getLatestFeedId());
+      } else {
+        // Accumulates with the rows of current page
+        let curAnalyses: StudyInstanceWithSeries[] = [];
 
-      // If current page has not yet been cached
-      if (page >= cachedPages.length) {
+        // If current page has not yet been cached
+        if (page >= cachedPages.length) {
+          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
+          setLastOffset(newOffset);
+          curAnalyses = newAnalyses;
 
-        const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage);
-        setLastOffset(newOffset);
-        curAnalyses = newAnalyses;
+          if (isAtEndOfFeeds) setLastPage(page);
 
-        if (isAtEndOfFeeds) setLastPage(page);
+          setCachedPages(cachedPages => [...cachedPages, curAnalyses]);
+    
+          dispatch({
+            type: AnalysisTypes.Update_list,
+            payload: { list: curAnalyses }
+          });
+        } else {
+          curAnalyses = cachedPages[page];
+        }
 
-        setCachedPages(cachedPages => [...cachedPages, curAnalyses]);
-  
         dispatch({
           type: AnalysisTypes.Update_list,
           payload: { list: curAnalyses }
         });
-      } else {
-        curAnalyses = cachedPages[page];
+
+        const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
+        updateRows(imagesAnalyzing.concat(curAnalyses))
+        dispatch({
+          type: AnalysisTypes.Update_are_new_imgs_available,
+          payload: { isAvailable: false }
+        });
       }
-
-      dispatch({
-        type: AnalysisTypes.Update_list,
-        payload: { list: curAnalyses }
-      });
-
-      const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
-      updateRows(imagesAnalyzing.concat(curAnalyses))
-      dispatch({
-        type: AnalysisTypes.Update_are_new_imgs_available,
-        payload: { isAvailable: false }
-      })
-
       setLoading(false);
     })();
-  }, [page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages]);
+  }, [maxFeedId, page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages]);
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = []

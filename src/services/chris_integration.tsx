@@ -237,7 +237,16 @@ class ChrisIntegration {
     return patientImages.fname;
   }
 
-  static async getPastAnalyses(offset: number, limit: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
+  static async getLatestFeedId(): Promise<number> {
+    const client: any = ChrisAPIClient.getClient();
+    const feeds = await client.getFeeds({
+      limit: 1,
+      offset: 0,
+    });
+    return feeds.getItems()?.[0]?.data?.id;
+  }
+
+  static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
     const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
 
@@ -247,14 +256,14 @@ class ChrisIntegration {
     let fetchLimit = limit + 1;
     let curOffset = offset;
 
-
     while (pastAnalysis.length < limit + 1 && !isAtEndOfFeeds) {
       const feeds = await client.getFeeds({
         limit: fetchLimit,
         offset: curOffset,
+        max_id
       });
       const feedArray = feeds.getItems();
-
+      
       curOffset += fetchLimit;
   
       // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
@@ -357,8 +366,9 @@ class ChrisIntegration {
       fetchLimit = limit + 1 - pastAnalysis.length
     }
 
-    
-    return [pastAnalysis.slice(0, -1), curOffset - 1, isAtEndOfFeeds];
+    const pastAnalysesToReturn = isAtEndOfFeeds ? pastAnalysis : pastAnalysis.slice(0, -1);
+
+    return [pastAnalysesToReturn, curOffset - 1, isAtEndOfFeeds];
   }
 
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {
