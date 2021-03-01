@@ -1,4 +1,4 @@
-import { PatientPersonalInfo, SelectedStudies } from "../context/reducers/createAnalysisReducer";
+import { SelectedStudies } from "../context/reducers/createAnalysisReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { NotificationItem } from "../context/reducers/notificationReducer";
 import ChrisIntegration, { BackendPollResult } from "./chris_integration";
@@ -41,14 +41,6 @@ class CreateAnalysisService {
 
   static formatGender(gender: string): string {
     return gender.includes('F') ? 'Female' : 'Male';
-  }
-
-  static extractPatientPersonalInfo(dcmImage: DcmImage): PatientPersonalInfo {
-    return {
-      patientName: dcmImage.PatientName,
-      patientBirthdate: this.formatDate(dcmImage.PatientBirthDate),
-      patientGender: this.formatGender(dcmImage.PatientSex)
-    }
   }
 
   static calculatePatientAge(patientDOB: string): number {

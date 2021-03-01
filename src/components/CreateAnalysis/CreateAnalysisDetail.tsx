@@ -20,25 +20,22 @@ interface CreateAnalysisDetailProps {
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpanded, submitAnalysis}) => {
   const { state: { createAnalysis, dcmImages }, dispatch } = useContext(AppContext);
   const [isXray, setIsXray] = useState(false);
+  const [patientName, setPatientName] = useState('');
+  const [patientBirthdate, setPatientBirthdate] = useState('');
+  const [patientSex, setPatientSex] = useState('');
 
   useEffect(() => {
     const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, createAnalysis.currSelectedStudyUID);
     console.log(images)
-    if (images[0]) { //is null at first because selected study detail has to change the UID? caused by grabbing no images with null UID? why is this happening?
-      const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(images[0]);
-      dispatch({
-        type: CreateAnalysisTypes.Update_patient_personal_info,
-        payload: {
-          ...patientInfo
-        }
-      })
+    if (images[0]) {
+      setPatientName(images[0].PatientName);
+      setPatientBirthdate(images[0].PatientBirthDate);
+      setPatientSex(images[0].PatientSex);
     }
   }, [dcmImages, dispatch, createAnalysis.selectedStudyUIDs, createAnalysis.currSelectedStudyUID]);
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(createAnalysis.selectedStudyUIDs);
-
-  const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
 
   const setModelType = (modality: string) => {
       setIsXray(modality === 'CR'); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
@@ -57,7 +54,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
               </div>
               <div className="detail-patient-title">
                 <h2>{patientName}</h2>
-                <p>MRN#{patientID}</p>
+                <p>MRN#{createAnalysis.patientID}</p>
               </div>
               <div className="detail-patient-name-age">
                 <div className="detail-patient-name-age-title">
@@ -68,7 +65,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
                 <div className="detail-patient-name-age-info">
                   <p> {CreateAnalysisService.calculatePatientAge(patientBirthdate)}y </p>
                   <p> {patientBirthdate} </p>
-                  <p> {patientGender} </p>
+                  <p> {patientSex} </p>
                 </div>
               </div>
             </div>
