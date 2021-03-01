@@ -84,7 +84,7 @@ const PastAnalysisTable = () => {
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.PatientID,
         analysis.dcmImage.PatientBirthDate,
-        `${CreateAnalysisService.calculatePatientAge(`${analysis.dcmImage.PatientAge}`)}`,
+        `${CreateAnalysisService.calculatePatientAge(analysis.dcmImage.PatientBirthDate)}`,
         analysis.analysisCreated
       ];
       if (cells[cells.length - 1] === Processing.analysisAreProcessing) {
