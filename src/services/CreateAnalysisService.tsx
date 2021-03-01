@@ -21,7 +21,22 @@ class CreateAnalysisService {
 
   static formatDate(dateStr: string): string {
     const date = new Date(dateStr);
-    return `${date.getFullYear()} ${date.getMonth() + 1} ${date.getDate()}`
+    let month: string = '';
+    let day: string = '';
+
+    if ((date.getMonth() + 1) < 10) {
+      month = '0' + (date.getMonth() + 1);
+    } else {
+      month = `${date.getMonth() + 1}`;
+    }
+
+    if ((date.getDate() + 1) < 10) {
+      day = '0' + (date.getDate() + 1);
+    } else {
+      day = `${date.getDate() + 1}`;
+    }
+
+    return `${date.getFullYear()} ${month} ${day}`
   }
 
   static formatGender(gender: string): string {
@@ -29,6 +44,7 @@ class CreateAnalysisService {
   }
 
   static extractPatientPersonalInfo(dcmImage: DcmImage): PatientPersonalInfo {
+    console.log(dcmImage);
     return {
       patientName: dcmImage.PatientName,
       patientAge: dcmImage.PatientAge,
