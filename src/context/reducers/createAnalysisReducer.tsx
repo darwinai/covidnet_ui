@@ -3,7 +3,6 @@ import { ActionMap, CreateAnalysisTypes } from "../actions/types";
 
 export interface PatientPersonalInfo {
   patientName: string;
-  patientAge: number;
   patientBirthdate: string;
   patientGender: string;
 }
@@ -26,7 +25,6 @@ export type ICreateAnalysisState = PatientPersonalInfo & SelectionStates;
 export const initialICreateAnalysisState: ICreateAnalysisState = {
   patientID: '',
   patientName: '',
-  patientAge: 0,
   patientBirthdate: '',
   patientGender: '',
   currSelectedStudyUID: '',

@@ -46,7 +46,6 @@ class CreateAnalysisService {
   static extractPatientPersonalInfo(dcmImage: DcmImage): PatientPersonalInfo {
     return {
       patientName: dcmImage.PatientName,
-      patientAge: dcmImage.PatientAge,
       patientBirthdate: this.formatDate(dcmImage.PatientBirthDate),
       patientGender: this.formatGender(dcmImage.PatientSex)
     }
