@@ -10,6 +10,7 @@ import SelectionStudy from "./SelectionStudy";
 import FileLookup from './FileLookup';
 import Error from "../../shared/error";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
+import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
@@ -17,22 +18,24 @@ interface CreateAnalysisDetailProps {
 }
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpanded, submitAnalysis}) => {
-  const { state: { dcmImages, createAnalysis }, dispatch } = useContext(AppContext);
-  const { selectedStudyUIDs } = createAnalysis;
+  const { state: { createAnalysis, dcmImages }, dispatch } = useContext(AppContext);
   const [isXray, setIsXray] = useState(false);
 
   useEffect(() => {
-    const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(dcmImages?.allDcmImages[0])
-    dispatch({
-      type: CreateAnalysisTypes.Update_patient_personal_info,
-      payload: {
-        ...patientInfo
-      }
-    })
-  }, [dcmImages, dispatch]);
+    const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, createAnalysis.currSelectedStudyUID);
+    if (images[0]) { //is null at first because selected study detail has to change the UID? caused by grabbing no images with null UID? why is this happening?
+      const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(images[0]);
+      dispatch({
+        type: CreateAnalysisTypes.Update_patient_personal_info,
+        payload: {
+          ...patientInfo
+        }
+      })
+    }
+  }, [dcmImages, dispatch, createAnalysis.selectedStudyUIDs, createAnalysis.currSelectedStudyUID]);
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
-  const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(selectedStudyUIDs);
+  const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(createAnalysis.selectedStudyUIDs);
 
   const { patientName, patientID, patientBirthdate, patientGender } = createAnalysis;
 

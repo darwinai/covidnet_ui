@@ -79,6 +79,7 @@ class CreateAnalysisService {
   }
 
   static returnAllImagesInOneStudy(dcmImages: DcmImage[], studyUID: string): DcmImage[] {
+    console.log(dcmImages);
     return dcmImages.filter((dcmImage: DcmImage) => dcmImage.StudyInstanceUID === studyUID);
   }
 

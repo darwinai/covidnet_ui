@@ -4,8 +4,8 @@ import { ActionMap, CreateAnalysisTypes } from "../actions/types";
 export interface PatientPersonalInfo {
   patientName: string;
   patientAge: number;
-  patientBirthdate: string
-  patientGender: string,
+  patientBirthdate: string;
+  patientGender: string;
 }
 
 export interface SelectionStates {

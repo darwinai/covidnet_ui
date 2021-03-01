@@ -7,7 +7,9 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 
 const SelectedStudyDetail = () => {
   const { state: { createAnalysis: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);
-  const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID)
+  const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID);
+
+  console.log(images);
   let content = null;
 
   const addImgToAnalysis = (isSelected: boolean, img: DcmImage): void => {
