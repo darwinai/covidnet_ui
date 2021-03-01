@@ -23,6 +23,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
 
   useEffect(() => {
     const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, createAnalysis.currSelectedStudyUID);
+    console.log(images)
     if (images[0]) { //is null at first because selected study detail has to change the UID? caused by grabbing no images with null UID? why is this happening?
       const patientInfo = CreateAnalysisService.extractPatientPersonalInfo(images[0]);
       dispatch({

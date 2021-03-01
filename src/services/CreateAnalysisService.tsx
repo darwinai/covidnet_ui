@@ -44,7 +44,6 @@ class CreateAnalysisService {
   }
 
   static extractPatientPersonalInfo(dcmImage: DcmImage): PatientPersonalInfo {
-    console.log(dcmImage);
     return {
       patientName: dcmImage.PatientName,
       patientAge: dcmImage.PatientAge,
@@ -79,7 +78,6 @@ class CreateAnalysisService {
   }
 
   static returnAllImagesInOneStudy(dcmImages: DcmImage[], studyUID: string): DcmImage[] {
-    console.log(dcmImages);
     return dcmImages.filter((dcmImage: DcmImage) => dcmImage.StudyInstanceUID === studyUID);
   }
 

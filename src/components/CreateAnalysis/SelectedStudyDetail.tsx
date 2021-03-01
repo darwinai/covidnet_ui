@@ -26,7 +26,8 @@ const SelectedStudyDetail = () => {
   }
 
   if (images.length > 0) {
-    const { StudyDescription, StudyInstanceUID, PatientAge, Modality } = images[0];
+    console.log(images[0])
+    const { StudyDescription, StudyInstanceUID, PatientBirthDate, Modality } = images[0];
     content = (
       <div className="detail-select">
         <div className="flex_row">
@@ -37,7 +38,7 @@ const SelectedStudyDetail = () => {
             <div className="flex_row">
               <div className="half_width">
                 <h2 className="bold med-size">Patient Age</h2>
-                <p className="color_grey">{PatientAge}y</p>
+                <p className="color_grey">{CreateAnalysisService.calculatePatientAge(PatientBirthDate)}y</p>
               </div>
               <div className="half_width">
                 <h2 className="bold med-size">Performed Station</h2>

@@ -237,7 +237,7 @@ class ChrisIntegration {
     return patientImages.fname;
   }
 
-  static async getPastAnalaysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
+  static async getPastAnalysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
     const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
 

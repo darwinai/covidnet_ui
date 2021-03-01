@@ -45,7 +45,7 @@ const PastAnalysisTable = () => {
 
   useEffect(() => {
     setLoading(true);
-    ChrisIntegration.getPastAnalaysis(page, perpage)
+    ChrisIntegration.getPastAnalysis(page, perpage)
       .then(listOfAnalyses => {
         dispatch({
           type: AnalysisTypes.Update_list,
