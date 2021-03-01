@@ -22,12 +22,6 @@ export const initialICreateAnalysisState: ICreateAnalysisState = {
 
 type CreateAnalysisPayload = {
   [CreateAnalysisTypes.Update_patient_ID]: { patientID: string },
-  [CreateAnalysisTypes.Update_patient_personal_info]: {
-    patientName: string;
-    patientAge: number;
-    patientBirthdate: string
-    patientGender: string
-  },
   [CreateAnalysisTypes.Add_selected_studies_UID]: {
     studyUID: string;
     SeriesInstanceUID: string;
