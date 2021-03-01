@@ -26,7 +26,7 @@ const SelectedStudyDetail = () => {
   }
 
   if (images.length > 0) {
-    const { StudyDescription, StudyInstanceUID, PatientAge, Modality } = images[0]
+    const { StudyDescription, StudyInstanceUID, PatientAge, Modality } = images[0];
     content = (
       <div className="detail-select">
         <div className="flex_row">
