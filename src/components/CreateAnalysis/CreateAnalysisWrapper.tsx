@@ -7,24 +7,52 @@ import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 import ConfirmAnalysis from './ConfirmAnalysis';
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
+import pacs_integration from '../../services/pacs_integration';
+import chris_integration from '../../services/chris_integration';
 
 const CreateAnalysisWrapper = () => {
-  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext)
+  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const history = useHistory();
 
-  const submitAnalysis = () => {
-    const imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages, selectedStudyUIDs);
+  const submitAnalysis = async () => {
+    let imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages?.allDcmImages, selectedStudyUIDs);
     if (imagesSelected.length <= 0) {
       setIsModalOpen(true);
       return;
     }
-    // update staging images
+    
+    if (process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs') {
+      // Send request to have DICOM files pushed from PACS server to pypx
+      const retrievePromises: Promise<boolean>[] = [];
+      imagesSelected.forEach((image: DcmImage) => {
+        retrievePromises.push(pacs_integration.retrievePatientFiles(image.StudyInstanceUID, image.SeriesInstanceUID))
+      })
+      const retrieveResults = await Promise.allSettled(retrievePromises);
+      retrieveResults.forEach(result => {
+        if (result.status !== 'fulfilled') {
+          console.error('Unable to initiate PACS retrieve');
+          return;
+        }
+      })
+
+      // Update fname property of each image to be the filepath in Swift filesystem
+      try {
+        imagesSelected = await Promise.all(imagesSelected.map(async (image: DcmImage) => ({
+          ...image,
+          fname: await chris_integration.getFilePathNameByUID(image.StudyInstanceUID, image.SeriesInstanceUID)
+        })));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Updating staging images
     dispatch({
       type: StagingDcmImagesTypes.UpdateStaging,
       payload: { imgs: imagesSelected }
-    })
+    });
     history.push("/");
   }
 

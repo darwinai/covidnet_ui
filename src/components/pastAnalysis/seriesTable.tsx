@@ -12,56 +12,63 @@ interface SeriesTableProps {
   isProcessing: boolean
 }
 
-export const isLargestNumber = (num: number | undefined, compare1: number | undefined, compare2: number | undefined) => {
-  if (num !== undefined && compare1 !== undefined && compare2 !== undefined)
-    return num === Math.max(num, compare1, compare2);
-  else return false
+export const isLargestNumber = (num: number | null | undefined, numArray: Map<string, number>) => {
+  if (num && numArray) {
+    let maxValue: number = 0;
+    numArray.forEach((value: number) => {
+    maxValue = (!maxValue || maxValue < value) ? value : maxValue;
+    })
+
+    return num === maxValue;
+  }
+  else {
+    return false;
+  }
 }
 
 const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
-  const { series: analysisList } = studyInstance
-  const columns = [
+  const { series: analysisList } = studyInstance;
+  let titles = [
     { title: (<span><br />Preview<span className='classificationText'>&nbsp;</span></span>) },
-    { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) },
-    { title: (<span>Predictions<br /><span className='classificationText'>COVID-19</span></span>) },
-    { title: (<span><br /><span className='classificationText'>Pneumonia</span></span>) },
-    { title: (<span><br /><span className='classificationText'>Normal</span></span>) },
-    { title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
-    { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
-    { title: (<span></span>) }
-  ]
+    { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }
+  ];
 
-  const rows = analysisList.map((analysis: ISeries, index: number) => ({
-    cells: [
-      {
-        title: (analysis.imageUrl ? <div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div> : <div><PreviewNotAvailable /></div>)
-      },
-      {
-        title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>)
-      },
-      {
-        title: (analysis.predCovid ? <PredictionCircle key={index}
-          largeCircle={isLargestNumber(analysis.predCovid, analysis.predNormal, analysis.predPneumonia)}
-          predictionNumber={analysis.predCovid} /> : <p>Not available</p>)
-      }, {
-        title: (analysis.predPneumonia ? <PredictionCircle key={index}
-          largeCircle={isLargestNumber(analysis.predPneumonia, analysis.predNormal, analysis.predCovid)}
-          predictionNumber={analysis.predPneumonia} /> : <p>Not available</p>)
-      }, {
-        title: (analysis.predNormal ? <PredictionCircle key={index}
-          largeCircle={isLargestNumber(analysis.predNormal, analysis.predPneumonia, analysis.predCovid)}
-          predictionNumber={analysis.predNormal} /> : <p>Not available</p>)
-      }, {
+  analysisList[0]?.classifications.forEach((value: number, key: string) => {
+    titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
+  });
+
+  titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
+              { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
+              { title: (<span></span>) });
+
+  const columns = titles;
+
+  const rows = analysisList.map((analysis: ISeries, index: number) => {
+    let analysisCells: any = [
+      { title: (analysis.imageUrl ? <div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div> : <div><PreviewNotAvailable /></div>) },
+      { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
+    ];
+
+    analysis.classifications.forEach((value: number, key: string) => { // Dynamically displaying each prediction class
+      analysisCells.push({
+        title: (<PredictionCircle key={key}
+          largeCircle={isLargestNumber(value, analysis.classifications)}
+          predictionNumber={value} />)});
+    });
+  
+      analysisCells.push({
         title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
       }, {
         title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
       }, {
         title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>)
-      }
-    ]
-  }))
+      });
+
+    return { cells: analysisCells };
+  });
+
 
   const viewImage = (index: number) => {
     dispatch({
@@ -73,7 +80,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
         }
       }
     })
-    history.push('/viewImage')
+    history.push('/viewImage');
   }
 
   return (

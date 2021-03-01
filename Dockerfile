@@ -5,7 +5,7 @@ WORKDIR /app/
 COPY . .
 
 # Build the app for production
-RUN npm install && npm run build 
+RUN yarn && yarn build
 
 
 FROM node:12-alpine

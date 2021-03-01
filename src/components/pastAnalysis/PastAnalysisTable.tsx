@@ -73,7 +73,7 @@ const PastAnalysisTable = () => {
           }
         })
       })
-  }, [page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages])
+  }, [page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages]);
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = []
@@ -97,7 +97,7 @@ const PastAnalysisTable = () => {
         isOpen: false,
         cells: cells
       })
-      if (analysis.series.length > 0) { // the study instance has dicom Images
+      if (analysis.series.length > 0) {
         rows.push({
           isOpen: false,
           parent: indexInRows,

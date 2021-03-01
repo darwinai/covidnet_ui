@@ -28,7 +28,12 @@ class PastAnalysisService {
         dcmImage: images?.[0],
         analysisCreated: Processing.analysisAreProcessing, 
           series: images.map((image: DcmImage): ISeries => ({
-            imageName: image.fname
+            covidnetPluginId: 0, 
+            imageName: image.fname,
+            imageId: "",
+            geographic: null,
+            opacity: null,
+            classifications: new Map<string, number>(),
           }))
       });
     })
