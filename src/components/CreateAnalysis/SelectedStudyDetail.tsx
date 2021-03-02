@@ -9,7 +9,6 @@ const SelectedStudyDetail = () => {
   const { state: { createAnalysis: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);
   const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID);
 
-  console.log(images);
   let content = null;
 
   const addImgToAnalysis = (isSelected: boolean, img: DcmImage): void => {
@@ -26,7 +25,6 @@ const SelectedStudyDetail = () => {
   }
 
   if (images.length > 0) {
-    console.log(images[0])
     const { StudyDescription, StudyInstanceUID, PatientBirthDate, Modality } = images[0];
     content = (
       <div className="detail-select">

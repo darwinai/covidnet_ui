@@ -25,7 +25,6 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({setIsExpande
 
   useEffect(() => {
     const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, createAnalysis.currSelectedStudyUID);
-    console.log(images)
     if (images[0]) {
       setPatientName(images[0].PatientName);
       setPatientBirthdate(images[0].PatientBirthDate);
