@@ -25,6 +25,14 @@ interface tableRowsChild {
   cells: { [title: string]: ReactNode }[]
 }
 
+interface TableStates {
+  page: number,
+  maxFeedId: number | undefined,
+  lastOffset: number,
+  lastPage: number,
+  storedPages: StudyInstanceWithSeries[][]
+}
+
 const PastAnalysisTable = () => {
   const { state: {
     prevAnalyses: { perpage, totalResults, areNewImgsAvailable, listOfAnalysis },
@@ -43,48 +51,79 @@ const PastAnalysisTable = () => {
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
-  // Stores the rows of pages that have already been visited
-  const [cachedPages, setCachedPages] = useState<StudyInstanceWithSeries[][]>([]);
+
+  // Stores properties of the table used for pagination
+  const [tableStates, setTableStates] = useState<TableStates>({
+    page: 0, // Current table page number
+    maxFeedId: -1, // Feed ID of the latest Feed on Swift when PastAnalysisTable first mounted OR was last reset
+    lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
+    lastPage: -1, // Table page number of the very last page
+    storedPages: [] // Stores pages that have been seen in an array of pages
+  });
+
+
+  // Reset table and update the maxFeedId to the latest Feed in Swift
+  const updateMaxFeedId = () => {
+    ChrisIntegration.getLatestFeedId().then((id: number) => {
+      setTableStates({
+        page: 0,
+        maxFeedId: id,
+        lastOffset: 0,
+        lastPage: -1,
+        storedPages: []
+      })
+    })
+  }
+
+  // Reset table and update the maxFeedId when the table mounts
+  useEffect(() => {
+    updateMaxFeedId();
+  }, []);
+
+  // If new past analyses are available, reset table to initial state and update maxFeedId
+  useEffect(() => {
+    if (areNewImgsAvailable) {
+      setLoading(true);
+      updateMaxFeedId();
+    }
+  }, [areNewImgsAvailable])
   
-  // Stores current page number
-  const [page, setPage] = useState<number>(0);
-
-  // Stores the offset for where to begin the fetching of unseen Feeds
-  const [lastOffset, setLastOffset] = useState<number>(0);
-
-  // Stores the index of the last page in the table to prevent user from clicking next
-  const [lastPage, setLastPage] = useState<number>(-1);
-
-  // Stores the Feed ID of the latest Feed in the db when PastAnalysisTable first mounts
-  const [maxFeedId, setMaxFeedId] = useState<number | undefined>(-1);
-
   useEffect(() => {
     (async () => {
       setLoading(true);
-
+      const {maxFeedId, page, lastOffset, storedPages} = tableStates;
+      
       // Initialize maxFeedId to the latest Feed ID
-      if (maxFeedId && maxFeedId < 0) {
-        setMaxFeedId(await ChrisIntegration.getLatestFeedId());
-      } else {
+      if (!maxFeedId || maxFeedId >= 0) {
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
-        // If current page has not yet been cached
-        if (page >= cachedPages.length) {
+        // If current page has not yet been seen
+        if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
-          setLastOffset(newOffset);
+          
+          setTableStates(prevTableStates => ({
+            ...prevTableStates,
+            lastOffset: newOffset
+          }));
+
+          // If after fetching, the end of Feeds on Swift has been reached, 
+          // record the current page as the last page to prevent further navigation
+          if (isAtEndOfFeeds) {
+            setTableStates(prevTableStates => ({
+              ...prevTableStates,
+              lastPage: page
+            }));
+          }
+
           curAnalyses = newAnalyses;
-
-          if (isAtEndOfFeeds) setLastPage(page);
-
-          setCachedPages(cachedPages => [...cachedPages, curAnalyses]);
-    
-          dispatch({
-            type: AnalysisTypes.Update_list,
-            payload: { list: curAnalyses }
-          });
+          setTableStates(prevTableStates => ({
+            ...prevTableStates,
+            storedPages: [...prevTableStates.storedPages, curAnalyses]
+          }));
         } else {
-          curAnalyses = cachedPages[page];
+          // If page has already been seen, access its contents from storedPages
+          curAnalyses = storedPages[page];
         }
 
         dispatch({
@@ -101,7 +140,14 @@ const PastAnalysisTable = () => {
       }
       setLoading(false);
     })();
-  }, [maxFeedId, page, perpage, dispatch, history, areNewImgsAvailable, stagingDcmImages]);
+  }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch, history, stagingDcmImages]);
+
+  const updatePage = (n: number) => {
+    setTableStates(prevTableStates => ({
+      ...prevTableStates,
+      page: prevTableStates.page + n
+    }));
+  }
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = []
@@ -187,13 +233,13 @@ const PastAnalysisTable = () => {
       </div>
       
     <div style={{float: "right"}}>
-    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{marginRight: "1em"}} onClick={() => setPage(page - 1)} disabled={loading || page == 0}>
+    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{marginRight: "1em"}} onClick={() => updatePage(-1)} disabled={loading || tableStates.page == 0}>
       <span className="pf-c-button__icon pf-m-end">
         <i className="fas fa-arrow-left" aria-hidden="true"></i>
       </span>
       &nbsp; Previous {perpage}
     </button>
-    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => setPage(page + 1)} disabled={loading || page === lastPage}>Next {perpage}
+    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={loading || tableStates.page === tableStates.lastPage}>Next {perpage}
       <span className="pf-c-button__icon pf-m-end">
         <i className="fas fa-arrow-right" aria-hidden="true"></i>
       </span>
