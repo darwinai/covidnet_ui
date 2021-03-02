@@ -100,7 +100,7 @@ If another plug-in is wished to be added to the COVID-Net UI project:
 ```
 
 #### Example: Incorporating Multiple Models
-The app supports the user to choose from multiple models. For testing purposes of the UI functionality, mocked models that give 2 and 4 are retrievable from the "extra" directory under src/api/models:
+The app supports the user to choose from multiple models. For testing purposes of the UI functionality, mocked models that give 2 and 4 are retrievable from the "extra" directory under src/extra/models:
 
 ```
 1. Unzip the plug-ins, and follow the above directions for adding the necessary models into pl-covidnet-2 (use the same instructions as pl-covidnet) and pl-ct-covidnet-4 (use same instructions as pl-ct-covidnet)
@@ -128,7 +128,7 @@ Instructions for setting up a local Orthanc PACS server and `pfdcm` can be found
 - At the step for uploading DICOM files to Orthanc, use the DICOM files from `/covidnet_integration/images` .
 - Make note of the `HOST_IP` and `HOST_PORT` values used.
 
-#### Uploading DICOM data to Swift
+#### Uploading and updating DICOM data to Swift
 
 Note: PACS integration into `covidnet_ui` is still under development. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem. A method for transporting these files into the Swift filesystem to be accessible by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files that were uploaded to the PACS server must also be manually uploaded to the Swift storage during setup:
 
@@ -136,6 +136,29 @@ When testing out COVID-Net with PACS integration, be sure to delete any PACS fil
 
 ```
 python3 upload_swift_notify_cube.py
+```
+
+Currently, the app does not support updating/editing the DICOM images directly. But as an alternative, a connection can be made to the PACS files on Swift, using a database environment (such as datagrip). From there, locate `pacsfiles_pacsfile` and delete the desired DICOMs (which later be updated).
+
+Next, with only the updated DICOM files (that are to be update the deleted ones) in `/covidnet_integration/images`, follow the same steps of uploading as above by running the python command above.
+
+#### Creating/Editing DICOM images
+
+To edit the header tag info of pre-existing DICOM images (such as patient name, age, or sex), there is a script, `dicom.py`, provided in `src/extra` that allows users to set those values.
+
+With this script, we can take a singular pre-existing DICOM image and create a copy of it, with different header tag info. This can be used for testing purposes and for creating new patients (if the patient ID field is different, the DICOM will be assigned to that patient, and the user can then search for them).
+
+```
+1. Place the desired DICOM image into base_images folder, located in src/extra
+2. Change any of the values for the `data` array object can be changed to whatever value desired, in dicom.py
+3. Run: python3 dicom.py
+4. Find the newly created copy of the DICOM in /covidnet_integration/images
+```
+
+Note: 
+```
+1. base_images and dicom.py must be in the same directory for the script to work
+2. dicom.py does not create new scans, it simply changes the header tag info for testing/display purposes on the UI for each patient
 ```
 
 #### Setting environment variables
