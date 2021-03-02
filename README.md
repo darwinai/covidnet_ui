@@ -140,7 +140,7 @@ python3 upload_swift_notify_cube.py
 
 Currently, the app does not support updating/editing the DICOM images directly. But as an alternative, a connection can be made to the PACS files on Swift, using a database environment (such as datagrip). From there, locate `pacsfiles_pacsfile` and delete the desired DICOMs (which later be updated).
 
-Next, with only the updated DICOM files (that are to be update the deleted ones) in `/covidnet_integration/images`, follow the same steps of uploading as above by running the python command above.
+Next, with only the updated DICOM files (that are to update the deleted ones) in `/covidnet_integration/images`, follow the same steps of uploading as above by running the python command above.
 
 #### Creating/Editing DICOM images
 
