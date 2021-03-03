@@ -51,7 +51,6 @@ const PastAnalysisTable = () => {
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
-
   // Stores properties of the table used for pagination
   const [tableStates, setTableStates] = useState<TableStates>({
     page: 0, // Current table page number
@@ -61,9 +60,15 @@ const PastAnalysisTable = () => {
     storedPages: [] // Stores pages that have been seen in an array of pages
   });
 
+  // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
+  // Used to identify which rows are new and need to be highlighted green
+  const [newRowsRef, setNewRowsRef] = useState<string[]>([]);
 
   // Reset table and update the maxFeedId to the latest Feed in Swift
   const updateMaxFeedId = () => {
+    // Right before resetting, get a list of all the "Analysis Created" properties on the on page 0
+    setNewRowsRef(tableStates.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
+
     ChrisIntegration.getLatestFeedId().then((id: number) => {
       setTableStates({
         page: 0,
@@ -107,8 +112,7 @@ const PastAnalysisTable = () => {
             lastOffset: newOffset
           }));
 
-          // If after fetching, the end of Feeds on Swift has been reached, 
-          // record the current page as the last page to prevent further navigation
+          // If the end of Feeds on Swift has been reached, record the current page as the last page to prevent further navigation
           if (isAtEndOfFeeds) {
             setTableStates(prevTableStates => ({
               ...prevTableStates,
@@ -132,6 +136,7 @@ const PastAnalysisTable = () => {
         });
 
         const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
+
         updateRows(imagesAnalyzing.concat(curAnalyses))
         dispatch({
           type: AnalysisTypes.Update_are_new_imgs_available,
@@ -143,6 +148,7 @@ const PastAnalysisTable = () => {
   }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch, history, stagingDcmImages]);
 
   const updatePage = (n: number) => {
+    setNewRowsRef([]); // Reset to prevent hightlight animation from playing again
     setTableStates(prevTableStates => ({
       ...prevTableStates,
       page: prevTableStates.page + n
@@ -184,6 +190,7 @@ const PastAnalysisTable = () => {
   }
 
   const onCollapse = (event: any, rowKey: number, isOpen: any) => {
+    setNewRowsRef([]); // Reset to prevent hightlight animation from playing again
     const rowsCopy = [...rows]
     rowsCopy[rowKey].isOpen = isOpen;
     setRows(rowsCopy)
@@ -197,8 +204,17 @@ const PastAnalysisTable = () => {
       row: { isExpanded, cells },
       ...props
     } = tableRow;
+
     const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the last index in row
-    const backgroundStyle = { 'backgroundColor': `${isAnalyzing ? '#F9E0A2' : '#FFFFFF'}` };
+    let backgroundStyle = {};
+    if (isAnalyzing) {
+      backgroundStyle = { 'backgroundColor': '#F9E0A2' }; // Processing rows
+    } else if (newRowsRef?.length > 0 && !newRowsRef.includes(cells[4])) {
+      backgroundStyle = { 'animation': 'newRowHighlightAnimation 2s linear' }; // Newly added rows
+    } else {
+      backgroundStyle = { 'backgroundColor': '#FFFFFF' }; // Default
+    }
+
     return (
       <tr
         {...props}
@@ -216,6 +232,7 @@ const PastAnalysisTable = () => {
   }
 
   const searchMRN = (text: string) => {
+    setNewRowsRef([]); // Reset to prevent hightlight animation from playing again
     updateRows(listOfAnalysis.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
   }
 
@@ -245,7 +262,6 @@ const PastAnalysisTable = () => {
       </span>
     </button>
     </div>
-
     { loading ? (
           <div className="loading">
             <Spinner size="xl" /> &nbsp; Loading
