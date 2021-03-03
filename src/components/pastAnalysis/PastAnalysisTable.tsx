@@ -97,7 +97,23 @@ const PastAnalysisTable = () => {
     (async () => {
       setLoading(true);
       const {maxFeedId, page, lastOffset, storedPages} = tableStates;
+
+      // Get processing rows
+      const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
+      const numAnalyzing = imagesAnalyzing.length;
       
+      // Calculate number of past analysis rows to fetch given the number of processing rows to display on current page
+      let fetchSize;
+      if (Math.floor(numAnalyzing / perpage) > page) { // There are enough processing rows to fill entire page
+        fetchSize = 0;
+      } else if (Math.floor(numAnalyzing / perpage) === page) { // Processing rows partially fill the page
+        fetchSize = perpage - (numAnalyzing % perpage);
+      } else { // No processing rows on current page
+        fetchSize = perpage 
+      }
+      // Slice the array of processing rows to properly fit in current page
+      const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
+
       // Initialize maxFeedId to the latest Feed ID
       if (!maxFeedId || maxFeedId >= 0) {
         // Accumulates with the rows of current page
@@ -105,8 +121,9 @@ const PastAnalysisTable = () => {
 
         // If current page has not yet been seen
         if (page >= storedPages.length) {
-          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
+          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
           
+          // Update last offset
           setTableStates(prevTableStates => ({
             ...prevTableStates,
             lastOffset: newOffset
@@ -120,7 +137,8 @@ const PastAnalysisTable = () => {
             }));
           }
 
-          curAnalyses = newAnalyses;
+          // Append processing rows to fetched results rows and update storedPages
+          curAnalyses = processingRows.concat(newAnalyses);
           setTableStates(prevTableStates => ({
             ...prevTableStates,
             storedPages: [...prevTableStates.storedPages, curAnalyses]
@@ -134,10 +152,8 @@ const PastAnalysisTable = () => {
           type: AnalysisTypes.Update_list,
           payload: { list: curAnalyses }
         });
-
-        const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
-
-        updateRows(imagesAnalyzing.concat(curAnalyses))
+        updateRows(curAnalyses)
+        
         dispatch({
           type: AnalysisTypes.Update_are_new_imgs_available,
           payload: { isAvailable: false }
