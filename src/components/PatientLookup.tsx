@@ -48,7 +48,7 @@ const PatientLookup = (props: PatientLookupProps) => {
       payload: {
         patientID
       }
-    })
+    });
 
     try {
       const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
