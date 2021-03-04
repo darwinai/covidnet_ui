@@ -25,8 +25,9 @@ interface PatientLookupProps {
 }
 
 const PatientLookup = (props: PatientLookupProps) => {
-  const { state: {createAnalysis}, dispatch } = useContext(AppContext);
+  const { dispatch } = useContext(AppContext);
   const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
+  const [patientID, setPatientID] = useState<string>("");
   const history = useHistory();
 
   const [isDropDownOpen, setDropDownOpen] = React.useState(false);
@@ -42,10 +43,17 @@ const PatientLookup = (props: PatientLookupProps) => {
   };
 
   const newLookup = async () => {
+    dispatch({
+      type: CreateAnalysisTypes.Update_patient_ID,
+      payload: {
+        patientID
+      }
+    });
+
     try {
       const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
-        await pacs_integration.queryPatientFiles(createAnalysis.patientID) :
-        await chris_integration.fetchPacFiles(createAnalysis.patientID);
+        await pacs_integration.queryPatientFiles(patientID) :
+        await chris_integration.fetchPacFiles(patientID);
 
       dispatch({
         type: DicomImagesTypes.Update_all_images,
@@ -67,15 +75,6 @@ const PatientLookup = (props: PatientLookupProps) => {
     } catch (err) {
       console.error(err);
     }
-  }
-
-  const setPatientid = (value: string) => {
-    dispatch({
-      type: CreateAnalysisTypes.Update_patient_ID,
-      payload: {
-        patientID: value
-      }
-    })
   }
 
   const dropdownItems = [
@@ -105,7 +104,7 @@ const PatientLookup = (props: PatientLookupProps) => {
       <div className="InputRow">
         <div className="InputRowField">
           <label>Patient MRN</label>
-          <TextInput value={createAnalysis.patientID} type="text" onChange={setPatientid} aria-label="text input example" />
+          <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="text input example" />
         </div>
         <div className="InputRowField">
           <label>Privacy Level</label>
