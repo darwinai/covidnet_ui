@@ -19,7 +19,7 @@ class LogInPage extends React.Component<AllProps> {
         style={{"background":"black"}} // not sure why the background image wouldn't show
         //footerListVariants="inline"
         brandImgSrc={brandImg}
-        brandImgAlt="PatternFly logo"
+        brandImgAlt="DarwinAI logo"
         textContent=""
         loginTitle="Log in to your account"
       >
