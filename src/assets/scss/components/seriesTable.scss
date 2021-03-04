@@ -1,4 +1,8 @@
-.thumbnail {
-    height: 7em;
-    width: 7em;
+.seriesTableRow {
+    .thumbnail {
+        height: 7em;
+        min-height: 7em;
+        width: 7em;
+        min-width: 7em;
+    }
 }
