@@ -10,9 +10,10 @@ export type ISeries = {
   covidnetPluginId: number, 
   imageName: string,
   imageId: string,
-  classifications: Map<string, number>, // Holding classification classes/values in map
   geographic: riskStratifcation | null,
-  opacity: riskStratifcation | null
+  opacity: riskStratifcation | null,
+  classifications: Map<string, number>, // Holding classification classes/values in map
+  imageUrl?: string,
 }
 
 export type StudyInstanceWithSeries = {

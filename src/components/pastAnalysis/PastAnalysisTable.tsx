@@ -86,7 +86,9 @@ const PastAnalysisTable = () => {
         `${analysis.dcmImage.PatientAge}`,
         analysis.analysisCreated
       ];
-      if (cells[cells.length - 1] === Processing.analysisAreProcessing) {
+
+      const isProcessing = cells[cells.length - 1] === Processing.analysisAreProcessing;
+      if (isProcessing) {
         cells[cells.length - 1] = {
           title: (<div><Spinner size="md" /> Processing</div>)
         }
@@ -101,7 +103,7 @@ const PastAnalysisTable = () => {
           parent: indexInRows,
           fullWidth: true,
           cells: [{
-            title: (<SeriesTable studyInstance={analysis}></SeriesTable>)
+            title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing}></SeriesTable>)
           }]
         })
       }
