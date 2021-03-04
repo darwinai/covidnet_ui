@@ -22,13 +22,13 @@ import {
                     <a href="https://www.childrenshospital.org/" target="_blank" rel="noopener noreferrer"> Boston Children's Hospital</a></p>
                 </PageHeaderToolsItem>
             </PageHeaderTools>
-                <PageHeaderTools>
-                    <PageHeaderToolsItem className="footerLink">
-                        <p className="footerText">Find the Covid-Net project <a href="https://github.com/darwinai" target="_blank" rel="noopener noreferrer">here:</a></p>
-                        <a href="https://github.com/darwinai" target="_blank" rel="noopener noreferrer"><img src={github} className="footerLogo" alt="darwinAI"/></a>
-                        <p className="footerText">And the ChRIS project <a href="http://chrisproject.org/" target="_blank" rel="noopener noreferrer">here:</a></p>
-                        <a href="http://chrisproject.org/" target="_blank" rel="noopener noreferrer"><img src={chris} className="footerLogo" alt="ChRIS"/></a>
-                    </PageHeaderToolsItem>
+            <PageHeaderTools>
+                <PageHeaderToolsItem className="footerLink">
+                    <p className="footerText">Find the Covid-Net project <a href="https://github.com/darwinai" target="_blank" rel="noopener noreferrer">here:</a></p>
+                    <a href="https://github.com/darwinai" target="_blank" rel="noopener noreferrer"><img src={github} className="footerLogo" alt="darwinAI"/></a>
+                    <p className="footerText">And the ChRIS project <a href="http://chrisproject.org/" target="_blank" rel="noopener noreferrer">here:</a></p>
+                    <a href="http://chrisproject.org/" target="_blank" rel="noopener noreferrer"><img src={chris} className="footerLogo" alt="ChRIS"/></a>
+                </PageHeaderToolsItem>
             </PageHeaderTools>
         </React.Fragment>
     );
@@ -37,7 +37,10 @@ import {
       className="footer"
       aria-label="Page Footer"
       headerTools={pageToolbar}
-      logo={(<React.Fragment><a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#"><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/></a></React.Fragment>)}>
+      logo={(<React.Fragment><a 
+        onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => { history.push('/'); e.preventDefault() }} 
+        href="/#"><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/>
+        </a></React.Fragment>)}>
     </PageHeader>);
   }
   
