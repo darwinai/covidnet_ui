@@ -17,14 +17,14 @@ const DashboardPage: React.FC<AllProps> = () => {
     document.title = "Analysis - CovidNet UI";
     if (stagingDcmImages.length <= 0) return;
 
-    // process the images
+    // Processing the images
     CreateAnalysisService.analyzeImages(stagingDcmImages, models.xrayModel, models.ctModel) // Passing selected models to Chris_Integration for image analysis
       .then((notifications) => {
         dispatch({
           type: StagingDcmImagesTypes.UpdateStaging,
           payload: { imgs: [] }
         })
-        // clear the selecting images step in create analysis
+        // Clearing the selecting images step in create analysis
         dispatch({
           type: CreateAnalysisTypes.Clear_selected_studies_UID
         })
@@ -45,10 +45,10 @@ const DashboardPage: React.FC<AllProps> = () => {
         <h1 className='board-title'>Dashboard</h1>
       </PageSection>
       <PageSection>
-        <PageSection className='sectionArea' variant={PageSectionVariants.light}>
+        <PageSection className='section-area' variant={PageSectionVariants.light}>
           <CreateAnalysisSection />
         </PageSection>
-        <PageSection variant={PageSectionVariants.light} className="footerStyling">
+        <PageSection variant={PageSectionVariants.light} className="footer-styling">
           <PastAnalysisTable></PastAnalysisTable>
         </PageSection>
       </PageSection>
