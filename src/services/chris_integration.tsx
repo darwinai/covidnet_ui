@@ -237,6 +237,9 @@ class ChrisIntegration {
     return patientImages.fname;
   }
 
+  /**
+   * Gets the ID of the latest Feed stored in Swift
+   */
   static async getLatestFeedId(): Promise<number> {
     const client: any = ChrisAPIClient.getClient();
     const feeds = await client.getFeeds({
@@ -246,16 +249,29 @@ class ChrisIntegration {
     return feeds.getItems()?.[0]?.data?.id;
   }
 
+  /**
+   * Starting at the provided offset, coninuously fetches Feeds from Swift until able to return an array of 
+   * StudyInstanceWithSeries of the provided size (limit)
+   * @param {number} offset Page offset
+   * @param {number} limit Desired number of StudyInstanceWithSeries to recieve
+   * @param {number} max_id Maximum Feed ID search parameter
+   */
   static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
     const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
 
     const client: any = ChrisAPIClient.getClient();
 
-    let isAtEndOfFeeds = false;
+    // Indicates when the last Feed on Swift has been reached to prevent further fetching
+    let isAtEndOfFeeds = false; 
+
+    // Aim to have 1 extra StudyInstanceWithSeries to ensure that Feeds associated with the same Study grouping 
+    // are not separated across pages. The extra StudyInstanceWithSeries will be discarded at the end
     let fetchLimit = limit + 1;
+
     let curOffset = offset;
 
+    // Keep fetching Feeds until the desired number of StudyInstanceWithSeries is collected OR the end of Feeds has been reached
     while (pastAnalysis.length < limit + 1 && !isAtEndOfFeeds) {
       const feeds = await client.getFeeds({
         limit: fetchLimit,
@@ -363,9 +379,11 @@ class ChrisIntegration {
         }
       }
 
+      // Update fetchLimit to be remaining number of StudyInstanceWithSeries desired
       fetchLimit = limit + 1 - pastAnalysis.length
     }
 
+    // If the end of Feeds was reached, return all collected StudyInstanceWithSeries, otherwise, discard the last extra Study
     const pastAnalysesToReturn = isAtEndOfFeeds ? pastAnalysis : pastAnalysis.slice(0, -1);
 
     return [pastAnalysesToReturn, curOffset - 1, isAtEndOfFeeds];

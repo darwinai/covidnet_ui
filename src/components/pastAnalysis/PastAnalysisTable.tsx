@@ -53,9 +53,9 @@ const PastAnalysisTable = () => {
   // Stores properties of the table used for pagination
   const [tableStates, setTableStates] = useState<TableStates>({
     page: 0, // Current table page number
-    maxFeedId: -1, // Feed ID of the latest Feed on Swift when PastAnalysisTable first mounted OR was last reset
+    maxFeedId: -1, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
     lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
-    lastPage: -1, // Table page number of the very last page
+    lastPage: -1, // Table page number of the very last page (-1 means last page has not yet been seen)
     storedPages: [] // Stores pages that have been seen in an array of pages
   });
 
@@ -63,7 +63,7 @@ const PastAnalysisTable = () => {
   // Used to identify which rows are new and need to be highlighted green
   const [newRowsRef, setNewRowsRef] = useState<string[]>([]);
 
-  // Reset table and update the maxFeedId to the latest Feed in Swift
+  // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = () => {
     // Right before resetting, get a list of all the "Analysis Created" properties on the on page 0
     setNewRowsRef(tableStates.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
@@ -79,7 +79,7 @@ const PastAnalysisTable = () => {
     })
   }
 
-  // Reset table and update the maxFeedId when the table mounts
+  // Reset table and update the maxFeedId when the PastAnalysisTable first mounts
   useEffect(() => {
     updateMaxFeedId();
   }, []);
@@ -97,23 +97,22 @@ const PastAnalysisTable = () => {
       setLoading(true);
       const {maxFeedId, page, lastOffset, storedPages} = tableStates;
 
-      // Get processing rows
+      // Get rows for analysis currently processing
       const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
       const numAnalyzing = imagesAnalyzing.length;
       
-      // Calculate number of past analysis rows to fetch given the number of processing rows to display on current page
+      // Calculate number of past analysis rows to fetch, given the number of processing rows to display on current page
       let fetchSize;
-      if (Math.floor(numAnalyzing / perpage) > page) { // There are enough processing rows to fill entire page
+      if (Math.floor(numAnalyzing / perpage) > page) { // There are enough processing rows to fill entire page, so don't fetch any past results
         fetchSize = 0;
-      } else if (Math.floor(numAnalyzing / perpage) === page) { // Processing rows partially fill the page
+      } else if (Math.floor(numAnalyzing / perpage) === page) { // Processing rows partially fill the page, fill rest of page with past results
         fetchSize = perpage - (numAnalyzing % perpage);
-      } else { // No processing rows on current page
+      } else { // No processing rows on current page, fill entire page with past results
         fetchSize = perpage 
       }
-      // Slice the array of processing rows to properly fit in current page
+      // Slice the array of processing rows to display on current page
       const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
 
-      // Initialize maxFeedId to the latest Feed ID
       if (!maxFeedId || maxFeedId >= 0) {
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
@@ -122,13 +121,13 @@ const PastAnalysisTable = () => {
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
           
-          // Update last offset
+          // Update latest offset
           setTableStates(prevTableStates => ({
             ...prevTableStates,
             lastOffset: newOffset
           }));
 
-          // If the end of Feeds on Swift has been reached, record the current page as the last page to prevent further navigation
+          // If the end of Feeds on Swift has been reached, record the current page as the last page to prevent further navigation by user
           if (isAtEndOfFeeds) {
             setTableStates(prevTableStates => ({
               ...prevTableStates,
@@ -162,8 +161,9 @@ const PastAnalysisTable = () => {
     })();
   }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch, history, stagingDcmImages]);
 
+  // Increments or decrements current page number
   const updatePage = (n: number) => {
-    setNewRowsRef([]); // Reset to prevent hightlight animation from playing again
+    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
     setTableStates(prevTableStates => ({
       ...prevTableStates,
       page: prevTableStates.page + n
@@ -205,7 +205,7 @@ const PastAnalysisTable = () => {
   }
 
   const onCollapse = (event: any, rowKey: number, isOpen: any) => {
-    setNewRowsRef([]); // Reset to prevent hightlight animation from playing again
+    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
     const rowsCopy = [...rows]
     rowsCopy[rowKey].isOpen = isOpen;
     setRows(rowsCopy)
@@ -221,6 +221,8 @@ const PastAnalysisTable = () => {
     } = tableRow;
 
     const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the last index in row
+    
+    // Style the current row
     let backgroundStyle = {};
     if (isAnalyzing) {
       backgroundStyle = { 'backgroundColor': '#F9E0A2' }; // Processing rows
@@ -247,7 +249,7 @@ const PastAnalysisTable = () => {
   }
 
   const searchMRN = (text: string) => {
-    setNewRowsRef([]); // Reset to prevent hightlight animation from playing again
+    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
     updateRows(listOfAnalysis.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
   }
 
