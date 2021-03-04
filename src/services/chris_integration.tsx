@@ -2,6 +2,7 @@ import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
+import DicomViewerService from "../services/dicomViewerService";
 import { PluginModels } from "../api/app.config";
 
 export interface LocalFile {
@@ -336,7 +337,8 @@ class ChrisIntegration {
             imageId: '',
             classifications: new Map<string, number>(),
             geographic: null,
-            opacity: null
+            opacity: null,
+            imageUrl: '',
           }
   
           for (let fileObj of pluginInstanceFiles.getItems()) {
@@ -361,8 +363,15 @@ class ChrisIntegration {
                 severity: content['Opacity severity'],
                 extentScore: content['Opacity extent score']
               }
-            } else if (!fileObj.data.fname.includes('json')) { // fetch image
+            } else if (!fileObj.data.fname.includes('json')) {
               newSeries.imageId = fileObj.data.id;
+              
+              // Fetch image URL
+              if (newSeries.imageId) {
+                const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
+                const urlCreator = window.URL || window.webkitURL;
+                newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
+              }
   
               // get dcmImageId from dircopy
               const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
@@ -399,6 +408,8 @@ class ChrisIntegration {
   }
 
   static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {
+    if (!patientID) return [];
+    
     let client: any = await ChrisAPIClient.getClient();
 
     const res = await client.getPACSFiles({
