@@ -86,7 +86,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
   return (
     <Table aria-label="Simple Table" cells={columns} rows={rows}>
       <TableHeader />
-      <TableBody className="seriesTableRow" />
+      <TableBody className="series-table-row" />
     </Table>
   )
 }
