@@ -12,7 +12,6 @@ import ChrisIntegration from '../../services/chris_integration';
 import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
 import SeriesTable from './seriesTable';
 
-
 interface tableRowsParent {
   isOpen: boolean,
   cells: string[]
@@ -35,7 +34,7 @@ interface TableStates {
 
 const PastAnalysisTable = () => {
   const { state: {
-    prevAnalyses: { perpage, totalResults, areNewImgsAvailable, listOfAnalysis },
+    prevAnalyses: { perpage, areNewImgsAvailable, listOfAnalysis },
     stagingDcmImages
   },
     dispatch } = React.useContext(AppContext);
