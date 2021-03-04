@@ -26,11 +26,12 @@
 .footer-link {
   display: flex;
   align-items: center;
-}
-.footer-logo {
-  width: 50px;
-  margin-left: 10px;
-  margin-right: 10px;
+  
+  .footer-logo {
+    width: 50px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
 }
 
 .footer-styling {
