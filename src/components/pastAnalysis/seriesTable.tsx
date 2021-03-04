@@ -8,8 +8,8 @@ import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyse
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 interface SeriesTableProps {
-  studyInstance: StudyInstanceWithSeries
-  isProcessing: boolean
+  studyInstance: StudyInstanceWithSeries;
+  isProcessing: boolean;
 }
 
 export const isLargestNumber = (num: number | null | undefined, numArray: Map<string, number>) => {

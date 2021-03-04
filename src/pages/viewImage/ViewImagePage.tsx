@@ -16,7 +16,7 @@ const ViewImagePage = () => {
       return;
     };
 
-    const imageId = selectedImage.studyInstance.series[selectedImage.index].imageId;
+    const imageId = selectedImage.studyInstance?.series?.[selectedImage.index]?.imageId;
 
     if (imageId) {
       DicomViewerService.fetchImageFile(imageId)
