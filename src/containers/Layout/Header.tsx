@@ -17,6 +17,7 @@ import { Types } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { NotificationItemVariant } from "../../context/reducers/notificationReducer";
 import PageNav from "./PageNav";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 interface HeaderProps {
   onNotificationBadgeClick: () => void;
@@ -35,6 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
   const logout = () => {
     window.sessionStorage.removeItem("AUTH_TOKEN");
     window.sessionStorage.removeItem("USERNAME");
+    ChrisAPIClient.setTokenIsUnauthorized(true);
     dispatch({
       type: Types.Logout_update,
       payload: null
