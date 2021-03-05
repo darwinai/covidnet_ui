@@ -20,6 +20,7 @@ export interface AnalyzedImageResult {
 class CreateAnalysisService {
 
   static formatDate(dateStr: string): string {
+    console.log(dateStr);
     const date = new Date(dateStr);
     let month: string = '';
     let day: string = '';
@@ -36,7 +37,7 @@ class CreateAnalysisService {
       day = `${date.getDate() + 1}`;
     }
 
-    return `${date.getFullYear()} ${month} ${day}`
+    return `${date.getFullYear()} ${month} ${day}`;
   }
 
   static formatGender(gender: string): string {

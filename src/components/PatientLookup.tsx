@@ -52,7 +52,7 @@ const PatientLookup = (props: PatientLookupProps) => {
         payload: {
           images: dcmImages
         }
-      })
+      });
       
       // Select first study instance by default
       const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
