@@ -8,9 +8,9 @@ import { handleLogin } from "../../../services/login";
 const LoginFormComponent = () => {
   const history = useHistory();
   const [showHelperText] = useState(false);
-  const [usernameValue, setUsernameValue] = useState('chris');
+  const [usernameValue, setUsernameValue] = useState('');
   const [isValidUsername] = useState(true);
-  const [passwordValue, setPasswordValue] = useState('chris1234');
+  const [passwordValue, setPasswordValue] = useState('');
   const [RememberMeClick, setRememberMeClick] = useState(true);
 
   const { dispatch } = React.useContext(AppContext);
