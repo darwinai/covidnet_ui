@@ -2,13 +2,11 @@ import { ActionMap, Types } from "../actions/types";
 
 export type IUserState = {
   username: string;
-  password: string;
   loggedIn?: boolean;
 }
 
 export let initialIUserState = {
   username: '',
-  password: '',
   loggedIn: false
 }
 
@@ -30,13 +28,11 @@ export const userReducer = (
     case Types.Login_update:
       return {
         username: action.payload.username,
-        password: action.payload.password,
         loggedIn: true
       }
     case Types.Logout_update:
       return {
         username: '',
-        password: '',
         loggedIn: false
       }
     default:

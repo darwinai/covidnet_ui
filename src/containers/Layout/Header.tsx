@@ -17,6 +17,7 @@ import { Types } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { NotificationItemVariant } from "../../context/reducers/notificationReducer";
 import PageNav from "./PageNav";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 interface HeaderProps {
   onNotificationBadgeClick: () => void;
@@ -26,6 +27,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
   const history = useHistory()
   const { state, dispatch } = React.useContext(AppContext);
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
+  const username = state.user.username;
 
   const onDropdownSelect = () => {
     setIsDropdownOpen(!isDropdownOpen)
@@ -34,6 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
   const logout = () => {
     window.sessionStorage.removeItem("AUTH_TOKEN");
     window.sessionStorage.removeItem("USERNAME");
+    ChrisAPIClient.setTokenIsUnauthorized(true);
     dispatch({
       type: Types.Logout_update,
       payload: null
@@ -65,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
           <Dropdown
             isPlain
             position="right"
-            toggle={<DropdownToggle onToggle={(isOpen: boolean) => setIsDropdownOpen(isOpen)}>Dr. Chris Covid</DropdownToggle>}
+            toggle={<DropdownToggle onToggle={(isOpen: boolean) => setIsDropdownOpen(isOpen)}>{username}</DropdownToggle>}
             isOpen={isDropdownOpen}
             onSelect={onDropdownSelect}
             dropdownItems={userDropdownItems}
