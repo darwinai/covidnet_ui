@@ -7,7 +7,6 @@ import React from "react";
 import { useHistory } from 'react-router-dom';
 import logo from "../../assets/images/logo-white.png";
 import github from "../../assets/images/githubLogo.png";
-import chris from "../../assets/images/ChRISLogo.png"
 
 const Footer: React.FC = () => {
   const history = useHistory();
@@ -42,6 +41,5 @@ const Footer: React.FC = () => {
     </a>)}>
   </PageHeader>);
 }
-
 
 export default Footer;
