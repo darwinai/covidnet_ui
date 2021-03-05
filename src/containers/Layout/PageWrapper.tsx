@@ -23,7 +23,6 @@ const Wrapper = (props: WrapperProps) => {
         type: Types.Login_update,
         payload: {
           username: 'chris',
-          password: 'chris1234'
         }
       });
     }

@@ -16,17 +16,13 @@ const LoginFormComponent = () => {
   const { dispatch } = React.useContext(AppContext);
 
   const handleSubmit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    handleLogin({
-      username: usernameValue,
-      password: passwordValue
-    })
+    handleLogin(usernameValue, passwordValue)
     .then(res => {
       if (res) {
         dispatch({
           type: Types.Login_update,
           payload: {
             username: usernameValue,
-            password: passwordValue
           }
         });
         history.push('/');
