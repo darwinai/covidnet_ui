@@ -13,7 +13,6 @@ interface WrapperProps {
 const Wrapper = (props: WrapperProps) => {
   
   const { dispatch } = React.useContext(AppContext);
-
   const [isDrawerExpanded, setIsDrawerOpen] = React.useState(false);
 
   React.useEffect(()=>{
@@ -22,7 +21,7 @@ const Wrapper = (props: WrapperProps) => {
       dispatch({
         type: Types.Login_update,
         payload: {
-          username: 'chris',
+          username: window.sessionStorage.getItem('USERNAME'),
         }
       });
     }

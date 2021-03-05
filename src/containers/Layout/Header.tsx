@@ -26,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
   const history = useHistory()
   const { state, dispatch } = React.useContext(AppContext);
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
+  const username = state.user.username;
 
   const onDropdownSelect = () => {
     setIsDropdownOpen(!isDropdownOpen)
@@ -65,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
           <Dropdown
             isPlain
             position="right"
-            toggle={<DropdownToggle onToggle={(isOpen: boolean) => setIsDropdownOpen(isOpen)}>Dr. Chris Covid</DropdownToggle>}
+            toggle={<DropdownToggle onToggle={(isOpen: boolean) => setIsDropdownOpen(isOpen)}>{username}</DropdownToggle>}
             isOpen={isDropdownOpen}
             onSelect={onDropdownSelect}
             dropdownItems={userDropdownItems}
