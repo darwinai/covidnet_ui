@@ -8,9 +8,7 @@ import { AnalysisTypes, CreateAnalysisTypes, NotificationActionTypes, StagingDcm
 import { AppContext } from "../../context/context";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 
-type AllProps = RouteComponentProps;
-
-const DashboardPage: React.FC<AllProps> = () => {
+const DashboardPage = () => {
   const { state: { stagingDcmImages, models }, dispatch } = useContext(AppContext);
 
   useEffect(() => {

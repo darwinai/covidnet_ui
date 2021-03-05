@@ -10,14 +10,18 @@ import { Dashboard } from "./pages/Dashboard/Dashboard";
 import LogInPage from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
 import ViewImagePage from "./pages/viewImage/ViewImagePage";
+import PrivateRoute from "./PrivateRoute";
 
 const Routes: React.FunctionComponent = () => (
     <React.Fragment>
       <Switch>
-        <Route exact path="/" component={Dashboard} />
+        {/* <Route exact path="/" component={Dashboard} /> */}
         <Route exact path="/login" component={LogInPage} />
-        <Route exact path="/createAnalysis" component={CreateAnalysisPage} />
-        <Route exact path="/viewImage" component={ViewImagePage} />
+        <PrivateRoute component={Dashboard} path="/"/>
+        {/* <Route exact path="/createAnalysis" component={CreateAnalysisPage} />
+        <Route exact path="/viewImage" component={ViewImagePage} /> */}
+        <PrivateRoute component={CreateAnalysisPage} path="/createAnalysis"/>
+        <PrivateRoute component={ViewImagePage} path="/viewImage"/>
         <Route component={NotFound} />
       </Switch>
     </React.Fragment>
