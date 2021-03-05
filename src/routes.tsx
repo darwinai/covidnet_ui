@@ -13,21 +13,15 @@ import ViewImagePage from "./pages/viewImage/ViewImagePage";
 import PrivateRoute from "./PrivateRoute";
 
 const Routes: React.FunctionComponent = () => (
-    <React.Fragment>
-      <Switch>
-        {/* <Route exact path="/" component={Dashboard} /> */}
-        <Route exact path="/login" component={LogInPage} />
-        <PrivateRoute component={Dashboard} path="/"/>
-        {/* <Route exact path="/createAnalysis" component={CreateAnalysisPage} />
-        <Route exact path="/viewImage" component={ViewImagePage} /> */}
-        <PrivateRoute component={CreateAnalysisPage} path="/createAnalysis"/>
-        <PrivateRoute component={ViewImagePage} path="/viewImage"/>
-        <Route component={NotFound} />
-      </Switch>
-    </React.Fragment>
+  <React.Fragment>
+    <Switch>
+      <Route exact path="/login" component={LogInPage} />
+      <PrivateRoute component={Dashboard} path="/" />
+      <PrivateRoute component={CreateAnalysisPage} path="/createAnalysis" />
+      <PrivateRoute component={ViewImagePage} path="/viewImage" />
+      <Route component={NotFound} />
+    </Switch>
+  </React.Fragment>
 );
-
-
-
 
 export default Routes;
