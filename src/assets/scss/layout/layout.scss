@@ -11,10 +11,10 @@
 .footer {
   display: flex;
   position: fixed;
-  height: 55px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
+  height: 0.5em;
+  bottom: 0em;
+  left: 0em;
+  right: 0em;
   width: 100%;
 
   .footer-text {
@@ -27,15 +27,15 @@
     align-items: center;
     
   .footer-logo {
-    width: 50px;
-    margin-left: 10px;
-    margin-right: 10px;
+    width: 2em;
+    margin-left: 0.4em;
+    margin-right: 0.4em;
     }
   }
 }
 
 .footer-styling {
-  margin-bottom: 55px;
+  margin-bottom: 0.5em;
 }
 
 .pf-c-page__header-tools:nth-child(3) {
