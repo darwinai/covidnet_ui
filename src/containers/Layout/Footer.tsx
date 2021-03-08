@@ -4,7 +4,7 @@ import {
   PageHeaderToolsItem
 } from "@patternfly/react-core";
 import React from "react";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 import logo from "../../assets/images/logo-white.png";
 import github from "../../assets/images/github-logo.png";
 
@@ -36,8 +36,9 @@ const Footer: React.FC = () => {
     aria-label="Page Footer"
     headerTools={pageToolbar}
     logo={(<a
-      onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => { history.push('/'); e.preventDefault() }}
-      href="/#"><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px" />
+      onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => { history.push("/"); e.preventDefault() }}
+      href="/#">
+        <img src={logo} className="logo" alt="DarwinAI Logo" height="300px" width="190px" />
     </a>)}>
   </PageHeader>);
 }
