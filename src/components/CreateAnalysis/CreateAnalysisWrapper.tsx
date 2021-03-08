@@ -1,7 +1,7 @@
 import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from '@patternfly/react-core';
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { StagingDcmImagesTypes } from '../../context/actions/types';
+import { StagingDcmImagesTypes, CreateAnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
@@ -53,9 +53,12 @@ const CreateAnalysisWrapper = () => {
       type: StagingDcmImagesTypes.UpdateStaging,
       payload: { imgs: imagesSelected }
     });
+
+    dispatch({
+      type: CreateAnalysisTypes.Clear_selected_studies_UID
+    })
     history.push("/");
   }
-
 
   const panelContent = (
     <DrawerPanelContent className="rightBar">

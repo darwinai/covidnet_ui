@@ -4,7 +4,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { CreateAnalysisSection } from "../../components/CreateAnalysis/CreateAnalysis";
 import PastAnalysisTable from "../../components/pastAnalysis/PastAnalysisTable";
 import Wrapper from "../../containers/Layout/PageWrapper";
-import { AnalysisTypes, CreateAnalysisTypes, NotificationActionTypes, StagingDcmImagesTypes } from "../../context/actions/types";
+import { AnalysisTypes, NotificationActionTypes, StagingDcmImagesTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 
@@ -23,10 +23,6 @@ const DashboardPage: React.FC<AllProps> = () => {
         dispatch({
           type: StagingDcmImagesTypes.UpdateStaging,
           payload: { imgs: [] }
-        })
-        // clear the selecting images step in create analysis
-        dispatch({
-          type: CreateAnalysisTypes.Clear_selected_studies_UID
         })
         dispatch({
           type: AnalysisTypes.Update_are_new_imgs_available,
