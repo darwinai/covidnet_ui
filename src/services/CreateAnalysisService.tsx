@@ -1,3 +1,4 @@
+import moment from "moment";
 import { SelectedStudies } from "../context/reducers/createAnalysisReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { NotificationItem } from "../context/reducers/notificationReducer";
@@ -21,22 +22,8 @@ class CreateAnalysisService {
 
   static formatDate(dateStr: string): string {
     const date = new Date(dateStr);
-    let month: string = '';
-    let day: string = '';
-
-    if ((date.getMonth() + 1) < 10) {
-      month = '0' + (date.getMonth() + 1);
-    } else {
-      month = `${date.getMonth() + 1}`;
-    }
-
-    if ((date.getDate() + 1) < 10) {
-      day = '0' + (date.getDate() + 1);
-    } else {
-      day = `${date.getDate() + 1}`;
-    }
-
-    return `${date.getFullYear()} ${month} ${day}`;
+    
+    return moment(date).format("YYYY MM DD");
   }
 
   static formatGender(gender: string): string {
