@@ -20,10 +20,10 @@ const Footer: React.FC = () => {
             <a href="http://redhat.com/chris" target="_blank" rel="noopener noreferrer">RedHat</a>&nbsp;</p>
         </PageHeaderToolsItem>
       </PageHeaderTools>
-      <PageHeaderTools>
+      <PageHeaderTools className="footer-right">
         <PageHeaderToolsItem className="footer-link">
-          <p className="footer-text">Find more about <a href="https://alexswong.github.io/COVID-Net/" target="_blank" rel="noopener noreferrer">COVID-Net&nbsp;</a></p>
-          <p className="footer-text"> and <a href="https://github.com/darwinai/covidnet_ui" target="_blank" rel="noopener noreferrer">&nbsp;COVID-Net UI</a></p>
+          <p className="footer-text">Find more about <a href="https://alexswong.github.io/COVID-Net/" target="_blank" rel="noopener noreferrer">COVID-Net&nbsp;</a>
+          and <a href="https://github.com/darwinai/covidnet_ui" target="_blank" rel="noopener noreferrer">&nbsp;COVID-Net UI</a></p>
         </PageHeaderToolsItem>
       </PageHeaderTools>
     </React.Fragment>

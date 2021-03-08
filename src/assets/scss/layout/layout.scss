@@ -11,12 +11,11 @@
 .footer {
   display: flex;
   position: fixed;
-  height: 0.5em;
+  height: 3.5em;
   bottom: 0em;
   left: 0em;
   right: 0em;
   width: 100%;
-  // margin-bottom: 1.1rem;
 
   .footer-text {
     color: white;
@@ -26,17 +25,15 @@
   .footer-link {
     display: flex;
     align-items: center;
+  }
 
-    .footer-logo {
-      width: 2em;
-      margin-left: 0.4em;
-      margin-right: 0.4em;
-    }
+  .footer-right {
+    margin-right: 1.5em;
   }
 }
 
 .footer-styling {
-  margin-bottom: 0.5em;
+  margin-bottom: 3.5em;
 }
 
 .pf-c-page__header-tools:nth-child(3) {
@@ -48,4 +45,11 @@
   padding: 0.8rem;
   height: 70px;
   width: 190px;
+  min-height: 70px;
+  min-width: 165px;
+}
+
+.pf-c-page__header-brand {
+  min-height: 70px;
+  min-width: 190px;
 }
