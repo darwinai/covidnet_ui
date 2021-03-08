@@ -20,7 +20,6 @@ export interface AnalyzedImageResult {
 class CreateAnalysisService {
 
   static formatDate(dateStr: string): string {
-    console.log(dateStr);
     const date = new Date(dateStr);
     let month: string = '';
     let day: string = '';

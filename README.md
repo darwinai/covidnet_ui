@@ -144,12 +144,12 @@ Next, with only the updated DICOM files (that are to update the deleted ones) in
 
 #### Creating/Editing DICOM images
 
-To edit the header tag info of pre-existing DICOM images (such as patient name, age, or sex), there is a script, `dicom.py`, provided in `src/extra` that allows users to set those values.
+To edit the header tag info of pre-existing DICOM images (such as patient name, age, or sex), there is a script, `dicom.py`, provided in the `covidnet_integration` project that allows users to set those values.
 
 With this script, a singular pre-existing DICOM image can be copied to create a new image file, with different header tag info. This can be used for testing purposes and for creating new patients (if the patient ID field is different, the DICOM will be assigned to that patient, and the user can then search for them).
 
 ```
-1. Place the desired DICOM image into base_images folder, located in src/extra
+1. Place the desired DICOM image into base_images folder, located in covidnet_integration
 2. Change any of the values for the `data` array object can be changed to whatever value desired, in dicom.py
 3. Run: python3 dicom.py
 4. Find the newly created copy of the DICOM in /covidnet_integration/images
