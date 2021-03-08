@@ -42,10 +42,10 @@ const DashboardPage: React.FC<AllProps> = () => {
   return (
     <Wrapper>
       <PageSection variant={PageSectionVariants.light}>
-        <h1 className='board-title'>Dashboard</h1>
+        <h1 className="board-title">Dashboard</h1>
       </PageSection>
       <PageSection>
-        <PageSection className='section-area' variant={PageSectionVariants.light}>
+        <PageSection className="section-area" variant={PageSectionVariants.light}>
           <CreateAnalysisSection />
         </PageSection>
         <PageSection variant={PageSectionVariants.light} className="footer-styling">
