@@ -6,7 +6,7 @@ import {
 import React from "react";
 import { useHistory } from 'react-router-dom';
 import logo from "../../assets/images/logo-white.png";
-import github from "../../assets/images/githubLogo.png";
+import github from "../../assets/images/github-logo.png";
 
 const Footer: React.FC = () => {
   const history = useHistory();
