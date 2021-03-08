@@ -38,7 +38,7 @@ const Footer: React.FC = () => {
     logo={(<a
       onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => { history.push("/"); e.preventDefault() }}
       href="/#">
-        <img src={logo} className="logo" alt="DarwinAI Logo" height="300px" width="190px" />
+        <img src={logo} className="logo" alt="DarwinAI Logo" />
     </a>)}>
   </PageHeader>);
 }

@@ -8,10 +8,10 @@ import {
   PageHeaderToolsGroup,
   PageHeaderToolsItem
 } from "@patternfly/react-core";
-import { css } from '@patternfly/react-styles';
+import { css } from "@patternfly/react-styles";
 import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
 import React from "react";
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory } from "react-router-dom";
 import logo from "../../assets/images/logo-white.png";
 import { Types } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
@@ -79,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     className="header"
     aria-label="Page Header"
     headerTools={pageToolbar}
-    logo={(<React.Fragment><a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#"><img src={logo} className="logo" alt="darwinAI" height="300px" width="190px"/></a>
+    logo={(<React.Fragment><a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#"><img src={logo} className="logo" alt="DarwinAI Logo" /></a>
     <a className='logo-text' onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#">COVID-Net</a></React.Fragment>)}
     topNav={<PageNav />}
   />;
