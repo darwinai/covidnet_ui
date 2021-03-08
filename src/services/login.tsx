@@ -8,7 +8,6 @@ export const handleLogin = async (username: string, password: string): Promise<b
 
     const res: string = await Client.getAuthToken(authURL, username, password)
     window.sessionStorage.setItem("AUTH_TOKEN", res);
-    window.sessionStorage.setItem("USERNAME", username);
     return true
   } catch (error) {
     return false

@@ -35,7 +35,6 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
 
   const logout = () => {
     window.sessionStorage.removeItem("AUTH_TOKEN");
-    window.sessionStorage.removeItem("USERNAME");
     ChrisAPIClient.setTokenIsUnauthorized(true);
     dispatch({
       type: Types.Logout_update,
