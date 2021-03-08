@@ -23,9 +23,8 @@ const Footer: React.FC = () => {
       </PageHeaderTools>
       <PageHeaderTools>
         <PageHeaderToolsItem className="footer-link">
-          <p className="footer-text">Find more about COVID-Net&nbsp;<a href="https://alexswong.github.io/COVID-Net/" target="_blank" rel="noopener noreferrer">here.&nbsp;</a></p>
-          <p className="footer-text">And the COVID-Net UI project&nbsp;<a href="https://github.com/darwinai/covidnet_ui" target="_blank" rel="noopener noreferrer">here:</a></p>
-          <a href="https://github.com/darwinai/covidnet_ui" target="_blank" rel="noopener noreferrer"><img src={github} className="footer-logo" alt="darwinAI" /></a>
+          <p className="footer-text">Find more about <a href="https://alexswong.github.io/COVID-Net/" target="_blank" rel="noopener noreferrer">COVID-Net&nbsp;</a></p>
+          <p className="footer-text"> and <a href="https://github.com/darwinai/covidnet_ui" target="_blank" rel="noopener noreferrer">&nbsp;COVID-Net UI</a></p>
         </PageHeaderToolsItem>
       </PageHeaderTools>
     </React.Fragment>

@@ -1,7 +1,9 @@
 @import '../../assets/scss/helpers/pf4-variables'; 
 @import '../../assets/scss/helpers/variables'; 
 $image-url:     '../../assets/images/';
+
 .login{
+    margin-bottom: 50px;
     // Replace background image here
     .pf-background{
         background-image: url("#{$image-url}#{$login-background-image}");
@@ -24,6 +26,10 @@ $image-url:     '../../assets/images/';
         }
     }
 }
+
+// div.pf-c-login-login.pf-background {
+//     padding-bottom: 0px;
+// }
 
 // Form styles
 // ----------------------------------------------
