@@ -56,7 +56,7 @@ const CreateAnalysisWrapper = () => {
 
     dispatch({
       type: CreateAnalysisTypes.Clear_selected_studies_UID
-    })
+    });
     history.push("/");
   }
 
