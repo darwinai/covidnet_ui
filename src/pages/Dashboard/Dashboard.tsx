@@ -14,7 +14,7 @@ const DashboardPage: React.FC<AllProps> = () => {
   const { state: { stagingDcmImages, models }, dispatch } = useContext(AppContext);
 
   useEffect(() => {
-    document.title = "Analysis - CovidNet UI";
+    document.title = "Analysis - COVID-Net UI";
     if (stagingDcmImages.length <= 0) return;
 
     // Processing the images
