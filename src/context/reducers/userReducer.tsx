@@ -7,16 +7,6 @@ export type IUserState = {
   loggedIn?: boolean;
 }
 
-export interface UserResponse {
-  url: string;
-  auth: {
-    token: string;
-  };
-  contentType: string;
-  collection: Object;
-  data: IUserState;
-}
-
 export let initialIUserState = {
   username: '',
   email: '',
