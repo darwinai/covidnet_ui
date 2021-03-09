@@ -251,10 +251,10 @@ class ChrisIntegration {
   }
 
   /**
-   * Starting at the provided offset, coninuously fetches Feeds from Swift until able to return an array of 
+   * Starting at the provided offset, coninuously fetches Feeds from Swift until able to return an array of
    * StudyInstanceWithSeries of the provided size (limit)
    * @param {number} offset Page offset
-   * @param {number} limit Desired number of StudyInstanceWithSeries to recieve
+   * @param {number} limit Desired number of StudyInstanceWithSeries to receive
    * @param {number} max_id Maximum Feed ID search parameter
    */
   static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
@@ -292,7 +292,7 @@ class ChrisIntegration {
           offset: 0
         });
         // iterate it over all feeds
-        const pluginlists = pluginInstances.getItems()
+        const pluginlists = pluginInstances.getItems();
         for (let plugin of pluginlists) {
           let studyInstance: StudyInstanceWithSeries | null = null
           // ignore plugins that are not models
