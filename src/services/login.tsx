@@ -1,7 +1,6 @@
 import Client from "@fnndsc/chrisapi";
-import { IUserState } from '../context/reducers/userReducer';
 
-// returns true if login succeed and false otherwises
+// Returns true if login succeeds and false otherwise
 export const handleLogin = async (username: string, password: string): Promise<boolean> => {
   try {
     const authURL = `${process.env.REACT_APP_CHRIS_UI_AUTH_URL}`;
