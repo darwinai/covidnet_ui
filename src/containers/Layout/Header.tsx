@@ -9,7 +9,7 @@ import {
   PageHeaderToolsItem
 } from "@patternfly/react-core";
 import { css } from "@patternfly/react-styles";
-import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
+import accessibleStyles from "@patternfly/react-styles/css/utilities/Accessibility/accessibility";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import logo from "../../assets/images/logo-white.png";
@@ -38,11 +38,11 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
       type: Types.Logout_update,
       payload: null
     })
-    history.push('/login')
+    history.push("/login")
   }
 
   const userDropdownItems = [
-    <DropdownItem key={'Sign out'} onClick={logout} >Sign out</DropdownItem>,
+    <DropdownItem key={"Sign out"} onClick={logout} >Sign out</DropdownItem>,
   ];
 
   const variant = state.notifications.length > 0
@@ -80,7 +80,8 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     aria-label="Page Header"
     headerTools={pageToolbar}
     logo={<React.Fragment>
-      <img onClick={() => history.push("/")} src={logo} className="logo" alt="DarwinAI Logo" /> <span className="logo-text">COVID-Net</span>
+      <img onClick={() => history.push("/")} src={logo} className="logo" alt="DarwinAI Logo" />
+      <span className="logo-text">COVID-Net</span>
     </React.Fragment>}
     topNav={<PageNav />}
   />;
