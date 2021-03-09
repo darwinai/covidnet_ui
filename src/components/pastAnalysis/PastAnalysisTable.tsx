@@ -65,9 +65,6 @@ const PastAnalysisTable = () => {
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = () => {
-    // Right before resetting, get a list of all the "Analysis Created" properties on the on page 0
-    setNewRowsRef(tableStates.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
-
     ChrisIntegration.getLatestFeedId().then((id: number) => {
       setTableStates({
         page: 0,
@@ -79,15 +76,12 @@ const PastAnalysisTable = () => {
     })
   }
 
-  // Reset table and update the maxFeedId when the PastAnalysisTable first mounts
-  useEffect(() => {
-    updateMaxFeedId();
-  }, []);
-
   // If new past analyses are available, reset table to initial state and update maxFeedId
   useEffect(() => {
     if (areNewImgsAvailable) {
       setLoading(true);
+      // Right before resetting, get a list of all the "Analysis Created" properties on page 0
+      setNewRowsRef(tableStates.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
       updateMaxFeedId();
     }
   }, [areNewImgsAvailable])
@@ -96,6 +90,12 @@ const PastAnalysisTable = () => {
     (async () => {
       setLoading(true);
       const {maxFeedId, page, lastOffset, storedPages} = tableStates;
+
+      // Update the maxFeedId when the PastAnalysisTable first mounts
+      if (maxFeedId === -1) {
+        updateMaxFeedId();
+        return;
+      }
 
       // Get rows for analysis currently processing
       const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
