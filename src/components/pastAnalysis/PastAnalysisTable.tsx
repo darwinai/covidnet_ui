@@ -229,7 +229,7 @@ const PastAnalysisTable = () => {
     if (isAnalyzing) {
       backgroundStyle = { 'backgroundColor': '#F9E0A2' }; // Processing rows
     } else if (newRowsRef?.length > 0 && !newRowsRef.includes(cells[4])) {
-      backgroundStyle = { 'animation': 'newRowHighlightAnimation 2s linear' }; // Newly added rows
+      backgroundStyle = { 'animation': 'new-row-highlight-animation 2s linear' }; // Newly added rows
     } else {
       backgroundStyle = { 'backgroundColor': '#FFFFFF' }; // Default
     }
