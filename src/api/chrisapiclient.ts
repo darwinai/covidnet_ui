@@ -17,15 +17,15 @@ const AUTH_TOKEN_KEY = 'AUTH_TOKEN';
 class ChrisAPIClient {
 
   private static client: Client;
-  private static tokenIsUnauthorized: boolean;
+  private static isTokenAuthorized: boolean;
 
   static getClient(): Client {
-    if (!this.client || this.tokenIsUnauthorized) {
+    if (!this.client || !this.isTokenAuthorized) {
       const token: string = window.sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
       if (token) {
-        this.tokenIsUnauthorized = true;
+        this.isTokenAuthorized = true;
       } else {
-        this.tokenIsUnauthorized = false;
+        this.isTokenAuthorized = false;
       }
       this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL, {
         token
@@ -34,8 +34,8 @@ class ChrisAPIClient {
     return this.client;
   }
 
-  static setTokenIsUnauthorized(tokenIsUnauthorized: boolean) {
-    this.tokenIsUnauthorized = tokenIsUnauthorized;
+  static setIsTokenAuthorized(value: boolean) {
+    this.isTokenAuthorized = value;
   }
 
 }
