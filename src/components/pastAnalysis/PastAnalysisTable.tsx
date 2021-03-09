@@ -11,7 +11,7 @@ import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import ChrisIntegration from '../../services/chris_integration';
 import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
 import SeriesTable from "./seriesTable";
-import Utils from "../../shared/utils"
+import Utils from "../../shared/utils";
 
 
 interface tableRowsParent {
