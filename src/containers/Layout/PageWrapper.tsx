@@ -18,18 +18,18 @@ const Wrapper = (props: WrapperProps) => {
   const [isDrawerExpanded, setIsDrawerOpen] = React.useState(false);
 
   React.useEffect(()=>{
-    const token = window.sessionStorage.getItem('AUTH_TOKEN');
+    const token = window.sessionStorage.getItem("AUTH_TOKEN");
     if (!!token) {
       const client: any = ChrisAPIClient.getClient();
       client.getUser().then((res: UserResponse) => {
         const user: IUserState = res?.data;
         dispatch({
           type: Types.Login_update,
-          payload: user,
+          payload: user
         });
       })
     }
-  },[dispatch])
+  }, [dispatch])
 
   const { children } = props
 
