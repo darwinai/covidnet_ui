@@ -8,10 +8,10 @@ interface PrivateRouteProps {
   exact: boolean;
 }
 
-const PrivateRoute: React.FC<PrivateRouteProps> = (props: PrivateRouteProps) => {
+const PrivateRoute: React.FC<PrivateRouteProps> = ({component, path, exact}) => {
   const isLoggedIn = useContext(AppContext).state.user.loggedIn;
 
-  return (isLoggedIn ? (<Route {...props} />) : (<Redirect to="/login" />));
+  return (isLoggedIn ? (<Route component={component} path={path} exact={exact} />) : (<Redirect to="/login" />));
 }
 
 export default PrivateRoute
