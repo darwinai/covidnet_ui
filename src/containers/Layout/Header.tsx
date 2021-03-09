@@ -25,7 +25,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
   const history = useHistory();
   const { state, dispatch } = React.useContext(AppContext);
-  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
 
   const onDropdownSelect = () => {
     setIsDropdownOpen(!isDropdownOpen)
