@@ -18,7 +18,7 @@ interface CreateAnalysisDetailProps {
 }
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpanded, submitAnalysis }) => {
-  const { state: { createAnalysis, dcmImages }, dispatch } = useContext(AppContext);
+  const { state: { createAnalysis, dcmImages } } = useContext(AppContext);
   const [isXray, setIsXray] = useState(false);
   const [patientName, setPatientName] = useState('');
   const [patientBirthdate, setPatientBirthdate] = useState('');

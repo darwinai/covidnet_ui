@@ -1,6 +1,6 @@
 import { ActionMap, CreateAnalysisTypes } from "../actions/types";
 
-export interface SelectionStates {
+export type ICreateAnalysisState = {
   patientID?: string;
   selectedStudyUIDs: SelectedStudies;
   currSelectedStudyUID: string;
@@ -11,8 +11,6 @@ export interface SelectedStudies {
     [SeriesInstanceUID: string]: string
   }
 }
-
-export type ICreateAnalysisState =  SelectionStates;
 
 export const initialICreateAnalysisState: ICreateAnalysisState = {
   patientID: '',

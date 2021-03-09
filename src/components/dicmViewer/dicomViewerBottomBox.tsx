@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { ImageViewerTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries } from "../../context/reducers/analyseReducer";
-import CreateAnalysisService from "../../services/CreateAnalysisService";
 import { isLargestNumber } from "../pastAnalysis/seriesTable";
 import PredictionCircle from "../PredictionCircle";
 import Utils from "../../shared/utils";

@@ -10,7 +10,6 @@ import { AppContext } from '../../context/context';
 import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import ChrisIntegration from '../../services/chris_integration';
 import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
-import CreateAnalysisService from "../../services/CreateAnalysisService";
 import SeriesTable from "./seriesTable";
 import Utils from "../../shared/utils"
 
