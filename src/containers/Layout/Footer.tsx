@@ -16,8 +16,8 @@ const Footer: React.FC = () => {
         <PageHeaderToolsItem>
           <p className="footer-text">An open-source neural network for disease detection created by&nbsp;
             <a href="https://www.darwinai.com/" target="_blank" rel="noopener noreferrer">DarwinAI</a>,&nbsp;
-            <a href="http://chrisproject.org/" target="_blank" rel="noopener noreferrer">ChRIS</a>, and&nbsp;
-            <a href="http://redhat.com/chris" target="_blank" rel="noopener noreferrer">RedHat</a>&nbsp;</p>
+            <a href="https://chrisproject.org/" target="_blank" rel="noopener noreferrer">ChRIS</a>, and&nbsp;
+            <a href="https://redhat.com/chris" target="_blank" rel="noopener noreferrer">RedHat</a>&nbsp;</p>
         </PageHeaderToolsItem>
       </PageHeaderTools>
       <PageHeaderTools className="footer-right">

@@ -23,20 +23,20 @@ const DashboardPage: React.FC<AllProps> = () => {
         dispatch({
           type: StagingDcmImagesTypes.UpdateStaging,
           payload: { imgs: [] }
-        })
+        });
         // Clearing the selecting images step in create analysis
         dispatch({
           type: CreateAnalysisTypes.Clear_selected_studies_UID
-        })
+        });
         dispatch({
           type: AnalysisTypes.Update_are_new_imgs_available,
           payload: { isAvailable: true }
-        })
+        });
         dispatch({
           type: NotificationActionTypes.SEND,
           payload: { notifications }
         })
-      })
+      });
   }, [dispatch, stagingDcmImages, models.ctModel, models.xrayModel]);
 
   return (
