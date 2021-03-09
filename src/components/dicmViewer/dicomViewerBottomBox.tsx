@@ -4,7 +4,8 @@ import { AppContext } from "../../context/context";
 import { ISeries } from "../../context/reducers/analyseReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 import { isLargestNumber } from "../pastAnalysis/seriesTable";
-import PredictionCircle from '../PredictionCircle';
+import PredictionCircle from "../PredictionCircle";
+import Utils from "../../shared/utils";
 
 const DicomViewerBottomBox = () => {
   const { state: { imgViewer: { isBottomHided }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext)
@@ -87,7 +88,7 @@ const DicomViewerBottomBox = () => {
           <h2>{studyInstance?.dcmImage.PatientName}</h2>
           <p><span>MRN</span> #{studyInstance?.dcmImage.PatientID}</p>
           <p><span>DOB</span> {studyInstance?.dcmImage.PatientBirthDate}</p>
-          <p><span>GENDER</span> {studyInstance ? CreateAnalysisService.formatGender(studyInstance.dcmImage.PatientSex) : ''}</p>
+          <p><span>GENDER</span> {studyInstance ? Utils.formatGender(studyInstance.dcmImage.PatientSex) : ''}</p>
         </div>
         <div className="padding-l-2rem">
           <h2>{studyInstance?.dcmImage.StudyDescription}</h2>

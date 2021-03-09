@@ -4,9 +4,11 @@ import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
+import Utils from "../../shared/utils";
 
 const SelectedStudyDetail = () => {
   const { state: { createAnalysis: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);
+
   const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID);
 
   let content = null;
@@ -36,7 +38,7 @@ const SelectedStudyDetail = () => {
             <div className="flex_row">
               <div className="half_width">
                 <h2 className="bold med-size">Patient Age</h2>
-                <p className="color_grey">{CreateAnalysisService.calculatePatientAge(PatientBirthDate)}y</p>
+                <p className="color_grey">{Utils.calculatePatientAge(PatientBirthDate)}y</p>
               </div>
               <div className="half_width">
                 <h2 className="bold med-size">Performed Station</h2>
@@ -45,7 +47,7 @@ const SelectedStudyDetail = () => {
             </div>
           </div>
           <div className="half_width padding_2rem s-large">
-            Chest  Scans of suspected patient.
+            Chest Scans of suspected patient.
       </div>
         </div>
         <div className="padding_left_right_2rem">
@@ -67,7 +69,8 @@ const SelectedStudyDetail = () => {
                     <span className="checkmark"></span>
                   </label>
                 </div>
-              )})}
+              )
+            })}
           </div>
         </div>
       </div>

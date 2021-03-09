@@ -4,7 +4,7 @@ import image_placeholder from "../../assets/images/image_placeholder.png";
 import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
-import CreateAnalysisService from "../../services/CreateAnalysisService";
+import Utils from "../../shared/utils";
 
 type ImageSelectionBoxProps = {
   img: DcmImage
@@ -34,7 +34,7 @@ const ImageSelectionBox: React.FC<ImageSelectionBoxProps> = ({ img }) => {
           <div className="margin_left">
             <p className="color_grey">{StudyDescription}</p>
             <p className="color_grey">Filename{fname.split('/')[3]}</p>
-            <p className="color_grey">{CreateAnalysisService.formatDate(creation_date)}</p>
+            <p className="color_grey">{Utils.formatDate(creation_date)}</p>
           </div>
         </div>
       </div>

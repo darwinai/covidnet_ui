@@ -1,9 +1,9 @@
-import moment from "moment";
 import { SelectedStudies } from "../context/reducers/createAnalysisReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { NotificationItem } from "../context/reducers/notificationReducer";
 import ChrisIntegration, { BackendPollResult } from "./chris_integration";
 import NotificationService from "./notificationService";
+import Utils from "../shared/utils";
 
 export interface StudyInstance {
   studyInstanceUID: string;
@@ -20,22 +20,6 @@ export interface AnalyzedImageResult {
 
 class CreateAnalysisService {
 
-  static formatDate(dateStr: string): string {
-    const date = new Date(dateStr);
-    
-    return moment(date).format("YYYY MM DD");
-  }
-
-  static formatGender(gender: string): string {
-    return gender.includes('F') ? 'Female' : 'Male';
-  }
-
-  static calculatePatientAge(patientDOB: string): number {
-    const today = new Date();
-    const dob = new Date(patientDOB);
-    return today.getFullYear() - dob.getFullYear();
-  }
-
   static extractStudyInstances(dcmImages: DcmImage[]): StudyInstance[] {
     const studyInstances: StudyInstance[] = [];
     const seenUID: { [uid: string]: boolean } = {}
@@ -46,7 +30,7 @@ class CreateAnalysisService {
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          createdDate: this.formatDate(img.creation_date)
+          createdDate: Utils.formatDate(img.creation_date)
         })
         seenUID[img.StudyInstanceUID] = true;
       }

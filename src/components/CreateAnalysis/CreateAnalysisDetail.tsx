@@ -10,6 +10,7 @@ import FileLookup from './FileLookup';
 import Error from "../../shared/error";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
+import Utils from "../../shared/utils";
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
@@ -61,7 +62,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
                   <h3>Patient Gender</h3>
                 </div>
                 <div className="detail-patient-name-age-info">
-                  <p> {CreateAnalysisService.calculatePatientAge(patientBirthdate)}y </p>
+                  <p> {Utils.calculatePatientAge(patientBirthdate)}y </p>
                   <p> {patientBirthdate} </p>
                   <p> {patientSex} </p>
                 </div>
