@@ -9,7 +9,7 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = (props: PrivateRouteProps) => {
-  const { state: { user: isLoggedIn } } = useContext(AppContext);
+  const { state: { user: { loggedIn: isLoggedIn } } } = useContext(AppContext);
 
   return (isLoggedIn ? (<Route {...props} />) : (<Redirect to="/login" />));
 }
