@@ -14,4 +14,4 @@ const PrivateRoute: React.FC<PrivateRouteProps> = (props: PrivateRouteProps) => 
   return (isLoggedIn ? (<Route {...props} />) : (<Redirect to="/login" />));
 }
 
-export default PrivateRoute
+export default PrivateRoute;
