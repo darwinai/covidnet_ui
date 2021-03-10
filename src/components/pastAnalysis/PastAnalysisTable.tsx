@@ -72,8 +72,8 @@ const PastAnalysisTable = () => {
         lastOffset: 0,
         lastPage: -1,
         storedPages: []
-      })
-    })
+      });
+    });
   }
 
   // If new past analyses are available, reset table to initial state and update maxFeedId
@@ -85,7 +85,7 @@ const PastAnalysisTable = () => {
       updateMaxFeedId();
     }
   }, [areNewImgsAvailable])
-  
+
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -100,7 +100,7 @@ const PastAnalysisTable = () => {
       // Get rows for analysis currently processing
       const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
       const numAnalyzing = imagesAnalyzing.length;
-      
+
       // Calculate number of past analysis rows to fetch, given the number of processing rows to display on current page
       let fetchSize;
       if (Math.floor(numAnalyzing / perpage) > page) { // There are enough processing rows to fill entire page, so don't fetch any past results
@@ -108,7 +108,7 @@ const PastAnalysisTable = () => {
       } else if (Math.floor(numAnalyzing / perpage) === page) { // Processing rows partially fill the page, fill rest of page with past results
         fetchSize = perpage - (numAnalyzing % perpage);
       } else { // No processing rows on current page, fill entire page with past results
-        fetchSize = perpage 
+        fetchSize = perpage;
       }
       // Slice the array of processing rows to display on current page
       const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
@@ -120,7 +120,7 @@ const PastAnalysisTable = () => {
         // If current page has not yet been seen
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
-          
+
           // Update latest offset
           setTableStates(prevTableStates => ({
             ...prevTableStates,
@@ -150,8 +150,8 @@ const PastAnalysisTable = () => {
           type: AnalysisTypes.Update_list,
           payload: { list: curAnalyses }
         });
-        updateRows(curAnalyses)
-        
+        updateRows(curAnalyses);
+
         dispatch({
           type: AnalysisTypes.Update_are_new_imgs_available,
           payload: { isAvailable: false }
@@ -223,7 +223,7 @@ const PastAnalysisTable = () => {
     } = tableRow;
 
     const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the last index in row
-    
+
     // Style the current row
     let backgroundStyle = {};
     if (isAnalyzing) {
@@ -282,21 +282,18 @@ const PastAnalysisTable = () => {
     </button>
     </div>
     { loading ? (
-          <div className="loading">
-            <Spinner size="xl" /> &nbsp; Loading
-          </div>
-          ) : 
-          ( 
-            <>
-          <Table aria-label="Collapsible table" id="pastAnalysisTable"
-            onCollapse={onCollapse} rows={rows} cells={columns}
-            rowWrapper={customRowWrapper}
-            >
-            <TableHeader />
-            <TableBody />
-          </Table>
-          </>
-          )
+      <div className="loading">
+        <Spinner size="xl" /> &nbsp; Loading
+      </div>
+    ) : (
+      <Table aria-label="Collapsible table" id="pastAnalysisTable"
+        onCollapse={onCollapse} rows={rows} cells={columns}
+        rowWrapper={customRowWrapper}
+        >
+        <TableHeader />
+        <TableBody />
+      </Table>
+      )
     }
     </div>
   );

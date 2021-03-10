@@ -323,6 +323,7 @@ class ChrisIntegration {
               }
             }
           } else {
+            // TODO: investigate else case
             return [[], curOffset, isAtEndOfFeeds];
           }
   
@@ -339,7 +340,7 @@ class ChrisIntegration {
             geographic: null,
             opacity: null,
             imageUrl: '',
-          }
+          };
   
           for (let fileObj of pluginInstanceFiles.getItems()) {
             if (fileObj.data.fname.includes("prediction") && fileObj.data.fname.includes("json")) {
@@ -385,12 +386,12 @@ class ChrisIntegration {
             }
           }
           
-          if (studyInstance) studyInstance.series.push(newSeries)
+          if (studyInstance) studyInstance.series.push(newSeries);
         }
       }
 
       // Update fetchLimit to be remaining number of StudyInstanceWithSeries desired
-      fetchLimit = limit + 1 - pastAnalysis.length
+      fetchLimit = limit + 1 - pastAnalysis.length;
     }
 
     // If the end of Feeds was reached, return all collected StudyInstanceWithSeries, otherwise, discard the last extra Study
