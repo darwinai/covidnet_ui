@@ -18,7 +18,7 @@ const CreateAnalysisPage = () => {
         </PageSection>
         {
           dcmImages.allDcmImages.length > 0 ?
-            <PageSection className="pfPageSectionGrey">
+            <PageSection className="pfPageSectionGrey footer-styling">
               <CreateAnalysisWrapper></CreateAnalysisWrapper>
             </PageSection>
             :
