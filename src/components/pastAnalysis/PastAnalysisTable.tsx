@@ -84,7 +84,7 @@ const PastAnalysisTable = () => {
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.PatientID,
         analysis.dcmImage.PatientBirthDate,
-        `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}`,
+        `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y`,
         analysis.analysisCreated
       ];
 

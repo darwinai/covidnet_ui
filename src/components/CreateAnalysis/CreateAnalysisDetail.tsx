@@ -10,7 +10,7 @@ import FileLookup from './FileLookup';
 import Error from "../../shared/error";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
-import { calculatePatientAge } from "../../shared/utils";
+import { calculatePatientAge, formatDate } from "../../shared/utils";
 
 interface CreateAnalysisDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
@@ -20,16 +20,16 @@ interface CreateAnalysisDetailProps {
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpanded, submitAnalysis }) => {
   const { state: { createAnalysis, dcmImages } } = useContext(AppContext);
   const [isXray, setIsXray] = useState(false);
-  const [patientName, setPatientName] = useState('');
-  const [patientBirthdate, setPatientBirthdate] = useState('');
-  const [patientSex, setPatientSex] = useState('');
+  const [patientName, setPatientName] = useState("");
+  const [patientBirthdate, setPatientBirthdate] = useState("");
+  const [patientSex, setPatientSex] = useState("");
 
   useEffect(() => {
-    const images: DcmImage = dcmImages?.allDcmImages[0];
-    if (images) {
-      setPatientName(images.PatientName);
-      setPatientBirthdate(images.PatientBirthDate);
-      setPatientSex(images.PatientSex);
+    const image: DcmImage = dcmImages?.allDcmImages[0];
+    if (image) {
+      setPatientName(image.PatientName);
+      setPatientBirthdate(image.PatientBirthDate);
+      setPatientSex(image.PatientSex);
     }
   }, []);
 
@@ -63,7 +63,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
                 </div>
                 <div className="detail-patient-name-age-info">
                   <p> {calculatePatientAge(patientBirthdate)}y </p>
-                  <p> {patientBirthdate} </p>
+                  <p> {formatDate(patientBirthdate)} </p>
                   <p> {patientSex} </p>
                 </div>
               </div>
