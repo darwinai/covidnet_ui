@@ -2,6 +2,7 @@ import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
+import DicomViewerService from "../services/dicomViewerService";
 import { PluginModels } from "../api/app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
 
@@ -277,14 +278,16 @@ class ChrisIntegration {
           imageId: '',
           classifications: new Map<string, number>(),
           geographic: null,
-          opacity: null
+          opacity: null,
+          imageUrl: '',
         }
 
         for (let fileObj of pluginInstanceFiles.getItems()) {
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
             let content = await this.fetchJsonFiles(fileObj.data.id);
             const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
-            Object.keys(content).map(function(key: string) { // Reading in the classifcation titles and values
+
+            Object.keys(content).forEach((key: string) => { // Reading in the classifcation titles and values
               if ((key !== 'prediction') && (key !== 'Prediction')) {
                 if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
                   newSeries.classifications.set(key, formatNumber(content[key]));
@@ -302,8 +305,15 @@ class ChrisIntegration {
               severity: content['Opacity severity'],
               extentScore: content['Opacity extent score']
             }
-          } else if (!fileObj.data.fname.includes('json')) { // fetch image
+          } else if (!fileObj.data.fname.includes('json')) {
             newSeries.imageId = fileObj.data.id;
+            
+            // Fetch image URL
+            if (newSeries.imageId) {
+              const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
+              const urlCreator = window.URL || window.webkitURL;
+              newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
+            }
 
             // get dcmImageId from dircopy
             const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
@@ -331,6 +341,8 @@ class ChrisIntegration {
   }
 
   static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {
+    if (!patientID) return [];
+    
     let client: any = await ChrisAPIClient.getClient();
 
     const res = await client.getPACSFiles({

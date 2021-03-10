@@ -6,9 +6,10 @@ import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
 import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
-
+import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 interface SeriesTableProps {
-  studyInstance: StudyInstanceWithSeries
+  studyInstance: StudyInstanceWithSeries;
+  isProcessing: boolean;
 }
 
 export const isLargestNumber = (num: number | null | undefined, numArray: Map<string, number>) => {
@@ -25,11 +26,14 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
   }
 }
 
-const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
+const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
   const { series: analysisList } = studyInstance;
-  let titles = [{ title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }];
+  let titles = [
+    { title: (<span><br />Preview<span className='classificationText'>&nbsp;</span></span>) },
+    { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }
+  ];
 
   analysisList[0]?.classifications.forEach((value: number, key: string) => {
     titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
@@ -42,7 +46,10 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   const columns = titles;
 
   const rows = analysisList.map((analysis: ISeries, index: number) => {
-    let analysisCells: any = [{ title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }]
+    let analysisCells: any = [
+      { title: (analysis.imageUrl ? <div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div> : <div><PreviewNotAvailable /></div>) },
+      { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
+    ];
 
     analysis.classifications.forEach((value: number, key: string) => { // Dynamically displaying each prediction class
       analysisCells.push({
@@ -56,7 +63,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
       }, {
         title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
       }, {
-        title: (<Button variant="secondary" onClick={() => viewImage(index)}>View</Button>)
+        title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>)
       });
 
     return { cells: analysisCells };
@@ -79,7 +86,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance }) => {
   return (
     <Table aria-label="Simple Table" cells={columns} rows={rows}>
       <TableHeader />
-      <TableBody className="anaylsisTableRow" />
+      <TableBody className="series-table-row" />
     </Table>
   )
 }

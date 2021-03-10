@@ -73,7 +73,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
             <div className="detail-top-right-box">
               <div className="numberCircle">{numOfSelectedImages}</div>
               <h3>Series selected</h3>
-              <a onClick={() => setIsExpanded(true)}>(More details)</a>
+              <a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {setIsExpanded(true); e.preventDefault();}} href="/#">(More details)</a>
               <ModelSelection isXray={isXray}></ModelSelection>
               <RightArrowButton click={submitAnalysis}>Analyze</RightArrowButton>
             </div>
