@@ -1,0 +1,55 @@
+@import "../../../assets/scss/helpers/variables";
+
+.pf-c-dropdown {
+  &__menu {
+    &-item {
+      color: #000 !important;
+    }
+  }
+}
+
+.footer {
+  display: flex;
+  position: fixed;
+  height: 3.5em;
+  bottom: 0em;
+  left: 0em;
+  right: 0em;
+  width: 100%;
+
+  .footer-text {
+    color: white;
+    text-align: center;
+  }
+
+  .footer-link {
+    display: flex;
+    align-items: center;
+  }
+
+  .footer-right {
+    margin-right: 1.5em;
+  }
+}
+
+.footer-styling {
+  margin-bottom: 3.5em;
+}
+
+.pf-c-page__header-tools:nth-child(3) {
+  justify-content: flex-end;
+}
+
+.logo {
+  margin-right: 4rem;
+  padding: 0.8rem;
+  height: 70px;
+  width: 190px;
+  min-height: 70px;
+  min-width: 190px;
+}
+
+.pf-c-page__header-brand {
+  min-height: 70px;
+  min-width: 190px;
+}

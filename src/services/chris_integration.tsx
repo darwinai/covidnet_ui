@@ -309,7 +309,8 @@ class ChrisIntegration {
           if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
             let content = await this.fetchJsonFiles(fileObj.data.id);
             const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
-            Object.keys(content).map(function(key: string) { // Reading in the classifcation titles and values
+
+            Object.keys(content).forEach((key: string) => { // Reading in the classifcation titles and values
               if ((key !== 'prediction') && (key !== 'Prediction')) {
                 if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
                   newSeries.classifications.set(key, formatNumber(content[key]));
