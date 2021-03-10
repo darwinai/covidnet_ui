@@ -1,7 +1,8 @@
 import { Page } from "@patternfly/react-core";
 import * as React from "react";
+import Footer from "./Footer";
 import Header from "./Header";
-import "./layout.scss";
+import "../../assets/scss/layout/layout.scss";
 import NotificationDrawerWrapper from "./NotificationDrawerWrapper";
 
 interface WrapperProps {
@@ -19,6 +20,7 @@ const Wrapper = (props: WrapperProps) => {
       isNotificationDrawerExpanded={isDrawerExpanded}
     >
       {children}
+      <Footer></Footer>
     </Page>
   );
 }
