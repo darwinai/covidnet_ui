@@ -264,7 +264,7 @@ class ChrisIntegration {
     const client: any = ChrisAPIClient.getClient();
 
     // Indicates when the last Feed on Swift has been reached to prevent further fetching
-    let isAtEndOfFeeds = false; 
+    let isAtEndOfFeeds = false;
 
     // Aim to have 1 extra StudyInstanceWithSeries to ensure that Feeds associated with the same Study grouping 
     // are not separated across pages. The extra StudyInstanceWithSeries will be discarded at the end
@@ -294,7 +294,7 @@ class ChrisIntegration {
         // iterate it over all feeds
         const pluginlists = pluginInstances.getItems();
         for (let plugin of pluginlists) {
-          let studyInstance: StudyInstanceWithSeries | null = null
+          let studyInstance: StudyInstanceWithSeries | null = null;
           // ignore plugins that are not models
           if (!isModel(plugin.data.plugin_name)) continue; 
           // get dicom image data
@@ -308,16 +308,16 @@ class ChrisIntegration {
                   const possibileIndex = startedTime + imgDatas[0].StudyInstanceUID;
                   // already exists so push it to te seriesList
                   if (!!pastAnalysisMap[possibileIndex]) {
-                    studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr]
+                    studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr];
                   } else { // doesn't already exist so we create one
                     studyInstance = {
                       dcmImage: imgDatas[0],
                       analysisCreated: modifyDatetime(findDircopy.data.start_date),
                       series: []
-                    }
+                    };
                     // first update map with the index then push to the result array
                     pastAnalysisMap[possibileIndex] = { indexInArr: pastAnalysis.length };
-                    pastAnalysis.push(studyInstance)
+                    pastAnalysis.push(studyInstance);
                   }
                 }
               }
@@ -342,12 +342,12 @@ class ChrisIntegration {
           }
   
           for (let fileObj of pluginInstanceFiles.getItems()) {
-            if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
+            if (fileObj.data.fname.includes("prediction") && fileObj.data.fname.includes("json")) {
               let content = await this.fetchJsonFiles(fileObj.data.id);
               const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
   
               Object.keys(content).forEach((key: string) => { // Reading in the classifcation titles and values
-                if ((key !== 'prediction') && (key !== 'Prediction')) {
+                if ((key !== 'prediction') && (key !== "Prediction")) {
                   if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
                     newSeries.classifications.set(key, formatNumber(content[key]));
                   }
