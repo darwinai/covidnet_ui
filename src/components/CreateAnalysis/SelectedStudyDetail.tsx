@@ -4,7 +4,7 @@ import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
-import Utils from "../../shared/utils";
+import { calculatePatientAge } from "../../shared/utils";
 
 const SelectedStudyDetail = () => {
   const { state: { createAnalysis: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);
@@ -38,7 +38,7 @@ const SelectedStudyDetail = () => {
             <div className="flex_row">
               <div className="half_width">
                 <h2 className="bold med-size">Patient Age</h2>
-                <p className="color_grey">{Utils.calculatePatientAge(PatientBirthDate)}y</p>
+                <p className="color_grey">{calculatePatientAge(PatientBirthDate)}y</p>
               </div>
               <div className="half_width">
                 <h2 className="bold med-size">Performed Station</h2>

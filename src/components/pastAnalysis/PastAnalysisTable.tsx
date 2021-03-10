@@ -11,7 +11,7 @@ import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import ChrisIntegration from '../../services/chris_integration';
 import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
 import SeriesTable from "./seriesTable";
-import Utils from "../../shared/utils";
+import { calculatePatientAge } from "../../shared/utils";
 
 
 interface tableRowsParent {
@@ -84,7 +84,7 @@ const PastAnalysisTable = () => {
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.PatientID,
         analysis.dcmImage.PatientBirthDate,
-        `${Utils.calculatePatientAge(analysis.dcmImage.PatientBirthDate)}`,
+        `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}`,
         analysis.analysisCreated
       ];
       if (cells[cells.length - 1] === Processing.analysisAreProcessing) {

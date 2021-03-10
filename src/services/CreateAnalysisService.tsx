@@ -3,7 +3,7 @@ import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { NotificationItem } from "../context/reducers/notificationReducer";
 import ChrisIntegration, { BackendPollResult } from "./chris_integration";
 import NotificationService from "./notificationService";
-import Utils from "../shared/utils";
+import { formatDate } from "../shared/utils";
 
 export interface StudyInstance {
   studyInstanceUID: string;
@@ -30,7 +30,7 @@ class CreateAnalysisService {
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          createdDate: Utils.formatDate(img.creation_date)
+          createdDate: formatDate(img.creation_date)
         })
         seenUID[img.StudyInstanceUID] = true;
       }
