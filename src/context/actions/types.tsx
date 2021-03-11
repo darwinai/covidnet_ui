@@ -16,9 +16,7 @@ export enum Types {
 
 export enum AnalysisTypes {
   Update_list = 'UPDATE_LIST',
-  Update_page = 'UPDATE_PAGE',
   Update_perpage = 'UPDATE_PERPAGE',
-  Update_total = 'UPDATE_TOTAL',
   Update_are_new_imgs_available = "UPDATE_ARE_NEW_IMGS_AVALIABLE",
   Update_selected_image = "UPDATE_SELECTED_IMAGE"
 }

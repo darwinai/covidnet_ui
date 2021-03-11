@@ -215,120 +215,166 @@ class ChrisIntegration {
     return patientImages.fname;
   }
 
-  static async getPastAnalysis(page: number, perpage: number): Promise<StudyInstanceWithSeries[]> {
+  /**
+   * Gets the ID of the latest Feed stored in Swift
+   */
+  static async getLatestFeedId(): Promise<number> {
+    const client: any = ChrisAPIClient.getClient();
+    const feeds = await client.getFeeds({
+      limit: 1,
+      offset: 0,
+    });
+    return feeds.getItems()?.[0]?.data?.id;
+  }
+
+  /**
+   * Starting at the provided offset, coninuously fetches Feeds from Swift until able to return an array of
+   * StudyInstanceWithSeries of the provided size (limit)
+   * @param {number} offset Page offset
+   * @param {number} limit Desired number of StudyInstanceWithSeries to receive
+   * @param {number} max_id Maximum Feed ID search parameter
+   */
+  static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
     const pastAnalysis: StudyInstanceWithSeries[] = [];
     const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
 
-    // since we want to have offset = 0 for page 1
-    --page;
     const client: any = ChrisAPIClient.getClient();
-    const feeds = await client.getFeeds({
-      limit: perpage,
-      offset: page * perpage,
-    });
-    const feedArray = feeds.getItems();
-    for (let feed of feedArray) {
-      const pluginInstances = await feed.getPluginInstances({
-        limit: 25,
-        offset: 0
+
+    // Indicates when the last Feed on Swift has been reached to prevent further fetching
+    let isAtEndOfFeeds = false;
+
+    // Aim to have 1 extra StudyInstanceWithSeries to ensure that Feeds associated with the same Study grouping 
+    // are not separated across pages. The extra StudyInstanceWithSeries will be discarded at the end
+    let fetchLimit = limit + 1;
+
+    let curOffset = offset;
+
+    // Keep fetching Feeds until the desired number of StudyInstanceWithSeries is collected OR the end of Feeds has been reached
+    while (pastAnalysis.length < limit + 1 && !isAtEndOfFeeds) {
+      const feeds = await client.getFeeds({
+        limit: fetchLimit,
+        offset: curOffset,
+        max_id
       });
-      // iterate it over all feeds
-      const pluginlists = pluginInstances.getItems()
-      for (let plugin of pluginlists) {
-        let studyInstance: StudyInstanceWithSeries | null = null
-        // ignore plugins that are not models
-        if (!isModel(plugin.data.plugin_name)) continue; 
-        // get dicom image data
-        if (plugin.data.title !== '') {
-          const imgDatas: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
-          if (imgDatas.length > 0) {
-            // use dircopy start time to check
-            for (let findDircopy of pluginlists) {
-              if (findDircopy.data.plugin_name === PluginModels.Plugins.FS_PLUGIN) {
-                const startedTime = formatTime(findDircopy.data.start_date);
-                const possibileIndex = startedTime + imgDatas[0].StudyInstanceUID;
-                // already exists so push it to te seriesList
-                if (!!pastAnalysisMap[possibileIndex]) {
-                  studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr]
-                } else { // doesn't already exist so we create one
-                  studyInstance = {
-                    dcmImage: imgDatas[0],
-                    analysisCreated: modifyDatetime(findDircopy.data.start_date),
-                    series: []
-                  }
-                  // first update map with the index then push to the result array
-                  pastAnalysisMap[possibileIndex] = { indexInArr: pastAnalysis.length };
-                  pastAnalysis.push(studyInstance)
-                }
-              }
-            }
-          }
-        } else {
-          return [];
-        }
-
-        const pluginInstanceFiles = await plugin.getFiles({
+      const feedArray = feeds.getItems();
+      
+      curOffset += fetchLimit;
+  
+      // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
+      isAtEndOfFeeds = feedArray.length < fetchLimit;
+      
+      for (let feed of feedArray) {
+        const pluginInstances = await feed.getPluginInstances({
           limit: 25,
-          offset: 0,
+          offset: 0
         });
-
-        const newSeries: ISeries = {
-          covidnetPluginId: plugin.data.id,
-          imageName: '',
-          imageId: '',
-          classifications: new Map<string, number>(),
-          geographic: null,
-          opacity: null,
-          imageUrl: '',
-        }
-
-        for (let fileObj of pluginInstanceFiles.getItems()) {
-          if (fileObj.data.fname.includes('prediction') && fileObj.data.fname.includes('json')) {
-            let content = await this.fetchJsonFiles(fileObj.data.id);
-            const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100) // to round to 2 decimal place percentage
-
-            Object.keys(content).forEach((key: string) => { // Reading in the classifcation titles and values
-              if ((key !== 'prediction') && (key !== 'Prediction')) {
-                if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
-                  newSeries.classifications.set(key, formatNumber(content[key]));
+        // iterate it over all feeds
+        const pluginlists = pluginInstances.getItems();
+        for (let plugin of pluginlists) {
+          let studyInstance: StudyInstanceWithSeries | null = null;
+          // ignore plugins that are not models
+          if (!isModel(plugin.data.plugin_name)) continue; 
+          // get dicom image data
+          if (plugin.data.title !== '') {
+            const imgDatas: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
+            if (imgDatas.length > 0) {
+              // use dircopy start time to check
+              for (let findDircopy of pluginlists) {
+                if (findDircopy.data.plugin_name === PluginModels.Plugins.FS_PLUGIN) {
+                  const startedTime = formatTime(findDircopy.data.start_date);
+                  const possibileIndex = startedTime + imgDatas[0].StudyInstanceUID;
+                  // already exists so push it to te seriesList
+                  if (!!pastAnalysisMap[possibileIndex]) {
+                    studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr];
+                  } else { // doesn't already exist so we create one
+                    studyInstance = {
+                      dcmImage: imgDatas[0],
+                      analysisCreated: modifyDatetime(findDircopy.data.start_date),
+                      series: []
+                    };
+                    // first update map with the index then push to the result array
+                    pastAnalysisMap[possibileIndex] = { indexInArr: pastAnalysis.length };
+                    pastAnalysis.push(studyInstance);
+                  }
                 }
               }
-            });
-
-          } else if (fileObj.data.fname.includes('severity.json')) {
-            let content = await this.fetchJsonFiles(fileObj.data.id)
-            newSeries.geographic = {
-              severity: content['Geographic severity'],
-              extentScore: content['Geographic extent score']
             }
-            newSeries.opacity = {
-              severity: content['Opacity severity'],
-              extentScore: content['Opacity extent score']
-            }
-          } else if (!fileObj.data.fname.includes('json')) {
-            newSeries.imageId = fileObj.data.id;
-            
-            // Fetch image URL
-            if (newSeries.imageId) {
-              const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
-              const urlCreator = window.URL || window.webkitURL;
-              newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
-            }
-
-            // get dcmImageId from dircopy
-            const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
-            const dircopyFiles = (await dircopyPlugin.getFiles({
-              limit: 100,
-              offset: 0
-            })).data;
-            const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => file.fname.includes('.dcm'))]
-            newSeries.imageName = dcmImageFile.fname;
+          } else {
+            // TODO: investigate else case
+            return [[], curOffset, isAtEndOfFeeds];
           }
+  
+          const pluginInstanceFiles = await plugin.getFiles({
+            limit: 25,
+            offset: 0,
+          });
+  
+          const newSeries: ISeries = {
+            covidnetPluginId: plugin.data.id,
+            imageName: '',
+            imageId: '',
+            classifications: new Map<string, number>(),
+            geographic: null,
+            opacity: null,
+            imageUrl: '',
+          };
+  
+          for (let fileObj of pluginInstanceFiles.getItems()) {
+            if (fileObj.data.fname.includes("prediction") && fileObj.data.fname.includes("json")) {
+              let content = await this.fetchJsonFiles(fileObj.data.id);
+              const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
+  
+              Object.keys(content).forEach((key: string) => { // Reading in the classifcation titles and values
+                if ((key !== 'prediction') && (key !== "Prediction")) {
+                  if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
+                    newSeries.classifications.set(key, formatNumber(content[key]));
+                  }
+                }
+              });
+  
+            } else if (fileObj.data.fname.includes('severity.json')) {
+              let content = await this.fetchJsonFiles(fileObj.data.id)
+              newSeries.geographic = {
+                severity: content['Geographic severity'],
+                extentScore: content['Geographic extent score']
+              }
+              newSeries.opacity = {
+                severity: content['Opacity severity'],
+                extentScore: content['Opacity extent score']
+              }
+            } else if (!fileObj.data.fname.includes('json')) {
+              newSeries.imageId = fileObj.data.id;
+              
+              // Fetch image URL
+              if (newSeries.imageId) {
+                const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
+                const urlCreator = window.URL || window.webkitURL;
+                newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
+              }
+  
+              // get dcmImageId from dircopy
+              const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
+              const dircopyFiles = (await dircopyPlugin.getFiles({
+                limit: 100,
+                offset: 0
+              })).data;
+              const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => file.fname.includes('.dcm'))]
+              newSeries.imageName = dcmImageFile.fname;
+            }
+          }
+          
+          if (studyInstance) studyInstance.series.push(newSeries);
         }
-        if (studyInstance) studyInstance.series.push(newSeries)
       }
+
+      // Update fetchLimit to be remaining number of StudyInstanceWithSeries desired
+      fetchLimit = limit + 1 - pastAnalysis.length;
     }
-    return pastAnalysis;
+
+    // If the end of Feeds was reached, return all collected StudyInstanceWithSeries, otherwise, discard the last extra Study
+    const pastAnalysesToReturn = isAtEndOfFeeds ? pastAnalysis : pastAnalysis.slice(0, -1);
+
+    return [pastAnalysesToReturn, curOffset - 1, isAtEndOfFeeds];
   }
 
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {

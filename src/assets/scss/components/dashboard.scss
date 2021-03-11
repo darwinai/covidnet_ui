@@ -63,3 +63,8 @@ $sectionAreaSpacing: 15px;
     color: black;
   }
 }
+
+@keyframes new-row-highlight-animation {
+  0% { background-color: #BFFFC7 }
+  100% { background-color: #FFFFFF }
+}

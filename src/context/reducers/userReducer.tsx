@@ -1,14 +1,15 @@
 import { ActionMap, Types } from "../actions/types";
 
 export type IUserState = {
+  id?: number;
   username: string;
-  password: string;
+  email: string;
   loggedIn?: boolean;
 }
 
 export let initialIUserState = {
   username: '',
-  password: '',
+  email: '',
   loggedIn: false
 }
 
@@ -29,14 +30,13 @@ export const userReducer = (
     // case Types.
     case Types.Login_update:
       return {
-        username: action.payload.username,
-        password: action.payload.password,
+        ...action.payload,
         loggedIn: true
       }
     case Types.Logout_update:
       return {
         username: '',
-        password: '',
+        email: '',
         loggedIn: false
       }
     default:
