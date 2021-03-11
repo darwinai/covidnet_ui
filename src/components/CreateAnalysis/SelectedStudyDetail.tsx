@@ -4,10 +4,13 @@ import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
+import { calculatePatientAge } from "../../shared/utils";
 
 const SelectedStudyDetail = () => {
   const { state: { createAnalysis: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);
-  const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID)
+
+  const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID);
+
   let content = null;
 
   const addImgToAnalysis = (isSelected: boolean, img: DcmImage): void => {
@@ -24,7 +27,7 @@ const SelectedStudyDetail = () => {
   }
 
   if (images.length > 0) {
-    const { StudyDescription, StudyInstanceUID, PatientAge, Modality } = images[0]
+    const { StudyDescription, StudyInstanceUID, PatientBirthDate, Modality } = images[0];
     content = (
       <div className="detail-select">
         <div className="flex_row">
@@ -35,7 +38,7 @@ const SelectedStudyDetail = () => {
             <div className="flex_row">
               <div className="half_width">
                 <h2 className="bold med-size">Patient Age</h2>
-                <p className="color_grey">{PatientAge}y</p>
+                <p className="color_grey">{calculatePatientAge(PatientBirthDate)}y</p>
               </div>
               <div className="half_width">
                 <h2 className="bold med-size">Performed Station</h2>
@@ -44,7 +47,7 @@ const SelectedStudyDetail = () => {
             </div>
           </div>
           <div className="half_width padding_2rem s-large">
-            Chest  Scans of suspected patient.
+            Chest Scans of suspected patient.
       </div>
         </div>
         <div className="padding_left_right_2rem">
@@ -66,7 +69,8 @@ const SelectedStudyDetail = () => {
                     <span className="checkmark"></span>
                   </label>
                 </div>
-              )})}
+              )
+            })}
           </div>
         </div>
       </div>

@@ -1,19 +1,10 @@
 import { ActionMap, CreateAnalysisTypes } from "../actions/types";
 
-
-export interface PatientPersonalInfo {
-  patientName: string;
-  patientAge: number;
-  patientBirthdate: string
-  patientGender: string,
-}
-
-export interface SelectionStates {
+export type ICreateAnalysisState = {
   patientID?: string;
   selectedStudyUIDs: SelectedStudies;
   currSelectedStudyUID: string;
 }
-
 
 export interface SelectedStudies {
   [uid: string]: {
@@ -21,26 +12,14 @@ export interface SelectedStudies {
   }
 }
 
-export type ICreateAnalysisState = PatientPersonalInfo & SelectionStates;
-
 export const initialICreateAnalysisState: ICreateAnalysisState = {
   patientID: '',
-  patientName: '',
-  patientAge: 0,
-  patientBirthdate: '',
-  patientGender: '',
   currSelectedStudyUID: '',
   selectedStudyUIDs: {}
 }
 
 type CreateAnalysisPayload = {
   [CreateAnalysisTypes.Update_patient_ID]: { patientID: string },
-  [CreateAnalysisTypes.Update_patient_personal_info]: {
-    patientName: string;
-    patientAge: number;
-    patientBirthdate: string
-    patientGender: string
-  },
   [CreateAnalysisTypes.Add_selected_studies_UID]: {
     studyUID: string;
     SeriesInstanceUID: string;
@@ -70,11 +49,6 @@ export const createAnalysisReducer = (
       return {
         ...state,
         patientID: action.payload.patientID
-      }
-    case CreateAnalysisTypes.Update_patient_personal_info:
-      return {
-        ...state,
-        ...action.payload
       }
     case CreateAnalysisTypes.Add_selected_studies_UID:
       return {

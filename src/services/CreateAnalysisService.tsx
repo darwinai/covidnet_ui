@@ -1,8 +1,9 @@
-import { PatientPersonalInfo, SelectedStudies } from "../context/reducers/createAnalysisReducer";
+import { SelectedStudies } from "../context/reducers/createAnalysisReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { NotificationItem } from "../context/reducers/notificationReducer";
 import ChrisIntegration, { BackendPollResult } from "./chris_integration";
 import NotificationService from "./notificationService";
+import { formatDate } from "../shared/utils";
 
 export interface StudyInstance {
   studyInstanceUID: string;
@@ -19,30 +20,6 @@ export interface AnalyzedImageResult {
 
 class CreateAnalysisService {
 
-  static formatDate(dateStr: string): string {
-    const date = new Date(dateStr);
-    return `${date.getFullYear()} ${date.getMonth() + 1} ${date.getDate()}`
-  }
-
-  static formatGender(gender: string): string {
-    return gender.includes('F') ? 'Female' : 'Male';
-  }
-
-  static extractPatientPersonalInfo(dcmImage: DcmImage): PatientPersonalInfo {
-    return {
-      patientName: dcmImage.PatientName,
-      patientAge: dcmImage.PatientAge,
-      patientBirthdate: this.formatDate(dcmImage.PatientBirthDate),
-      patientGender: this.formatGender(dcmImage.PatientSex)
-    }
-  }
-
-  static calculatePatientAge(patientDOB: string): number {
-    const today = new Date();
-    const dob = new Date(patientDOB);
-    return today.getFullYear() - dob.getFullYear();
-  }
-
   static extractStudyInstances(dcmImages: DcmImage[]): StudyInstance[] {
     const studyInstances: StudyInstance[] = [];
     const seenUID: { [uid: string]: boolean } = {}
@@ -53,7 +30,7 @@ class CreateAnalysisService {
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          createdDate: this.formatDate(img.creation_date)
+          createdDate: formatDate(img.creation_date)
         })
         seenUID[img.StudyInstanceUID] = true;
       }

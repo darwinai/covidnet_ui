@@ -9,7 +9,6 @@ export type ActionMap<M extends { [index: string]: any }> = {
   }
 };
 
-
 export enum Types {
   Login_update = 'LOGIN_UPDATE',
   Logout_update = 'LOGOUT_UPDATE'
@@ -24,7 +23,6 @@ export enum AnalysisTypes {
 
 export enum CreateAnalysisTypes {
   Update_patient_ID = 'UPDATE_PATIENT_ID',
-  Update_patient_personal_info = 'UPDATE_PATIENT_PERSONAL_INFO',
   Add_selected_studies_UID = "ADD_SELECTED_STUDY_UID",
   Remove_selected_studies_UID = 'REMOVE_SELECTED_STUDIES_UID',
   UpdateCurrSelectedStudyUID = "UPDATE_CURRENT_SELECTED_UID",
