@@ -170,6 +170,14 @@ declare module "@fnndsc/chrisapi" {
     getUploadedFile: (id: number, timeout?: number) => Promise<UploadedFile>;
 
     /**
+     * Get a user resource object for the currently authenticated user.
+     *
+     * @param {number} [timeout=30000] - request timeout
+     * @return {Object} - JS Promise, resolves to a ``User`` object
+     */
+    getUser: (timeout?: number) => Promise<User>;
+
+    /**
      * Get a paginated list of plugins from the REST API given query search
      * parameters. If no search parameters then get the default first page.
      *
@@ -1750,8 +1758,8 @@ declare module "@fnndsc/chrisapi" {
     constructor(url: string, auth: IAuth);
 
     data: {
+      id: number;
       username: string;
-      password: string;
       email: string;
     }
 
