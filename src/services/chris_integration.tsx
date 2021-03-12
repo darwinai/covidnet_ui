@@ -311,59 +311,60 @@ class ChrisIntegration {
   
           const newSeries: ISeries = {
             covidnetPluginId: plugin.data.id,
-            imageName: '',
-            imageId: '',
+            imageName: "",
+            imageId: "",
             classifications: new Map<string, number>(),
             geographic: null,
             opacity: null,
-            imageUrl: '',
+            imageUrl: "",
           };
-  
-          for (let fileObj of pluginInstanceFiles.getItems()) {
-            if (fileObj.data.fname.includes("prediction") && fileObj.data.fname.includes("json")) {
-              let content = await this.fetchJsonFiles(fileObj.data.id);
-              const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
-              Object.keys(content).forEach((key: string) => { // Reading in the classifcation titles and values
-                if ((key !== 'prediction') && (key !== "Prediction")) {
-                  if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
-                    newSeries.classifications.set(key, formatNumber(content[key]));
+
+          if (plugin.data?.status === "cancelled" || !pluginInstanceFiles.getItems()) {
+            newSeries.imageName = plugin.data?.title ? plugin.data?.title : "N/A";
+          } else {
+            for (let fileObj of pluginInstanceFiles.getItems()) {
+              if (fileObj.data.fname.includes("prediction") && fileObj.data.fname.includes("json")) {
+                let content = await this.fetchJsonFiles(fileObj.data.id);
+                const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
+                Object.keys(content).forEach((key: string) => { // Reading in the classifcation titles and values
+                  if ((key !== 'prediction') && (key !== "Prediction")) {
+                    if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
+                      newSeries.classifications.set(key, formatNumber(content[key]));
+                    }
                   }
+                });
+              } else if (fileObj.data.fname.includes('severity.json')) {
+                let content = await this.fetchJsonFiles(fileObj.data.id)
+                newSeries.geographic = {
+                  severity: content['Geographic severity'],
+                  extentScore: content['Geographic extent score']
                 }
-              });
-
-
-  
-            } else if (fileObj.data.fname.includes('severity.json')) {
-              let content = await this.fetchJsonFiles(fileObj.data.id)
-              newSeries.geographic = {
-                severity: content['Geographic severity'],
-                extentScore: content['Geographic extent score']
+                newSeries.opacity = {
+                  severity: content['Opacity severity'],
+                  extentScore: content['Opacity extent score']
+                }
+              } else if (!fileObj.data.fname.includes('json')) {
+                newSeries.imageId = fileObj.data.id;
+                
+                // Fetch image URL
+                if (newSeries.imageId) {
+                  const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
+                  const urlCreator = window.URL || window.webkitURL;
+                  newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
+                }
+    
+                // get dcmImageId from dircopy
+                const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
+                const dircopyFiles = (await dircopyPlugin.getFiles({
+                  limit: 100,
+                  offset: 0
+                })).data;
+                const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => file.fname.includes('.dcm'))]
+                newSeries.imageName = dcmImageFile.fname;
               }
-              newSeries.opacity = {
-                severity: content['Opacity severity'],
-                extentScore: content['Opacity extent score']
-              }
-            } else if (!fileObj.data.fname.includes('json')) {
-              newSeries.imageId = fileObj.data.id;
-              
-              // Fetch image URL
-              if (newSeries.imageId) {
-                const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
-                const urlCreator = window.URL || window.webkitURL;
-                newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
-              }
-  
-              // get dcmImageId from dircopy
-              const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
-              const dircopyFiles = (await dircopyPlugin.getFiles({
-                limit: 100,
-                offset: 0
-              })).data;
-              const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => file.fname.includes('.dcm'))]
-              newSeries.imageName = dcmImageFile.fname;
             }
           }
-          
+
           if (studyInstance) studyInstance.series.push(newSeries);
         }
       }
