@@ -16,7 +16,7 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
   if (num && numArray) {
     let maxValue: number = 0;
     numArray.forEach((value: number) => {
-    maxValue = (!maxValue || maxValue < value) ? value : maxValue;
+      maxValue = (!maxValue || maxValue < value) ? value : maxValue;
     })
 
     return num === maxValue;
@@ -30,18 +30,26 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
   const { series: analysisList } = studyInstance;
+  let classificationsNum: number = 0;
+
   let titles = [
     { title: (<span><br />Preview<span className='classificationText'>&nbsp;</span></span>) },
     { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }
   ];
 
-  analysisList[0]?.classifications.forEach((value: number, key: string) => {
-    titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
-  });
+  for (let index = 0; index < analysisList.length; index++) {
+    if (analysisList[index]?.classifications.size) { // Determine the number/titles of classifications in the columns by only examining successful analyses
+      classificationsNum = analysisList[index]?.classifications.size;
+      analysisList[index]?.classifications.forEach((_value: number, key: string) => {
+        titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
+      });
+      break;
+    }
+  }
 
   titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
-              { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
-              { title: (<span></span>) });
+    { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
+    { title: (<span></span>) });
 
   const columns = titles;
 
@@ -51,20 +59,29 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
       { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
     ];
 
-    analysis.classifications.forEach((value: number, key: string) => { // Dynamically displaying each prediction class
-      analysisCells.push({
-        title: (<PredictionCircle key={key}
-          largeCircle={isLargestNumber(value, analysis.classifications)}
-          predictionNumber={value} />)});
-    });
-  
-      analysisCells.push({
-        title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
-      }, {
-        title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
-      }, {
-        title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>)
+    if (analysis.classifications.size) { // If the analysis was successful, read in its analysis results
+      analysis.classifications.forEach((value: number, key: string) => { // Dynamically displaying each prediction class
+        analysisCells.push({
+          title: (<PredictionCircle key={key}
+            largeCircle={isLargestNumber(value, analysis.classifications)}
+            predictionNumber={value} />)
+        });
       });
+    } else { // If the analysis was unsuccessful, display 'N/A' for all classification results for that particular analysis study
+      for (let index = 0; index < classificationsNum; index++) {
+        analysisCells.push({
+          title: ('N/A')
+        });
+      }
+    }
+
+    analysisCells.push({
+      title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
+    }, {
+      title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
+    }, {
+      title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>)
+    });
 
     return { cells: analysisCells };
   });
