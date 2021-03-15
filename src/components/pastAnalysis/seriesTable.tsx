@@ -7,8 +7,10 @@ import { AppContext } from '../../context/context';
 import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
+
 interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries;
+  classifications: Map<string, number>;
   isProcessing: boolean;
 }
 
@@ -26,26 +28,20 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
   }
 }
 
-const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }) => {
+const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classifications, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
   const { series: analysisList } = studyInstance;
-  let classificationsNum: number = 0;
+  // let classificationsNum: number = 0;
 
   let titles = [
     { title: (<span><br />Preview<span className='classificationText'>&nbsp;</span></span>) },
     { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }
   ];
 
-  for (let index = 0; index < analysisList.length; index++) {
-    if (analysisList[index]?.classifications.size) { // Determine the number/titles of classifications in the columns by only examining successful analyses
-      classificationsNum = analysisList[index]?.classifications.size;
-      analysisList[index]?.classifications.forEach((_value: number, key: string) => {
-        titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
-      });
-      break;
-    }
-  }
+  classifications?.forEach((_value: number, key: string) => {
+    titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
+  });
 
   titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
     { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
@@ -54,12 +50,13 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
   const columns = titles;
 
   const rows = analysisList.map((analysis: ISeries, index: number) => {
+    const analysisValid = !!analysis.classifications.size;
     let analysisCells: any = [
       { title: (analysis.imageUrl ? <div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div> : <div><PreviewNotAvailable /></div>) },
       { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
     ];
 
-    if (analysis.classifications.size) { // If the analysis was successful, read in its analysis results
+    if (analysisValid) { // If the analysis was successful, read in its analysis results
       analysis.classifications.forEach((value: number, key: string) => { // Dynamically displaying each prediction class
         analysisCells.push({
           title: (<PredictionCircle key={key}
@@ -68,7 +65,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
         });
       });
     } else { // If the analysis was unsuccessful, display 'N/A' for all classification results for that particular analysis study
-      for (let index = 0; index < classificationsNum; index++) {
+      for (let index = 0; index < classifications?.size; index++) {
         analysisCells.push({
           title: ('N/A')
         });
@@ -80,7 +77,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
     }, {
       title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
     }, {
-      title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>)
+      title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing || !analysisValid}>View</Button>)
     });
 
     return { cells: analysisCells };

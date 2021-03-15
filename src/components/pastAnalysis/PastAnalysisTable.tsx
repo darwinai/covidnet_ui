@@ -7,10 +7,11 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
-import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
+import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import ChrisIntegration from '../../services/chris_integration';
 import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
 import SeriesTable from "./seriesTable";
+import { Badge } from '@patternfly/react-core';
 import { calculatePatientAge } from "../../shared/utils";
 
 interface tableRowsParent {
@@ -47,7 +48,7 @@ const PastAnalysisTable = () => {
       title: 'Study',
       cellFormatters: [expandable]
     },
-    'Patient MRN', 'Patient DOB', 'Patient Age', 'Analysis Created'
+    'Patient MRN', 'Patient DOB', 'Patient Age', 'Analysis Created', ''
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -90,7 +91,7 @@ const PastAnalysisTable = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const {maxFeedId, page, lastOffset, storedPages} = tableStates;
+      const { maxFeedId, page, lastOffset, storedPages } = tableStates;
 
       // Update the maxFeedId when the PastAnalysisTable first mounts
       if (maxFeedId === -1) {
@@ -174,13 +175,19 @@ const PastAnalysisTable = () => {
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = []
     for (const analysis of listOfAnalysis) {
+
+      const validAnalyses = analysis.series.filter((series: ISeries) => series.classifications.size > 0);
+      const classifications = validAnalyses[0]?.classifications;
+      const numInvalid = analysis.series.length - validAnalyses.length;
+
       const indexInRows: number = rows.length;
       const cells: any[] = [
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.PatientID,
         analysis.dcmImage.PatientBirthDate,
         `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y`,
-        analysis.analysisCreated
+        analysis.analysisCreated,
+        { title: (<><Badge className="badge-margin">{validAnalyses.length}</Badge> {numInvalid ? (<Badge style={{backgroundColor: "#c83737"}}>{numInvalid}</Badge>) : <></>} </>) }
       ];
 
       const isProcessing = cells[cells.length - 1] === Processing.analysisAreProcessing;
@@ -199,7 +206,7 @@ const PastAnalysisTable = () => {
           parent: indexInRows,
           fullWidth: true,
           cells: [{
-            title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing}></SeriesTable>)
+            title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing} classifications={classifications}></SeriesTable>)
           }]
         })
       }
@@ -268,34 +275,34 @@ const PastAnalysisTable = () => {
           <InputGroupText> <SearchIcon /> </InputGroupText>
         </InputGroup>
       </div>
-      
-    <div style={{float: "right"}}>
-    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{marginRight: "1em"}} onClick={() => updatePage(-1)} disabled={loading || tableStates.page == 0}>
-      <span className="pf-c-button__icon pf-m-end">
-        <i className="fas fa-arrow-left" aria-hidden="true"></i>
-      </span>
+
+      <div style={{ float: "right" }}>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => updatePage(-1)} disabled={loading || tableStates.page == 0}>
+          <span className="pf-c-button__icon pf-m-end">
+            <i className="fas fa-arrow-left" aria-hidden="true"></i>
+          </span>
       &nbsp; Previous {perpage}
-    </button>
-    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={loading || tableStates.page === tableStates.lastPage}>Next {perpage}
-      <span className="pf-c-button__icon pf-m-end">
-        <i className="fas fa-arrow-right" aria-hidden="true"></i>
-      </span>
-    </button>
-    </div>
-    { loading ? (
-      <div className="loading">
-        <Spinner size="xl" /> &nbsp; Loading
+        </button>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={loading || tableStates.page === tableStates.lastPage}>Next {perpage}
+          <span className="pf-c-button__icon pf-m-end">
+            <i className="fas fa-arrow-right" aria-hidden="true"></i>
+          </span>
+        </button>
       </div>
-    ) : (
-      <Table aria-label="Collapsible table" id="pastAnalysisTable"
-        onCollapse={onCollapse} rows={rows} cells={columns}
-        rowWrapper={customRowWrapper}
+      { loading ? (
+        <div className="loading">
+          <Spinner size="xl" /> &nbsp; Loading
+        </div>
+      ) : (
+        <Table aria-label="Collapsible table" id="pastAnalysisTable"
+          onCollapse={onCollapse} rows={rows} cells={columns}
+          rowWrapper={customRowWrapper}
         >
-        <TableHeader />
-        <TableBody />
-      </Table>
+          <TableHeader />
+          <TableBody />
+        </Table>
       )
-    }
+      }
     </div>
   );
 }

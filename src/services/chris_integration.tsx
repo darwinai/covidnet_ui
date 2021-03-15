@@ -259,6 +259,7 @@ class ChrisIntegration {
       const feedArray = feeds.getItems();
       
       curOffset += fetchLimit;
+      // console.log(feedArray)
   
       // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
       isAtEndOfFeeds = feedArray.length < fetchLimit;
@@ -308,7 +309,7 @@ class ChrisIntegration {
             limit: 25,
             offset: 0,
           });
-  
+          console.log(plugin)
           const newSeries: ISeries = {
             covidnetPluginId: plugin.data.id,
             imageName: "",
