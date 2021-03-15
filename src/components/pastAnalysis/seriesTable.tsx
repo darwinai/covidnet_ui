@@ -7,7 +7,7 @@ import { AppContext } from '../../context/context';
 import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
-
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries;
   classifications: Map<string, number>;
@@ -77,7 +77,11 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
     }, {
       title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
     }, {
-      title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing || !analysisValid}>View</Button>)
+      title: (<>{
+        analysisValid ? 
+        (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>) : 
+        (<><ExclamationCircleIcon color="#C9190B"/><span className="analysis-failed-text">Analysis failed</span></>)
+      }</>)
     });
 
     return { cells: analysisCells };
