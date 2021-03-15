@@ -3,6 +3,7 @@
 $image-url:     '../../assets/images/';
 
 .login{
+    margin-bottom: 50px;
     // Replace background image here
     .pf-background{
         background-image: url("#{$image-url}#{$login-background-image}");

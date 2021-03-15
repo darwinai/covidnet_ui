@@ -15,7 +15,7 @@ class LogInPage extends React.Component<AllProps> {
   render() {
     return (
       <LoginPage
-        className="login pf-background"
+        className="login pf-background footer-styling"
         style={{"background":"black"}} // not sure why the background image wouldn't show
         //footerListVariants="inline"
         brandImgSrc={brandImg}
@@ -24,7 +24,7 @@ class LogInPage extends React.Component<AllProps> {
         loginTitle="Log in to your account"
       >
           <LoginFormComponent />
-          <Footer isLogin/>
+          <Footer />
       </LoginPage>
     );
   }
