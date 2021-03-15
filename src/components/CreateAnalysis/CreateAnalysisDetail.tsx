@@ -31,7 +31,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
       setPatientBirthdate(image.PatientBirthDate);
       setPatientSex(image.PatientSex);
     }
-  }, []);
+  }, [dcmImages]);
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(createAnalysis.selectedStudyUIDs);
