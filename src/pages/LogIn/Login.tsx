@@ -1,4 +1,4 @@
-import { LoginPage } from "@patternfly/react-core";
+import { LoginPage, Page } from "@patternfly/react-core";
 import * as React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import brandImg from "../../assets/images/logo.gif";
@@ -14,18 +14,21 @@ class LogInPage extends React.Component<AllProps> {
 
   render() {
     return (
-      <LoginPage
-        className="login pf-background"
-        style={{"background":"black"}} // not sure why the background image wouldn't show
-        //footerListVariants="inline"
-        brandImgSrc={brandImg}
-        brandImgAlt="DarwinAI logo"
-        textContent=""
-        loginTitle="Log in to your account"
-      >
+      <Page>
+        <LoginPage
+          className="login pf-background"
+          style={{ "background": "black" }} // not sure why the background image wouldn't show
+          //footerListVariants="inline"
+          brandImgSrc={brandImg}
+          brandImgAlt="DarwinAI logo"
+          textContent=""
+          loginTitle="Log in to your account"
+        >
           <LoginFormComponent />
-          <Footer isLogin/>
-      </LoginPage>
+          <Footer isLogin />
+        </LoginPage>
+      </Page>
+
     );
   }
 }
