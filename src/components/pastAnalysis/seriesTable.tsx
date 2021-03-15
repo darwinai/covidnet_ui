@@ -10,7 +10,7 @@ import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries;
-  classifications: Map<string, number>;
+  classifications: string[];
   isProcessing: boolean;
 }
 
@@ -32,16 +32,19 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
   const { series: analysisList } = studyInstance;
-  // let classificationsNum: number = 0;
 
   let titles = [
     { title: (<span><br />Preview<span className='classificationText'>&nbsp;</span></span>) },
     { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }
   ];
 
-  classifications?.forEach((_value: number, key: string) => {
-    titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
-  });
+  if (classifications.length) {
+    classifications.forEach((value: string) => {
+      titles.push({ title: (<span><br /><span className='classificationText'>{value}</span></span>) }); // Adding the column titles for each analysis
+    });
+  } else {
+    titles.push({ title: (<span><br /><span className='classificationText'>{"Results"}</span></span>) }); // Adding column for studies containing only failed analyses
+  }
 
   titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
     { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
@@ -64,12 +67,16 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
             predictionNumber={value} />)
         });
       });
-    } else { // If the analysis was unsuccessful, display 'N/A' for all classification results for that particular analysis study
-      for (let index = 0; index < classifications?.size; index++) {
+    } else if (classifications?.length) { // If one of the analyses was unsuccessful (with one or more successful ones), display 'N/A' for all classification results for that particular analysis study
+      for (let index = 0; index < classifications?.length; index++) {
         analysisCells.push({
           title: ('N/A')
         });
       }
+    } else {
+      analysisCells.push({
+        title: ('No Results to Display')
+      });
     }
 
     analysisCells.push({

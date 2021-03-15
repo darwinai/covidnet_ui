@@ -177,7 +177,7 @@ const PastAnalysisTable = () => {
     for (const analysis of listOfAnalysis) {
 
       const validAnalyses = analysis.series.filter((series: ISeries) => series.classifications.size > 0);
-      const classifications = validAnalyses[0]?.classifications;
+      const classifications = validAnalyses[0]?.classifications ? Array.from(validAnalyses[0]?.classifications?.keys()) : [];
       const numInvalid = analysis.series.length - validAnalyses.length;
 
       const indexInRows: number = rows.length;
