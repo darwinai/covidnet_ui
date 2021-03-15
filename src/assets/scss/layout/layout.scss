@@ -11,11 +11,14 @@
 .footer {
   display: flex;
   position: fixed;
-  height: 3.5em;
+  height: 2.5em;
   bottom: 0em;
   left: 0em;
   right: 0em;
   width: 100%;
+  justify-content: center;
+  padding: 1.5em 0;
+  min-height: unset;
 
   .footer-text {
     color: white;
@@ -26,14 +29,11 @@
     display: flex;
     align-items: center;
   }
-
-  .footer-right {
-    margin-right: 1.5em;
-  }
 }
 
 .footer-styling {
-  margin-bottom: 3.5em;
+  padding-bottom: 3em;
+  padding-top: 5em;
 }
 
 .pf-c-page__header-tools:nth-child(3) {
