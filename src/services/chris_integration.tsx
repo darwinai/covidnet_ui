@@ -309,7 +309,6 @@ class ChrisIntegration {
             limit: 25,
             offset: 0,
           });
-          console.log(plugin)
           const newSeries: ISeries = {
             covidnetPluginId: plugin.data.id,
             imageName: "",
