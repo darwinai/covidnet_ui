@@ -274,22 +274,22 @@ class ChrisIntegration {
         for (let plugin of pluginlists) {
           let studyInstance: StudyInstanceWithSeries | null = null;
           // ignore plugins that are not models
-          if (!isModel(plugin.data.plugin_name)) continue; 
+          if (!isModel(plugin.data.plugin_name)) continue;
           // get dicom image data
           if (plugin.data.title !== '') {
-            const imgDatas: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
-            if (imgDatas.length > 0) {
+            const imgData: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
+            if (imgData?.length > 0) {
               // use dircopy start time to check
               for (let findDircopy of pluginlists) {
                 if (findDircopy.data.plugin_name === PluginModels.Plugins.FS_PLUGIN) {
                   const startedTime = formatTime(findDircopy.data.start_date);
-                  const possibileIndex = startedTime + imgDatas[0].StudyInstanceUID;
+                  const possibileIndex = startedTime + imgData[0].StudyInstanceUID;
                   // already exists so push it to te seriesList
                   if (!!pastAnalysisMap[possibileIndex]) {
                     studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr];
                   } else { // doesn't already exist so we create one
                     studyInstance = {
-                      dcmImage: imgDatas[0],
+                      dcmImage: imgData[0],
                       analysisCreated: modifyDatetime(findDircopy.data.start_date),
                       series: []
                     };
@@ -397,7 +397,7 @@ class ChrisIntegration {
       PatientID: patientID,
       limit: 1000
     })
-    const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data)
+    const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data);
     return patientImages;
   }
 
