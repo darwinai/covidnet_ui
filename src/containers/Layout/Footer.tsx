@@ -7,11 +7,16 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import logo from "../../assets/images/logo-white.png";
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  isLogin?: boolean
+}
+
+
+const Footer: React.FC<FooterProps> = ({ isLogin }) => {
   const history = useHistory();
 
   const pageToolbar = (
-    <React.Fragment>
+    <div className="footer-content">
       <PageHeaderTools>
         <PageHeaderToolsItem>
           <p className="footer-text">An open-source neural network for disease detection created by&nbsp;
@@ -20,7 +25,7 @@ const Footer: React.FC = () => {
             <a href="https://redhat.com/chris" target="_blank" rel="noopener noreferrer">RedHat</a>&nbsp;</p>
         </PageHeaderToolsItem>
       </PageHeaderTools>
-      <PageHeaderTools className="footer-right">
+      <PageHeaderTools>
         <PageHeaderToolsItem className="footer-link">
           <p className="footer-text">
             Find more about&nbsp;
@@ -30,14 +35,14 @@ const Footer: React.FC = () => {
           </p>
         </PageHeaderToolsItem>
       </PageHeaderTools>
-    </React.Fragment>
+      </div>
   );
 
   return (<PageHeader
     className="footer"
     aria-label="Page Footer"
     headerTools={pageToolbar}
-    logo={<img onClick={() => history.push("/")} src={logo} className="logo" alt="DarwinAI Logo" />}>
+    style={ isLogin ? { backgroundColor: 'black' } : {}}>
   </PageHeader>);
 }
 
