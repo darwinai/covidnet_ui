@@ -181,21 +181,28 @@ const PastAnalysisTable = () => {
       const numInvalid = analysis.series.length - validAnalyses.length;
 
       const indexInRows: number = rows.length;
+
+      const isProcessing = analysis.analysisCreated === Processing.analysisAreProcessing;
+      const analysisCreated = isProcessing ? 
+      {
+        title: (<div><Spinner size="md" /> Processing</div>)
+      } : analysis.analysisCreated;
+
       const cells: any[] = [
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.PatientID,
         analysis.dcmImage.PatientBirthDate,
         `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y`,
-        analysis.analysisCreated,
+        analysisCreated,
         { title: (<><Badge className="badge-margin">{validAnalyses.length}</Badge> {numInvalid ? (<Badge style={{backgroundColor: "#c83737"}}>{numInvalid}</Badge>) : <></>} </>) }
       ];
 
-      const isProcessing = cells[cells.length - 1] === Processing.analysisAreProcessing;
-      if (isProcessing) {
-        cells[cells.length - 1] = {
-          title: (<div><Spinner size="md" /> Processing</div>)
-        }
-      }
+      // const isProcessing = analysis.analysisCreated === Processing.analysisAreProcessing;
+      // if (isProcessing) {
+      //   cells[cells.length - 1] = {
+      //     title: (<div><Spinner size="md" /> Processing</div>)
+      //   }
+      // }
       rows.push({
         isOpen: false,
         cells: cells
@@ -230,7 +237,7 @@ const PastAnalysisTable = () => {
       ...props
     } = tableRow;
 
-    const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the last index in row
+    const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the index of Analysis Created column
 
     // Style the current row
     let backgroundStyle = {};
