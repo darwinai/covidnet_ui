@@ -256,13 +256,12 @@ class ChrisIntegration {
         offset: curOffset,
         max_id
       });
-      const feedArray = feeds.getItems();
+      const feedArray = feeds?.getItems();
       
       curOffset += fetchLimit;
-      // console.log(feedArray)
   
       // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
-      isAtEndOfFeeds = feedArray.length < fetchLimit;
+      isAtEndOfFeeds = feedArray?.length < fetchLimit;
       
       for (let feed of feedArray) {
         const pluginInstances = await feed.getPluginInstances({
