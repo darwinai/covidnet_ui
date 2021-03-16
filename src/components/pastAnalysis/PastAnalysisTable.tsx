@@ -173,9 +173,8 @@ const PastAnalysisTable = () => {
   }
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
-    const rows: (tableRowsChild | tableRowsParent)[] = []
+    const rows: (tableRowsChild | tableRowsParent)[] = [];
     for (const analysis of listOfAnalysis) {
-
       const validAnalyses = analysis.series.filter((series: ISeries) => series.classifications.size > 0);
       const classifications = validAnalyses[0]?.classifications ? Array.from(validAnalyses[0]?.classifications?.keys()) : [];
       const numInvalid = analysis.series.length - validAnalyses.length;
@@ -183,10 +182,17 @@ const PastAnalysisTable = () => {
       const indexInRows: number = rows.length;
 
       const isProcessing = analysis.analysisCreated === Processing.analysisAreProcessing;
-      const analysisCreated = isProcessing ? 
-      {
-        title: (<div><Spinner size="md" /> Processing</div>)
-      } : analysis.analysisCreated;
+      let analysisCreated;
+      let badges;
+      if (isProcessing) {
+        analysisCreated =      {
+          title: (<div><Spinner size="md" /> Processing</div>)
+        };
+        badges = '';
+      } else {
+        analysisCreated = analysis.analysisCreated;
+        badges = {title: (<><Badge className="badge-margin">{validAnalyses.length}</Badge> {numInvalid ? (<Badge style={{backgroundColor: "#c83737"}}>{numInvalid}</Badge>) : <></>} </>)};
+      }
 
       const cells: any[] = [
         analysis.dcmImage.StudyDescription,
@@ -194,15 +200,9 @@ const PastAnalysisTable = () => {
         analysis.dcmImage.PatientBirthDate,
         `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y`,
         analysisCreated,
-        { title: (<><Badge className="badge-margin">{validAnalyses.length}</Badge> {numInvalid ? (<Badge style={{backgroundColor: "#c83737"}}>{numInvalid}</Badge>) : <></>} </>) }
+        badges
       ];
 
-      // const isProcessing = analysis.analysisCreated === Processing.analysisAreProcessing;
-      // if (isProcessing) {
-      //   cells[cells.length - 1] = {
-      //     title: (<div><Spinner size="md" /> Processing</div>)
-      //   }
-      // }
       rows.push({
         isOpen: false,
         cells: cells
@@ -218,14 +218,14 @@ const PastAnalysisTable = () => {
         })
       }
     }
-    setRows(rows)
+    setRows(rows);
   }
 
   const onCollapse = (event: any, rowKey: number, isOpen: any) => {
     setNewRowsRef([]); // Reset to prevent highlight animation from playing again
-    const rowsCopy = [...rows]
+    const rowsCopy = [...rows];
     rowsCopy[rowKey].isOpen = isOpen;
-    setRows(rowsCopy)
+    setRows(rowsCopy);
   }
 
   const customRowWrapper = (tableRow: any) => {

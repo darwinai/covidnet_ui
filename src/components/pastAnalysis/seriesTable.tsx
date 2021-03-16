@@ -85,7 +85,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
       title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
     }, {
       title: (<>{
-        analysisValid ? 
+        analysisValid || isProcessing ? 
         (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>) : 
         (<><ExclamationCircleIcon color="#C9190B"/><span className="analysis-failed-text">Analysis failed</span></>)
       }</>)
