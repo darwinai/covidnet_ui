@@ -104,6 +104,9 @@ const PatientLookup = (props: PatientLookupProps) => {
       <div className="InputRow">
         <div className="InputRowField">
           <label>Patient MRN</label>
+          <form onSubmit={props.isOnDashboard ? navigateToCreateAnalysis : newLookup}>
+            
+          </form>
           <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="MRN Search Field" />
         </div>
         <div className="InputRowField">
