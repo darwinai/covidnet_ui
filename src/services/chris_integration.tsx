@@ -5,6 +5,7 @@ import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
 import { PluginModels } from "../api/app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
+import { Processing } from '../services/pastAnalysisService';
 
 export interface LocalFile {
   name: string;
@@ -32,7 +33,8 @@ interface PACSFile {
 enum PluginPollStatus {
   CREATED = "created",
   SCHEDULED = "scheduled",
-  WAITING = "waitingForPrevious",
+  WAITING_FOR_PREVIOUS = "waitingForPrevious",
+  WAITING = "waiting",
   STARTED = "started",
   SUCCESS = "finishedSuccessfully",
   ERROR = "finishedWithError",
@@ -205,7 +207,7 @@ class ChrisIntegration {
 
   static async getFilePathNameByUID(StudyInstanceUID: string, SeriesInstanceUID: string): Promise<string> {
     let client: any = await ChrisAPIClient.getClient();
-    
+
     const res = await client.getPACSFiles({
       StudyInstanceUID,
       SeriesInstanceUID,
@@ -257,12 +259,12 @@ class ChrisIntegration {
         max_id
       });
       const feedArray = feeds?.getItems();
-      
+
       curOffset += fetchLimit;
-  
+
       // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
       isAtEndOfFeeds = feedArray?.length < fetchLimit;
-      
+
       for (let feed of feedArray) {
         const pluginInstances = await feed.getPluginInstances({
           limit: 25,
@@ -287,9 +289,20 @@ class ChrisIntegration {
                   if (!!pastAnalysisMap[possibileIndex]) {
                     studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr];
                   } else { // doesn't already exist so we create one
+                    const pluginStatus = plugin?.data?.status;
+                    let analysisCreated: string;
+                    // If the model plugin is not in a terminated state, mark analysisCreated as processing, otherwise, provide datetime
+                    if (pluginStatus !== PluginPollStatus.SUCCESS &&
+                      pluginStatus !== PluginPollStatus.ERROR &&
+                      pluginStatus !== PluginPollStatus.CANCELLED) {
+                      analysisCreated = Processing.analysisAreProcessing;
+                    } else {
+                      analysisCreated = modifyDatetime(findDircopy.data.start_date);
+                    }
+
                     studyInstance = {
                       dcmImage: imgData[0],
-                      analysisCreated: modifyDatetime(findDircopy.data.start_date),
+                      analysisCreated,
                       series: []
                     };
                     // first update map with the index then push to the result array
@@ -303,7 +316,7 @@ class ChrisIntegration {
             // TODO: investigate else case
             return [[], curOffset, isAtEndOfFeeds];
           }
-  
+
           const pluginInstanceFiles = await plugin.getFiles({
             limit: 25,
             offset: 0,
@@ -344,14 +357,14 @@ class ChrisIntegration {
                 }
               } else if (!fileObj.data.fname.includes('json')) {
                 newSeries.imageId = fileObj.data.id;
-                
+
                 // Fetch image URL
                 if (newSeries.imageId) {
                   const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
                   const urlCreator = window.URL || window.webkitURL;
                   newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
                 }
-    
+
                 // get dcmImageId from dircopy
                 const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
                 const dircopyFiles = (await dircopyPlugin.getFiles({
@@ -389,7 +402,7 @@ class ChrisIntegration {
 
   static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {
     if (!patientID) return [];
-    
+
     let client: any = await ChrisAPIClient.getClient();
 
     const res = await client.getPACSFiles({
@@ -417,7 +430,7 @@ class ChrisIntegration {
 
   static async pdfGeneration(selectedImage: selectedImageType) {
     const covidnetPluginId = selectedImage.studyInstance?.series[selectedImage.index].covidnetPluginId;
-    if (covidnetPluginId ===  null || covidnetPluginId ===  undefined) return;
+    if (covidnetPluginId === null || covidnetPluginId === undefined) return;
     const client: any = ChrisAPIClient.getClient();
     const pluginfiles = await this.findFilesGeneratedByPlugin(covidnetPluginId);
     let imgName: string = '';
