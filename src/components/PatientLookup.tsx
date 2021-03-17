@@ -1,12 +1,9 @@
 import {
   Button, Dropdown,
-
   DropdownItem, DropdownToggle,
-
-
   TextInput
 } from '@patternfly/react-core';
-import React, { useContext, useState } from "react";
+import React, { ChangeEvent, useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
 import { AppContext } from "../context/context";
@@ -24,7 +21,7 @@ interface PatientLookupProps {
   isOnDashboard: boolean
 }
 
-const PatientLookup = (props: PatientLookupProps) => {
+const PatientLookup: React.FC<PatientLookupProps> = ({isOnDashboard}) => {
   const { dispatch } = useContext(AppContext);
   const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
   const [patientID, setPatientID] = useState<string>("");
@@ -32,7 +29,7 @@ const PatientLookup = (props: PatientLookupProps) => {
 
   const [isDropDownOpen, setDropDownOpen] = React.useState(false);
 
-  const onSelect = (value: any) => {
+  const onSelect = (_value: any) => {
     setDropDownOpen(!isDropDownOpen);
     onFocus();
   }
@@ -61,7 +58,7 @@ const PatientLookup = (props: PatientLookupProps) => {
           images: dcmImages
         }
       });
-      
+
       // Select first study instance by default
       const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
       if (studyInstances.length > 0) {
@@ -75,6 +72,10 @@ const PatientLookup = (props: PatientLookupProps) => {
     } catch (err) {
       console.error(err);
     }
+
+    if (isOnDashboard) {
+      history.push("/createAnalysis");
+    }
   }
 
   const dropdownItems = [
@@ -86,28 +87,26 @@ const PatientLookup = (props: PatientLookupProps) => {
     </DropdownItem>,
   ];
 
-  const navigateToCreateAnalysis = async () => {
-    await newLookup();
-    history.push("/createAnalysis");
-  }
-
-  const submitButton = props.isOnDashboard ? (
-    <RightArrowButton click={navigateToCreateAnalysis}>Continue</RightArrowButton>
+  const submitButton = isOnDashboard ? (
+    <RightArrowButton click={newLookup}>Continue</RightArrowButton>
   ) : (
-      <Button variant="secondary" onClick={newLookup}>
-        <b>New Lookup</b>
-      </Button>
-    );
+    <Button variant="secondary" onClick={newLookup}>
+      <b>New Lookup</b>
+    </Button>
+  );
+
+  const keyPress = (e: React.KeyboardEvent) => {
+    if (e.keyCode == 13) {
+      newLookup();
+    }
+  }
 
   return (
     <React.Fragment>
       <div className="InputRow">
         <div className="InputRowField">
           <label>Patient MRN</label>
-          <form onSubmit={props.isOnDashboard ? navigateToCreateAnalysis : newLookup}>
-            
-          </form>
-          <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="MRN Search Field" />
+          <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="MRN Search Field" onKeyDown={keyPress} />
         </div>
         <div className="InputRowField">
           <label>Privacy Level</label>
