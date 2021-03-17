@@ -104,7 +104,7 @@ const PatientLookup = (props: PatientLookupProps) => {
       <div className="InputRow">
         <div className="InputRowField">
           <label>Patient MRN</label>
-          <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="text input example" />
+          <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="MRN Search Field" />
         </div>
         <div className="InputRowField">
           <label>Privacy Level</label>
