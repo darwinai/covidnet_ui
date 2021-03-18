@@ -22,7 +22,7 @@ const CreateAnalysisPage = () => {
               <CreateAnalysisWrapper></CreateAnalysisWrapper>
             </PageSection>
             :
-            <PageSection variant={PageSectionVariants.light}>
+            <PageSection variant={PageSectionVariants.light} className="page-section-no-results">
               <Error>No studies found</Error>
             </PageSection>
         }
