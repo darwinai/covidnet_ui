@@ -177,7 +177,7 @@ const PastAnalysisTable = () => {
     for (const analysis of listOfAnalysis) {
       const validAnalyses = analysis.series.filter((series: ISeries) => series.classifications.size > 0);
       const classifications = validAnalyses[0]?.classifications ? Array.from(validAnalyses[0]?.classifications?.keys()) : [];
-      const numInvalid = analysis.series.length - validAnalyses.length;
+      const numInvalidAnalyses = analysis.series.length - validAnalyses.length;
 
       const indexInRows: number = rows.length;
 
@@ -185,13 +185,18 @@ const PastAnalysisTable = () => {
       let analysisCreated;
       let badges;
       if (isProcessing) {
-        analysisCreated =      {
+        analysisCreated = {
           title: (<div><Spinner size="md" /> Processing</div>)
         };
         badges = '';
       } else {
         analysisCreated = analysis.analysisCreated;
-        badges = {title: (<><Badge className="badge-margin">{validAnalyses.length}</Badge> {numInvalid ? (<Badge style={{backgroundColor: "#c83737"}}>{numInvalid}</Badge>) : <></>} </>)};
+        badges = {
+          title: (<>
+            {<Badge className="badge-margin" isRead={!validAnalyses.length}>{validAnalyses.length}</Badge>}
+            {<Badge style={numInvalidAnalyses ? { backgroundColor: "#c83737" }: {}} isRead={!numInvalidAnalyses}>{numInvalidAnalyses}</Badge>}
+          </>)
+        };
       }
 
       const cells: any[] = [
