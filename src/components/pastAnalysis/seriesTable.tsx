@@ -75,7 +75,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
       }
     } else {
       analysisCells.push({
-        title: ('No Results to Display')
+        title: ('Results not available')
       });
     }
 
