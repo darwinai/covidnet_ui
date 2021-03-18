@@ -10,18 +10,20 @@ import Client, { User } from "@fnndsc/chrisapi";
 
 const LoginFormComponent = () => {
   const history = useHistory();
-  const [showHelperText] = useState(false);
-  const [usernameValue, setUsernameValue] = useState('');
-  const [isValidUsername] = useState(true);
-  const [passwordValue, setPasswordValue] = useState('');
-  const [RememberMeClick, setRememberMeClick] = useState(true);
+  const [helperText, setHelperText] = useState("");
+  const [usernameValue, setUsernameValue] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
+  const [isValidCredentials, setIsValidCredentials] = useState(true);
 
   const { dispatch } = React.useContext(AppContext);
 
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
+
     const isLoginSuccessful = await handleLogin(usernameValue, passwordValue);
     if (isLoginSuccessful) {
+      setIsValidCredentials(true);
+      setHelperText("");
       const client: Client = ChrisAPIClient.getClient();
       const res: User = await client.getUser();
       const user: IUserState = res?.data;
@@ -31,25 +33,23 @@ const LoginFormComponent = () => {
       });
       history.push('/');
     } else {
-      console.log('login failed');
+      setIsValidCredentials(false);
+      setHelperText("Invalid username or password.");
     }
   }
 
   return (
     <LoginForm
-      showHelperText={showHelperText}
-      helperText="Invalid login credentials."
+      showHelperText={!!helperText}
+      helperText={helperText}
       usernameLabel="Username"
       usernameValue={usernameValue}
       onChangeUsername={(val) => setUsernameValue(val)}
-      isValidUsername={isValidUsername}
+      isValidUsername={isValidCredentials}
       passwordLabel="Password"
       passwordValue={passwordValue}
       onChangePassword={(val) => setPasswordValue(val)}
-      isValidPassword={true}
-      rememberMeLabel="Keep me logged in for 30 days."
-      isRememberMeChecked={RememberMeClick}
-      onChangeRememberMe={() => setRememberMeClick(!RememberMeClick)}
+      isValidPassword={isValidCredentials}
       onLoginButtonClick={handleSubmit}
     />
   );
