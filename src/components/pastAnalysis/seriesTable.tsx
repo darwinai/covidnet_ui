@@ -87,7 +87,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
       title: (<>{
         analysisValid || isProcessing ? 
         (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>) : 
-        (<><ExclamationCircleIcon color="#C9190B"/><span className="analysis-failed-text">Analysis failed</span></>)
+        (<><ExclamationCircleIcon color="var(--pf-global--danger-color--100)"/><span className="analysis-failed-text">Analysis failed</span></>)
       }</>)
     });
 
