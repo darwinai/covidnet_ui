@@ -35,7 +35,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
     { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }
   ];
 
-  analysisList[0]?.classifications.forEach((value: number, key: string) => {
+  analysisList[0]?.classifications.forEach((_value: number, key: string) => {
     titles.push({ title: (<span><br /><span className='classificationText'>{key}</span></span>) }); // Adding the column titles for each analysis
   });
 
