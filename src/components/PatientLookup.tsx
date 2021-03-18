@@ -3,7 +3,7 @@ import {
   DropdownItem, DropdownToggle,
   TextInput
 } from '@patternfly/react-core';
-import React, { ChangeEvent, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
 import { AppContext } from "../context/context";
@@ -96,7 +96,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({isOnDashboard}) => {
   );
 
   const keyPress = (e: React.KeyboardEvent) => {
-    if (e.keyCode == 13) {
+    if (e.keyCode === 13) {
       newLookup();
     }
   }
