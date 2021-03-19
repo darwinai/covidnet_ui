@@ -53,13 +53,13 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
   const columns = titles;
 
   const rows = analysisList.map((analysis: ISeries, index: number) => {
-    const analysisValid = !!analysis.classifications.size;
+    const isAnalysisValid = !!analysis.classifications.size;
     let analysisCells: any = [
       { title: (analysis.imageUrl ? <div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div> : <div><PreviewNotAvailable /></div>) },
       { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
     ];
 
-    if (analysisValid) { // If the analysis was successful, read in its analysis results
+    if (isAnalysisValid) { // If the analysis was successful, read in its analysis results
       analysis.classifications.forEach((value: number, key: string) => { // Dynamically displaying each prediction class
         analysisCells.push({
           title: (<PredictionCircle key={key}
@@ -85,7 +85,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
       title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
     }, {
       title: (<>{
-        analysisValid || isProcessing ? 
+        isAnalysisValid || isProcessing ? 
         (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>) : 
         (<><ExclamationCircleIcon color="var(--pf-global--danger-color--100)"/><span className="analysis-failed-text">Analysis failed</span></>)
       }</>)
