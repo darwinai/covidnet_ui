@@ -21,7 +21,7 @@ interface PatientLookupProps {
   isOnDashboard: boolean
 }
 
-const PatientLookup: React.FC<PatientLookupProps> = ({isOnDashboard}) => {
+const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
   const { dispatch } = useContext(AppContext);
   const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
   const [patientID, setPatientID] = useState<string>("");
@@ -95,36 +95,39 @@ const PatientLookup: React.FC<PatientLookupProps> = ({isOnDashboard}) => {
     </Button>
   );
 
-  const keyPress = (e: React.KeyboardEvent) => {
-    if (e.keyCode === 13) {
-      newLookup();
-    }
-  }
-
   return (
     <React.Fragment>
       <div className="InputRow">
         <div className="InputRowField">
           <label>Patient MRN</label>
-          <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="MRN Search Field" onKeyDown={keyPress} />
-        </div>
-        <div className="InputRowField">
-          <label>Privacy Level</label>
-          <Dropdown
-            onSelect={onSelect}
-            toggle={
-              <DropdownToggle id="toggle-Privacy-Level" onToggle={setDropDownOpen}>
-                <div className="dropdownContent">
-                  {privacyLevel}
+          <div className="InputRow">
+            <form onSubmit={newLookup} className="form-display">
+              <div className="InputRowField">
+                <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="MRN Search Field" />
+                <div className="InputRowField">
+                  {submitButton}
                 </div>
-              </DropdownToggle>
-            }
-            isOpen={isDropDownOpen}
-            dropdownItems={dropdownItems}
-          />
-        </div>
-        <div className="InputRowField">
-          {submitButton}
+              </div>
+            </form>
+          </div>
+          <div className="InputRowField">
+            <label>Privacy Level</label>
+            <Dropdown
+              onSelect={onSelect}
+              toggle={
+                <DropdownToggle id="toggle-Privacy-Level" onToggle={setDropDownOpen}>
+                  <div className="dropdownContent">
+                    {privacyLevel}
+                  </div>
+                </DropdownToggle>
+              }
+              isOpen={isDropDownOpen}
+              dropdownItems={dropdownItems}
+            />
+          </div>
+          <div className="InputRowField">
+            {submitButton}
+          </div>
         </div>
       </div>
     </React.Fragment>
