@@ -3,7 +3,7 @@ import { ArrowRightIcon } from '@patternfly/react-icons';
 import React from "react";
 
 interface RightArrowButtonProps { 
-  click: () => void; 
+  click?: () => void; 
   className?: string
 }
 

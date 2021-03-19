@@ -39,7 +39,8 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
     if (element) element.focus();
   };
 
-  const newLookup = async () => {
+  const newLookup = async (event?: React.FormEvent) => {
+    event?.preventDefault();
     dispatch({
       type: CreateAnalysisTypes.Update_patient_ID,
       payload: {
@@ -90,7 +91,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
   const submitButton = isOnDashboard ? (
     <RightArrowButton click={newLookup}>Continue</RightArrowButton>
   ) : (
-    <Button variant="secondary" onClick={newLookup}>
+    <Button variant="secondary" type="submit">
       <b>New Lookup</b>
     </Button>
   );
@@ -98,17 +99,10 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
   return (
     <React.Fragment>
       <div className="InputRow">
-        <div className="InputRowField">
-          <label>Patient MRN</label>
-          <div className="InputRow">
-            <form onSubmit={newLookup} className="form-display">
-              <div className="InputRowField">
-                <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="MRN Search Field" />
-                <div className="InputRowField">
-                  {submitButton}
-                </div>
-              </div>
-            </form>
+        <form onSubmit={newLookup} className="form-display">
+          <div className="InputRowField">
+            <label>Patient MRN</label>
+            <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="MRN Search Field" />
           </div>
           <div className="InputRowField">
             <label>Privacy Level</label>
@@ -128,7 +122,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
           <div className="InputRowField">
             {submitButton}
           </div>
-        </div>
+        </form>
       </div>
     </React.Fragment>
   )
