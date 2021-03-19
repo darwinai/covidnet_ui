@@ -32,7 +32,8 @@
 }
 
 .page-wrapper {
-  position: fixed;
+  position: absolute;
+  width: 100%;
   padding-top: var(--pf-c-page__header--MinHeight);
   padding-bottom: $footer-height;
 }
