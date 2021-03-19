@@ -59,7 +59,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
       { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
     ];
 
-    if (isAnalysisValid) { // If the analysis was successful, read in its analysis results
+    if (isAnalysisValid) { // If this Series' analysis was successful, read in its analysis results
       analysis.classifications.forEach((value: number, key: string) => { // Dynamically displaying each prediction class
         analysisCells.push({
           title: (<PredictionCircle key={key}
@@ -67,13 +67,11 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
             predictionNumber={value} />)
         });
       });
-    } else if (classifications?.length) { // If one of the analyses was unsuccessful (with one or more successful ones), display 'N/A' for all classification results for that particular analysis study
-      for (let index = 0; index < classifications?.length; index++) {
-        analysisCells.push({
-          title: ('N/A')
-        });
-      }
-    } else {
+    } else if (classifications?.length) { // If this Series' analysis was unsuccessful, but the list of classes is known, display 'N/A' for each classification result
+      analysisCells.push(...classifications.map(() => ({
+        title: ('N/A')
+      })));
+    } else { // If this Series' analysis was unsuccessful, and the list of classes is unknown
       analysisCells.push({
         title: ('Results not available')
       });
@@ -85,9 +83,9 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
       title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
     }, {
       title: (<>{
-        isAnalysisValid || isProcessing ? 
-        (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>) : 
-        (<><ExclamationCircleIcon color="var(--pf-global--danger-color--100)"/><span className="analysis-failed-text">Analysis failed</span></>)
+        isAnalysisValid || isProcessing ?
+          (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>) :
+          (<><ExclamationCircleIcon color="var(--pf-global--danger-color--100)" /><span className="analysis-failed-text">Analysis failed</span></>)
       }</>)
     });
 
