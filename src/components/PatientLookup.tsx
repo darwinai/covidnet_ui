@@ -1,9 +1,6 @@
 import {
   Button, Dropdown,
-
   DropdownItem, DropdownToggle,
-
-
   TextInput
 } from '@patternfly/react-core';
 import React, { useContext, useState } from "react";
