@@ -7,8 +7,7 @@ import { AppContext } from "../../context/context";
 import Error from "../../shared/error";
 
 const CreateAnalysisPage = () => {
-  const { state } = React.useContext(AppContext);
-  const { dcmImages } = state;
+  const { state: {dcmImages} } = React.useContext(AppContext);
 
   return (
     <div className="encapsulation">
