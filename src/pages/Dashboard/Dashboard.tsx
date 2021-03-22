@@ -16,23 +16,6 @@ const DashboardPage: React.FC<AllProps> = () => {
   useEffect(() => {
     document.title = "Analysis - COVID-Net UI";
     if (stagingDcmImages.length <= 0) return;
-
-    // Processing the images
-    CreateAnalysisService.analyzeImages(stagingDcmImages, models.xrayModel, models.ctModel) // Passing selected models to Chris_Integration for image analysis
-      .then((notifications) => {
-        dispatch({
-          type: StagingDcmImagesTypes.UpdateStaging,
-          payload: { imgs: [] }
-        })
-        dispatch({
-          type: AnalysisTypes.Update_are_new_imgs_available,
-          payload: { isAvailable: true }
-        });
-        dispatch({
-          type: NotificationActionTypes.SEND,
-          payload: { notifications }
-        })
-      });
   }, [dispatch, stagingDcmImages, models.ctModel, models.xrayModel]);
 
   return (
