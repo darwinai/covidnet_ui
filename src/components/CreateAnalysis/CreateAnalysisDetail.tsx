@@ -18,6 +18,7 @@ interface CreateAnalysisDetailProps {
 }
 
 const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpanded, submitAnalysis }) => {
+  
   const { state: { createAnalysis, dcmImages } } = useContext(AppContext);
   const [isXray, setIsXray] = useState(false);
   const [patientName, setPatientName] = useState("");
@@ -31,7 +32,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
       setPatientBirthdate(image.PatientBirthDate);
       setPatientSex(image.PatientSex);
     }
-  }, [dcmImages]);
+  }, [dcmImages, createAnalysis]);
 
   const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(createAnalysis.selectedStudyUIDs);

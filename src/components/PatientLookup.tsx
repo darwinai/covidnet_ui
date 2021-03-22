@@ -32,7 +32,7 @@ const PatientLookup = (props: PatientLookupProps) => {
 
   const [isDropDownOpen, setDropDownOpen] = React.useState(false);
 
-  const onSelect = (value: any) => {
+  const onSelect = () => {
     setDropDownOpen(!isDropDownOpen);
     onFocus();
   }
