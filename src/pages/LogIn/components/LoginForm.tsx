@@ -10,7 +10,6 @@ import Client, { User } from "@fnndsc/chrisapi";
 
 const LoginFormComponent = () => {
   const history = useHistory();
-  const [helperText, setHelperText] = useState("");
   const [usernameValue, setUsernameValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   const [isValidCredentials, setIsValidCredentials] = useState(true);
@@ -23,7 +22,6 @@ const LoginFormComponent = () => {
     const isLoginSuccessful = await handleLogin(usernameValue, passwordValue);
     if (isLoginSuccessful) {
       setIsValidCredentials(true);
-      setHelperText("");
       const client: Client = ChrisAPIClient.getClient();
       const res: User = await client.getUser();
       const user: IUserState = res?.data;
@@ -34,14 +32,13 @@ const LoginFormComponent = () => {
       history.push('/');
     } else {
       setIsValidCredentials(false);
-      setHelperText("Invalid username or password.");
     }
   }
 
   return (
     <LoginForm
-      showHelperText={!!helperText}
-      helperText={helperText}
+      showHelperText={!isValidCredentials}
+      helperText="Invalid username or password."
       usernameLabel="Username"
       usernameValue={usernameValue}
       onChangeUsername={(val) => setUsernameValue(val)}
