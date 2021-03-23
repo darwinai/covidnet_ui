@@ -88,9 +88,11 @@ const PastAnalysisTable = () => {
   }, [areNewImgsAvailable])
 
   useEffect(() => {
+    let isMounted = true;
+
     (async () => {
       setLoading(true);
-      const {maxFeedId, page, lastOffset, storedPages} = tableStates;
+      const { maxFeedId, page, lastOffset, storedPages } = tableStates;
 
       // Update the maxFeedId when the PastAnalysisTable first mounts
       if (maxFeedId === -1) {
@@ -114,52 +116,59 @@ const PastAnalysisTable = () => {
       // Slice the array of processing rows to display on current page
       const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
 
-      if (!maxFeedId || maxFeedId >= 0) {
-        // Accumulates with the rows of current page
-        let curAnalyses: StudyInstanceWithSeries[] = [];
+      if (isMounted) {
+        if (!maxFeedId || maxFeedId >= 0) {
+          // Accumulates with the rows of current page
+          let curAnalyses: StudyInstanceWithSeries[] = [];
 
-        // If current page has not yet been seen
-        if (page >= storedPages.length) {
-          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
+          // If current page has not yet been seen
+          if (page >= storedPages.length) {
+            const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
 
-          // Update latest offset
-          setTableStates(prevTableStates => ({
-            ...prevTableStates,
-            lastOffset: newOffset
-          }));
-
-          // If the end of Feeds on Swift has been reached, record the current page as the last page to prevent further navigation by user
-          if (isAtEndOfFeeds) {
+            // Update latest offset
             setTableStates(prevTableStates => ({
               ...prevTableStates,
-              lastPage: page
+              lastOffset: newOffset
             }));
+
+            // If the end of Feeds on Swift has been reached, record the current page as the last page to prevent further navigation by user
+            if (isAtEndOfFeeds) {
+              setTableStates(prevTableStates => ({
+                ...prevTableStates,
+                lastPage: page
+              }));
+            }
+
+            // Append processing rows to fetched results rows and update storedPages
+            curAnalyses = processingRows.concat(newAnalyses);
+            setTableStates(prevTableStates => ({
+              ...prevTableStates,
+              storedPages: [...prevTableStates.storedPages, curAnalyses]
+            }));
+          } else {
+            // If page has already been seen, access its contents from storedPages
+            curAnalyses = storedPages[page];
           }
 
-          // Append processing rows to fetched results rows and update storedPages
-          curAnalyses = processingRows.concat(newAnalyses);
-          setTableStates(prevTableStates => ({
-            ...prevTableStates,
-            storedPages: [...prevTableStates.storedPages, curAnalyses]
-          }));
-        } else {
-          // If page has already been seen, access its contents from storedPages
-          curAnalyses = storedPages[page];
+          dispatch({
+            type: AnalysisTypes.Update_list,
+            payload: { list: curAnalyses }
+          });
+          updateRows(curAnalyses);
+
+          dispatch({
+            type: AnalysisTypes.Update_are_new_imgs_available,
+            payload: { isAvailable: false }
+          });
         }
-
-        dispatch({
-          type: AnalysisTypes.Update_list,
-          payload: { list: curAnalyses }
-        });
-        updateRows(curAnalyses);
-
-        dispatch({
-          type: AnalysisTypes.Update_are_new_imgs_available,
-          payload: { isAvailable: false }
-        });
+        setLoading(false);
       }
-      setLoading(false);
+      
     })();
+
+    return () => {
+      isMounted = false;
+    };
   }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch, history, stagingDcmImages]);
 
   // Increments or decrements current page number
@@ -268,34 +277,34 @@ const PastAnalysisTable = () => {
           <InputGroupText> <SearchIcon /> </InputGroupText>
         </InputGroup>
       </div>
-      
-    <div style={{float: "right"}}>
-    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{marginRight: "1em"}} onClick={() => updatePage(-1)} disabled={loading || tableStates.page == 0}>
-      <span className="pf-c-button__icon pf-m-end">
-        <i className="fas fa-arrow-left" aria-hidden="true"></i>
-      </span>
+
+      <div style={{ float: "right" }}>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => updatePage(-1)} disabled={loading || tableStates.page == 0}>
+          <span className="pf-c-button__icon pf-m-end">
+            <i className="fas fa-arrow-left" aria-hidden="true"></i>
+          </span>
       &nbsp; Previous {perpage}
-    </button>
-    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={loading || tableStates.page === tableStates.lastPage}>Next {perpage}
-      <span className="pf-c-button__icon pf-m-end">
-        <i className="fas fa-arrow-right" aria-hidden="true"></i>
-      </span>
-    </button>
-    </div>
-    { loading ? (
-      <div className="loading">
-        <Spinner size="xl" /> &nbsp; Loading
+        </button>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={loading || tableStates.page === tableStates.lastPage}>Next {perpage}
+          <span className="pf-c-button__icon pf-m-end">
+            <i className="fas fa-arrow-right" aria-hidden="true"></i>
+          </span>
+        </button>
       </div>
-    ) : (
-      <Table aria-label="Collapsible table" id="pastAnalysisTable"
-        onCollapse={onCollapse} rows={rows} cells={columns}
-        rowWrapper={customRowWrapper}
+      { loading ? (
+        <div className="loading">
+          <Spinner size="xl" /> &nbsp; Loading
+        </div>
+      ) : (
+        <Table aria-label="Collapsible table" id="pastAnalysisTable"
+          onCollapse={onCollapse} rows={rows} cells={columns}
+          rowWrapper={customRowWrapper}
         >
-        <TableHeader />
-        <TableBody />
-      </Table>
+          <TableHeader />
+          <TableBody />
+        </Table>
       )
-    }
+      }
     </div>
   );
 }
