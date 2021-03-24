@@ -5,14 +5,14 @@ import {
 
 
   TextInput
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
 import { AppContext } from "../context/context";
 import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
-import chris_integration from '../services/chris_integration';
-import pacs_integration from '../services/pacs_integration';
+import chris_integration from "../services/chris_integration";
+import pacs_integration from "../services/pacs_integration";
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
 
 enum PrivacyLevel {
@@ -38,8 +38,8 @@ const PatientLookup = (props: PatientLookupProps) => {
   }
 
   const onFocus = () => {
-    const element = document.getElementById('toggle-Privacy-Level');
-    if (element) element.focus();
+    const element = document.getElementById("toggle-Privacy-Level");
+    if (element) { element.focus(); }
   };
 
   const newLookup = async () => {
@@ -51,7 +51,7 @@ const PatientLookup = (props: PatientLookupProps) => {
     });
 
     try {
-      const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
+      const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === "pacs" ?
         await pacs_integration.queryPatientFiles(patientID) :
         await chris_integration.fetchPacFiles(patientID);
 
@@ -61,7 +61,7 @@ const PatientLookup = (props: PatientLookupProps) => {
           images: dcmImages
         }
       });
-      
+
       // Select first study instance by default
       const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
       if (studyInstances.length > 0) {

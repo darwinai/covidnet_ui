@@ -6,9 +6,9 @@ import {
   NotificationDrawerListItem,
   NotificationDrawerListItemBody,
   NotificationDrawerListItemHeader
-} from '@patternfly/react-core';
-import React, { useContext } from 'react';
-import { AppContext } from '../../context/context';
+} from "@patternfly/react-core";
+import React, { useContext } from "react";
+import { AppContext } from "../../context/context";
 
 interface NotificationDrawerWrapperProps {
   onClose: () => void;

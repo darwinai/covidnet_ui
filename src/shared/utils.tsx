@@ -9,16 +9,16 @@ export const formatGender = (gender: string): string => {
 }
 
 export const calculatePatientAge = (patientDOB: string): number => {
-  return moment().diff(patientDOB, 'year');
+  return moment().diff(patientDOB, "year");
 }
 
 export const formatTime = (oldDay: string): string => {
-  return oldDay.split('.')[0]
+  return oldDay.split(".")[0]
 }
 
 export const modifyDatetime = (oldDay: string): string => {
   let today = new Date().setHours(0, 0, 0, 0)
-  let diff = Math.abs(+today - +new Date(oldDay.split('T')[0]))
+  let diff = Math.abs(+today - +new Date(oldDay.split("T")[0]))
   diff = Math.floor(diff / (1000 * 60 * 60 * 24)) // diff is in days, 1ms * 1000 * 60 * 60 * 24
   let description = "days ago"
   let rvtVal = `${diff} ${description}`
@@ -31,7 +31,7 @@ export const modifyDatetime = (oldDay: string): string => {
     diff = Math.floor(diff / 7)
     rvtVal = `${diff} ${description}`
   } else if (diff < 1) {
-    rvtVal = oldDay.split('T')[1].split('.')[0]
+    rvtVal = oldDay.split("T")[1].split(".")[0]
   }
   return rvtVal
 }

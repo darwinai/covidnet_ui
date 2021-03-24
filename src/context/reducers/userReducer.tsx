@@ -8,8 +8,8 @@ export type IUserState = {
 }
 
 export let initialIUserState = {
-  username: '',
-  email: '',
+  username: "",
+  email: "",
   loggedIn: false
 }
 
@@ -35,8 +35,8 @@ export const userReducer = (
       }
     case Types.Logout_update:
       return {
-        username: '',
-        email: '',
+        username: "",
+        email: "",
         loggedIn: false
       }
     default:

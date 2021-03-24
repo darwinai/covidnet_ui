@@ -1,9 +1,9 @@
-import { History } from 'history';
-import * as React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { History } from "history";
+import * as React from "react";
+import { BrowserRouter } from "react-router-dom";
 import { AppProvider } from "./context/context";
 import RouterWrapper from "./RouterWrapper";
-import Routes from './routes';
+import Routes from "./routes";
 
 interface AllProps {
   history: History;

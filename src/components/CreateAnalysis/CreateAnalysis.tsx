@@ -1,6 +1,6 @@
-import { Stack, StackItem } from '@patternfly/react-core';
+import { Stack, StackItem } from "@patternfly/react-core";
 import React from "react";
-import PatientLookup from '../PatientLookup';
+import PatientLookup from "../PatientLookup";
 
 const CreateAnalysis: React.FC = () => {
   // const { state, dispatch } = useContext(AppContext);

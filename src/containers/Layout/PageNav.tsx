@@ -1,10 +1,10 @@
 import { Nav, NavItem, NavList } from "@patternfly/react-core";
 import React from "react";
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from "react-router-dom";
 
 const navMap = [
-  { 'label': 'Dashboard', 'path': '/' },
-  { 'label': 'Create Analysis', 'path': '/createAnalysis' }
+  { "label": "Dashboard", "path": "/" },
+  { "label": "Create Analysis", "path": "/createAnalysis" }
 ];
 
 const PageNav = () => {

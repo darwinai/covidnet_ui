@@ -1,4 +1,4 @@
-import { Badge } from '@patternfly/react-core';
+import { Badge } from "@patternfly/react-core";
 import React, { useContext, useEffect } from "react";
 import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
@@ -35,10 +35,10 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   
   return (
     <div
-      className={`SelectionStudy ${isSelected ? 'selected' : ''}`}
+      className={`SelectionStudy ${isSelected ? "selected" : ""}`}
       onClick={selectThisStudy}
     >
-      <h1 className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText' : ''}`}>
+      <h1 className={`${currSelectedStudyUID === studyInstanceUID ? "blueText" : ""}`}>
         {isSelected ?
           (<Badge>{Object.keys(imagesSelectedDict).length}</Badge>) : null}
         &nbsp;{studyDescription}</h1>

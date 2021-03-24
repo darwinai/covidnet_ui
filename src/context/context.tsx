@@ -1,12 +1,12 @@
-import React, { createContext, useReducer } from 'react';
-import { analysesReducer, initialIPrevAnalysesState, IPrevAnalysesState } from './reducers/analyseReducer';
-import { createAnalysisReducer, ICreateAnalysisState, initialICreateAnalysisState } from './reducers/createAnalysisReducer';
-import { dicomImagesReducer, IDcmImagesState, initialIDcmImagesState } from './reducers/dicomImagesReducer';
-import { IimgViewerState, imgViewerReducer, initialIimgViewer } from './reducers/imgViewerReducer';
-import { initialNotificationsState, notificationsReducer, NotificationState } from './reducers/notificationReducer';
-import { initialIStagingDcmImgsState, IStagingDcmImgs, stagingDcmImgsReducer } from './reducers/stagingDcmImgsReducer';
-import { initialIUserState, IUserState, userReducer } from './reducers/userReducer';
-import { initialModelSelectionState, ModelSelection, updatingModelSelectionReducer } from './reducers/modelSelectionReducer';
+import React, { createContext, useReducer } from "react";
+import { analysesReducer, initialIPrevAnalysesState, IPrevAnalysesState } from "./reducers/analyseReducer";
+import { createAnalysisReducer, ICreateAnalysisState, initialICreateAnalysisState } from "./reducers/createAnalysisReducer";
+import { dicomImagesReducer, IDcmImagesState, initialIDcmImagesState } from "./reducers/dicomImagesReducer";
+import { IimgViewerState, imgViewerReducer, initialIimgViewer } from "./reducers/imgViewerReducer";
+import { initialNotificationsState, notificationsReducer, NotificationState } from "./reducers/notificationReducer";
+import { initialIStagingDcmImgsState, IStagingDcmImgs, stagingDcmImgsReducer } from "./reducers/stagingDcmImgsReducer";
+import { initialIUserState, IUserState, userReducer } from "./reducers/userReducer";
+import { initialModelSelectionState, ModelSelection, updatingModelSelectionReducer } from "./reducers/modelSelectionReducer";
 
 type InitialStateType = {
   user: IUserState;

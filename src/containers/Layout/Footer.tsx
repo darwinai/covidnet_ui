@@ -42,7 +42,7 @@ const Footer: React.FC<FooterProps> = ({ isLogin }) => {
     className="footer"
     aria-label="Page Footer"
     headerTools={pageToolbar}
-    style={ isLogin ? { backgroundColor: 'black' } : {}}>
+    style={ isLogin ? { backgroundColor: "black" } : {}}>
   </PageHeader>);
 }
 

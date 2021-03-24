@@ -1,15 +1,15 @@
-import AspectRatioIcon from '@material-ui/icons/AspectRatio';
-import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import InvertColorsIcon from '@material-ui/icons/InvertColors';
-import PanToolOutlinedIcon from '@material-ui/icons/PanToolOutlined';
-import { Spinner, Tooltip, TooltipPosition } from '@patternfly/react-core';
+import AspectRatioIcon from "@material-ui/icons/AspectRatio";
+import BrightnessMediumIcon from "@material-ui/icons/BrightnessMedium";
+import GetAppIcon from "@material-ui/icons/GetApp";
+import InvertColorsIcon from "@material-ui/icons/InvertColors";
+import PanToolOutlinedIcon from "@material-ui/icons/PanToolOutlined";
+import { Spinner, Tooltip, TooltipPosition } from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { ImageViewerTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { ImagesViewerMods } from '../../context/reducers/imgViewerReducer';
-import ChrisIntegration from '../../services/chris_integration';
+import { ImagesViewerMods } from "../../context/reducers/imgViewerReducer";
+import ChrisIntegration from "../../services/chris_integration";
 
 const DicomViewerHeader = () => {
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ const DicomViewerHeader = () => {
   }
 
   const switchFullScreen = () => {
-    const elem: any = document.getElementById('dicomImgViewer')
+    const elem: any = document.getElementById("dicomImgViewer")
     if (!isFullScreen) {
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
@@ -51,10 +51,10 @@ const DicomViewerHeader = () => {
   return (
     <div id="ViewerHeaderBox" className="flex_row dicomViewerHeader">
       <div className="headerlogo padding_left_right_2rem">
-        <span className='logo-text'>COVID-Net</span>
-        <a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#"> <i className="fas fa-angle-left"></i> Back to Dashboard</a>
+        <span className="logo-text">COVID-Net</span>
+        <a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push("/"); e.preventDefault(); }} href="/#"> <i className="fas fa-angle-left"></i> Back to Dashboard</a>
       </div>
-      <div className='padding_left_right_2rem'>
+      <div className="padding_left_right_2rem">
         {/* Tools
         <button
           className={`${mod === ImagesViewerMods.ZOOM ? 'highlightedMod' : ''}`}
@@ -94,7 +94,7 @@ const DicomViewerHeader = () => {
             onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon /></button>
         </Tooltip>
       </div>
-      <div className='padding_left_right_2rem flex_row'>
+      <div className="padding_left_right_2rem flex_row">
         <button onClick={() => dispatch({
           type: ImageViewerTypes.Update_is_img_inverted,
           payload: { isImgInverted: !isImgInverted }
@@ -126,7 +126,7 @@ const DicomViewerHeader = () => {
           </Tooltip>
         </button>
         <button onClick={printPDF}>{!loading ? <GetAppIcon /> : <Spinner size="lg"/>}</button>
-        <div className='padding_left_right_2rem'></div>
+        <div className="padding_left_right_2rem"></div>
         <button onClick={() => switchFullScreen()}>
           {
             isFullScreen ? <i className="fas fa-compress"></i> : <AspectRatioIcon></AspectRatioIcon>

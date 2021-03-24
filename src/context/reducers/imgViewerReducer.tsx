@@ -1,9 +1,9 @@
 import { ActionMap, ImageViewerTypes } from "../actions/types";
 
 export enum ImagesViewerMods {
-  ZOOM = 'ZOOM',
-  PAN = 'PAN',
-  WINDOW_LEVEL = 'WINDOW_LEVEL'
+  ZOOM = "ZOOM",
+  PAN = "PAN",
+  WINDOW_LEVEL = "WINDOW_LEVEL"
 }
 
 export type IimgViewerState = {

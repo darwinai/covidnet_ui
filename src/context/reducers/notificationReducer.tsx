@@ -2,15 +2,15 @@ import { Moment } from "moment";
 import { ActionMap, NotificationActionTypes } from "../actions/types";
 
 export enum NotificationItemVariant {
-  SUCCESS = 'success',
-  DANGER = 'danger',
-  WARNING = 'warning',
-  INFO = 'info',
-  DEFAULT = 'default'
+  SUCCESS = "success",
+  DANGER = "danger",
+  WARNING = "warning",
+  INFO = "info",
+  DEFAULT = "default"
 }
 
 export interface NotificationItem {
-  variant: 'success' | 'danger' | 'warning' | 'info' | 'default'
+  variant: "success" | "danger" | "warning" | "info" | "default"
   title: string;
   message: string;
   timestamp: Moment;

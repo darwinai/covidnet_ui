@@ -1,4 +1,4 @@
-import WarningIcon from '@material-ui/icons/Warning';
+import WarningIcon from "@material-ui/icons/Warning";
 import React from "react";
 
 interface ErrorProps {

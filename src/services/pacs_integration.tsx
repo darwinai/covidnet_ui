@@ -1,6 +1,6 @@
 import { DcmImage, PFDCMResponse, PACSMainResponse, PACSSeries} from "../context/reducers/dicomImagesReducer";
-import { BASE_PACS_FILE_PATH } from '../api/app.config';
-import axios from 'axios';
+import { BASE_PACS_FILE_PATH } from "../api/app.config";
+import axios from "axios";
 
 declare var process: {
     env: {
@@ -12,7 +12,7 @@ class PACSIntegration {
 
     static parseResponse(rawResponse: string): PFDCMResponse | undefined {
         try {
-            let responseHeader = rawResponse.split('\r');
+            let responseHeader = rawResponse.split("\r");
             // the 4th element of responseHeader contains the stringified JSON body return payload
             const responseBody = responseHeader?.[4];
             const responseJSON: PFDCMResponse = JSON.parse(responseBody);
@@ -39,7 +39,7 @@ class PACSIntegration {
                     on:{PatientID: patientID},
                     PACS:"orthanc"
                 }
-            }), {headers: {'Content-Type': 'text/plain'}});
+            }), {headers: {"Content-Type": "text/plain"}});
             const parsedResponse = this.parseResponse(rawResponse?.data);
             const data = parsedResponse?.query?.data;
             const patientData = data?.flatMap((study: PACSMainResponse): DcmImage[] => (
@@ -57,7 +57,7 @@ class PACSIntegration {
                         SeriesInstanceUID: series.SeriesInstanceUID.value,
                         SeriesDescription: series.SeriesDescription.value,
                         Modality: series.Modality.value,
-                        pacs_identifier: 'covidnet'
+                        pacs_identifier: "covidnet"
                 }))
             ));
             
@@ -85,12 +85,12 @@ class PACSIntegration {
                     },
                     PACS:"orthanc"
                 }
-            }), {headers: {'Content-Type': 'text/plain'}});
+            }), {headers: {"Content-Type": "text/plain"}});
             const parsedResponse = this.parseResponse(rawResponse?.data);
-            if (parsedResponse?.retrieve?.status === 'success') {
+            if (parsedResponse?.retrieve?.status === "success") {
                 return true;
             } else {
-                return Promise.reject(new Error('Unable to fetch DICOM with StudyInstanceUID:' + StudyInstanceUID + ', SeriesInstanceUID: ' + SeriesInstanceUID));
+                return Promise.reject(new Error("Unable to fetch DICOM with StudyInstanceUID:" + StudyInstanceUID + ", SeriesInstanceUID: " + SeriesInstanceUID));
             }
         } catch (err) {
             return Promise.reject(err);

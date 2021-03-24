@@ -1,4 +1,4 @@
-import Client from '@fnndsc/chrisapi';
+import Client from "@fnndsc/chrisapi";
 
 declare var process: {
   env: {
@@ -6,7 +6,7 @@ declare var process: {
   }
 };
 
-const AUTH_TOKEN_KEY = 'AUTH_TOKEN';
+const AUTH_TOKEN_KEY = "AUTH_TOKEN";
 
 /**
  * This is a singleton to hold an instantiated, authenticated `Client` object,
@@ -21,7 +21,7 @@ class ChrisAPIClient {
 
   static getClient(): Client {
     if (!this.client || !this.isTokenAuthorized) {
-      const token: string = window.sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+      const token: string = window.sessionStorage.getItem(AUTH_TOKEN_KEY) || "";
       if (token) {
         this.isTokenAuthorized = true;
       } else {

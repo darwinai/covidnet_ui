@@ -4,7 +4,7 @@ import { AppContext } from "./context/context";
 import { Types } from "./context/actions/types";
 import { IUserState } from "./context/reducers/userReducer";
 import Client, { User } from "@fnndsc/chrisapi";
-import { useLocation, useHistory } from 'react-router-dom'
+import { useLocation, useHistory } from "react-router-dom"
 
 /**
  * Allows user to bypass Login page if already authenticated by checking AUTH_TOKEN
@@ -30,7 +30,7 @@ const RouterWrapper: React.FC = ({ children }) => {
         
         // If on Login page and already authenticated, go to Dashboard
         if (location.pathname === "/login") {
-          history.push('/');
+          history.push("/");
         }
       }
       setRenderChildren(true);

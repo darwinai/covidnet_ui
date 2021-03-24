@@ -13,8 +13,8 @@ export interface SelectedStudies {
 }
 
 export const initialICreateAnalysisState: ICreateAnalysisState = {
-  patientID: '',
-  currSelectedStudyUID: '',
+  patientID: "",
+  currSelectedStudyUID: "",
   selectedStudyUIDs: {}
 }
 

@@ -1,14 +1,14 @@
-import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from '@patternfly/react-core';
+import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { StagingDcmImagesTypes, CreateAnalysisTypes } from '../../context/actions/types';
-import { AppContext } from '../../context/context';
+import { StagingDcmImagesTypes, CreateAnalysisTypes } from "../../context/actions/types";
+import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
-import ConfirmAnalysis from './ConfirmAnalysis';
+import ConfirmAnalysis from "./ConfirmAnalysis";
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
-import pacs_integration from '../../services/pacs_integration';
-import chris_integration from '../../services/chris_integration';
+import pacs_integration from "../../services/pacs_integration";
+import chris_integration from "../../services/chris_integration";
 
 const CreateAnalysisWrapper = () => {
   const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);
@@ -23,7 +23,7 @@ const CreateAnalysisWrapper = () => {
       return;
     }
     
-    if (process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs') {
+    if (process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === "pacs") {
       // Send request to have DICOM files pushed from PACS server to pypx
       const retrievePromises: Promise<boolean>[] = [];
       imagesSelected.forEach((image: DcmImage) => {
@@ -31,8 +31,8 @@ const CreateAnalysisWrapper = () => {
       })
       const retrieveResults = await Promise.allSettled(retrievePromises);
       retrieveResults.forEach(result => {
-        if (result.status !== 'fulfilled') {
-          console.error('Unable to initiate PACS retrieve');
+        if (result.status !== "fulfilled") {
+          console.error("Unable to initiate PACS retrieve");
           return;
         }
       })

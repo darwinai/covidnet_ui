@@ -28,7 +28,7 @@ export const pollingBackend = async (pluginInstance: PluginInstance) =>{
     await timeout(1000)
     const res: any = await pluginInstance.get();
     if (res.data.status === "finishedSuccessfully") {
-      console.log('reached')
+      console.log("reached")
       break;
     }
   }
@@ -52,7 +52,7 @@ export const uploadTest = async (files: LocalFile[]): Promise<void> => {
 
   await pollingBackend(pluginInstance)
 
-  let filename = uploadedFile.data.fname.split('/')
+  let filename = uploadedFile.data.fname.split("/")
   filename = filename.pop()
   console.log(filename)
   // create covidnet plugin
@@ -79,8 +79,8 @@ export const uploadTest = async (files: LocalFile[]): Promise<void> => {
     let content = await blob.text();
     // if json
     let filename = fileObj.fname
-    filename = filename.split('/').pop().split('.').pop()
-    if (filename == 'json'){
+    filename = filename.split("/").pop().split(".").pop()
+    if (filename == "json"){
       console.log(JSON.parse(content))
     } else {
       console.log(content)

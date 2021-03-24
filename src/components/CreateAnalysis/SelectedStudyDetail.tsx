@@ -1,4 +1,4 @@
-import { Alert } from '@patternfly/react-core';
+import { Alert } from "@patternfly/react-core";
 import React, { useContext } from "react";
 import { CreateAnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
@@ -64,7 +64,7 @@ const SelectedStudyDetail = () => {
               const isSelected: boolean = CreateAnalysisService.isImgSelected(selectedStudyUIDs, img);
               return (
                 <div className="half_width margin-top-bottom" key={i}>
-                  <label className={`container ${isSelected ? 'blueText' : null}`}>{img.fname.split('/')[3]}
+                  <label className={`container ${isSelected ? "blueText" : null}`}>{img.fname.split("/")[3]}
                     <input type="checkbox" checked={isSelected} onChange={() => addImgToAnalysis(isSelected, img)} />
                     <span className="checkmark"></span>
                   </label>

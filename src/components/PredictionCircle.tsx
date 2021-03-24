@@ -1,4 +1,4 @@
-import { ChartDonutUtilization } from '@patternfly/react-charts';
+import { ChartDonutUtilization } from "@patternfly/react-charts";
 import React from "react";
 
 interface circleProps {
@@ -9,7 +9,7 @@ interface circleProps {
 const PredictionCircle = (props: circleProps) => {
   const { largeCircle, predictionNumber } = props
   let size = 120
-  let divSize = '100px'
+  let divSize = "100px"
   if (!largeCircle) {
     size = 150
     divSize = "80px"
@@ -19,7 +19,7 @@ const PredictionCircle = (props: circleProps) => {
       <ChartDonutUtilization
         ariaDesc="Storage capacity"
         constrainToVisibleArea={true}
-        data={{ x: 'Prediction', y: predictionNumber }}
+        data={{ x: "Prediction", y: predictionNumber }}
         height={size}
         width={size}
         padding={0}

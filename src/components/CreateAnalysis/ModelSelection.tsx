@@ -1,13 +1,13 @@
-import React, { SyntheticEvent, useContext, useEffect, useState } from 'react';
-import { PluginModels } from '../../api/app.config';
+import React, { SyntheticEvent, useContext, useEffect, useState } from "react";
+import { PluginModels } from "../../api/app.config";
 import {
     Dropdown,
     DropdownToggle,
     DropdownItem
-  } from '@patternfly/react-core';
-  import CaretDownIcon from '@patternfly/react-icons/dist/js/icons/caret-down-icon';
+  } from "@patternfly/react-core";
+  import CaretDownIcon from "@patternfly/react-icons/dist/js/icons/caret-down-icon";
   import { UpdatingModelSelectionTypes } from "../../context/actions/types";
-import { AppContext } from '../../context/context';
+import { AppContext } from "../../context/context";
 
 interface ModelSelectionProps {
     isXray: boolean

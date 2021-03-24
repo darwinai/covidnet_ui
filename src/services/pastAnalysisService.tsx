@@ -2,7 +2,7 @@ import { StudyInstanceWithSeries, ISeries } from "../context/reducers/analyseRed
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 
 export enum Processing {
-  analysisAreProcessing = 'AnalysisAreProcessing'
+  analysisAreProcessing = "AnalysisAreProcessing"
 }
 
 class PastAnalysisService {

@@ -29,7 +29,7 @@ const LoginFormComponent = () => {
         type: Types.Login_update,
         payload: user
       });
-      history.push('/');
+      history.push("/");
     } else {
       setIsValidCredentials(false);
     }

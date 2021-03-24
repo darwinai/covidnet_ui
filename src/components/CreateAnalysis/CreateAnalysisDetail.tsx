@@ -1,12 +1,12 @@
 import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
-import avator from '../../assets/images/avator.png';
+import avator from "../../assets/images/avator.png";
 import { AppContext } from "../../context/context";
 import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
 import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
-import FileLookup from './FileLookup';
+import FileLookup from "./FileLookup";
 import Error from "../../shared/error";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
@@ -37,7 +37,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(createAnalysis.selectedStudyUIDs);
 
   const setModelType = (modality: string) => {
-    setIsXray(modality === 'CR'); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
+    setIsXray(modality === "CR"); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
   }
 
   return (
