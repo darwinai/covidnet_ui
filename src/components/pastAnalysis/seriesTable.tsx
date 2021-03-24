@@ -8,6 +8,7 @@ import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyse
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
+
 interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries;
   classifications: string[];
@@ -40,10 +41,10 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
 
   if (classifications.length) {
     classifications.forEach((value: string) => {
-      titles.push({ title: (<span><br /><span className='classificationText'>{value}</span></span>) }); // Adding the column titles for each analysis
+      titles.push({ title: (<span><br /><span className="classificationText">{value}</span></span>) }); // Adding the column titles for each analysis
     });
   } else {
-    titles.push({ title: (<span><br /><span className='classificationText'>{"Results"}</span></span>) }); // Adding column for studies containing only failed analyses
+    titles.push({ title: (<span><br /><span className="classificationText">{"Results"}</span></span>) }); // Adding column for studies containing only failed analyses
   }
 
   titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
@@ -69,11 +70,11 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
       });
     } else if (classifications?.length) { // If this Series' analysis was unsuccessful, but the list of classes is known, display 'N/A' for each classification result
       analysisCells.push(...classifications.map(() => ({
-        title: ('N/A')
+        title: ("N/A")
       })));
     } else { // If this Series' analysis was unsuccessful, and the list of classes is unknown
       analysisCells.push({
-        title: ('Results not available')
+        title: ("Results not available")
       });
     }
 

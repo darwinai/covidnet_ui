@@ -188,7 +188,7 @@ const PastAnalysisTable = () => {
         analysisCreated = {
           title: (<div><Spinner size="md" /> Processing</div>)
         };
-        badges = '';
+        badges = "";
       } else {
         analysisCreated = analysis.analysisCreated;
         badges = {
