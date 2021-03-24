@@ -31,9 +31,10 @@ interface PACSFile {
 
 enum PluginPollStatus {
   CREATED = "created",
+  WAITING = "waiting",
   SCHEDULED = "scheduled",
-  WAITING = "waitingForPrevious",
   STARTED = "started",
+  REGISTERING_FILES = "registeringFiles",
   SUCCESS = "finishedSuccessfully",
   ERROR = "finishedWithError",
   CANCELLED = "cancelled"
