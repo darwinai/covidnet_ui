@@ -323,7 +323,7 @@ class ChrisIntegration {
           });
           const newSeries: ISeries = {
             covidnetPluginId: plugin.data.id,
-            imageName: plugin.data?.title ? plugin.data?.title : "File name not available",
+            imageName: plugin?.data?.title || "File name not available",
             imageId: "",
             classifications: new Map<string, number>(),
             geographic: null,
