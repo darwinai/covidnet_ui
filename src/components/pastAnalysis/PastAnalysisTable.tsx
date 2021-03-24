@@ -9,7 +9,7 @@ import { AnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
 import ChrisIntegration from "../../services/chris_integration";
-import PastAnalysisService, { Processing } from "../../services/pastAnalysisService";
+import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
@@ -181,7 +181,7 @@ const PastAnalysisTable = () => {
 
       const indexInRows: number = rows.length;
 
-      const isProcessing = analysis.analysisCreated === Processing.analysisAreProcessing;
+      const isProcessing = !analysis.analysisCreated;
       let analysisCreated;
       let badges;
       if (isProcessing) {

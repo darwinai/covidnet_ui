@@ -5,7 +5,6 @@ import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
 import { PluginModels } from "../api/app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
-import { Processing } from '../services/pastAnalysisService';
 
 export interface LocalFile {
   name: string;
@@ -296,7 +295,7 @@ class ChrisIntegration {
                     if (pluginStatus !== PluginPollStatus.SUCCESS &&
                       pluginStatus !== PluginPollStatus.ERROR &&
                       pluginStatus !== PluginPollStatus.CANCELLED) {
-                      analysisCreated = Processing.analysisAreProcessing;
+                      analysisCreated = "";
                     } else {
                       analysisCreated = modifyDatetime(findDircopy.data.start_date);
                     }

@@ -1,10 +1,6 @@
 import { StudyInstanceWithSeries, ISeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 
-export enum Processing {
-  analysisAreProcessing = 'AnalysisAreProcessing'
-}
-
 class PastAnalysisService {
 
   static groupDcmImagesToStudyInstances(dcmImages: DcmImage[]) {
@@ -26,7 +22,7 @@ class PastAnalysisService {
       studyInstances.push({
         // Use first DcmImage as reference for accessing common properties such as StudyDescription, PatientID, etc.
         dcmImage: images?.[0],
-        analysisCreated: Processing.analysisAreProcessing, 
+        analysisCreated: "", 
           series: images.map((image: DcmImage): ISeries => ({
             covidnetPluginId: 0, 
             imageName: image.fname,
