@@ -211,7 +211,7 @@ const PastAnalysisTable = () => {
       rows.push({
         isOpen: false,
         cells: cells
-      })
+      });
       if (analysis.series.length > 0) {
         rows.push({
           isOpen: false,
@@ -220,7 +220,7 @@ const PastAnalysisTable = () => {
           cells: [{
             title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing} classifications={classifications}></SeriesTable>)
           }]
-        })
+        });
       }
     }
     setRows(rows);
