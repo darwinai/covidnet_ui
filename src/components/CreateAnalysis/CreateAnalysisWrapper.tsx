@@ -1,14 +1,14 @@
-import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from '@patternfly/react-core';
+import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { StagingDcmImagesTypes, CreateAnalysisTypes, AnalysisTypes, NotificationActionTypes } from '../../context/actions/types';
-import { AppContext } from '../../context/context';
+import { StagingDcmImagesTypes, CreateAnalysisTypes, AnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
+import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
-import ConfirmAnalysis from './ConfirmAnalysis';
+import ConfirmAnalysis from "./ConfirmAnalysis";
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
-import pacs_integration from '../../services/pacs_integration';
-import chris_integration from '../../services/chris_integration';
+import pacs_integration from "../../services/pacs_integration";
+import chris_integration from "../../services/chris_integration";
 
 const CreateAnalysisWrapper = () => {
   const { state: { dcmImages, models, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);

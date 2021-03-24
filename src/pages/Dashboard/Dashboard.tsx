@@ -11,7 +11,7 @@ const DashboardPage: React.FC<AllProps> = () => {
 
   useEffect(()=> {
     document.title = "Analysis - COVID-Net UI";
-  }, [])
+  }, []);
   
 
   return (
