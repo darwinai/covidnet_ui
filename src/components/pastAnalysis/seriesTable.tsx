@@ -35,8 +35,8 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
   const { series: analysisList } = studyInstance;
 
   let titles = [
-    { title: (<><br />Preview<span className='classificationText'>&nbsp;</span></>) },
-    { title: (<><br />Image<span className='classificationText'>&nbsp;</span></>) }
+    { title: (<span className='classificationText'><br />Preview</span>) },
+    { title: (<span className='classificationText'><br />Image</span>) }
   ];
 
   if (classifications.length) {
@@ -56,7 +56,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
   const rows = analysisList.map((analysis: ISeries, index: number) => {
     const isAnalysisValid = !!analysis.classifications.size;
     let analysisCells: any = [
-      { title: (analysis.imageUrl ? <div><b><img src={analysis.imageUrl} className="thumbnail" /></b></div> : <div><PreviewNotAvailable /></div>) },
+      { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" /></div> : <div><PreviewNotAvailable /></div>) },
       { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
     ];
 
