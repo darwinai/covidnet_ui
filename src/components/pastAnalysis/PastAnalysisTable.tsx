@@ -1,17 +1,17 @@
-import { InputGroup, InputGroupText, Pagination, Spinner, TextInput } from '@patternfly/react-core';
-import { FilterIcon, SearchIcon } from '@patternfly/react-icons';
-import { css } from '@patternfly/react-styles';
-import styles from '@patternfly/react-styles/css/components/Table/table';
-import { expandable, Table, TableBody, TableHeader } from '@patternfly/react-table';
-import React, { ReactNode, useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { AnalysisTypes } from '../../context/actions/types';
-import { AppContext } from '../../context/context';
-import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
-import ChrisIntegration from '../../services/chris_integration';
-import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
+import { InputGroup, InputGroupText, Spinner, TextInput } from "@patternfly/react-core";
+import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
+import { css } from "@patternfly/react-styles";
+import styles from "@patternfly/react-styles/css/components/Table/table";
+import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
+import React, { ReactNode, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+import { AnalysisTypes } from "../../context/actions/types";
+import { AppContext } from "../../context/context";
+import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
+import ChrisIntegration from "../../services/chris_integration";
+import PastAnalysisService, { Processing } from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
-import { Badge } from '@patternfly/react-core';
+import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 
 interface tableRowsParent {
@@ -45,10 +45,10 @@ const PastAnalysisTable = () => {
 
   const columns = [
     {
-      title: 'Study',
+      title: "Study",
       cellFormatters: [expandable]
     },
-    'Patient MRN', 'Patient DOB', 'Patient Age', 'Analysis Created', ''
+    "Patient MRN", "Patient DOB", "Patient Age", "Analysis Created", ""
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -247,11 +247,11 @@ const PastAnalysisTable = () => {
     // Style the current row
     let backgroundStyle = {};
     if (isAnalyzing) {
-      backgroundStyle = { 'backgroundColor': '#F9E0A2' }; // Processing rows
+      backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
     } else if (newRowsRef?.length > 0 && !newRowsRef.includes(cells[4])) {
-      backgroundStyle = { 'animation': 'new-row-highlight-animation 2s linear' }; // Newly added rows
+      backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
     } else {
-      backgroundStyle = { 'backgroundColor': '#FFFFFF' }; // Default
+      backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
     }
 
     return (
@@ -260,7 +260,7 @@ const PastAnalysisTable = () => {
         ref={trRef}
         className={css(
           className,
-          'custom-static-class',
+          "custom-static-class",
           isExpanded !== undefined && styles.tableExpandableRow,
           isExpanded && styles.modifiers.expanded
         )}
