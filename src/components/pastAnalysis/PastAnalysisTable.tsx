@@ -126,44 +126,53 @@ const PastAnalysisTable = () => {
             const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
 
             // Update latest offset
-            setTableStates(prevTableStates => ({
-              ...prevTableStates,
-              lastOffset: newOffset
-            }));
+            if (isMounted) {
+              setTableStates(prevTableStates => ({
+                ...prevTableStates,
+                lastOffset: newOffset
+              }));
+            }
 
             // If the end of Feeds on Swift has been reached, record the current page as the last page to prevent further navigation by user
             if (isAtEndOfFeeds) {
-              setTableStates(prevTableStates => ({
-                ...prevTableStates,
-                lastPage: page
-              }));
+              if (isMounted) {
+                setTableStates(prevTableStates => ({
+                  ...prevTableStates,
+                  lastPage: page
+                }));
+              }
             }
 
             // Append processing rows to fetched results rows and update storedPages
             curAnalyses = processingRows.concat(newAnalyses);
-            setTableStates(prevTableStates => ({
-              ...prevTableStates,
-              storedPages: [...prevTableStates.storedPages, curAnalyses]
-            }));
+            if (isMounted) {
+              setTableStates(prevTableStates => ({
+                ...prevTableStates,
+                storedPages: [...prevTableStates.storedPages, curAnalyses]
+              }));
+            }
           } else {
             // If page has already been seen, access its contents from storedPages
             curAnalyses = storedPages[page];
           }
+          if (isMounted) {
+            dispatch({
+              type: AnalysisTypes.Update_list,
+              payload: { list: curAnalyses }
+            });
+            updateRows(curAnalyses);
 
-          dispatch({
-            type: AnalysisTypes.Update_list,
-            payload: { list: curAnalyses }
-          });
-          updateRows(curAnalyses);
-
-          dispatch({
-            type: AnalysisTypes.Update_are_new_imgs_available,
-            payload: { isAvailable: false }
-          });
+            dispatch({
+              type: AnalysisTypes.Update_are_new_imgs_available,
+              payload: { isAvailable: false }
+            });
+          }
         }
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-      
+
     })();
 
     return () => {
