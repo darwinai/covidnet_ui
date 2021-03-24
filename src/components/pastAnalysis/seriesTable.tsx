@@ -35,16 +35,16 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
   const { series: analysisList } = studyInstance;
 
   let titles = [
-    { title: (<span><br />Preview<span className='classificationText'>&nbsp;</span></span>) },
-    { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }
+    { title: (<><br />Preview<span className='classificationText'>&nbsp;</span></>) },
+    { title: (<><br />Image<span className='classificationText'>&nbsp;</span></>) }
   ];
 
   if (classifications.length) {
     classifications.forEach((value: string) => {
-      titles.push({ title: (<span><br /><span className="classificationText">{value}</span></span>) }); // Adding the column titles for each analysis
+      titles.push({ title: (<><br /><span className="classificationText">{value}</span></>) }); // Adding the column titles for each analysis
     });
   } else {
-    titles.push({ title: (<span><br /><span className="classificationText">{"Results"}</span></span>) }); // Adding column for studies containing only failed analyses
+    titles.push({ title: (<><br /><span className="classificationText">{"Results"}</span></>) }); // Adding column for studies containing only failed analyses
   }
 
   titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
