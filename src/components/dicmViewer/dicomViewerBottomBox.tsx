@@ -79,7 +79,7 @@ const DicomViewerBottomBox = () => {
           {!isBottomHided ? (<i className="fas fa-angle-down"></i>) : (<i className="fas fa-angle-up"></i>)}
         </span>
       </div>
-      <div className={`flex_row bottomInfoBox ${!isBottomHided ? '' : 'displayNone'}`}>
+      <div className={`flex_row bottomInfoBox`}>
         <div className="padding-l-2rem">
           <h2><span><i className="pf-icon pf-icon-info"></i></span></h2>
         </div>
