@@ -22,7 +22,7 @@ const CreateAnalysisWrapper = () => {
       setIsModalOpen(true);
       return;
     }
-    
+
     if (process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs') {
       // Send request to have DICOM files pushed from PACS server to pypx
       const retrievePromises: Promise<boolean>[] = [];
@@ -58,22 +58,22 @@ const CreateAnalysisWrapper = () => {
       type: CreateAnalysisTypes.Clear_selected_studies_UID
     });
 
-       // Processing the images
-       CreateAnalysisService.analyzeImages(imagesSelected, models.xrayModel, models.ctModel) // Passing selected models to Chris_Integration for image analysis
-       .then((notifications) => {
-         dispatch({
-           type: StagingDcmImagesTypes.UpdateStaging,
-           payload: { imgs: [] }
-         })
-         dispatch({
-           type: AnalysisTypes.Update_are_new_imgs_available,
-           payload: { isAvailable: true }
-         });
-         dispatch({
-           type: NotificationActionTypes.SEND,
-           payload: { notifications }
-         })
-       });
+    // Processing the images
+    CreateAnalysisService.analyzeImages(imagesSelected, models.xrayModel, models.ctModel) // Passing selected models to Chris_Integration for image analysis
+      .then((notifications) => {
+        dispatch({
+          type: StagingDcmImagesTypes.UpdateStaging,
+          payload: { imgs: [] }
+        });
+        dispatch({
+          type: AnalysisTypes.Update_are_new_imgs_available,
+          payload: { isAvailable: true }
+        });
+        dispatch({
+          type: NotificationActionTypes.SEND,
+          payload: { notifications }
+        });
+      });
 
     history.push("/");
   }
