@@ -90,33 +90,34 @@ const PastAnalysisTable = () => {
   useEffect(() => {
     let isMounted = true;
 
-    (async () => {
-      setLoading(true);
-      const { maxFeedId, page, lastOffset, storedPages } = tableStates;
+    if (isMounted) {
+      (async () => {
+        setLoading(true);
+        const { maxFeedId, page, lastOffset, storedPages } = tableStates;
 
-      // Update the maxFeedId when the PastAnalysisTable first mounts
-      if (maxFeedId === -1) {
-        updateMaxFeedId();
-        return;
-      }
+        // Update the maxFeedId when the PastAnalysisTable first mounts
+        if (maxFeedId === -1) {
+          updateMaxFeedId();
+          return;
+        }
 
-      // Get rows for analysis currently processing
-      const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
-      const numAnalyzing = imagesAnalyzing.length;
+        // Get rows for analysis currently processing
+        const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
+        const numAnalyzing = imagesAnalyzing.length;
 
-      // Calculate number of past analysis rows to fetch, given the number of processing rows to display on current page
-      let fetchSize;
-      if (Math.floor(numAnalyzing / perpage) > page) { // There are enough processing rows to fill entire page, so don't fetch any past results
-        fetchSize = 0;
-      } else if (Math.floor(numAnalyzing / perpage) === page) { // Processing rows partially fill the page, fill rest of page with past results
-        fetchSize = perpage - (numAnalyzing % perpage);
-      } else { // No processing rows on current page, fill entire page with past results
-        fetchSize = perpage;
-      }
-      // Slice the array of processing rows to display on current page
-      const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
+        // Calculate number of past analysis rows to fetch, given the number of processing rows to display on current page
+        let fetchSize;
+        if (Math.floor(numAnalyzing / perpage) > page) { // There are enough processing rows to fill entire page, so don't fetch any past results
+          fetchSize = 0;
+        } else if (Math.floor(numAnalyzing / perpage) === page) { // Processing rows partially fill the page, fill rest of page with past results
+          fetchSize = perpage - (numAnalyzing % perpage);
+        } else { // No processing rows on current page, fill entire page with past results
+          fetchSize = perpage;
+        }
+        // Slice the array of processing rows to display on current page
+        const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
 
-      if (isMounted) {
+
         if (!maxFeedId || maxFeedId >= 0) {
           // Accumulates with the rows of current page
           let curAnalyses: StudyInstanceWithSeries[] = [];
@@ -166,14 +167,12 @@ const PastAnalysisTable = () => {
               type: AnalysisTypes.Update_are_new_imgs_available,
               payload: { isAvailable: false }
             });
+
+            setLoading(false);
           }
         }
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-
-    })();
+      })();
+    }
 
     return () => {
       isMounted = false;
