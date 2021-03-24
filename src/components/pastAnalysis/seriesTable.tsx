@@ -79,9 +79,9 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
     }
 
     analysisCells.push({
-      title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
+      title: analysis?.geographic?.severity || 'N/A'
     }, {
-      title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
+      title: analysis?.opacity?.extentScore || 'N/A'
     }, {
       title: (<>{
         isAnalysisValid || isProcessing ?
