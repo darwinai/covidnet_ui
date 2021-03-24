@@ -15,8 +15,8 @@ class DicomViewerService {
   }
 
   static maxMinWindowLevel(newWindowLevel: number, type: windowLevelType) {
-    const maxValue = (type === windowLevelType.brightness) ? windowLevelBounds.MAX_BRIGHTNESS: windowLevelBounds.MAX_CONTRAST;
-    const minValue = (type === windowLevelType.brightness) ? windowLevelBounds.MIN_BRIGHTNESS: windowLevelBounds.MIN_CONTRAST;
+    const maxValue = (type === windowLevelType.brightness) ? windowLevelBounds.MAX_BRIGHTNESS : windowLevelBounds.MAX_CONTRAST;
+    const minValue = (type === windowLevelType.brightness) ? windowLevelBounds.MIN_BRIGHTNESS : windowLevelBounds.MIN_CONTRAST;
     newWindowLevel = Math.max(newWindowLevel, minValue);
     newWindowLevel = Math.min(newWindowLevel, maxValue);
     return newWindowLevel;

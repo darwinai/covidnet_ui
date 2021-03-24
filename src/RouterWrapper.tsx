@@ -27,14 +27,14 @@ const RouterWrapper: React.FC = ({ children }) => {
           type: Types.Login_update,
           payload: user
         });
-        
+
         // If on Login page and already authenticated, go to Dashboard
         if (location.pathname === "/login") {
           history.push("/");
         }
       }
       setRenderChildren(true);
-    })(); 
+    })();
   }, [dispatch]);
 
   return (renderChildren ? <>{children}</> : null);

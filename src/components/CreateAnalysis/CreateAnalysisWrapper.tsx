@@ -22,7 +22,7 @@ const CreateAnalysisWrapper = () => {
       setIsModalOpen(true);
       return;
     }
-    
+
     if (process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === "pacs") {
       // Send request to have DICOM files pushed from PACS server to pypx
       const retrievePromises: Promise<boolean>[] = [];

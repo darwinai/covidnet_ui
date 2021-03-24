@@ -5,7 +5,7 @@ import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
 import ImageSelectionBox from "./ImageSelectionBox";
 
-interface ConfirmAnalysisProps{
+interface ConfirmAnalysisProps {
   submit: () => void
 }
 

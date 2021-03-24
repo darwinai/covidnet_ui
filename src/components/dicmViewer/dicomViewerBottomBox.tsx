@@ -51,8 +51,8 @@ const DicomViewerBottomBox = () => {
 
     if (!series) {
       return;
-    } 
-    
+    }
+
      // Dynamically display the prediction classes/values in the dicomviewerbottombox
       series.classifications.forEach((value: number, key: string) => {
         displayCircles.push(<div className="PredictionArea" key={key}>
@@ -72,7 +72,7 @@ const DicomViewerBottomBox = () => {
         <div className="predictionValues moveUp">
 
           {generateBottomDisplay(imageDetail)}
-        
+
         </div>
         <span className="pointer" onClick={toggle}>{!isBottomHided ? "hide " : "expand "}</span>	&nbsp;
         <span className="pointer" onClick={toggle}>
@@ -98,7 +98,7 @@ const DicomViewerBottomBox = () => {
         <div className="predictions padding-l-2rem">
           <span className="logo-text">COVID-Net</span>
           <div className="flex_row">
-          
+
             {generateDisplayCircles(imageDetail)}
 
             <div className="padding-l-2rem">

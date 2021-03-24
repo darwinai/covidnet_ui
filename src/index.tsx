@@ -8,7 +8,7 @@ import * as serviceWorker from "./serviceWorker";
 
 const history = createBrowserHistory();
 ReactDOM.render(
-    <Main history={history} />,  
+    <Main history={history} />,
     document.getElementById("root")
 );
 

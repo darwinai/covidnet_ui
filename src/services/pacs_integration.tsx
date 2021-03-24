@@ -24,20 +24,20 @@ class PACSIntegration {
     }
 
     /**
-     * Performs a PACS query on the given PatientID and returns an array of DcmImages containing metadata 
+     * Performs a PACS query on the given PatientID and returns an array of DcmImages containing metadata
      * of the DICOM files associated with that patient
-     * @param {string | undefined} patientID 
+     * @param {string | undefined} patientID
      */
     static async queryPatientFiles(patientID?: string): Promise<DcmImage[]> {
         if (!patientID) return [];
-        
+
         try {
             const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
-                action:"PACSinteract",
-                meta:{
-                    do:"query",
-                    on:{PatientID: patientID},
-                    PACS:"orthanc"
+                action: "PACSinteract",
+                meta: {
+                    do: "query",
+                    on: { PatientID: patientID },
+                    PACS: "orthanc"
                 }
             }), {headers: {"Content-Type": "text/plain"}});
             const parsedResponse = this.parseResponse(rawResponse?.data);
@@ -60,7 +60,7 @@ class PACSIntegration {
                         pacs_identifier: "covidnet"
                 }))
             ));
-            
+
             return patientData ? patientData : [];
         } catch (err) {
             return Promise.reject(err);
@@ -68,22 +68,22 @@ class PACSIntegration {
     }
 
     /**
-     * Performs a PACS retrieve request for a DICOM file based on StudyInstanceUID and SeriesInstanceUID, 
+     * Performs a PACS retrieve request for a DICOM file based on StudyInstanceUID and SeriesInstanceUID,
      * returning true if request was successfully sent
-     * @param {string | undefined} StudyInstanceUID 
-     * @param {string | undefined} SeriesInstanceUID 
+     * @param {string | undefined} StudyInstanceUID
+     * @param {string | undefined} SeriesInstanceUID
      */
     static async retrievePatientFiles(StudyInstanceUID?: string, SeriesInstanceUID?: string): Promise<boolean> {
         try {
             const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
-                action:"PACSinteract",
-                meta:{
-                    do:"retrieve",
-                    on:{
-                        StudyInstanceUID, 
+                action: "PACSinteract",
+                meta: {
+                    do: "retrieve",
+                    on: {
+                        StudyInstanceUID,
                         SeriesInstanceUID
                     },
-                    PACS:"orthanc"
+                    PACS: "orthanc"
                 }
             }), {headers: {"Content-Type": "text/plain"}});
             const parsedResponse = this.parseResponse(rawResponse?.data);

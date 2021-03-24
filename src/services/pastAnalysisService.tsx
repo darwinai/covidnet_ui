@@ -26,9 +26,9 @@ class PastAnalysisService {
       studyInstances.push({
         // Use first DcmImage as reference for accessing common properties such as StudyDescription, PatientID, etc.
         dcmImage: images?.[0],
-        analysisCreated: Processing.analysisAreProcessing, 
+        analysisCreated: Processing.analysisAreProcessing,
           series: images.map((image: DcmImage): ISeries => ({
-            covidnetPluginId: 0, 
+            covidnetPluginId: 0,
             imageName: image.fname,
             imageId: "",
             geographic: null,

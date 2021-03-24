@@ -7,7 +7,7 @@ export type riskStratifcation = {
 }
 
 export type ISeries = {
-  covidnetPluginId: number, 
+  covidnetPluginId: number,
   imageName: string,
   imageId: string,
   geographic: riskStratifcation | null,
@@ -18,7 +18,7 @@ export type ISeries = {
 
 export type StudyInstanceWithSeries = {
   dcmImage: DcmImage,
-  analysisCreated: string, 
+  analysisCreated: string,
   series: ISeries[]
 }
 
@@ -76,7 +76,7 @@ export const analysesReducer = (
         ...state,
         areNewImgsAvailable: action.payload.isAvailable
       }
-    case AnalysisTypes.Update_selected_image: 
+    case AnalysisTypes.Update_selected_image:
       return {
         ...state,
         selectedImage: action.payload.selectedImage

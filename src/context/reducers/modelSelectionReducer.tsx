@@ -29,7 +29,7 @@ export const updatingModelSelectionReducer = (
       return { ...state, xrayModel: action.payload.xrayModel};
     case UpdatingModelSelectionTypes.CTModelSelection:
       return { ...state, ctModel: action.payload.ctModel};
-    default: 
+    default:
       return state;
   }
 };

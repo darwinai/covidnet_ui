@@ -20,7 +20,7 @@ interface PlcovidnetData extends IPluginCreateData {
   imagefile: string;
 }
 
-export const pollingBackend = async (pluginInstance: PluginInstance) =>{
+export const pollingBackend = async (pluginInstance: PluginInstance) => {
   const timeout = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
@@ -35,7 +35,7 @@ export const pollingBackend = async (pluginInstance: PluginInstance) =>{
 }
 
 export const uploadTest = async (files: LocalFile[]): Promise<void> => {
-  let client:any = await ChrisAPIClient.getClient();
+  let client: any = await ChrisAPIClient.getClient();
 
   // upload file
   const uploadedFile = await client.uploadFile({
@@ -73,14 +73,14 @@ export const uploadTest = async (files: LocalFile[]): Promise<void> => {
     offset: 0,
   })
   console.log(pluginFilesList.data)
-  for (let fileObj of pluginFilesList.data){
+  for (let fileObj of pluginFilesList.data) {
     let file = await client.getFile(fileObj.id)
     let blob = await file.getFileBlob()
     let content = await blob.text();
     // if json
     let filename = fileObj.fname
     filename = filename.split("/").pop().split(".").pop()
-    if (filename == "json"){
+    if (filename == "json") {
       console.log(JSON.parse(content))
     } else {
       console.log(content)

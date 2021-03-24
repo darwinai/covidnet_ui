@@ -5,8 +5,8 @@ import {
     DropdownToggle,
     DropdownItem
   } from "@patternfly/react-core";
-  import CaretDownIcon from "@patternfly/react-icons/dist/js/icons/caret-down-icon";
-  import { UpdatingModelSelectionTypes } from "../../context/actions/types";
+import CaretDownIcon from "@patternfly/react-icons/dist/js/icons/caret-down-icon";
+import { UpdatingModelSelectionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 
 interface ModelSelectionProps {
@@ -22,10 +22,10 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({isXray}) => { // Drop-do
     useEffect(() => { // Display the currently chosen Xray/CT model
       setDropdownValue(isXray ? models.xrayModel : models.ctModel);
     }, [isXray, models.xrayModel, models.ctModel]);
-      
+
     const onSelect = (event?: SyntheticEvent<HTMLDivElement, Event>) => {
         setIsOpen(!isOpen);
-        
+
         if (event) {
             if (isXray) {
               dispatch({
@@ -46,7 +46,7 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({isXray}) => { // Drop-do
         }
       };
 
-      let dropdownItems = Object.keys(isXray ? PluginModels.XrayModels : PluginModels.CTModels).map((key: string) => (<DropdownItem key={key}>{key}</DropdownItem>));
+    let dropdownItems = Object.keys(isXray ? PluginModels.XrayModels : PluginModels.CTModels).map((key: string) => (<DropdownItem key={key}>{key}</DropdownItem>));
 
     return (
       <React.Fragment>

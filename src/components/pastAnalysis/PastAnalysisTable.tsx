@@ -268,7 +268,7 @@ const PastAnalysisTable = () => {
           <InputGroupText> <SearchIcon /> </InputGroupText>
         </InputGroup>
       </div>
-      
+
     <div style={{float: "right"}}>
     <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{marginRight: "1em"}} onClick={() => updatePage(-1)} disabled={loading || tableStates.page == 0}>
       <span className="pf-c-button__icon pf-m-end">

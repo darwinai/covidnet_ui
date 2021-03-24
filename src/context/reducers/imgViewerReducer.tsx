@@ -45,7 +45,7 @@ export const imgViewerReducer = (
       }
     case ImageViewerTypes.Update_is_img_inverted:
       return {
-        ...state, 
+        ...state,
         isImgInverted: action.payload.isImgInverted
       }
     default:

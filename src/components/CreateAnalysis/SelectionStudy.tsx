@@ -32,7 +32,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   }
 
   const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0;
-  
+
   return (
     <div
       className={`SelectionStudy ${isSelected ? "selected" : ""}`}

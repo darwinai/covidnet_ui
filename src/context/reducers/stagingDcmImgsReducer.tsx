@@ -20,7 +20,7 @@ export const stagingDcmImgsReducer = (
   switch (action.type) {
     case StagingDcmImagesTypes.UpdateStaging:
       return action.payload.imgs
-    default: 
+    default:
       return state;
   }
 }
