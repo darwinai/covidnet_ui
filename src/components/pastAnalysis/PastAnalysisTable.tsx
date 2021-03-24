@@ -194,7 +194,7 @@ const PastAnalysisTable = () => {
         badges = {
           title: (<>
             {<Badge className="badge-margin" isRead={!validAnalyses.length}>{validAnalyses.length}</Badge>}
-            {<Badge style={numInvalidAnalyses ? { backgroundColor: "var(--pf-global--danger-color--100)" }: {}} isRead={!numInvalidAnalyses}>{numInvalidAnalyses}</Badge>}
+            {<Badge className="badge-danger" isRead={!numInvalidAnalyses}>{numInvalidAnalyses}</Badge>}
           </>)
         };
       }

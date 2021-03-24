@@ -1,3 +1,7 @@
 .badge-margin {
     margin-right: 1em;
 }
+
+.pf-m-unread.badge-danger {
+    background-color: var(--pf-global--danger-color--100);
+}
