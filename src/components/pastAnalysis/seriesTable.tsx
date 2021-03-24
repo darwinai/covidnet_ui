@@ -49,7 +49,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
 
   titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
     { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
-    { title: (<span></span>) });
+    { title: (<></>) });
 
   const columns = titles;
 
