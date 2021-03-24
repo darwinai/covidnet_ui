@@ -5,7 +5,6 @@ import {
 } from "@patternfly/react-core";
 import React from "react";
 import { useHistory } from "react-router-dom";
-import logo from "../../assets/images/logo-white.png";
 
 interface FooterProps {
   isLogin?: boolean

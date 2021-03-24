@@ -1,4 +1,4 @@
-import { InputGroup, InputGroupText, Pagination, Spinner, TextInput } from "@patternfly/react-core";
+import { InputGroup, InputGroupText, Spinner, TextInput } from "@patternfly/react-core";
 import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
