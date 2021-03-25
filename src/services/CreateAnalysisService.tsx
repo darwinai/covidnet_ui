@@ -1,9 +1,10 @@
 import { SelectedStudies } from "../context/reducers/createAnalysisReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { NotificationItem } from "../context/reducers/notificationReducer";
-import ChrisIntegration, { BackendPollResult } from "./chris_integration";
+import ChrisIntegration, { BackendPollResult, DircopyResult } from "./chris_integration";
 import NotificationService from "./notificationService";
 import { formatDate } from "../shared/utils";
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 export interface StudyInstance {
   studyInstanceUID: string;
@@ -62,10 +63,27 @@ class CreateAnalysisService {
     return imgs.filter((img: DcmImage) => this.isImgSelected(selectedStudyUIDs, img));
   }
 
-  static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
+  /**
+   * Runs pl-dircopy on an array of DcmImages
+   * @param dcmImages 
+   * @returns Array of the dircopy plugin instance paired with its DcmImage in an object
+   */
+  static async copyFiles(dcmImages: DcmImage[]): Promise<DircopyResult[]> {
+    return Promise.all(dcmImages.map((img: DcmImage) => 
+      ChrisIntegration.runDircopy(img)
+    ));
+  }
+
+  /**
+   * Runs pl-med2img and the pl-covidnet/pl-ct-covidnet given the pl-dircopy instances and DcmImgages generated from copyFiles
+   * @param XrayModel 
+   * @param CTModel 
+   * @returns 
+   */
+  static async analyzeImages(imgs: DircopyResult[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
     const promises = [];
-    for (let img of dcmImages) {
-      promises.push(ChrisIntegration.processOneImg(img, XrayModel, CTModel));
+    for (let obj of imgs) {
+      promises.push(ChrisIntegration.processOneImg(obj.img, obj.instance, XrayModel, CTModel));
     }
     const processedImages = await Promise.allSettled(promises);
 
@@ -73,7 +91,7 @@ class CreateAnalysisService {
     processedImages.forEach((processedImage, index) => {
       if (processedImage.status === "fulfilled") {
         results.push({
-          image: dcmImages[index],
+          image: imgs[index].img,
           processedResults: processedImage.value
         })
       }

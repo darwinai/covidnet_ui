@@ -11,6 +11,11 @@ export interface LocalFile {
   blob: Blob;
 }
 
+export type DircopyResult = {
+  instance: PluginInstance, 
+  img: DcmImage
+}
+
 interface DirCreateData extends IPluginCreateData {
   dir: string;
 }
@@ -132,7 +137,17 @@ class ChrisIntegration {
     return true;
   }
 
-  static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
+  static async runDircopy(img: DcmImage): Promise<DircopyResult> {
+    let client: any = await ChrisAPIClient.getClient();
+
+    const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
+    const data: DirCreateData = { "dir": img.fname };
+    const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+    console.log("PL-DIRCOPY task sent into the task queue");
+    return { instance: dircopyPluginInstance, img };
+  }
+
+  static async processOneImg(img: DcmImage, dircopyInstance: PluginInstance, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
     let client: any = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
@@ -140,12 +155,6 @@ class ChrisIntegration {
 
     try {
       console.log(img.fname)
-
-      // PL-DIRCOPY
-      const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
-      const data: DirCreateData = { "dir": img.fname };
-      const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
-      console.log("PL-DIRCOPY task sent into the task queue")
 
       // PL-MED2IMG
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
@@ -155,7 +164,7 @@ class ChrisIntegration {
         inputFile: img.fname.split('/').pop(),
         sliceToConvert: 0,
         outputFileStem: `${filename}.jpg`, //-slice000
-        previous_id: dircopyPluginInstance.data.id
+        previous_id: dircopyInstance.data.id
       }
 
       if (imgConverterPlugin === undefined || imgConverterPlugin.data === undefined) {

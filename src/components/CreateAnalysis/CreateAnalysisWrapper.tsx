@@ -8,7 +8,8 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 import ConfirmAnalysis from "./ConfirmAnalysis";
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
 import pacs_integration from "../../services/pacs_integration";
-import chris_integration from "../../services/chris_integration";
+import chris_integration, { DircopyResult } from "../../services/chris_integration";
+import { NotificationItem } from "../../context/reducers/notificationReducer";
 
 const CreateAnalysisWrapper = () => {
   const { state: { dcmImages, models, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);
@@ -48,34 +49,32 @@ const CreateAnalysisWrapper = () => {
       }
     }
 
-    // Updating staging images
-    dispatch({
-      type: StagingDcmImagesTypes.UpdateStaging,
-      payload: { imgs: imagesSelected }
-    });
-
     dispatch({
       type: CreateAnalysisTypes.Clear_selected_studies_UID
     });
 
-    // Processing the images
-    CreateAnalysisService.analyzeImages(imagesSelected, models.xrayModel, models.ctModel) // Passing selected models to Chris_Integration for image analysis
-      .then((notifications) => {
-        dispatch({
-          type: StagingDcmImagesTypes.UpdateStaging,
-          payload: { imgs: [] }
-        });
-        dispatch({
-          type: AnalysisTypes.Update_are_new_imgs_available,
-          payload: { isAvailable: true }
-        });
-        dispatch({
-          type: NotificationActionTypes.SEND,
-          payload: { notifications }
-        });
-      });
+    const imgs: DircopyResult[] = await CreateAnalysisService.copyFiles(imagesSelected);
 
     history.push("/");
+
+    // Processing the images
+    // Passing selected models to Chris_Integration for image analysis
+    const notifications: NotificationItem[] = await CreateAnalysisService.analyzeImages(imgs, models.xrayModel, models.ctModel);
+
+    dispatch({
+      type: StagingDcmImagesTypes.UpdateStaging,
+      payload: { imgs: [] }
+    });
+
+    dispatch({
+      type: AnalysisTypes.Update_are_new_imgs_available,
+      payload: { isAvailable: true }
+    });
+
+    dispatch({
+      type: NotificationActionTypes.SEND,
+      payload: { notifications }
+    });
   }
 
   const panelContent = (
