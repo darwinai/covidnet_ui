@@ -158,7 +158,7 @@ const PastAnalysisTable = () => {
       }
       setLoading(false);
     })();
-  }, [tableStates]);
+  }, [tableStates, perpage, stagingDcmImages, dispatch]);
 
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
