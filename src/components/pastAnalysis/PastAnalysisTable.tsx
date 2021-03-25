@@ -51,12 +51,8 @@ const tableReducer = (state: TableState, action: TableAction) => {
   switch(action.type) {
     case TableReducerActions.updateMaxFeedId:
       return {
-        ...state,
-        page: 0,
+        ...initialTableState,
         maxFeedId: action.payload.id,
-        lastOffset: 0,
-        lastPage: -1,
-        storedPages: []
       }
     case TableReducerActions.addNewPage:
       return {
@@ -121,25 +117,18 @@ const PastAnalysisTable = () => {
   // If new past analyses are available, reset table to initial state and update maxFeedId
   useEffect(() => {
     if (areNewImgsAvailable) {
-      setLoading(true);
       // Right before resetting, get a list of all the "Analysis Created" properties on page 0
       setNewRowsRef(tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
-      updateMaxFeedId();
     }
+    updateMaxFeedId();
   }, [areNewImgsAvailable])
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
       const { maxFeedId, page, lastOffset, storedPages } = tableState;
 
-      // Update the maxFeedId when the PastAnalysisTable first mounts
-      if (maxFeedId === -1) {
-        updateMaxFeedId();
-        return;
-      }
-
       if (!maxFeedId || maxFeedId >= 0) {
+        setLoading(true);
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
