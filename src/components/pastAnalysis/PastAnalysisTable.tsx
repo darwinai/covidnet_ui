@@ -61,7 +61,7 @@ const PastAnalysisTable = () => {
     lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
     lastPage: -1, // Table page number of the very last page (-1 means last page has not yet been seen)
     storedPages: [], // Stores pages that have been seen in an array of pages,
-    processingPluginIds: []
+    processingPluginIds: [] // Stores plugin IDs associated with processing studies, for selective polling
   });
 
   // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
@@ -127,6 +127,7 @@ const PastAnalysisTable = () => {
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
 
+          // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
           .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
 
@@ -159,6 +160,8 @@ const PastAnalysisTable = () => {
     })();
   }, [tableStates]);
 
+
+  // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
     if (tableStates.processingPluginIds) {
       for (const id of tableStates.processingPluginIds) {
@@ -168,11 +171,11 @@ const PastAnalysisTable = () => {
             type: AnalysisTypes.Update_are_new_imgs_available,
             payload: { isAvailable: true }
           });
-          return
+          return;
         }
       }
     }
-  }, tableStates.processingPluginIds ? 10000 : 0);
+  }, tableStates.processingPluginIds ? 10000 : 0); // Pauses polling if there are no processing rows
   
   // Increments or decrements current page number
   const updatePage = (n: number) => {
