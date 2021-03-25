@@ -62,16 +62,6 @@ const CreateAnalysisWrapper = () => {
     const notifications: NotificationItem[] = await CreateAnalysisService.analyzeImages(imgs, models.xrayModel, models.ctModel);
 
     dispatch({
-      type: StagingDcmImagesTypes.UpdateStaging,
-      payload: { imgs: [] }
-    });
-
-    dispatch({
-      type: AnalysisTypes.Update_are_new_imgs_available,
-      payload: { isAvailable: true }
-    });
-
-    dispatch({
       type: NotificationActionTypes.SEND,
       payload: { notifications }
     });
