@@ -125,6 +125,9 @@ const PastAnalysisTable = () => {
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
 
+          processingIds.current = curAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
+          .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
+
           curAnalyses = processingRows.concat(newAnalyses);
           setTableStates(prevTableStates => ({
             ...prevTableStates,
@@ -141,9 +144,6 @@ const PastAnalysisTable = () => {
           type: AnalysisTypes.Update_list,
           payload: { list: curAnalyses }
         });
-
-        processingIds.current = curAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
-          .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
 
         updateRows(curAnalyses);
 
@@ -169,7 +169,7 @@ const PastAnalysisTable = () => {
         }
       }
     }
-  }, 5000);
+  }, processingIds.current?.length ? 10000 : 0);
   
   // Increments or decrements current page number
   const updatePage = (n: number) => {
