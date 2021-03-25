@@ -99,29 +99,13 @@ const PastAnalysisTable = () => {
         return;
       }
 
-      // Get rows for analysis currently processing
-      const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
-      const numAnalyzing = imagesAnalyzing.length;
-
-      // Calculate number of past analysis rows to fetch, given the number of processing rows to display on current page
-      let fetchSize;
-      if (Math.floor(numAnalyzing / perpage) > page) { // There are enough processing rows to fill entire page, so don't fetch any past results
-        fetchSize = 0;
-      } else if (Math.floor(numAnalyzing / perpage) === page) { // Processing rows partially fill the page, fill rest of page with past results
-        fetchSize = perpage - (numAnalyzing % perpage);
-      } else { // No processing rows on current page, fill entire page with past results
-        fetchSize = perpage;
-      }
-      // Slice the array of processing rows to display on current page
-      const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
-
       if (!maxFeedId || maxFeedId >= 0) {
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
         // If current page has not yet been seen
         if (page >= storedPages.length) {
-          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
+          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
 
           // Update latest offset
           setTableStates(prevTableStates => ({
@@ -138,7 +122,7 @@ const PastAnalysisTable = () => {
           }
 
           // Append processing rows to fetched results rows and update storedPages
-          curAnalyses = processingRows.concat(newAnalyses);
+          curAnalyses = newAnalyses;
           setTableStates(prevTableStates => ({
             ...prevTableStates,
             storedPages: [...prevTableStates.storedPages, curAnalyses]
@@ -161,7 +145,7 @@ const PastAnalysisTable = () => {
       }
       setLoading(false);
     })();
-  }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch, history, stagingDcmImages]);
+  }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch]);
 
   // Increments or decrements current page number
   const updatePage = (n: number) => {
