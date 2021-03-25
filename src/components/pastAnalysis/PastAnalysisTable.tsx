@@ -162,7 +162,7 @@ const PastAnalysisTable = () => {
   useInterval(async () => {
     if (tableStates.processingPluginIds) {
       for (const id of tableStates.processingPluginIds) {
-        const refresh: boolean = await ChrisIntegration.checkPluginTermination(id);
+        const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
           dispatch({
             type: AnalysisTypes.Update_are_new_imgs_available,
