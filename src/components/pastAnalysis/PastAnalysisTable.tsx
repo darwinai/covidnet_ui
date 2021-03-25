@@ -163,6 +163,7 @@ const PastAnalysisTable = () => {
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
+    console.log(tableStates.processingPluginIds)
     if (tableStates.processingPluginIds) {
       for (const id of tableStates.processingPluginIds) {
         const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
@@ -175,7 +176,7 @@ const PastAnalysisTable = () => {
         }
       }
     }
-  }, tableStates.processingPluginIds ? 10000 : 0); // Pauses polling if there are no processing rows
+  }, tableStates.processingPluginIds.length ? 10000 : 0); // Pauses polling if there are no processing rows
   
   // Increments or decrements current page number
   const updatePage = (n: number) => {
@@ -303,7 +304,7 @@ const PastAnalysisTable = () => {
       </div>
 
       <div style={{ float: "right" }}>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => updatePage(-1)} disabled={loading || tableStates.page == 0}>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => updatePage(-1)} disabled={loading || tableStates.page === 0}>
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-left" aria-hidden="true"></i>
           </span>
