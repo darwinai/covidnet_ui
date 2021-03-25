@@ -32,7 +32,8 @@ interface TableStates {
   maxFeedId: number | undefined,
   lastOffset: number,
   lastPage: number,
-  storedPages: StudyInstanceWithSeries[][]
+  storedPages: StudyInstanceWithSeries[][],
+  processingPluginIds: number[]
 }
 
 const PastAnalysisTable = () => {
@@ -43,7 +44,6 @@ const PastAnalysisTable = () => {
     dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const history = useHistory();
-  const processingIds = useRef<number[]>();
 
   const columns = [
     {
@@ -60,7 +60,8 @@ const PastAnalysisTable = () => {
     maxFeedId: -1, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
     lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
     lastPage: -1, // Table page number of the very last page (-1 means last page has not yet been seen)
-    storedPages: [] // Stores pages that have been seen in an array of pages
+    storedPages: [], // Stores pages that have been seen in an array of pages,
+    processingPluginIds: []
   });
 
   // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
@@ -75,7 +76,8 @@ const PastAnalysisTable = () => {
         maxFeedId: id,
         lastOffset: 0,
         lastPage: -1,
-        storedPages: []
+        storedPages: [],
+        processingPluginIds: []
       });
     });
   }
@@ -125,7 +127,7 @@ const PastAnalysisTable = () => {
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
 
-          processingIds.current = curAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
+          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
           .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
 
           curAnalyses = processingRows.concat(newAnalyses);
@@ -133,7 +135,8 @@ const PastAnalysisTable = () => {
             ...prevTableStates,
             lastOffset: newOffset,
             lastPage: isAtEndOfFeeds ? page: -1,
-            storedPages: [...prevTableStates.storedPages, curAnalyses]
+            storedPages: [...prevTableStates.storedPages, curAnalyses],
+            processingPluginIds: [...prevTableStates.processingPluginIds, ...processingPluginIds]
           }));
         } else {
           // If page has already been seen, access its contents from storedPages
@@ -157,8 +160,8 @@ const PastAnalysisTable = () => {
   }, [tableStates]);
 
   useInterval(async () => {
-    if (processingIds.current) {
-      for (const id of processingIds.current) {
+    if (tableStates.processingPluginIds) {
+      for (const id of tableStates.processingPluginIds) {
         const refresh: boolean = await ChrisIntegration.checkPluginTermination(id);
         if (refresh) {
           dispatch({
@@ -169,7 +172,7 @@ const PastAnalysisTable = () => {
         }
       }
     }
-  }, processingIds.current?.length ? 10000 : 0);
+  }, tableStates.processingPluginIds ? 10000 : 0);
   
   // Increments or decrements current page number
   const updatePage = (n: number) => {
