@@ -85,12 +85,10 @@ const initialTableState: TableState = {
 
 const PastAnalysisTable = () => {
   const { state: {
-    prevAnalyses: { perpage, areNewImgsAvailable, listOfAnalysis },
-    stagingDcmImages
+    prevAnalyses: { perpage, areNewImgsAvailable, listOfAnalysis }
   },
     dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
-  const history = useHistory();
 
   const [tableState, tableDispatch] = useReducer(tableReducer, initialTableState);
 
@@ -153,11 +151,6 @@ const PastAnalysisTable = () => {
           payload: { list: curAnalyses }
         });
         updateRows(curAnalyses);
-
-        dispatch({
-          type: AnalysisTypes.Update_are_new_imgs_available,
-          payload: { isAvailable: false }
-        });
       }
       setLoading(false);
     })();
