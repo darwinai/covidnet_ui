@@ -3,7 +3,7 @@ import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import { AnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
@@ -13,6 +13,7 @@ import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
+import useInterval from "../../shared/useInterval";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -42,6 +43,7 @@ const PastAnalysisTable = () => {
     dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const history = useHistory();
+  const processingIds = useRef<number[]>();
 
   const columns = [
     {
@@ -123,24 +125,11 @@ const PastAnalysisTable = () => {
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
 
-          // Update latest offset
-          setTableStates(prevTableStates => ({
-            ...prevTableStates,
-            lastOffset: newOffset
-          }));
-
-          // If the end of Feeds on Swift has been reached, record the current page as the last page to prevent further navigation by user
-          if (isAtEndOfFeeds) {
-            setTableStates(prevTableStates => ({
-              ...prevTableStates,
-              lastPage: page
-            }));
-          }
-
-          // Append processing rows to fetched results rows and update storedPages
           curAnalyses = processingRows.concat(newAnalyses);
           setTableStates(prevTableStates => ({
             ...prevTableStates,
+            lastOffset: newOffset,
+            lastPage: isAtEndOfFeeds ? page: -1,
             storedPages: [...prevTableStates.storedPages, curAnalyses]
           }));
         } else {
@@ -152,6 +141,10 @@ const PastAnalysisTable = () => {
           type: AnalysisTypes.Update_list,
           payload: { list: curAnalyses }
         });
+
+        processingIds.current = curAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
+          .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
+
         updateRows(curAnalyses);
 
         dispatch({
@@ -161,8 +154,23 @@ const PastAnalysisTable = () => {
       }
       setLoading(false);
     })();
-  }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch, history, stagingDcmImages]);
+  }, [tableStates]);
 
+  useInterval(async () => {
+    if (processingIds.current) {
+      for (const id of processingIds.current) {
+        const refresh: boolean = await ChrisIntegration.checkPluginTermination(id);
+        if (refresh) {
+          dispatch({
+            type: AnalysisTypes.Update_are_new_imgs_available,
+            payload: { isAvailable: true }
+          });
+          return
+        }
+      }
+    }
+  }, 5000);
+  
   // Increments or decrements current page number
   const updatePage = (n: number) => {
     setNewRowsRef([]); // Reset to prevent highlight animation from playing again

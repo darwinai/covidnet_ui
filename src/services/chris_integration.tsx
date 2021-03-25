@@ -230,6 +230,20 @@ class ChrisIntegration {
   }
 
   /**
+   * Returns true if the plugin with the given id is in a terminated state (SUCCESS, ERROR, or CANCELLED)
+   * @param {number} id
+   */
+  static async checkPluginTermination(id: number): Promise<boolean> {
+    const client: any = ChrisAPIClient.getClient();
+    const plugin = await client.getPluginInstances({ id });
+    const status = plugin?.data?.[0]?.status;
+    if (status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Starting at the provided offset, coninuously fetches Feeds from Swift until able to return an array of
    * StudyInstanceWithSeries of the provided size (limit)
    * @param {number} offset Page offset
