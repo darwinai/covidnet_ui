@@ -3,7 +3,7 @@ import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
-import React, { ReactNode, useEffect, useState, useRef } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { AnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
