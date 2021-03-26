@@ -137,6 +137,11 @@ class ChrisIntegration {
     return true;
   }
 
+  /**
+   * Runs pl-dircopy on a DcmImage
+   * @param img DcmImage
+   * @returns pl-dircopy instance with its corresponding DcmImage
+   */
   static async runDircopy(img: DcmImage): Promise<DircopyResult> {
     let client: any = await ChrisAPIClient.getClient();
 
@@ -147,7 +152,15 @@ class ChrisIntegration {
     return { instance: dircopyPluginInstance, img };
   }
 
-  static async processOneImg(img: DcmImage, dircopyInstance: PluginInstance, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
+  /**
+   * Runs pl-med2-img and pl-covidnet/pl-ct-covidnet on a DcmImage, given its pl-dircopy instance obtained from runDircopy
+   * @param img DcmImage
+   * @param dircopyPluginInstance instance obtained from runDircopy
+   * @param chosenXrayModel name of model to be used for pl-covidnet
+   * @param chosenCTModel name of model to be used for pl-ct-covidnet
+   * @returns plugin result after polling
+   */
+  static async processOneImg(img: DcmImage, dircopyPluginInstance: PluginInstance, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
     let client: any = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
@@ -164,7 +177,7 @@ class ChrisIntegration {
         inputFile: img.fname.split('/').pop(),
         sliceToConvert: 0,
         outputFileStem: `${filename}.jpg`, //-slice000
-        previous_id: dircopyInstance.data.id
+        previous_id: dircopyPluginInstance.data.id
       }
 
       if (imgConverterPlugin === undefined || imgConverterPlugin.data === undefined) {
