@@ -37,11 +37,11 @@ const DashboardPage: React.FC<AllProps> = () => {
 
   return (
     <Wrapper>
-      <PageSection>
+      <PageSection className="page-body">
         <PageSection className="section-area" variant={PageSectionVariants.light}>
           <CreateAnalysisSection />
         </PageSection>
-        <PageSection variant={PageSectionVariants.light}>
+        <PageSection className="section-area" variant={PageSectionVariants.light}>
           <PastAnalysisTable></PastAnalysisTable>
         </PageSection>
       </PageSection>

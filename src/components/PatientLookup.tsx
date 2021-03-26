@@ -2,7 +2,7 @@ import {
   Button, Dropdown,
 
   DropdownItem, DropdownToggle,
-
+  Stack, StackItem,
 
   TextInput
 } from '@patternfly/react-core';
@@ -61,7 +61,7 @@ const PatientLookup = (props: PatientLookupProps) => {
           images: dcmImages
         }
       });
-      
+
       // Select first study instance by default
       const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
       if (studyInstances.length > 0) {
@@ -94,37 +94,40 @@ const PatientLookup = (props: PatientLookupProps) => {
   const submitButton = props.isOnDashboard ? (
     <RightArrowButton click={navigateToCreateAnalysis}>Continue</RightArrowButton>
   ) : (
-      <Button variant="secondary" onClick={newLookup}>
-        <b>New Lookup</b>
-      </Button>
-    );
+    <Button variant="secondary" onClick={newLookup}>
+      <b>New Lookup</b>
+    </Button>
+  );
 
   return (
     <React.Fragment>
-      <div className="InputRow">
-        <div className="InputRowField">
-          <label>Patient MRN</label>
-          <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="text input example" />
-        </div>
-        <div className="InputRowField">
-          <label>Privacy Level</label>
-          <Dropdown
-            onSelect={onSelect}
-            toggle={
-              <DropdownToggle id="toggle-Privacy-Level" onToggle={setDropDownOpen}>
-                <div className="dropdownContent">
-                  {privacyLevel}
-                </div>
-              </DropdownToggle>
-            }
-            isOpen={isDropDownOpen}
-            dropdownItems={dropdownItems}
-          />
-        </div>
-        <div className="InputRowField">
-          {submitButton}
-        </div>
-      </div>
+      <Stack>
+        <StackItem className="input-row-label">Create a new Predictive analysis</StackItem>
+        <StackItem className="InputRow">
+          <div className="InputRowField">
+            <label>Patient MRN</label>
+            <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="text input example" />
+          </div>
+          <div className="InputRowField">
+            <label>Privacy Level</label>
+            <Dropdown
+              onSelect={onSelect}
+              toggle={
+                <DropdownToggle id="toggle-Privacy-Level" onToggle={setDropDownOpen}>
+                  <div className="dropdownContent">
+                    {privacyLevel}
+                  </div>
+                </DropdownToggle>
+              }
+              isOpen={isDropDownOpen}
+              dropdownItems={dropdownItems}
+            />
+          </div>
+          <div className="InputRowField">
+            {submitButton}
+          </div>
+        </StackItem>
+      </Stack>
     </React.Fragment>
   )
 
