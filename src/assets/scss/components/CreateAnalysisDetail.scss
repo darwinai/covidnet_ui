@@ -13,8 +13,7 @@ $description-top-padding: 0.3rem;
 .detail-wrapper {
   @include flex(column);
   min-height: 70vh;
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
+  margin: 1rem;
 }
 
 .pf-c-modal-box {
@@ -24,7 +23,6 @@ $description-top-padding: 0.3rem;
 .detail-top-wrapper {
   @include flex(row);
   width: $full;
-  padding: 10px;
   h1 {
     font-weight: bold;
     font-size: 2rem;

@@ -55,3 +55,9 @@
   min-height: 70px;
   min-width: 190px;
 }
+
+.page-body {
+  min-height: calc(100vh - var(--pf-c-page__header--MinHeight) - #{$footer-height});
+  display: flex;
+  flex-direction: column;
+}
