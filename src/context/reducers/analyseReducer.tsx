@@ -30,14 +30,12 @@ export type selectedImageType = {
 export type IPrevAnalysesState = {
   listOfAnalysis: StudyInstanceWithSeries[];
   perpage: number;
-  areNewImgsAvailable: boolean;
   selectedImage: selectedImageType;
 }
 
 export let initialIPrevAnalysesState: IPrevAnalysesState = {
   listOfAnalysis: [],
   perpage: 10,
-  areNewImgsAvailable: false,
   selectedImage: {
     studyInstance: null,
     index: 0
@@ -46,8 +44,7 @@ export let initialIPrevAnalysesState: IPrevAnalysesState = {
 
 type AnalysesPayload = {
   [AnalysisTypes.Update_perpage]: { perpage: number },
-  [AnalysisTypes.Update_list]: { list: StudyInstanceWithSeries[] }
-  [AnalysisTypes.Update_are_new_imgs_available]: { isAvailable: boolean },
+  [AnalysisTypes.Update_list]: { list: StudyInstanceWithSeries[] },
   [AnalysisTypes.Update_selected_image]: { selectedImage: selectedImageType }
 }
 
@@ -70,11 +67,6 @@ export const analysesReducer = (
       return {
         ...state,
         listOfAnalysis: action.payload.list
-      }
-    case AnalysisTypes.Update_are_new_imgs_available:
-      return {
-        ...state,
-        areNewImgsAvailable: action.payload.isAvailable
       }
     case AnalysisTypes.Update_selected_image: 
       return {

@@ -85,12 +85,13 @@ const initialTableState: TableState = {
 
 const PastAnalysisTable = () => {
   const { state: {
-    prevAnalyses: { perpage, areNewImgsAvailable, listOfAnalysis }
+    prevAnalyses: { perpage, listOfAnalysis }
   },
     dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
 
   const [tableState, tableDispatch] = useReducer(tableReducer, initialTableState);
+  const [refreshTable, setRefreshTable] = useState<boolean>(false);
 
   const columns = [
     {
@@ -114,12 +115,12 @@ const PastAnalysisTable = () => {
 
   // If new past analyses are available, reset table to initial state and update maxFeedId
   useEffect(() => {
-    if (areNewImgsAvailable) {
+    if (refreshTable) {
       // Right before resetting, get a list of all the "Analysis Created" properties on page 0
       setNewRowsRef(tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
     }
     updateMaxFeedId();
-  }, [areNewImgsAvailable])
+  }, [refreshTable])
 
   useEffect(() => {
     (async () => {
