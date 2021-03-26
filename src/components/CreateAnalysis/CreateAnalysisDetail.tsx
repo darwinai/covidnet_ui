@@ -79,9 +79,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
             </div>
           </div>
         </div>
-        <PageSection className="PatientLookupWrapper" variant={PageSectionVariants.light}>
           <FileLookup />
-        </PageSection>
         {
           studyInstances.length > 0 ?
             <div className="detail-bottom-wrapper">
