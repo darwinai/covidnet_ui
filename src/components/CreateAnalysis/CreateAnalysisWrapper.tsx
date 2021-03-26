@@ -1,7 +1,7 @@
 import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { StagingDcmImagesTypes, CreateAnalysisTypes, AnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
+import { CreateAnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
