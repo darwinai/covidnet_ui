@@ -18,11 +18,11 @@ const CreateAnalysisPage = () => {
         </PageSection>
           {
             dcmImages.allDcmImages.length > 0 ?
-              <PageSection className="section-area" variant={PageSectionVariants.light}>
+              <PageSection variant={PageSectionVariants.light}>
                 <CreateAnalysisWrapper></CreateAnalysisWrapper>
               </PageSection>
               :
-              <PageSection variant={PageSectionVariants.light} className="page-section-no-results">
+              <PageSection className="page-section-no-results" variant={PageSectionVariants.light}>
                 <Error>No studies found</Error>
               </PageSection>
           }

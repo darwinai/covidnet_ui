@@ -2,10 +2,8 @@
   font-family: Overpass-Bold;
 }
 
-$sectionAreaSpacing: 15px;
-
 .section-area {
-  margin-bottom: $sectionAreaSpacing;
+  margin-bottom: var(--pf-c-page__main-section--PaddingBottom);
 }
 
 .classificationText {
