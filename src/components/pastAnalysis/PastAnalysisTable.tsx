@@ -26,20 +26,29 @@ interface tableRowsChild {
   cells: { [title: string]: ReactNode }[]
 }
 
+type TableState = {
+  page: number, // Current table page number
+  maxFeedId: number | undefined, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
+  lastOffset: number, // Page offset value for where to begin fetching the next unseen page
+  lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
+  storedPages: StudyInstanceWithSeries[][], // Stores pages that have been seen in an array of pages
+  processingPluginIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
+}
+
+const initialTableState: TableState = {
+  page: 0,
+  maxFeedId: -1,
+  lastOffset: 0,
+  lastPage: -1,
+  storedPages: [],
+  processingPluginIds: []
+}
+
 enum TableReducerActions {
   updateMaxFeedId = "UPDATE_MAX_FEED_ID",
   addNewPage = "ADD_NEW_PAGE",
   incrementPage = "INCREMENT_PAGE",
   decrementPage = "DECREMENT_PAGE"
-}
-
-type TableState = {
-  page: number,
-  maxFeedId: number | undefined,
-  lastOffset: number,
-  lastPage: number,
-  storedPages: StudyInstanceWithSeries[][],
-  processingPluginIds: number[]
 }
 
 type TableAction =
@@ -75,15 +84,6 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
       }
     default: return state;
   }
-}
-
-const initialTableState: TableState = {
-  page: 0, // Current table page number
-  maxFeedId: -1, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
-  lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
-  lastPage: -1, // Table page number of the very last page (-1 means last page has not yet been seen)
-  storedPages: [], // Stores pages that have been seen in an array of pages
-  processingPluginIds: []
 }
 
 const PastAnalysisTable = () => {
