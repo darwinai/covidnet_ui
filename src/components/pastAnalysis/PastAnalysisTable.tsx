@@ -13,6 +13,8 @@ import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
+import useInterval from "../../shared/useInterval";
+import { RESULT_POLL_INTERVAL } from "../../app.config";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -38,16 +40,17 @@ type TableState = {
   maxFeedId: number | undefined,
   lastOffset: number,
   lastPage: number,
-  storedPages: StudyInstanceWithSeries[][]
+  storedPages: StudyInstanceWithSeries[][],
+  processingPluginIds: number[]
 }
 
 type TableAction =
   | { type: TableReducerActions.updateMaxFeedId, payload: { id: number } }
-  | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[] } }
+  | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
   | { type: TableReducerActions.incrementPage }
   | { type: TableReducerActions.decrementPage }
 
-const tableReducer = (state: TableState, action: TableAction) => {
+const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch(action.type) {
     case TableReducerActions.updateMaxFeedId:
       return {
@@ -59,7 +62,8 @@ const tableReducer = (state: TableState, action: TableAction) => {
         ...state,
         lastOffset: action.payload.lastOffset,
         lastPage: action.payload.lastPage,
-        storedPages: [...state.storedPages, action.payload.newPage]
+        storedPages: [...state.storedPages, action.payload.newPage],
+        processingPluginIds: [...state.processingPluginIds, ...action.payload.processingPluginIds]
       }
     case TableReducerActions.incrementPage:
       return {
@@ -80,7 +84,8 @@ const initialTableState: TableState = {
   maxFeedId: -1, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
   lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
   lastPage: -1, // Table page number of the very last page (-1 means last page has not yet been seen)
-  storedPages: [] // Stores pages that have been seen in an array of pages
+  storedPages: [], // Stores pages that have been seen in an array of pages
+  processingPluginIds: []
 }
 
 const PastAnalysisTable = () => {
@@ -135,11 +140,16 @@ const PastAnalysisTable = () => {
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
 
+          // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
+          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
+          .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
+
           curAnalyses = newAnalyses;
           tableDispatch({ type: TableReducerActions.addNewPage, payload: {
             lastOffset: newOffset,
             lastPage: isAtEndOfFeeds ? page : -1,
-            newPage: curAnalyses
+            newPage: curAnalyses,
+            processingPluginIds
           }});
 
         } else {
@@ -151,11 +161,27 @@ const PastAnalysisTable = () => {
           type: AnalysisTypes.Update_list,
           payload: { list: curAnalyses }
         });
+
         updateRows(curAnalyses);
+        setRefreshTable(false);
       }
       setLoading(false);
     })();
   }, [tableState, perpage, dispatch]);
+
+
+  // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
+  useInterval(async () => {
+    if (tableState.processingPluginIds) {
+      for (const id of tableState.processingPluginIds) {
+        const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
+        if (refresh) {
+          setRefreshTable(true);
+          return;
+        }
+      }
+    }
+  }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = [];
