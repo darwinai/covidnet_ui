@@ -47,17 +47,12 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     <DropdownItem key={"Sign out"} onClick={logout} >Sign out</DropdownItem>,
   ];
 
-  const variant = state.notifications.length > 0
-    ? state.notifications.some(notification => notification.variant === NotificationItemVariant.DANGER)
-      ? "attention" : "unread"
-      : "read";
-
   const pageToolbar = state.user.loggedIn ? (
     <PageHeaderTools>
       <PageHeaderToolsItem>
         <NotificationBadge
-          variant={variant}
-          count={state.notifications.length}
+          variant="read"
+          count={state.notifications.length} //will this detect changes? how to make it pick up changes?
           onClick={onNotificationBadgeClick}
           aria-label="Notifications">
         </NotificationBadge>

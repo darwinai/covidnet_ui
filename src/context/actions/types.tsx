@@ -50,5 +50,6 @@ export enum ImageViewerTypes {
 }
 
 export enum NotificationActionTypes {
-  SEND
+  SEND,
+  CLEAR
 }
