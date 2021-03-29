@@ -41,7 +41,7 @@ export const notificationsReducer = (
 ) => {
   switch (action.type) {
     case NotificationActionTypes.SEND: {
-      return state.concat(action.payload.notifications).sort((a, b) => b.timestamp.diff(a.timestamp)) // earliest at the front
+      return state.concat(action.payload.notifications).sort((a, b) => b.timestamp.diff(a.timestamp)); // earliest at the front
     }
     default:
       return state

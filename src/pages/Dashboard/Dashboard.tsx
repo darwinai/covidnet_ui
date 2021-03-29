@@ -31,7 +31,7 @@ const DashboardPage: React.FC<AllProps> = () => {
         dispatch({
           type: NotificationActionTypes.SEND,
           payload: { notifications }
-        })
+        });
       });
   }, [dispatch, stagingDcmImages, models.ctModel, models.xrayModel]);
 
