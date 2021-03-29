@@ -20,7 +20,7 @@ const DashboardPage: React.FC<AllProps> = () => {
         <PageSection className="section-area" variant={PageSectionVariants.light}>
           <CreateAnalysisSection />
         </PageSection>
-        <PageSection variant={PageSectionVariants.light}>
+        <PageSection className="flex-column" variant={PageSectionVariants.light}>
           <PastAnalysisTable></PastAnalysisTable>
         </PageSection>
       </PageSection>
