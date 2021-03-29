@@ -3,7 +3,7 @@ import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
-import React, { ReactNode, useEffect, useState, useReducer } from "react";
+import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import { AnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
@@ -96,7 +96,6 @@ const PastAnalysisTable = () => {
   const [loading, setLoading] = useState(true);
 
   const [tableState, tableDispatch] = useReducer(tableReducer, initialTableState);
-  const [refreshTable, setRefreshTable] = useState<boolean>(false);
 
   const columns = [
     {
@@ -109,7 +108,7 @@ const PastAnalysisTable = () => {
 
   // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
   // Used to identify which rows are new and need to be highlighted green
-  const [newRowsRef, setNewRowsRef] = useState<string[]>([]);
+  const newRowsRef = useRef<string[]>([]);
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = () => {
@@ -118,14 +117,9 @@ const PastAnalysisTable = () => {
     });
   }
 
-  // If new past analyses are available, reset table to initial state and update maxFeedId
   useEffect(() => {
-    if (refreshTable) {
-      // Right before resetting, get a list of all the "Analysis Created" properties on page 0
-      setNewRowsRef(tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
-    }
     updateMaxFeedId();
-  }, [refreshTable])
+  }, [])
 
   useEffect(() => {
     (async () => {
@@ -163,12 +157,10 @@ const PastAnalysisTable = () => {
         });
 
         updateRows(curAnalyses);
-        setRefreshTable(false);
       }
       setLoading(false);
     })();
   }, [tableState, perpage, dispatch]);
-
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
@@ -176,7 +168,9 @@ const PastAnalysisTable = () => {
       for (const id of tableState.processingPluginIds) {
         const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
-          setRefreshTable(true);
+          // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
+          newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
+          updateMaxFeedId();
           return;
         }
       }
@@ -238,7 +232,7 @@ const PastAnalysisTable = () => {
   }
 
   const onCollapse = (event: any, rowKey: number, isOpen: any) => {
-    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
+    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     const rowsCopy = [...rows];
     rowsCopy[rowKey].isOpen = isOpen;
     setRows(rowsCopy);
@@ -259,7 +253,7 @@ const PastAnalysisTable = () => {
     let backgroundStyle = {};
     if (isAnalyzing) {
       backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
-    } else if (newRowsRef?.length > 0 && !newRowsRef.includes(cells[4])) {
+    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(cells[4])) {
       backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
     } else {
       backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
@@ -282,7 +276,7 @@ const PastAnalysisTable = () => {
   }
 
   const searchMRN = (text: string) => {
-    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
+    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     updateRows(listOfAnalysis.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
   }
 
