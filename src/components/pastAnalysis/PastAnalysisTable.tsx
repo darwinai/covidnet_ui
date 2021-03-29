@@ -163,7 +163,6 @@ const PastAnalysisTable = () => {
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
-    console.log(tableStates.processingPluginIds)
     if (tableStates.processingPluginIds) {
       for (const id of tableStates.processingPluginIds) {
         const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
