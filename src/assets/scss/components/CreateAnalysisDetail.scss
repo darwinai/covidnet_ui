@@ -13,6 +13,7 @@ $description-top-padding: 0.3rem;
 .detail-wrapper {
   @include flex(column);
   min-height: 70vh;
+  overflow-x: hidden;
 }
 
 .pf-c-modal-box {
