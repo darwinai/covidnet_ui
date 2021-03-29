@@ -14,7 +14,7 @@ import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 import useInterval from "../../shared/useInterval";
-import { RESULT_POLL_INTERVAL } from "../../api/app.config";
+import { RESULT_POLL_INTERVAL } from "../../app.config";
 
 interface tableRowsParent {
   isOpen: boolean,

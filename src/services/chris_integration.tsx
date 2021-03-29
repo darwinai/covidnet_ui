@@ -3,7 +3,7 @@ import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
-import { PluginModels } from "../api/app.config";
+import { PluginModels } from "../app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
 
 export interface LocalFile {
