@@ -40,7 +40,7 @@ const PastAnalysisTable = () => {
     stagingDcmImages
   },
     dispatch } = React.useContext(AppContext);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const history = useHistory();
 
   const columns = [
@@ -81,7 +81,7 @@ const PastAnalysisTable = () => {
   // If new past analyses are available, reset table to initial state and update maxFeedId
   useEffect(() => {
     if (areNewImgsAvailable) {
-      setLoading(true);
+      setIsLoading(true);
       // Right before resetting, get a list of all the "Analysis Created" properties on page 0
       setNewRowsRef(tableStates.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
       updateMaxFeedId();
@@ -90,7 +90,7 @@ const PastAnalysisTable = () => {
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
+      setIsLoading(true);
       const { maxFeedId, page, lastOffset, storedPages } = tableStates;
 
       // Update the maxFeedId when the PastAnalysisTable first mounts
@@ -159,7 +159,7 @@ const PastAnalysisTable = () => {
           payload: { isAvailable: false }
         });
       }
-      setLoading(false);
+      setIsLoading(false);
     })();
   }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch, history, stagingDcmImages]);
 
@@ -291,13 +291,13 @@ const PastAnalysisTable = () => {
           </div>
 
           <div style={{ float: "right" }}>
-            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => updatePage(-1)} disabled={loading || tableStates.page == 0}>
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => updatePage(-1)} disabled={isLoading || tableStates.page == 0}>
               <span className="pf-c-button__icon pf-m-end">
                 <i className="fas fa-arrow-left" aria-hidden="true"></i>
               </span>
           &nbsp; Previous {perpage}
             </button>
-            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={loading || tableStates.page === tableStates.lastPage}>Next {perpage}
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={isLoading || tableStates.page === tableStates.lastPage}>Next {perpage}
               <span className="pf-c-button__icon pf-m-end">
                 <i className="fas fa-arrow-right" aria-hidden="true"></i>
               </span>
@@ -305,7 +305,7 @@ const PastAnalysisTable = () => {
           </div>
         </div>
       </div>
-      { loading ? (
+      { isLoading ? (
         <div className="loading">
           <Spinner size="xl" /> &nbsp; Loading
         </div>
