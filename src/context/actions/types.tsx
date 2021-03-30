@@ -9,9 +9,11 @@ export type ActionMap<M extends { [index: string]: any }> = {
   }
 };
 
+
 export enum Types {
   Login_update = 'LOGIN_UPDATE',
-  Logout_update = 'LOGOUT_UPDATE'
+  Logout_update = 'LOGOUT_UPDATE',
+  NotificationActionTypes = "NotificationActionTypes"
 }
 
 export enum AnalysisTypes {

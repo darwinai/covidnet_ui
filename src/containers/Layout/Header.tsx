@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     dispatch({
       type: Types.Logout_update,
       payload: null
-    })
+    });
     history.push("/login")
   }
 

@@ -9,21 +9,32 @@ import {
   NotificationDrawerListItemHeader,
   ButtonVariant
 } from '@patternfly/react-core';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../context/context';
 import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
+import { NotificationActionTypes } from '../../context/actions/types';
 
 interface NotificationDrawerWrapperProps {
   onClose: () => void;
 }
 
 const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ onClose }) => {
-  const { state: { notifications } } = useContext(AppContext);
+  const [disabled, setDisabled] = useState(true);
+  const { state: { notifications }, dispatch } = useContext(AppContext);
+
+  useEffect(() => {
+    setDisabled(notifications.length === 0)
+  }, [notifications.length]);
 
   return (
     <NotificationDrawer>
       <NotificationDrawerHeader count={notifications.length}>
-        <Button variant={ButtonVariant.plain} aria-label={'CLose'} onClick={onClose}>
+        <Button variant="tertiary" aria-label={"Clear All"} isDisabled={disabled} onClick={() => {
+          dispatch({
+            type: NotificationActionTypes.CLEAR
+          });
+        }}>Clear All</Button>
+        <Button variant={ButtonVariant.plain} aria-label={"Close"} onClick={onClose}>
           <TimesIcon aria-hidden="true" />
         </Button>
       </NotificationDrawerHeader>
