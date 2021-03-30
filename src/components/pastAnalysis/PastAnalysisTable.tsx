@@ -1,17 +1,20 @@
-import { InputGroup, InputGroupText, Pagination, Spinner, TextInput } from '@patternfly/react-core';
-import { FilterIcon, SearchIcon } from '@patternfly/react-icons';
-import { css } from '@patternfly/react-styles';
-import styles from '@patternfly/react-styles/css/components/Table/table';
-import { expandable, Table, TableBody, TableHeader } from '@patternfly/react-table';
-import React, { ReactNode, useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { AnalysisTypes } from '../../context/actions/types';
-import { AppContext } from '../../context/context';
-import { StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
-import ChrisIntegration from '../../services/chris_integration';
-import PastAnalysisService, { Processing } from '../../services/pastAnalysisService';
+import { InputGroup, InputGroupText, Spinner, TextInput } from "@patternfly/react-core";
+import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
+import { css } from "@patternfly/react-styles";
+import styles from "@patternfly/react-styles/css/components/Table/table";
+import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
+import React, { ReactNode, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
+import { AnalysisTypes } from "../../context/actions/types";
+import { AppContext } from "../../context/context";
+import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
+import ChrisIntegration from "../../services/chris_integration";
+import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
+import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
+import useInterval from "../../shared/useInterval";
+import { RESULT_POLL_INTERVAL } from "../../app.config";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -30,7 +33,8 @@ interface TableStates {
   maxFeedId: number | undefined,
   lastOffset: number,
   lastPage: number,
-  storedPages: StudyInstanceWithSeries[][]
+  storedPages: StudyInstanceWithSeries[][],
+  processingPluginIds: number[]
 }
 
 const PastAnalysisTable = () => {
@@ -44,10 +48,10 @@ const PastAnalysisTable = () => {
 
   const columns = [
     {
-      title: 'Study',
+      title: "Study",
       cellFormatters: [expandable]
     },
-    'Patient MRN', 'Patient DOB', 'Patient Age', 'Analysis Created'
+    "Patient MRN", "Patient DOB", "Patient Age", "Analysis Created", ""
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -57,7 +61,8 @@ const PastAnalysisTable = () => {
     maxFeedId: -1, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
     lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
     lastPage: -1, // Table page number of the very last page (-1 means last page has not yet been seen)
-    storedPages: [] // Stores pages that have been seen in an array of pages
+    storedPages: [], // Stores pages that have been seen in an array of pages,
+    processingPluginIds: [] // Stores plugin IDs associated with processing studies, for selective polling
   });
 
   // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
@@ -72,7 +77,8 @@ const PastAnalysisTable = () => {
         maxFeedId: id,
         lastOffset: 0,
         lastPage: -1,
-        storedPages: []
+        storedPages: [],
+        processingPluginIds: []
       });
     });
   }
@@ -90,7 +96,7 @@ const PastAnalysisTable = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const {maxFeedId, page, lastOffset, storedPages} = tableStates;
+      const { maxFeedId, page, lastOffset, storedPages } = tableStates;
 
       // Update the maxFeedId when the PastAnalysisTable first mounts
       if (maxFeedId === -1) {
@@ -122,25 +128,17 @@ const PastAnalysisTable = () => {
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
 
-          // Update latest offset
-          setTableStates(prevTableStates => ({
-            ...prevTableStates,
-            lastOffset: newOffset
-          }));
+          // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
+          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
+          .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
 
-          // If the end of Feeds on Swift has been reached, record the current page as the last page to prevent further navigation by user
-          if (isAtEndOfFeeds) {
-            setTableStates(prevTableStates => ({
-              ...prevTableStates,
-              lastPage: page
-            }));
-          }
-
-          // Append processing rows to fetched results rows and update storedPages
           curAnalyses = processingRows.concat(newAnalyses);
           setTableStates(prevTableStates => ({
             ...prevTableStates,
-            storedPages: [...prevTableStates.storedPages, curAnalyses]
+            lastOffset: newOffset,
+            lastPage: isAtEndOfFeeds ? page: -1,
+            storedPages: [...prevTableStates.storedPages, curAnalyses],
+            processingPluginIds: [...prevTableStates.processingPluginIds, ...processingPluginIds]
           }));
         } else {
           // If page has already been seen, access its contents from storedPages
@@ -151,6 +149,7 @@ const PastAnalysisTable = () => {
           type: AnalysisTypes.Update_list,
           payload: { list: curAnalyses }
         });
+
         updateRows(curAnalyses);
 
         dispatch({
@@ -160,8 +159,25 @@ const PastAnalysisTable = () => {
       }
       setLoading(false);
     })();
-  }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch, history, stagingDcmImages]);
+  }, [tableStates, perpage, stagingDcmImages, dispatch]);
 
+
+  // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
+  useInterval(async () => {
+    if (tableStates.processingPluginIds) {
+      for (const id of tableStates.processingPluginIds) {
+        const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
+        if (refresh) {
+          dispatch({
+            type: AnalysisTypes.Update_are_new_imgs_available,
+            payload: { isAvailable: true }
+          });
+          return;
+        }
+      }
+    }
+  }, tableStates.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
+  
   // Increments or decrements current page number
   const updatePage = (n: number) => {
     setNewRowsRef([]); // Reset to prevent highlight animation from playing again
@@ -172,46 +188,64 @@ const PastAnalysisTable = () => {
   }
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
-    const rows: (tableRowsChild | tableRowsParent)[] = []
+    const rows: (tableRowsChild | tableRowsParent)[] = [];
     for (const analysis of listOfAnalysis) {
+      const validAnalyses = analysis.series.filter((series: ISeries) => series.classifications.size > 0);
+      const classifications = validAnalyses?.[0]?.classifications ? Array.from(validAnalyses?.[0]?.classifications?.keys()) : [];
+      const numInvalidAnalyses = analysis.series.length - validAnalyses.length;
+
       const indexInRows: number = rows.length;
+
+      const isProcessing = !analysis.analysisCreated;
+      let analysisCreated;
+      let badges;
+      if (isProcessing) {
+        analysisCreated = {
+          title: (<div><Spinner size="md" /> Processing</div>)
+        };
+        badges = "";
+      } else {
+        analysisCreated = analysis.analysisCreated;
+        badges = {
+          title: (<>
+            {<Badge className="badge-margin" isRead={!validAnalyses.length}>{validAnalyses.length}</Badge>}
+            {<Badge className="badge-danger" isRead={!numInvalidAnalyses}>{numInvalidAnalyses}</Badge>}
+          </>)
+        };
+      }
+
       const cells: any[] = [
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.PatientID,
         analysis.dcmImage.PatientBirthDate,
         `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y`,
-        analysis.analysisCreated
+        analysisCreated,
+        badges
       ];
 
-      const isProcessing = cells[cells.length - 1] === Processing.analysisAreProcessing;
-      if (isProcessing) {
-        cells[cells.length - 1] = {
-          title: (<div><Spinner size="md" /> Processing</div>)
-        }
-      }
       rows.push({
         isOpen: false,
         cells: cells
-      })
+      });
       if (analysis.series.length > 0) {
         rows.push({
           isOpen: false,
           parent: indexInRows,
           fullWidth: true,
           cells: [{
-            title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing}></SeriesTable>)
+            title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing} classifications={classifications}></SeriesTable>)
           }]
-        })
+        });
       }
     }
-    setRows(rows)
+    setRows(rows);
   }
 
   const onCollapse = (event: any, rowKey: number, isOpen: any) => {
     setNewRowsRef([]); // Reset to prevent highlight animation from playing again
-    const rowsCopy = [...rows]
+    const rowsCopy = [...rows];
     rowsCopy[rowKey].isOpen = isOpen;
-    setRows(rowsCopy)
+    setRows(rowsCopy);
   }
 
   const customRowWrapper = (tableRow: any) => {
@@ -223,16 +257,16 @@ const PastAnalysisTable = () => {
       ...props
     } = tableRow;
 
-    const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the last index in row
+    const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the index of Analysis Created column
 
     // Style the current row
     let backgroundStyle = {};
     if (isAnalyzing) {
-      backgroundStyle = { 'backgroundColor': '#F9E0A2' }; // Processing rows
+      backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
     } else if (newRowsRef?.length > 0 && !newRowsRef.includes(cells[4])) {
-      backgroundStyle = { 'animation': 'new-row-highlight-animation 2s linear' }; // Newly added rows
+      backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
     } else {
-      backgroundStyle = { 'backgroundColor': '#FFFFFF' }; // Default
+      backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
     }
 
     return (
@@ -241,7 +275,7 @@ const PastAnalysisTable = () => {
         ref={trRef}
         className={css(
           className,
-          'custom-static-class',
+          "custom-static-class",
           isExpanded !== undefined && styles.tableExpandableRow,
           isExpanded && styles.modifiers.expanded
         )}
@@ -268,34 +302,34 @@ const PastAnalysisTable = () => {
           <InputGroupText> <SearchIcon /> </InputGroupText>
         </InputGroup>
       </div>
-      
-    <div style={{float: "right"}}>
-    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{marginRight: "1em"}} onClick={() => updatePage(-1)} disabled={loading || tableStates.page == 0}>
-      <span className="pf-c-button__icon pf-m-end">
-        <i className="fas fa-arrow-left" aria-hidden="true"></i>
-      </span>
+
+      <div style={{ float: "right" }}>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => updatePage(-1)} disabled={loading || tableStates.page === 0}>
+          <span className="pf-c-button__icon pf-m-end">
+            <i className="fas fa-arrow-left" aria-hidden="true"></i>
+          </span>
       &nbsp; Previous {perpage}
-    </button>
-    <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={loading || tableStates.page === tableStates.lastPage}>Next {perpage}
-      <span className="pf-c-button__icon pf-m-end">
-        <i className="fas fa-arrow-right" aria-hidden="true"></i>
-      </span>
-    </button>
-    </div>
-    { loading ? (
-      <div className="loading">
-        <Spinner size="xl" /> &nbsp; Loading
+        </button>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={loading || tableStates.page === tableStates.lastPage}>Next {perpage}
+          <span className="pf-c-button__icon pf-m-end">
+            <i className="fas fa-arrow-right" aria-hidden="true"></i>
+          </span>
+        </button>
       </div>
-    ) : (
-      <Table aria-label="Collapsible table" id="pastAnalysisTable"
-        onCollapse={onCollapse} rows={rows} cells={columns}
-        rowWrapper={customRowWrapper}
+      { loading ? (
+        <div className="loading">
+          <Spinner size="xl" /> &nbsp; Loading
+        </div>
+      ) : (
+        <Table aria-label="Collapsible table" id="pastAnalysisTable"
+          onCollapse={onCollapse} rows={rows} cells={columns}
+          rowWrapper={customRowWrapper}
         >
-        <TableHeader />
-        <TableBody />
-      </Table>
+          <TableHeader />
+          <TableBody />
+        </Table>
       )
-    }
+      }
     </div>
   );
 }
