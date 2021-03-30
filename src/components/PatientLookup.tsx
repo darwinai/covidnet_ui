@@ -22,7 +22,7 @@ interface PatientLookupProps {
 }
 
 const PatientLookup = (props: PatientLookupProps) => {
-  const { state: {createAnalysis: { patientID }}, dispatch } = useContext(AppContext);
+  const { state: { createAnalysis: { patientID }}, dispatch } = useContext(AppContext);
   const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
   const [patientIDInput, setPatientIDInput] = useState<string>((patientID && !props.isOnDashboard) ? patientID : "");
   const history = useHistory();
