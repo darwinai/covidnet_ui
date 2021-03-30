@@ -1,7 +1,7 @@
 .InputRow {
   display: flex;
   flex-direction: row;
-  margin: 1rem;
+  margin: $page-section-margin;
   .InputRowField {
     width: 25%;
     padding-right: 1rem;
@@ -18,7 +18,8 @@
 }
 
 .input-row-label {
-  margin: 1rem 1rem 0 1rem;
+  margin: $page-section-margin;
+  margin-bottom: 0;
 }
 
 .PatientLookupWrapper {
