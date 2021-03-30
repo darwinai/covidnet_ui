@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
       <PageHeaderToolsItem>
         <NotificationBadge
           variant="read"
-          count={state.notifications.length} //will this detect changes? how to make it pick up changes?
+          count={state.notifications.length}
           onClick={onNotificationBadgeClick}
           aria-label="Notifications">
         </NotificationBadge>

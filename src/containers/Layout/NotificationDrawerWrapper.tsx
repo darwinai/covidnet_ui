@@ -1,14 +1,17 @@
 import {
+  Button,
   NotificationDrawer,
   NotificationDrawerBody,
   NotificationDrawerHeader,
   NotificationDrawerList,
   NotificationDrawerListItem,
   NotificationDrawerListItemBody,
-  NotificationDrawerListItemHeader
+  NotificationDrawerListItemHeader,
+  ButtonVariant
 } from '@patternfly/react-core';
 import React, { useContext } from 'react';
 import { AppContext } from '../../context/context';
+import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
 
 interface NotificationDrawerWrapperProps {
   onClose: () => void;
@@ -19,7 +22,10 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
 
   return (
     <NotificationDrawer>
-      <NotificationDrawerHeader count={notifications.length} onClose={() => onClose()}>
+      <NotificationDrawerHeader count={notifications.length}>
+        <Button variant={ButtonVariant.plain} aria-label={'CLose'} onClick={onClose}>
+          <TimesIcon aria-hidden="true" />
+        </Button>
       </NotificationDrawerHeader>
       <NotificationDrawerBody>
         <NotificationDrawerList>
