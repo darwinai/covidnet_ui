@@ -130,7 +130,7 @@ const PastAnalysisTable = () => {
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
-          .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
+          .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
 
           curAnalyses = processingRows.concat(newAnalyses);
           setTableStates(prevTableStates => ({
