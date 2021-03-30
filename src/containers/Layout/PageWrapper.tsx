@@ -17,7 +17,7 @@ const Wrapper: React.FC<WrapperProps> = ({children}) => {
       header={<Header onNotificationBadgeClick={() => setIsDrawerOpen(!isDrawerExpanded)} />}
       notificationDrawer={<NotificationDrawerWrapper onClose={() => setIsDrawerOpen(!isDrawerExpanded)} />}
       isNotificationDrawerExpanded={isDrawerExpanded}
-      className="footer-styling"
+      className="page-wrapper"
     >
       {children}
       <Footer></Footer>
