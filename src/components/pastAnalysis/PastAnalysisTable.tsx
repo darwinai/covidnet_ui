@@ -129,7 +129,7 @@ const PastAnalysisTable = () => {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
-          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
+          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
           .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
 
           curAnalyses = processingRows.concat(newAnalyses);
