@@ -156,6 +156,7 @@ $collapse-button-height: 2em;
 }
 
 .bottomInfoBox {
+  flex-grow: 1;
   justify-content: space-around;
   flex-wrap: wrap;
 }
