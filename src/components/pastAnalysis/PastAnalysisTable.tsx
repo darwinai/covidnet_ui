@@ -88,7 +88,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
 
 const PastAnalysisTable = () => {
   const { state: {
-    prevAnalyses: { perpage, listOfAnalysis }
+    prevAnalyses: { perpage }
   },
     dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
@@ -147,11 +147,6 @@ const PastAnalysisTable = () => {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages[page];
         }
-
-        dispatch({
-          type: AnalysisTypes.Update_list,
-          payload: { list: curAnalyses }
-        });
 
         updateRows(curAnalyses);
       }
@@ -274,7 +269,7 @@ const PastAnalysisTable = () => {
 
   const searchMRN = (text: string) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
-    updateRows(listOfAnalysis.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
+    updateRows(tableState.storedPages[tableState.page].filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
   }
 
   return (

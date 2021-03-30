@@ -28,13 +28,11 @@ export type selectedImageType = {
 }
 
 export type IPrevAnalysesState = {
-  listOfAnalysis: StudyInstanceWithSeries[];
   perpage: number;
   selectedImage: selectedImageType;
 }
 
 export let initialIPrevAnalysesState: IPrevAnalysesState = {
-  listOfAnalysis: [],
   perpage: 10,
   selectedImage: {
     studyInstance: null,
@@ -44,7 +42,6 @@ export let initialIPrevAnalysesState: IPrevAnalysesState = {
 
 type AnalysesPayload = {
   [AnalysisTypes.Update_perpage]: { perpage: number },
-  [AnalysisTypes.Update_list]: { list: StudyInstanceWithSeries[] },
   [AnalysisTypes.Update_selected_image]: { selectedImage: selectedImageType }
 }
 
@@ -62,11 +59,6 @@ export const analysesReducer = (
       return {
         ...state,
         perpage: action.payload.perpage
-      }
-    case AnalysisTypes.Update_list:
-      return {
-        ...state,
-        listOfAnalysis: action.payload.list
       }
     case AnalysisTypes.Update_selected_image: 
       return {
