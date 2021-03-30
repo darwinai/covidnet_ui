@@ -109,10 +109,9 @@ const PastAnalysisTable = () => {
   const newRowsRef = useRef<string[]>([]);
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
-  const updateMaxFeedId = () => {
-    ChrisIntegration.getLatestFeedId().then((id: number) => {
-      tableDispatch({ type: TableReducerActions.updateMaxFeedId, payload: { id } });
-    });
+  const updateMaxFeedId = async () => {
+    const id: number = await ChrisIntegration.getLatestFeedId()
+    tableDispatch({ type: TableReducerActions.updateMaxFeedId, payload: { id } });
   }
 
   useEffect(() => {
