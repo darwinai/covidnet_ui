@@ -295,7 +295,7 @@ class ChrisIntegration {
       
       const res: any = await Promise.all(feedArray.map(async (feed: any) => {
         const pluginData = await feed.getPluginInstances({
-          limit: 25,
+          limit: 5,
           offset: 0
         })
         const plugins = pluginData.getItems();
@@ -305,22 +305,26 @@ class ChrisIntegration {
           return [];
         } 
         const file = await covidnet?.[0].getFiles({
-          limit: 25,
+          limit: 5,
           offset: 0,
         });
-        const files = await file.getItems();
+        const files = file.getItems();
         const predictionFileId = files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "prediction-default.json")?.[0]?.data?.id;
-        const prediction = await this.fetchJsonFiles(predictionFileId);
         const severityFileId =  files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
-        const severity = await this.fetchJsonFiles(severityFileId);
         const imageFileId =  files.filter((file: any) => file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".jpg")?.[0]?.data?.id;
         let imageUrl = ""
-        if (imageFileId) {
-          const imgBlob = await DicomViewerService.fetchImageFile(imageFileId);
+        const [prediction, severity, imgBlob, dcmImg] = await Promise.all([
+          this.fetchJsonFiles(predictionFileId),
+          this.fetchJsonFiles(severityFileId),
+          imageFileId ? DicomViewerService.fetchImageFile(imageFileId) : undefined,
+          this.getDcmImageDetailByFilePathName(covidnet[0]?.data.title)
+        ])
+
+        if (imgBlob) {
           const urlCreator = window.URL || window.webkitURL;
           imageUrl = urlCreator.createObjectURL(imgBlob);
         }
-        const dcmImg: DcmImage[] = await this.getDcmImageDetailByFilePathName(covidnet[0]?.data.title);
+
         return [{ 
           dircopy: dircopy?.[0]?.data, 
           covidnet: covidnet?.[0]?.data, 
