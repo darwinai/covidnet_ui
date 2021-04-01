@@ -31,7 +31,7 @@ type TableState = {
   maxFeedId: number | undefined, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
   lastOffset: number, // Page offset value for where to begin fetching the next unseen page
   lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
-  storedPages: StudyInstanceWithSeries[][], // Stores pages that have been seen in an array of pages
+  storedPages: StudyInstanceWithSeries[], // Stores pages that have been seen in an array of pages
   processingPluginIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
 }
 
@@ -69,7 +69,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         ...state,
         lastOffset: action.payload.lastOffset,
         lastPage: action.payload.lastPage,
-        storedPages: [...state.storedPages, action.payload.newPage],
+        storedPages: [...state.storedPages, ...action.payload.newPage],
         processingPluginIds: [...state.processingPluginIds, ...action.payload.processingPluginIds]
       }
     case TableReducerActions.incrementPage:
@@ -128,26 +128,26 @@ const PastAnalysisTable = () => {
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
         // If current page has not yet been seen
-        if (page >= storedPages.length) {
-          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
+        if (storedPages.length < page * perpage + perpage && tableState.lastPage !== tableState.page) {
+          const toFetch = page * perpage + perpage - storedPages.length
+          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, toFetch, maxFeedId);
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
           .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
 
-          curAnalyses = newAnalyses;
+          
           tableDispatch({ type: TableReducerActions.addNewPage, payload: {
             lastOffset: newOffset,
             lastPage: isAtEndOfFeeds ? page : -1,
-            newPage: curAnalyses,
+            newPage: newAnalyses,
             processingPluginIds
           }});
-
+          curAnalyses = storedPages.slice(page * perpage, page * perpage + perpage).concat(newAnalyses);
         } else {
           // If page has already been seen, access its contents from storedPages
-          curAnalyses = storedPages[page];
+          curAnalyses = storedPages.slice(page * perpage, page * perpage + perpage)
         }
-
         updateRows(curAnalyses);
       }
       setLoading(false);
@@ -161,7 +161,7 @@ const PastAnalysisTable = () => {
         const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
           // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-          newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
+          newRowsRef.current = tableState.storedPages.slice(0, perpage)?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
           updateMaxFeedId();
           return;
         }
@@ -269,7 +269,7 @@ const PastAnalysisTable = () => {
 
   const searchMRN = (text: string) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
-    updateRows(tableState.storedPages[tableState.page].filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
+    updateRows(tableState.storedPages.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
   }
 
   return (

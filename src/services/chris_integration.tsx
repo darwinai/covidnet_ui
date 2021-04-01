@@ -271,15 +271,17 @@ class ChrisIntegration {
    * @param {number} max_id Maximum Feed ID search parameter
    */
   static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
+    var t0 = performance.now()
+
     const pastAnalyses: StudyInstanceWithSeries[] = []
     const client: any = ChrisAPIClient.getClient();
     // Indicates when the last Feed on Swift has been reached to prevent further fetching
     let isAtEndOfFeeds = false;
 
     let curOffset = offset;
-    const fetchLimit = 25
+    const fetchLimit = 10
     
-    while (pastAnalyses.length <= limit) {
+    while (pastAnalyses.length <= limit && !isAtEndOfFeeds) {
       const feeds = await client.getFeeds({
         limit: fetchLimit,
         offset: curOffset,
@@ -290,7 +292,7 @@ class ChrisIntegration {
       const feedArray = feeds?.getItems();
       // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
       isAtEndOfFeeds = feedArray?.length < fetchLimit;
-
+      
       const res: any = await Promise.all(feedArray.map(async (feed: any) => {
         const pluginData = await feed.getPluginInstances({
           limit: 25,
@@ -331,7 +333,6 @@ class ChrisIntegration {
   
       }));
       const flatRes = res.flat();
-      console.log(flatRes)
       const groupedRes = groupBy(flatRes, (r: any) => [formatTime(r?.dircopy.start_date), r.dcmImg.StudyInstanceUID]);
   
       const newPastAnalyses = await Promise.all(Object.values(groupedRes).map(async (study: any): Promise<StudyInstanceWithSeries> => {
@@ -364,8 +365,10 @@ class ChrisIntegration {
       }));
   
       pastAnalyses.push(...newPastAnalyses);
+      console.log(isAtEndOfFeeds)
     }
-    
+    var t1 = performance.now()
+console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
     return [pastAnalyses.slice(0,10), curOffset, isAtEndOfFeeds]
   }
 
