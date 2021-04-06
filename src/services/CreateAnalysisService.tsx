@@ -71,12 +71,14 @@ class CreateAnalysisService {
 
     const results: AnalyzedImageResult[] = [];
     processedImages.forEach((processedImage, index) => {
+
       if (processedImage.status === "fulfilled") {
         results.push({
           image: dcmImages[index],
           processedResults: processedImage.value
         })
       }
+      
     });
 
     const notifications = results.map(result => NotificationService.analyzedImageToNotification(result));

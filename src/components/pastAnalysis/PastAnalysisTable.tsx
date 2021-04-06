@@ -4,17 +4,18 @@ import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
 import React, { ReactNode, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
-import { AnalysisTypes } from "../../context/actions/types";
+import { AnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
-import ChrisIntegration from "../../services/chris_integration";
+import ChrisIntegration, { pluginData } from "../../services/chris_integration";
 import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 import useInterval from "../../shared/useInterval";
 import { RESULT_POLL_INTERVAL } from "../../app.config";
+import { NotificationItem, NotificationItemVariant } from "../../context/reducers/notificationReducer";
+import moment from "moment";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -37,14 +38,13 @@ interface TableStates {
   processingPluginIds: number[]
 }
 
-const PastAnalysisTable = () => {
+const PastAnalysisTable: React.FC = () => {
   const { state: {
     prevAnalyses: { perpage, areNewImgsAvailable, listOfAnalysis },
     stagingDcmImages
   },
     dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
-  const history = useHistory();
 
   const columns = [
     {
@@ -72,14 +72,14 @@ const PastAnalysisTable = () => {
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = () => {
     ChrisIntegration.getLatestFeedId().then((id: number) => {
-      setTableStates({
+      setTableStates((prevState: TableStates) => ({
         page: 0,
         maxFeedId: id,
         lastOffset: 0,
         lastPage: -1,
         storedPages: [],
-        processingPluginIds: []
-      });
+        processingPluginIds: [...prevState.processingPluginIds]
+      }));
     });
   }
 
@@ -121,6 +121,7 @@ const PastAnalysisTable = () => {
       const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
 
       if (!maxFeedId || maxFeedId >= 0) {
+        console.log("reaches")
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
@@ -130,15 +131,45 @@ const PastAnalysisTable = () => {
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
-          .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
+            .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
 
+          
+          let difference: number[] = tableStates.processingPluginIds.filter((id: number) => !processingPluginIds.includes(id));
+         
+          let notifications: NotificationItem[] = [];
+          difference.map(async (id: number) => {
+            const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
+            console.log(pluginData)
+            if (pluginData.status !== "finishedSuccessfully") {
+              notifications.push({
+                variant: NotificationItemVariant.DANGER,
+                title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
+                message: `During the analysis, the following error was raised:
+                    ${pluginData.plugin_name} failed.`,
+                timestamp: moment()
+              });
+            } else {
+              notifications.push({
+                variant: NotificationItemVariant.SUCCESS,
+                title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
+                message: `The image was processed successfully.`,
+                timestamp: moment()
+              });
+            }
+
+            dispatch({
+              type: NotificationActionTypes.SEND,
+              payload: { notifications }
+            })
+          });
+          
           curAnalyses = processingRows.concat(newAnalyses);
           setTableStates(prevTableStates => ({
             ...prevTableStates,
             lastOffset: newOffset,
-            lastPage: isAtEndOfFeeds ? page: -1,
+            lastPage: isAtEndOfFeeds ? page : -1,
             storedPages: [...prevTableStates.storedPages, curAnalyses],
-            processingPluginIds: [...prevTableStates.processingPluginIds, ...processingPluginIds]
+            processingPluginIds
           }));
         } else {
           // If page has already been seen, access its contents from storedPages
@@ -161,7 +192,6 @@ const PastAnalysisTable = () => {
     })();
   }, [tableStates, perpage, stagingDcmImages, dispatch]);
 
-
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
     if (tableStates.processingPluginIds) {
@@ -172,12 +202,13 @@ const PastAnalysisTable = () => {
             type: AnalysisTypes.Update_are_new_imgs_available,
             payload: { isAvailable: true }
           });
+
           return;
         }
       }
     }
   }, tableStates.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
-  
+
   // Increments or decrements current page number
   const updatePage = (n: number) => {
     setNewRowsRef([]); // Reset to prevent highlight animation from playing again
