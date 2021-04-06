@@ -1,4 +1,4 @@
-import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
+import { IPluginCreateData, Note, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
@@ -143,12 +143,21 @@ class ChrisIntegration {
    * @param img DcmImage
    * @returns pl-dircopy instance with its corresponding DcmImage
    */
-  static async runDircopy(img: DcmImage): Promise<DircopyResult> {
+  static async runDircopy(img: DcmImage, timestamp: number): Promise<DircopyResult> {
     let client: any = await ChrisAPIClient.getClient();
 
     const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
-    const data: DirCreateData = { "dir": img.fname };
+    const data: DirCreateData = { "dir": img.fname, title: img.PatientID };
     const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+    const feed = await dircopyPluginInstance.getFeed();
+    const note = await feed?.getNote();
+    await note?.put({
+      title: "metadata",
+      content: JSON.stringify({
+        timestamp,
+        img
+      })
+    })
     console.log("PL-DIRCOPY task sent into the task queue");
     return { instance: dircopyPluginInstance, img };
   }
@@ -271,8 +280,6 @@ class ChrisIntegration {
    * @param {number} max_id Maximum Feed ID search parameter
    */
   static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
-    var t0 = performance.now()
-
     const pastAnalyses: StudyInstanceWithSeries[] = []
     const client: any = ChrisAPIClient.getClient();
     // Indicates when the last Feed on Swift has been reached to prevent further fetching
@@ -290,89 +297,26 @@ class ChrisIntegration {
       curOffset += fetchLimit;
 
       const feedArray = feeds?.getItems();
-      // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
-      isAtEndOfFeeds = feedArray?.length < fetchLimit;
-      
-      const res: any = await Promise.all(feedArray.map(async (feed: any) => {
-        const pluginData = await feed.getPluginInstances({
-          limit: 5,
-          offset: 0
-        })
-        const plugins = pluginData.getItems();
-        const covidnet = plugins.filter((plugin: any) => plugin?.data?.plugin_name === "pl-covidnet" || plugin?.data?.plugin_name === "pl-ct-covidnet")
-        const dircopy = plugins.filter((plugin: any) => plugin?.data?.plugin_name === "pl-dircopy")
-        if (covidnet.length === 0) {
-          return [];
-        } 
-        const file = await covidnet?.[0].getFiles({
-          limit: 5,
-          offset: 0,
-        });
-        const files = file.getItems();
-        const predictionFileId = files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "prediction-default.json")?.[0]?.data?.id;
-        const severityFileId =  files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
-        const imageFileId =  files.filter((file: any) => file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".jpg")?.[0]?.data?.id;
-        let imageUrl = ""
-        const [prediction, severity, imgBlob, dcmImg] = await Promise.all([
-          this.fetchJsonFiles(predictionFileId),
-          this.fetchJsonFiles(severityFileId),
-          imageFileId ? DicomViewerService.fetchImageFile(imageFileId) : undefined,
-          this.getDcmImageDetailByFilePathName(covidnet[0]?.data.title)
-        ])
 
-        if (imgBlob) {
-          const urlCreator = window.URL || window.webkitURL;
-          imageUrl = urlCreator.createObjectURL(imgBlob);
-        }
-
-        return [{ 
-          dircopy: dircopy?.[0]?.data, 
-          covidnet: covidnet?.[0]?.data, 
-          prediction, 
-          severity, 
-          imageFileId,
-          imageUrl,
-          dcmImg: dcmImg[0]
-        }]
-  
+      const formattedFeedArray = await Promise.all(feedArray.map(async (feed: any) => {
+        const note = await feed.getNote();
+        return JSON.parse(note?.data?.content);
       }));
-      const flatRes = res.flat();
-      const groupedRes = groupBy(flatRes, (r: any) => [formatTime(r?.dircopy.start_date), r.dcmImg.StudyInstanceUID]);
-  
-      const newPastAnalyses = await Promise.all(Object.values(groupedRes).map(async (study: any): Promise<StudyInstanceWithSeries> => {
-        const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
-        const series = study.map((s: any) => {
-          let classifications = new Map<string, number>();
-          Object.keys(s.prediction).forEach((key: string) => { // Reading in the classifcation titles and values
-            if ((key !== 'prediction') && (key !== "Prediction")) {
-              if ((key !== '**DISCLAIMER**') && (!isNaN(s.prediction[key]))) {
-                classifications.set(key, formatNumber(s.prediction[key]));
-              }
-            }
-          });
-          return {
-            covidnetPluginId: s.covidnet?.id,
-            imageName: s.covidnet?.title || "File name not available",
-            imageId: s.imageFileId || "",
-            classifications,
-            geographic: null,
-            opacity: null,
-            imageUrl: s.imageUrl || "",
-          }
-  
-        })
+
+      const groupedFeeds = groupBy(formattedFeedArray, (feed: any) => [feed.timestamp, feed.img.StudyInstanceUID]);
+
+      const newPastAnalyses = Object.values(groupedFeeds).map((study: any): StudyInstanceWithSeries => {
+        const firstStudy = study?.[0]
         return {
-        dcmImage: study[0]?.dcmImg,
-        analysisCreated: modifyDatetime(study[0].dircopy.start_date),
-        series
+          dcmImage: firstStudy.img,
+          analysisCreated: firstStudy.timestamp,
+          series: []
         }
-      }));
+      });
+      isAtEndOfFeeds = feedArray?.length < fetchLimit;
   
       pastAnalyses.push(...newPastAnalyses);
-      console.log(isAtEndOfFeeds)
     }
-    var t1 = performance.now()
-console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
     return [pastAnalyses.slice(0,10), curOffset, isAtEndOfFeeds]
   }
 

@@ -69,8 +69,9 @@ class CreateAnalysisService {
    * @returns Array of the dircopy plugin instance paired with its DcmImage in an object
    */
   static async copyFiles(dcmImages: DcmImage[]): Promise<DircopyResult[]> {
+    const timestamp = + new Date();
     return Promise.all(dcmImages.map((img: DcmImage) => 
-      ChrisIntegration.runDircopy(img)
+      ChrisIntegration.runDircopy(img, timestamp)
     ));
   }
 
