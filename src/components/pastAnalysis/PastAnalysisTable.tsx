@@ -160,7 +160,7 @@ const PastAnalysisTable: React.FC = () => {
             dispatch({
               type: NotificationActionTypes.SEND,
               payload: { notifications }
-            })
+            });
           });
           
           curAnalyses = processingRows.concat(newAnalyses);

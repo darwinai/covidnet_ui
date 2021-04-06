@@ -35,7 +35,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
           });
         }}>Clear All</Button>
         <Button variant={ButtonVariant.plain} aria-label={"Close"} onClick={onClose}>
-          <TimesIcon aria-hidden="true" />
+          {/* <TimesIcon aria-hidden="true" className="times-logo"/> */}
         </Button>
       </NotificationDrawerHeader>
       <NotificationDrawerBody>
@@ -50,6 +50,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
               <NotificationDrawerListItemBody timestamp={item.timestamp.calendar()}>
                 {item.message}
               </NotificationDrawerListItemBody>
+              <TimesIcon aria-hidden="true" />
             </NotificationDrawerListItem>))}
         </NotificationDrawerList>
       </NotificationDrawerBody>
