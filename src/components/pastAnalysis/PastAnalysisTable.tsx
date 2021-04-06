@@ -121,7 +121,6 @@ const PastAnalysisTable: React.FC = () => {
       const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
 
       if (!maxFeedId || maxFeedId >= 0) {
-        console.log("reaches")
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 

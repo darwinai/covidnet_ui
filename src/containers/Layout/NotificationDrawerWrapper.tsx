@@ -11,7 +11,7 @@ import {
 } from '@patternfly/react-core';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../context/context';
-import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
+import {TimesIcon, TimesCircleIcon} from '@patternfly/react-icons';
 import { NotificationActionTypes } from '../../context/actions/types';
 
 interface NotificationDrawerWrapperProps {
@@ -34,8 +34,8 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
             type: NotificationActionTypes.CLEAR
           });
         }}>Clear All</Button>
-        <Button variant={ButtonVariant.plain} aria-label={"Close"} onClick={onClose}>
-          {/* <TimesIcon aria-hidden="true" className="times-logo"/> */}
+        <Button variant={ButtonVariant.plain} aria-label={"Close"} onClick={onClose} className="times-logo">
+          <TimesIcon aria-hidden="true"/>
         </Button>
       </NotificationDrawerHeader>
       <NotificationDrawerBody>
@@ -50,7 +50,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
               <NotificationDrawerListItemBody timestamp={item.timestamp.calendar()}>
                 {item.message}
               </NotificationDrawerListItemBody>
-              <TimesIcon aria-hidden="true" />
+              <TimesCircleIcon aria-hidden="true"/>
             </NotificationDrawerListItem>))}
         </NotificationDrawerList>
       </NotificationDrawerBody>
