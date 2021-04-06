@@ -29,7 +29,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
 
   const [isDropDownOpen, setDropDownOpen] = React.useState(false);
 
-  const onSelect = (_value: any) => {
+  const onSelect = () => {
     setDropDownOpen(!isDropDownOpen);
     onFocus();
   }
@@ -89,7 +89,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
   ];
 
   const submitButton = isOnDashboard ? (
-    <RightArrowButton click={newLookup}>Continue</RightArrowButton>
+    <RightArrowButton type="submit">Continue</RightArrowButton>
   ) : (
     <Button variant="secondary" type="submit">
       <b>New Lookup</b>
