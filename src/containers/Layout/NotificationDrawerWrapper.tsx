@@ -61,7 +61,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
                 {item.message}
               </NotificationDrawerListItemBody>
               <Button variant={ButtonVariant.plain} aria-label="Close Notification" onClick={() => onNotificationClose(index)} className="times-logo notification-close">
-                <TimesCircleIcon aria-hidden="true"/>
+                <TimesCircleIcon aria-hidden="true" />
               </Button>
             </NotificationDrawerListItem>))}
         </NotificationDrawerList>

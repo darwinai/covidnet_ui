@@ -76,9 +76,9 @@ class CreateAnalysisService {
         results.push({
           image: dcmImages[index],
           processedResults: processedImage.value
-        })
+          //dcm image itself
+        });
       }
-      
     });
 
     const notifications = results.map(result => NotificationService.analyzedImageToNotification(result));

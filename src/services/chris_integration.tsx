@@ -230,7 +230,7 @@ class ChrisIntegration {
     const client: any = ChrisAPIClient.getClient();
     const feeds = await client.getFeeds({
       limit: 1,
-      offset: 0,
+      offset: 0
     });
     return feeds.getItems()?.[0]?.data?.id;
   }
