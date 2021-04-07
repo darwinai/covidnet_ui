@@ -1,6 +1,6 @@
 import { Button } from '@patternfly/react-core';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
@@ -8,10 +8,10 @@ import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyse
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import ChrisIntegration from '../../services/chris_integration';
 
 interface SeriesTableProps {
   studyInstance: StudyInstanceWithSeries;
-  classifications: string[];
   isProcessing: boolean;
 }
 
@@ -29,10 +29,21 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
   }
 }
 
-const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classifications, isProcessing }) => {
+const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
-  const { series: analysisList } = studyInstance;
+  const [series, setSeries] = useState<ISeries[]>();
+  const [classifications, setClassifications] = useState<string[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      setSeries(await ChrisIntegration.getResults(studyInstance.feedIds));
+    })();
+  }, []);
+
+  useEffect(() => {
+    setClassifications(series?.[0]?.classifications ? Array.from(series?.[0]?.classifications?.keys()) : [])
+  }, [series])
 
   let titles = [
     { title: (<span className='classificationText'><br />Preview</span>) },
@@ -53,7 +64,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
 
   const columns = titles;
 
-  const rows = analysisList.map((analysis: ISeries, index: number) => {
+  const rows = series?.map((analysis: ISeries, index: number) => {
     const isAnalysisValid = !!analysis.classifications.size;
     let analysisCells: any = [
       { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" /></div> : <div><PreviewNotAvailable /></div>) },

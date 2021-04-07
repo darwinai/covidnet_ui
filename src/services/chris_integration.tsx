@@ -300,24 +300,96 @@ class ChrisIntegration {
 
       const formattedFeedArray = await Promise.all(feedArray.map(async (feed: any) => {
         const note = await feed.getNote();
-        return JSON.parse(note?.data?.content);
+        return {
+          feed,
+          ...JSON.parse(note?.data?.content)
+        };
       }));
 
       const groupedFeeds = groupBy(formattedFeedArray, (feed: any) => [feed.timestamp, feed.img.StudyInstanceUID]);
 
       const newPastAnalyses = Object.values(groupedFeeds).map((study: any): StudyInstanceWithSeries => {
         const firstStudy = study?.[0]
+        const statuses = study.reduce((acc: any, curr: any) => {
+          const feedData = curr?.feed?.data;
+          if (feedData.finished_jobs === 3) {
+            acc.jobsFinished += 1
+          } else if (feedData.errored_jobs + feedData.cancelled_jobs > 0) {
+            acc.jobsErrored += 1
+          } else {
+            acc.jobsRunning += 1
+          }
+          acc.feedIds = [...acc.feedIds, feedData.id];
+          return acc;
+        }, {
+          jobsFinished: 0,
+          jobsErrored: 0,
+          jobsRunning: 0,
+          feedIds: []
+        });
         return {
           dcmImage: firstStudy.img,
           analysisCreated: firstStudy.timestamp,
-          series: []
+          ...statuses
         }
       });
       isAtEndOfFeeds = feedArray?.length < fetchLimit;
-  
+      console.log(newPastAnalyses)
       pastAnalyses.push(...newPastAnalyses);
     }
     return [pastAnalyses.slice(0,10), curOffset, isAtEndOfFeeds]
+  }
+
+  static async getResults(feedIds: number[]): Promise<ISeries[]> {
+    const client: any = ChrisAPIClient.getClient();
+    return await Promise.all(feedIds.map(async (id: number) => {
+      const feed = await client.getFeed(id);
+      const pluginsData = await feed.getPluginInstances({
+        limit: 25,
+        offset: 0
+      });
+      const plugins = pluginsData.getItems();
+      const covidnet = plugins.filter((plugin: any) => plugin?.data?.plugin_name === "pl-covidnet" || plugin?.data?.plugin_name === "pl-ct-covidnet")
+      const dircopy = plugins.filter((plugin: any) => plugin?.data?.plugin_name === "pl-dircopy")
+      const file = await covidnet?.[0].getFiles({
+        limit: 25,
+        offset: 0,
+      });
+      const files = await file.getItems();
+      const predictionFileId = files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "prediction-default.json")?.[0]?.data?.id;
+      const prediction = await this.fetchJsonFiles(predictionFileId);
+      const severityFileId =  files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
+      const severity = await this.fetchJsonFiles(severityFileId);
+      const imageFileId =  files.filter((file: any) => file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".jpg")?.[0]?.data?.id;
+      let imageUrl = ""
+      if (imageFileId) {
+        const imgBlob = await DicomViewerService.fetchImageFile(imageFileId);
+        const urlCreator = window.URL || window.webkitURL;
+        imageUrl = urlCreator.createObjectURL(imgBlob);
+      }
+
+      const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
+
+      let classifications = new Map<string, number>();
+      Object.keys(prediction).forEach((key: string) => { // Reading in the classifcation titles and values
+        if ((key !== 'prediction') && (key !== "Prediction")) {
+          if ((key !== '**DISCLAIMER**') && (!isNaN(prediction[key]))) {
+            classifications.set(key, formatNumber(prediction[key]));
+          }
+        }
+      });
+
+      return {
+        covidnetPluginId: covidnet?.id,
+        imageName: covidnet?.title || "File name not available",
+        imageId: imageFileId || "",
+        classifications,
+        geographic: null,
+        opacity: null,
+        imageUrl: imageUrl || "",
+      }
+
+    }));
   }
 
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {

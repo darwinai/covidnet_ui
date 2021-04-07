@@ -172,9 +172,9 @@ const PastAnalysisTable = () => {
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = [];
     for (const analysis of listOfAnalysis) {
-      const validAnalyses = analysis.series.filter((series: ISeries) => series.classifications.size > 0);
-      const classifications = validAnalyses?.[0]?.classifications ? Array.from(validAnalyses?.[0]?.classifications?.keys()) : [];
-      const numInvalidAnalyses = analysis.series.length - validAnalyses.length;
+      // const validAnalyses = analysis.series.filter((series: ISeries) => series.classifications.size > 0);
+      // const classifications = validAnalyses?.[0]?.classifications ? Array.from(validAnalyses?.[0]?.classifications?.keys()) : [];
+      // const numInvalidAnalyses = analysis.series.length - validAnalyses.length;
 
       const indexInRows: number = rows.length;
 
@@ -190,8 +190,8 @@ const PastAnalysisTable = () => {
         analysisCreated = analysis.analysisCreated;
         badges = {
           title: (<>
-            {<Badge className="badge-margin" isRead={!validAnalyses.length}>{validAnalyses.length}</Badge>}
-            {<Badge className="badge-danger" isRead={!numInvalidAnalyses}>{numInvalidAnalyses}</Badge>}
+            {<Badge className="badge-margin" isRead={!analysis.jobsDone}>{analysis.jobsDone}</Badge>}
+            {<Badge className="badge-danger" isRead={!analysis.jobsErrored}>{analysis.jobsErrored}</Badge>}
           </>)
         };
       }
@@ -209,13 +209,13 @@ const PastAnalysisTable = () => {
         isOpen: false,
         cells: cells
       });
-      if (analysis.series.length > 0) {
+      if (analysis.feedIds.length > 0) {
         rows.push({
           isOpen: false,
           parent: indexInRows,
           fullWidth: true,
           cells: [{
-            title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing} classifications={classifications}></SeriesTable>)
+            title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing}></SeriesTable>)
           }]
         });
       }

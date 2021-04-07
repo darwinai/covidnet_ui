@@ -17,9 +17,13 @@ export type ISeries = {
 }
 
 export type StudyInstanceWithSeries = {
+  feedIds: number[],
   dcmImage: DcmImage,
-  analysisCreated: string, 
-  series: ISeries[]
+  analysisCreated: string,
+  series: ISeries[],
+  jobsDone: number,
+  jobsRunning: number,
+  jobsErrored: number
 }
 
 export type selectedImageType = {
