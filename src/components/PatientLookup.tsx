@@ -104,7 +104,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
         <form onSubmit={newLookup} className="form-display">
           <div className="InputRowField">
             <label>Patient MRN</label>
-            <TextInput value={patientID} type="text" onChange={setPatientIDInput} aria-label="MRN Search Field" />
+            <TextInput value={patientIDInput} type="text" onChange={setPatientIDInput} aria-label="MRN Search Field" />
           </div>
           <div className="InputRowField">
             <label>Privacy Level</label>
