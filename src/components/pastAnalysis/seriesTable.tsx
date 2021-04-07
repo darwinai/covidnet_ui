@@ -11,8 +11,7 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import ChrisIntegration from '../../services/chris_integration';
 
 interface SeriesTableProps {
-  series: ISeries[];
-  classifications: string[];
+  data: Promise<{series: ISeries[], classifications: string[]}>
   isProcessing: boolean;
 }
 
@@ -30,17 +29,27 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
   }
 }
 
-const SeriesTable: React.FC<SeriesTableProps> = ({ series, classifications, isProcessing }) => {
+const SeriesTable: React.FC<SeriesTableProps> = ({ data, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
+  const [values, setValues] = useState<{series: ISeries[], classifications: string[]}>({series: [], classifications: []});
+
+  useEffect(() => {
+    (async () => {
+      const {series, classifications} = await data;
+      setValues({series, classifications});
+    })();
+
+  }, [])
+  
 
   let titles = [
     { title: (<span className='classificationText'><br />Preview</span>) },
     { title: (<span className='classificationText'><br />Image</span>) }
   ];
 
-  if (classifications.length) {
-    classifications.forEach((value: string) => {
+  if (values.classifications.length) {
+    values.classifications.forEach((value: string) => {
       titles.push({ title: (<><br /><span className="classificationText">{value}</span></>) }); // Adding the column titles for each analysis
     });
   } else {
@@ -53,7 +62,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ series, classifications, isPr
 
   const columns = titles;
 
-  const rows = series.map((analysis: ISeries, index: number) => {
+  const rows = values.series.map((analysis: ISeries, index: number) => {
     const isAnalysisValid = !!analysis.classifications.size;
     let analysisCells: any = [
       { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" /></div> : <div><PreviewNotAvailable /></div>) },
@@ -68,8 +77,8 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ series, classifications, isPr
             predictionNumber={value} />)
         });
       });
-    } else if (classifications?.length) { // If this Series' analysis was unsuccessful, but the list of classes is known, display 'N/A' for each classification result
-      analysisCells.push(...classifications.map(() => ({
+    } else if (values.classifications?.length) { // If this Series' analysis was unsuccessful, but the list of classes is known, display 'N/A' for each classification result
+      analysisCells.push(...values.classifications.map(() => ({
         title: ("N/A")
       })));
     } else { // If this Series' analysis was unsuccessful, and the list of classes is unknown
@@ -108,10 +117,18 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ series, classifications, isPr
   }
 
   return (
-    <Table aria-label="Simple Table" cells={columns} rows={rows}>
-      <TableHeader />
-      <TableBody className="series-table-row" />
-    </Table>
+    <>
+    { values.series.length ? (
+          <Table aria-label="Simple Table" cells={columns} rows={rows}>
+          <TableHeader />
+          <TableBody className="series-table-row" />
+        </Table>
+    ):
+    (<>Loading</>)
+
+    }
+    </>
+
   )
 }
 

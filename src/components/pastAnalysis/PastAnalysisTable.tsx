@@ -233,14 +233,14 @@ const PastAnalysisTable = () => {
     const rowsCopy = [...rows];
     rowsCopy[rowKey].isOpen = isOpen;
     // setRows(rowsCopy);
-    const {series, classifications} = await ChrisIntegration.getResults(rowsCopy[rowKey].feedIds);
+    const data = ChrisIntegration.getResults(rowsCopy[rowKey].feedIds);
     
     rowsCopy[rowKey + 1] = {
       isOpen: false,
       parent: rowKey,
       fullWidth: true,
       cells: [{
-        title: (<SeriesTable series={series} classifications={classifications} isProcessing={false}></SeriesTable>
+        title: (<SeriesTable data={data} isProcessing={false}></SeriesTable>
           )
       }],
       feedIds: []
