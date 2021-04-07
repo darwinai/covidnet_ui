@@ -22,9 +22,11 @@ interface PatientLookupProps {
 }
 
 const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
+  const { state: { createAnalysis: { patientID } } } = useContext(AppContext);
+
   const { dispatch } = useContext(AppContext);
   const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
-  const [patientID, setPatientID] = useState<string>("");
+  const [patientIDInput, setPatientIDInput] = useState<string>((patientID && !isOnDashboard) ? patientID : "");
   const history = useHistory();
 
   const [isDropDownOpen, setDropDownOpen] = React.useState(false);
@@ -44,14 +46,14 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
     dispatch({
       type: CreateAnalysisTypes.Update_patient_ID,
       payload: {
-        patientID
+        patientID: patientIDInput
       }
     });
 
     try {
       const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
-        await pacs_integration.queryPatientFiles(patientID) :
-        await chris_integration.fetchPacFiles(patientID);
+        await pacs_integration.queryPatientFiles(patientIDInput) :
+        await chris_integration.fetchPacFiles(patientIDInput);
 
       dispatch({
         type: DicomImagesTypes.Update_all_images,
@@ -68,7 +70,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
           payload: {
             studyUID: studyInstances[0].studyInstanceUID
           }
-        })
+        });
       }
     } catch (err) {
       console.error(err);
@@ -102,7 +104,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
         <form onSubmit={newLookup} className="form-display">
           <div className="InputRowField">
             <label>Patient MRN</label>
-            <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="MRN Search Field" />
+            <TextInput value={patientIDInput} type="text" onChange={setPatientIDInput} aria-label="MRN Search Field" />
           </div>
           <div className="InputRowField">
             <label>Privacy Level</label>
@@ -124,9 +126,8 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
           </div>
         </form>
       </div>
-    </React.Fragment>
+    </React.Fragment >
   )
-
 }
 
 export default PatientLookup
