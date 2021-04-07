@@ -21,10 +21,12 @@ interface PatientLookupProps {
   isOnDashboard: boolean
 }
 
-const PatientLookup = (props: PatientLookupProps) => {
-  const { state: { createAnalysis: { patientID }}, dispatch } = useContext(AppContext);
+const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
+  const { state: { createAnalysis: { patientID } } } = useContext(AppContext);
+
+  const { dispatch } = useContext(AppContext);
   const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
-  const [patientIDInput, setPatientIDInput] = useState<string>((patientID && !props.isOnDashboard) ? patientID : "");
+  const [patientIDInput, setPatientIDInput] = useState<string>((patientID && !isOnDashboard) ? patientID : "");
   const history = useHistory();
 
   const [isDropDownOpen, setDropDownOpen] = React.useState(false);
@@ -39,7 +41,8 @@ const PatientLookup = (props: PatientLookupProps) => {
     if (element) element.focus();
   };
 
-  const newLookup = async () => {
+  const newLookup = async (event?: React.FormEvent) => {
+    event?.preventDefault();
     dispatch({
       type: CreateAnalysisTypes.Update_patient_ID,
       payload: {
@@ -58,7 +61,7 @@ const PatientLookup = (props: PatientLookupProps) => {
           images: dcmImages
         }
       });
-      
+
       // Select first study instance by default
       const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
       if (studyInstances.length > 0) {
@@ -72,6 +75,10 @@ const PatientLookup = (props: PatientLookupProps) => {
     } catch (err) {
       console.error(err);
     }
+
+    if (isOnDashboard) {
+      history.push("/createAnalysis");
+    }
   }
 
   const dropdownItems = [
@@ -83,48 +90,44 @@ const PatientLookup = (props: PatientLookupProps) => {
     </DropdownItem>,
   ];
 
-  const navigateToCreateAnalysis = async () => {
-    await newLookup();
-    history.push("/createAnalysis");
-  }
-
-  const submitButton = props.isOnDashboard ? (
-    <RightArrowButton click={navigateToCreateAnalysis}>Continue</RightArrowButton>
+  const submitButton = isOnDashboard ? (
+    <RightArrowButton type="submit">Continue</RightArrowButton>
   ) : (
-      <Button variant="secondary" onClick={newLookup}>
-        <b>New Lookup</b>
-      </Button>
-    );
+    <Button variant="secondary" type="submit">
+      <b>New Lookup</b>
+    </Button>
+  );
 
   return (
     <React.Fragment>
       <div className="InputRow">
-        <div className="InputRowField">
-          <label>Patient MRN</label>
-          <TextInput value={patientIDInput} type="text" onChange={setPatientIDInput} aria-label="text input example" />
-        </div>
-        <div className="InputRowField">
-          <label>Privacy Level</label>
-          <Dropdown
-            onSelect={onSelect}
-            toggle={
-              <DropdownToggle id="toggle-Privacy-Level" onToggle={setDropDownOpen}>
-                <div className="dropdownContent">
-                  {privacyLevel}
-                </div>
-              </DropdownToggle>
-            }
-            isOpen={isDropDownOpen}
-            dropdownItems={dropdownItems}
-          />
-        </div>
-        <div className="InputRowField">
-          {submitButton}
-        </div>
+        <form onSubmit={newLookup} className="form-display">
+          <div className="InputRowField">
+            <label>Patient MRN</label>
+            <TextInput value={patientID} type="text" onChange={setPatientIDInput} aria-label="MRN Search Field" />
+          </div>
+          <div className="InputRowField">
+            <label>Privacy Level</label>
+            <Dropdown
+              onSelect={onSelect}
+              toggle={
+                <DropdownToggle id="toggle-Privacy-Level" onToggle={setDropDownOpen}>
+                  <div className="dropdownContent">
+                    {privacyLevel}
+                  </div>
+                </DropdownToggle>
+              }
+              isOpen={isDropDownOpen}
+              dropdownItems={dropdownItems}
+            />
+          </div>
+          <div className="InputRowField">
+            {submitButton}
+          </div>
+        </form>
       </div>
-    </React.Fragment>
+    </React.Fragment >
   )
-
 }
 
 export default PatientLookup
