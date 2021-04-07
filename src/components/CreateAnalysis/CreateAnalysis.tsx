@@ -47,11 +47,10 @@ const CreateAnalysis: React.FC = () => {
 
   return (
     <>
-        <PatientLookup isOnDashboard={true}></PatientLookup>
-        {/* <Button onClick={submitFile}>Choose File...</Button> */}
+      <PatientLookup isOnDashboard={true}></PatientLookup>
+      {/* <Button onClick={submitFile}>Choose File...</Button> */}
     </>
   );
 }
 
 export { CreateAnalysis as CreateAnalysisSection };
-
