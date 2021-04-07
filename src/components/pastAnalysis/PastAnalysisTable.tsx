@@ -155,7 +155,6 @@ const PastAnalysisTable: React.FC = () => {
                 timestamp: moment()
               });
             }
-
             dispatch({
               type: NotificationActionTypes.SEND,
               payload: { notifications }

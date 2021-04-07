@@ -23,25 +23,30 @@ interface NotificationPayload {
   [NotificationActionTypes.SEND]: {
     notifications: NotificationItem[]
   },
-  [NotificationActionTypes.CLEAR]: {}
+  [NotificationActionTypes.CLEAR]: {},
+  [NotificationActionTypes.REMOVE]: {
+    notifications: NotificationItem[]
+  }
 }
 
 export type NotificationActions = ActionMap<NotificationPayload>[
   keyof ActionMap<NotificationPayload>
 ]
 
-
 export const notificationsReducer = (
   state: NotificationState,
   action: NotificationActions
 ) => {
   switch (action.type) {
-    case NotificationActionTypes.SEND: 
+    case NotificationActionTypes.SEND:
       return state.concat(action.payload.notifications).sort((a, b) => b.timestamp.diff(a.timestamp)); // chronological order for notifications
-    
+
     case NotificationActionTypes.CLEAR:  // clear all notifications currently being stored
       return [];
-    
+
+    case NotificationActionTypes.REMOVE:  // update notifications to not include removed notification
+      return action.payload.notifications;
+
     default:
       return state
   }
