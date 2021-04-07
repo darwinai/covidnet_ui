@@ -16,14 +16,18 @@ export type ISeries = {
   imageUrl?: string,
 }
 
+export type TPluginStatuses = {
+  jobsDone: number,
+  jobsRunning: number,
+  jobsErrored: number
+}
+
 export type StudyInstanceWithSeries = {
   feedIds: number[],
   dcmImage: DcmImage,
   analysisCreated: string,
   series: ISeries[],
-  jobsDone: number,
-  jobsRunning: number,
-  jobsErrored: number
+  pluginStatuses: TPluginStatuses
 }
 
 export type selectedImageType = {

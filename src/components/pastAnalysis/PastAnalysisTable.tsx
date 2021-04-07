@@ -192,8 +192,8 @@ const PastAnalysisTable = () => {
         analysisCreated = analysis.analysisCreated;
         badges = {
           title: (<>
-            {<Badge className="badge-margin" isRead={!analysis.jobsDone}>{analysis.jobsDone}</Badge>}
-            {<Badge className="badge-danger" isRead={!analysis.jobsErrored}>{analysis.jobsErrored}</Badge>}
+            {<Badge className="badge-margin" isRead={!analysis.pluginStatuses.jobsDone}>{analysis.pluginStatuses.jobsDone}</Badge>}
+            {<Badge className="badge-danger" isRead={!analysis.pluginStatuses.jobsErrored}>{analysis.pluginStatuses.jobsErrored}</Badge>}
           </>)
         };
       }

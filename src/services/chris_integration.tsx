@@ -1,6 +1,6 @@
-import { IPluginCreateData, Note, PluginInstance } from "@fnndsc/chrisapi";
+import { IPluginCreateData, Note, FeedPluginInstanceList, PluginInstance, PluginInstanceFileList, Feed, FeedList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
-import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
+import { ISeries, selectedImageType, StudyInstanceWithSeries, TPluginStatuses } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
 import { PluginModels } from "../app.config";
@@ -15,6 +15,16 @@ export interface LocalFile {
 export type DircopyResult = {
   instance: PluginInstance, 
   img: DcmImage
+}
+
+type TFeedNoteContent = {
+  timestamp: number,
+  img: DcmImage
+}
+
+type TFeedNote = {
+  feed: Feed,
+  note: TFeedNoteContent
 }
 
 interface DirCreateData extends IPluginCreateData {
@@ -289,69 +299,73 @@ class ChrisIntegration {
     const fetchLimit = 10
     
     while (pastAnalyses.length <= limit && !isAtEndOfFeeds) {
-      const feeds = await client.getFeeds({
+      const feeds: FeedList = await client.getFeeds({
         limit: fetchLimit,
         offset: curOffset,
         max_id
       });
+
       curOffset += fetchLimit;
 
-      const feedArray = feeds?.getItems();
+      const feedArray: Feed[] = feeds?.getItems();
 
-      const formattedFeedArray = await Promise.all(feedArray.map(async (feed: any) => {
-        const note = await feed.getNote();
+      const feedNoteArray: TFeedNote[] = await Promise.all(feedArray.map(async (feed: Feed): Promise<TFeedNote> => {
+        const note: Note = await feed.getNote();
+        const noteContent: TFeedNoteContent = JSON.parse(note?.data?.content);
         return {
           feed,
-          ...JSON.parse(note?.data?.content)
+          note: noteContent
         };
       }));
 
-      const groupedFeeds = groupBy(formattedFeedArray, (feed: any) => [feed.timestamp, feed.img.StudyInstanceUID]);
+      const studyGroups = groupBy(feedNoteArray, (feedNote: any) => [feedNote.note.timestamp, feedNote.note.img.StudyInstanceUID]);
 
-      const newPastAnalyses = Object.values(groupedFeeds).map((study: any): StudyInstanceWithSeries => {
-        const firstStudy = study?.[0]
-        const statuses = study.reduce((acc: any, curr: any) => {
-          const feedData = curr?.feed?.data;
+      const newStudies: StudyInstanceWithSeries[] = Object.values(studyGroups).map((feedNotes: TFeedNote[]): StudyInstanceWithSeries => {
+        const firstFeedNote = feedNotes?.[0];
+
+        const pluginStatuses = feedNotes.reduce((acc: TPluginStatuses, cur: TFeedNote) => {
+          const feedData = cur.feed.data;
           if (feedData.finished_jobs === 3) {
-            acc.jobsFinished += 1
+            acc.jobsDone += 1
           } else if (feedData.errored_jobs + feedData.cancelled_jobs > 0) {
             acc.jobsErrored += 1
           } else {
             acc.jobsRunning += 1
           }
-          acc.feedIds = [...acc.feedIds, feedData.id];
           return acc;
         }, {
-          jobsFinished: 0,
+          jobsDone: 0,
           jobsErrored: 0,
-          jobsRunning: 0,
-          feedIds: []
+          jobsRunning: 0
         });
+
+        const feedIds = feedNotes.map((feedNote: TFeedNote) => feedNote.feed.data.id);
+
         return {
-          dcmImage: firstStudy.img,
-          analysisCreated: firstStudy.timestamp,
-          ...statuses
+          dcmImage: firstFeedNote.note.img,
+          analysisCreated: modifyDatetime(firstFeedNote.note.timestamp),
+          feedIds,
+          pluginStatuses,
+          series: []
         }
       });
       isAtEndOfFeeds = feedArray?.length < fetchLimit;
-      console.log(newPastAnalyses)
-      pastAnalyses.push(...newPastAnalyses);
+      pastAnalyses.push(...newStudies);
     }
     return [pastAnalyses.slice(0,10), curOffset, isAtEndOfFeeds]
   }
 
   static async getResults(feedIds: number[]): Promise<{series: ISeries[], classifications: string[]}> {
     const client: any = ChrisAPIClient.getClient();
-    const series = await Promise.all(feedIds.map(async (id: number) => {
-      const feed = await client.getFeed(id);
-      const pluginsData = await feed.getPluginInstances({
+    const series: ISeries[] = await Promise.all(feedIds.map(async (id: number): Promise<ISeries> => {
+      const feed: Feed = await client.getFeed(id);
+      const pluginsData: FeedPluginInstanceList = await feed.getPluginInstances({
         limit: 25,
         offset: 0
       });
-      const plugins = pluginsData.getItems();
-      const covidnet = plugins.filter((plugin: any) => plugin?.data?.plugin_name === "pl-covidnet" || plugin?.data?.plugin_name === "pl-ct-covidnet")
-      const dircopy = plugins.filter((plugin: any) => plugin?.data?.plugin_name === "pl-dircopy")
-      const file = await covidnet?.[0].getFiles({
+      const plugins: PluginInstance[] = pluginsData.getItems();
+      const covidnet: PluginInstance[] = plugins.filter((plugin: PluginInstance) => plugin.data.plugin_name === "pl-covidnet" || plugin.data.plugin_name === "pl-ct-covidnet");
+      const file: PluginInstanceFileList = await covidnet[0]?.getFiles({
         limit: 25,
         offset: 0,
       });
@@ -361,7 +375,8 @@ class ChrisIntegration {
       const severityFileId =  files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
       const severity = await this.fetchJsonFiles(severityFileId);
       const imageFileId =  files.filter((file: any) => file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".jpg")?.[0]?.data?.id;
-      let imageUrl = ""
+      
+      let imageUrl: string = "";
       if (imageFileId) {
         const imgBlob = await DicomViewerService.fetchImageFile(imageFileId);
         const urlCreator = window.URL || window.webkitURL;
@@ -370,7 +385,7 @@ class ChrisIntegration {
 
       const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
 
-      let classifications = new Map<string, number>();
+      let classifications: Map<string, number> = new Map<string, number>();
       Object.keys(prediction).forEach((key: string) => { // Reading in the classifcation titles and values
         if ((key !== 'prediction') && (key !== "Prediction")) {
           if ((key !== '**DISCLAIMER**') && (!isNaN(prediction[key]))) {
@@ -380,17 +395,16 @@ class ChrisIntegration {
       });
 
       return {
-        covidnetPluginId: covidnet?.id,
-        imageName: covidnet?.title || "File name not available",
+        covidnetPluginId: covidnet[0]?.data.id,
+        imageName: covidnet[0]?.data.title || "File name not available",
         imageId: imageFileId || "",
         classifications,
         geographic: null,
         opacity: null,
         imageUrl: imageUrl || "",
       }
-
     }));
-
+    
     return {series, classifications: Array.from(series[0].classifications.keys())}
   }
 
