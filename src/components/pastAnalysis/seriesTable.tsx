@@ -11,7 +11,8 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import ChrisIntegration from '../../services/chris_integration';
 
 interface SeriesTableProps {
-  studyInstance: StudyInstanceWithSeries;
+  series: ISeries[];
+  classifications: string[];
   isProcessing: boolean;
 }
 
@@ -29,21 +30,9 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
   }
 }
 
-const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }) => {
+const SeriesTable: React.FC<SeriesTableProps> = ({ series, classifications, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
-  const [series, setSeries] = useState<ISeries[]>();
-  const [classifications, setClassifications] = useState<string[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      setSeries(await ChrisIntegration.getResults(studyInstance.feedIds));
-    })();
-  }, []);
-
-  useEffect(() => {
-    setClassifications(series?.[0]?.classifications ? Array.from(series?.[0]?.classifications?.keys()) : [])
-  }, [series])
 
   let titles = [
     { title: (<span className='classificationText'><br />Preview</span>) },
@@ -64,7 +53,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
 
   const columns = titles;
 
-  const rows = series?.map((analysis: ISeries, index: number) => {
+  const rows = series.map((analysis: ISeries, index: number) => {
     const isAnalysisValid = !!analysis.classifications.size;
     let analysisCells: any = [
       { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" /></div> : <div><PreviewNotAvailable /></div>) },
@@ -106,15 +95,15 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
 
 
   const viewImage = (index: number) => {
-    dispatch({
-      type: AnalysisTypes.Update_selected_image,
-      payload: {
-        selectedImage: {
-          studyInstance: studyInstance,
-          index
-        }
-      }
-    })
+    // dispatch({
+    //   type: AnalysisTypes.Update_selected_image,
+    //   payload: {
+    //     selectedImage: {
+    //       studyInstance: studyInstance,
+    //       index
+    //     }
+    //   }
+    // })
     history.push('/viewImage');
   }
 

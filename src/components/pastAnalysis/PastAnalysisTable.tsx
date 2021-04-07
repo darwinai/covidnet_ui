@@ -16,14 +16,16 @@ import { RESULT_POLL_INTERVAL } from "../../app.config";
 
 interface tableRowsParent {
   isOpen: boolean,
-  cells: string[]
+  cells: string[],
+  feedIds: number[]
 }
 
 interface tableRowsChild {
   isOpen: boolean,
   parent: number,
   fullWidth: boolean,
-  cells: { [title: string]: ReactNode }[]
+  cells: { [title: string]: ReactNode }[],
+  feedIds: number[]
 }
 
 type TableState = {
@@ -207,7 +209,9 @@ const PastAnalysisTable = () => {
 
       rows.push({
         isOpen: false,
-        cells: cells
+        cells: cells,
+
+        feedIds: analysis.feedIds
       });
       if (analysis.feedIds.length > 0) {
         rows.push({
@@ -215,18 +219,34 @@ const PastAnalysisTable = () => {
           parent: indexInRows,
           fullWidth: true,
           cells: [{
-            title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing}></SeriesTable>)
-          }]
+            title: (<>Loading</>)
+          }],
+          feedIds: []
         });
       }
     }
     setRows(rows);
   }
 
-  const onCollapse = (event: any, rowKey: number, isOpen: any) => {
+  const onCollapse = async (event: any, rowKey: number, isOpen: any) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     const rowsCopy = [...rows];
     rowsCopy[rowKey].isOpen = isOpen;
+    // setRows(rowsCopy);
+    const {series, classifications} = await ChrisIntegration.getResults(rowsCopy[rowKey].feedIds);
+    
+    rowsCopy[rowKey + 1] = {
+      isOpen: false,
+      parent: rowKey,
+      fullWidth: true,
+      cells: [{
+        title: (<SeriesTable series={series} classifications={classifications} isProcessing={false}></SeriesTable>
+          )
+      }],
+      feedIds: []
+
+    }
+
     setRows(rowsCopy);
   }
 

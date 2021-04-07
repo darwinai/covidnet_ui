@@ -340,9 +340,9 @@ class ChrisIntegration {
     return [pastAnalyses.slice(0,10), curOffset, isAtEndOfFeeds]
   }
 
-  static async getResults(feedIds: number[]): Promise<ISeries[]> {
+  static async getResults(feedIds: number[]): Promise<{series: ISeries[], classifications: string[]}> {
     const client: any = ChrisAPIClient.getClient();
-    return await Promise.all(feedIds.map(async (id: number) => {
+    const series = await Promise.all(feedIds.map(async (id: number) => {
       const feed = await client.getFeed(id);
       const pluginsData = await feed.getPluginInstances({
         limit: 25,
@@ -390,6 +390,8 @@ class ChrisIntegration {
       }
 
     }));
+
+    return {series, classifications: Array.from(series[0].classifications.keys())}
   }
 
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {
