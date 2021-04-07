@@ -13,6 +13,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../context/context';
 import { TimesIcon, TimesCircleIcon } from '@patternfly/react-icons';
 import { NotificationActionTypes } from '../../context/actions/types';
+import { NotificationItem } from '../../context/reducers/notificationReducer';
 
 interface NotificationDrawerWrapperProps {
   onClose: () => void;
@@ -23,10 +24,12 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
   const { state: { notifications }, dispatch } = useContext(AppContext);
 
   const onNotificationClose = (index: number) => {
+    let newNotifications: NotificationItem[] = notifications.slice(0);
+
     dispatch({
       type: NotificationActionTypes.REMOVE,
       payload: {
-        notifications: notifications.slice(0).splice(index, 1)
+        notifications: newNotifications.splice(index, 1)
       }
     });
   }
@@ -49,7 +52,6 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
       </NotificationDrawerHeader>
       <NotificationDrawerBody>
         <NotificationDrawerList>
-          {console.log(notifications)}
           {notifications.map((item, index) => (
             <NotificationDrawerListItem key={index} variant={item.variant}>
               <NotificationDrawerListItemHeader variant={item.variant} title={item.title}>
