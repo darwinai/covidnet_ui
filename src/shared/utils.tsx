@@ -18,7 +18,7 @@ export const formatTime = (oldDay: string): string => {
 
 export const modifyDatetime = (oldDay: number): string => {
   let today = new Date().setHours(0, 0, 0, 0)
-  let diff = Math.abs(+today - + new Date(oldDay * 1000));
+  let diff = Math.abs(+today - + new Date(oldDay));
   diff = Math.floor(diff / (1000 * 60 * 60 * 24)) // diff is in days, 1ms * 1000 * 60 * 60 * 24
   let description = "days ago"
   let rvtVal = `${diff} ${description}`
@@ -31,7 +31,7 @@ export const modifyDatetime = (oldDay: number): string => {
     diff = Math.floor(diff / 7)
     rvtVal = `${diff} ${description}`
   } else if (diff < 1) {
-    rvtVal = (new Date(oldDay * 1000)).toLocaleTimeString();
+    rvtVal = (new Date(oldDay)).toLocaleTimeString();
   }
   return rvtVal
 }
