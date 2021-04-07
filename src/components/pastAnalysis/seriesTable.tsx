@@ -16,7 +16,7 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
   if (num && numArray) {
     let maxValue: number = 0;
     numArray.forEach((value: number) => {
-    maxValue = (!maxValue || maxValue < value) ? value : maxValue;
+      maxValue = (!maxValue || maxValue < value) ? value : maxValue;
     })
 
     return num === maxValue;
@@ -31,8 +31,8 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
   const { dispatch } = useContext(AppContext);
   const { series: analysisList } = studyInstance;
   let titles = [
-    { title: (<span><br />Preview<span className='classificationText'>&nbsp;</span></span>) },
-    { title: (<span><br />Image<span className='classificationText'>&nbsp;</span></span>) }
+    { title: (<span className='classificationText'><br />Preview</span>) },
+    { title: (<span className='classificationText'><br />Image</span>) }
   ];
 
   analysisList[0]?.classifications.forEach((_value: number, key: string) => {
@@ -40,14 +40,14 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
   });
 
   titles.push({ title: (<span className='classificationText'><span>Geographic<br />Severity</span></span>) },
-              { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
-              { title: (<span></span>) });
+    { title: (<span className='classificationText'><span>Opacity<br />Extent</span></span>) },
+    { title: (<span></span>) });
 
   const columns = titles;
 
   const rows = analysisList.map((analysis: ISeries, index: number) => {
     let analysisCells: any = [
-      { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" alt="Analysis Scan Thumbnail"/></div> : <div><PreviewNotAvailable /></div>) },
+      { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" alt="Analysis Scan Thumbnail" /></div> : <div><PreviewNotAvailable /></div>) },
       { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
     ];
 
@@ -55,16 +55,17 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, isProcessing }
       analysisCells.push({
         title: (<PredictionCircle key={key}
           largeCircle={isLargestNumber(value, analysis.classifications)}
-          predictionNumber={value} />)});
-    });
-  
-      analysisCells.push({
-        title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
-      }, {
-        title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
-      }, {
-        title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>)
+          predictionNumber={value} />)
       });
+    });
+
+    analysisCells.push({
+      title: `${analysis.geographic ? `${analysis.geographic.severity}` : 'N/A'}`
+    }, {
+      title: `${analysis.opacity ? `${analysis.opacity.extentScore}` : 'N/A'}`
+    }, {
+      title: (<Button variant="secondary" onClick={() => viewImage(index)} isDisabled={isProcessing}>View</Button>)
+    });
 
     return { cells: analysisCells };
   });
