@@ -2,6 +2,7 @@ $imgViewerBackgroundColour: black;
 $textColor: white;
 $GreyTextColor: #868686;
 $opacityLevel: 0.75;
+$collapse-button-height: 2em;
 
 .invertImg {
   filter: invert(1) brightness(200%) !important;
@@ -14,9 +15,10 @@ $opacityLevel: 0.75;
   width: 100vw;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   background: rgba(0, 0, 0, $opacityLevel); //$imgViewerBackgroundColour;
   color: $textColor;
-  height: 8vh;
+  height: auto;
   button {
     margin-left: 1rem;
     height: 8vh;
@@ -82,11 +84,13 @@ $opacityLevel: 0.75;
     position: relative;
     justify-content: flex-end;
     margin-right: 1.5rem;
+    height: $collapse-button-height;
   }
   .PredictionArea {
     @extend .flex_col;
     align-items: center;
     justify-content: flex-end;
+    margin-right: 1em;
 
     tspan {
       fill: $textColor !important;
@@ -96,7 +100,7 @@ $opacityLevel: 0.75;
     padding-left: 2rem;
   }
   .padding-l-2rem {
-    padding-left: 2rem;
+    padding: 0 0 2em 2em;
   }
   span {
     color: $textColor;
@@ -108,14 +112,16 @@ $opacityLevel: 0.75;
 }
 
 .expandedBottom {
-  transition: height 1s;
-  height: 25vh;
+  height: auto;
+  overflow: hidden;
+  transform: translate(0, 0);
+  transition: transform 1s;
 }
 
 .collapsedBottom {
-  height: 3vh;
-  transition: height 1s;
-  // overflow: hidden;
+  height: auto;
+  transform: translate(0, calc(100% - #{$collapse-button-height}));
+  transition: transform 1s;
 }
 
 .imgViewer {
@@ -124,6 +130,7 @@ $opacityLevel: 0.75;
   height: 100vh;
   justify-content: space-between;
   background-color: $imgViewerBackgroundColour;
+  overflow: hidden;
 }
 
 .pointer {
@@ -149,7 +156,9 @@ $opacityLevel: 0.75;
 }
 
 .bottomInfoBox {
+  flex-grow: 1;
   justify-content: space-around;
+  flex-wrap: wrap;
 }
 
 .displayNone {
