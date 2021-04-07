@@ -48,7 +48,7 @@ const CreateAnalysis: React.FC = () => {
 
   return (
     <Stack>
-      <StackItem>Create a new Predictive analysis</StackItem>
+      <StackItem>Create a new predictive analysis</StackItem>
       <StackItem isFilled>
         <PatientLookup isOnDashboard={true}></PatientLookup>
         {/* <Button onClick={submitFile}>Choose File...</Button> */}
