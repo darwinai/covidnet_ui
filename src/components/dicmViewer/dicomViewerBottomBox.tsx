@@ -81,7 +81,7 @@ const DicomViewerBottomBox = () => {
       </div>
       <div className="flex_row">
         <div className="padding-l-2rem">
-            <h2><span><i className="pf-icon pf-icon-info"></i></span></h2>
+          <h2><span><i className="pf-icon pf-icon-info"></i></span></h2>
         </div>
         <div className="flex_row bottomInfoBox">
           <div className="padding-l-2rem">
