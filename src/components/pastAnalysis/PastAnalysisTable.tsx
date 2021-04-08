@@ -17,7 +17,8 @@ import { RESULT_POLL_INTERVAL } from "../../app.config";
 interface tableRowsParent {
   isOpen: boolean,
   cells: string[],
-  feedIds: number[]
+  feedIds: number[],
+  isProcessing: boolean
 }
 
 interface tableRowsChild {
@@ -25,7 +26,8 @@ interface tableRowsChild {
   parent: number,
   fullWidth: boolean,
   cells: { [title: string]: ReactNode }[],
-  feedIds: number[]
+  feedIds: number[],
+  isProcessing: boolean
 }
 
 type TableState = {
@@ -210,8 +212,8 @@ const PastAnalysisTable = () => {
       rows.push({
         isOpen: false,
         cells: cells,
-
-        feedIds: analysis.feedIds
+        feedIds: analysis.feedIds,
+        isProcessing
       });
       if (analysis.feedIds.length > 0) {
         rows.push({
@@ -221,7 +223,8 @@ const PastAnalysisTable = () => {
           cells: [{
             title: (<>Loading</>)
           }],
-          feedIds: []
+          feedIds: [],
+          isProcessing
         });
       }
     }
@@ -234,17 +237,17 @@ const PastAnalysisTable = () => {
     rowsCopy[rowKey].isOpen = isOpen;
     // setRows(rowsCopy);
     const data = ChrisIntegration.getResults(rowsCopy[rowKey].feedIds);
-    
+    const isProcessing = rowsCopy[rowKey].isProcessing;
     rowsCopy[rowKey + 1] = {
       isOpen: false,
       parent: rowKey,
       fullWidth: true,
       cells: [{
-        title: (<SeriesTable data={data} isProcessing={false}></SeriesTable>
+        title: (<SeriesTable data={data} isProcessing={isProcessing}></SeriesTable>
           )
       }],
-      feedIds: []
-
+      feedIds: [],
+      isProcessing
     }
 
     setRows(rowsCopy);
