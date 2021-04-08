@@ -4,8 +4,6 @@ import {
   PageHeaderToolsItem
 } from "@patternfly/react-core";
 import React from "react";
-import { useHistory } from "react-router-dom";
-import logo from "../../assets/images/logo-white.png";
 
 interface FooterProps {
   isLogin?: boolean
@@ -13,7 +11,6 @@ interface FooterProps {
 
 
 const Footer: React.FC<FooterProps> = ({ isLogin }) => {
-  const history = useHistory();
 
   const pageToolbar = (
     <div className="footer-content">
