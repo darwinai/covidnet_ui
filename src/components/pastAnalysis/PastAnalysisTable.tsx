@@ -4,9 +4,8 @@ import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
 import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
-import { AnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
+import { StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
 import ChrisIntegration from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
@@ -173,15 +172,10 @@ const PastAnalysisTable = () => {
     }
   }, tableState.processingFeedIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
-  const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
-    const rows: (tableRowsChild | tableRowsParent)[] = [];
-    for (const analysis of listOfAnalysis) {
-      // const validAnalyses = analysis.series.filter((series: ISeries) => series.classifications.size > 0);
-      // const classifications = validAnalyses?.[0]?.classifications ? Array.from(validAnalyses?.[0]?.classifications?.keys()) : [];
-      // const numInvalidAnalyses = analysis.series.length - validAnalyses.length;
-
-      const indexInRows: number = rows.length;
-
+  const updateRows = (listOfAnalyses: StudyInstanceWithSeries[]) => {
+    const newRows: (tableRowsChild | tableRowsParent)[] = [];
+    for (const analysis of listOfAnalyses) {
+      const indexInRows = newRows.length;
       const isProcessing = !!analysis.pluginStatuses.jobsRunning;
       let analysisCreated;
       let badges;
@@ -193,7 +187,8 @@ const PastAnalysisTable = () => {
       } else {
         analysisCreated = analysis.analysisCreated;
         badges = {
-          title: (<>
+          title: (
+          <>
             {<Badge className="badge-margin" isRead={!analysis.pluginStatuses.jobsDone}>{analysis.pluginStatuses.jobsDone}</Badge>}
             {<Badge className="badge-danger" isRead={!analysis.pluginStatuses.jobsErrored}>{analysis.pluginStatuses.jobsErrored}</Badge>}
           </>)
@@ -209,14 +204,17 @@ const PastAnalysisTable = () => {
         badges
       ];
 
-      rows.push({
+      // Top-level row
+      newRows.push({
         isOpen: false,
         cells: cells,
         feedIds: analysis.feedIds,
         isProcessing
       });
+
+      // Blank nested row
       if (analysis.feedIds.length > 0) {
-        rows.push({
+        newRows.push({
           isOpen: false,
           parent: indexInRows,
           fullWidth: true,
@@ -226,16 +224,17 @@ const PastAnalysisTable = () => {
         });
       }
     }
-    setRows(rows);
+    setRows(newRows);
   }
 
   const onCollapse = async (event: any, rowKey: number, isOpen: any) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     const rowsCopy = [...rows];
     rowsCopy[rowKey].isOpen = isOpen;
-    // setRows(rowsCopy);
+
     const data = ChrisIntegration.getResults(rowsCopy[rowKey].feedIds);
     const isProcessing = rowsCopy[rowKey].isProcessing;
+
     rowsCopy[rowKey + 1] = {
       isOpen: false,
       parent: rowKey,
