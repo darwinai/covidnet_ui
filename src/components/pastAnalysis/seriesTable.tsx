@@ -1,4 +1,4 @@
-import { Button } from '@patternfly/react-core';
+import { Button, Spinner } from '@patternfly/react-core';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
 import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -118,17 +118,21 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ data, isProcessing }) => {
 
   return (
     <>
-    { values.series.length ? (
+    { 
+      values.series.length ?
+      (
           <Table aria-label="Simple Table" cells={columns} rows={rows}>
-          <TableHeader />
-          <TableBody className="series-table-row" />
-        </Table>
-    ):
-    (<>Loading</>)
-
+            <TableHeader />
+            <TableBody className="series-table-row" />
+          </Table>
+      ):
+      (
+        <div className="results-spinner-container">
+          <Spinner size="lg" />
+          </div>
+      )
     }
     </>
-
   )
 }
 

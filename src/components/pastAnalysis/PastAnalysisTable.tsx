@@ -220,9 +220,7 @@ const PastAnalysisTable = () => {
           isOpen: false,
           parent: indexInRows,
           fullWidth: true,
-          cells: [{
-            title: (<>Loading</>)
-          }],
+          cells: [],
           feedIds: [],
           isProcessing
         });
@@ -243,8 +241,7 @@ const PastAnalysisTable = () => {
       parent: rowKey,
       fullWidth: true,
       cells: [{
-        title: (<SeriesTable data={data} isProcessing={isProcessing}></SeriesTable>
-          )
+        title: (<SeriesTable data={data} isProcessing={isProcessing}></SeriesTable>)
       }],
       feedIds: [],
       isProcessing
