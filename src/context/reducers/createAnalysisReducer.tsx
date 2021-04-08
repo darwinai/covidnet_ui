@@ -48,7 +48,9 @@ export const createAnalysisReducer = (
     case CreateAnalysisTypes.Update_patient_ID:
       return {
         ...state,
-        patientID: action.payload.patientID
+        patientID: action.payload.patientID,
+        selectedStudyUIDs: {},
+        currSelectedStudyUID: ""
       }
     case CreateAnalysisTypes.Add_selected_studies_UID:
       return {
