@@ -293,15 +293,22 @@ class ChrisIntegration {
    * @param {number} max_id Maximum Feed ID search parameter
    */
   static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
-    const pastAnalyses: StudyInstanceWithSeries[] = []
     const client: any = ChrisAPIClient.getClient();
+
     // Indicates when the last Feed on Swift has been reached to prevent further fetching
     let isAtEndOfFeeds = false;
 
     let curOffset = offset;
-    const fetchLimit = 10
-    
-    while (pastAnalyses.length <= limit && !isAtEndOfFeeds) {
+    const fetchLimit = limit;
+
+    // Feed and Note data that have been fetched so far
+    const feedNoteArray: TFeedNote[] = [];
+
+    // Feeds grouped by [timestamp, StudyInstanceUID]
+    let studyGroups: Object = {};
+
+    // Keep fetching Feeds in batch sizes of "fetchLimit" and grouping them until studyGroups contains ("limit" + 1) number of groups
+    while (Object.keys(studyGroups).length <= limit && !isAtEndOfFeeds) {
       const feeds: FeedList = await client.getFeeds({
         limit: fetchLimit,
         offset: curOffset,
@@ -309,10 +316,14 @@ class ChrisIntegration {
       });
 
       curOffset += fetchLimit;
-
+      
       const feedArray: Feed[] = feeds?.getItems();
 
-      const feedNoteArray: TFeedNote[] = await Promise.all(feedArray.map(async (feed: Feed): Promise<TFeedNote> => {
+      // If the number of Feeds received was less than fetchLimit, end of Feeds has been reached
+      isAtEndOfFeeds = feedArray?.length < fetchLimit;
+
+      // Get Note data and pair it with the respective Feed
+      const newFeedNoteArray: TFeedNote[] = await Promise.all(feedArray.map(async (feed: Feed): Promise<TFeedNote> => {
         const note: Note = await feed.getNote();
         const noteContent: TFeedNoteContent = JSON.parse(note?.data?.content);
         return {
@@ -321,41 +332,55 @@ class ChrisIntegration {
         };
       }));
 
-      const studyGroups = groupBy(feedNoteArray, (feedNote: any) => [feedNote.note.timestamp, feedNote.note.img.StudyInstanceUID]);
+      feedNoteArray.push(...newFeedNoteArray);
 
-      const newStudies: StudyInstanceWithSeries[] = Object.values(studyGroups).map((feedNotes: TFeedNote[]): StudyInstanceWithSeries => {
-        const firstFeedNote = feedNotes?.[0];
-
-        const pluginStatuses = feedNotes.reduce((acc: TPluginStatuses, cur: TFeedNote) => {
-          const feedData = cur.feed.data;
-          if (feedData.finished_jobs === 3) {
-            acc.jobsDone += 1
-          } else if (feedData.errored_jobs + feedData.cancelled_jobs > 0) {
-            acc.jobsErrored += 1
-          } else {
-            acc.jobsRunning += 1
-          }
-          return acc;
-        }, {
-          jobsDone: 0,
-          jobsErrored: 0,
-          jobsRunning: 0
-        });
-
-        const feedIds = feedNotes.map((feedNote: TFeedNote) => feedNote.feed.data.id);
-
-        return {
-          dcmImage: firstFeedNote.note.img,
-          analysisCreated: modifyDatetime(firstFeedNote.note.timestamp),
-          feedIds,
-          pluginStatuses,
-          series: []
-        }
-      });
-      isAtEndOfFeeds = feedArray?.length < fetchLimit;
-      pastAnalyses.push(...newStudies);
+      // Group Feeds into an object by [timestamp, StudyInstanceUID]
+      studyGroups = groupBy(feedNoteArray, (feedNote: any) => [feedNote.note.timestamp, feedNote.note.img.StudyInstanceUID]);
     }
-    return [pastAnalyses.slice(0,10), curOffset, isAtEndOfFeeds]
+
+    // If the end of Feeds was reached and number of groups doesn't exceed limit, this is the last page to be fetched
+    const isLastPage = isAtEndOfFeeds && Object.keys(studyGroups).length <= limit;
+
+    // Generate list of StudyInstanceWithSeries
+    const pastAnalyses: StudyInstanceWithSeries[] = Object.values(studyGroups).map((feedNotes: TFeedNote[]): StudyInstanceWithSeries => {
+      const firstFeedNote = feedNotes?.[0];
+
+      const pluginStatuses = feedNotes.reduce((acc: TPluginStatuses, cur: TFeedNote) => {
+        const feedData = cur.feed.data;
+        if (feedData.finished_jobs === 3) {
+          acc.jobsDone += 1
+        } else if (feedData.errored_jobs + feedData.cancelled_jobs > 0) {
+          acc.jobsErrored += 1
+        } else {
+          acc.jobsRunning += 1
+        }
+        return acc;
+      }, {
+        jobsDone: 0,
+        jobsErrored: 0,
+        jobsRunning: 0
+      });
+
+      const feedIds = feedNotes.map((feedNote: TFeedNote) => feedNote.feed.data.id);
+
+      return {
+        dcmImage: firstFeedNote.note.img,
+        analysisCreated: modifyDatetime(firstFeedNote.note.timestamp),
+        feedIds,
+        pluginStatuses,
+        series: []
+      }
+    });
+
+    // Discard the extra analysis
+    const pastAnalysesSliced = pastAnalyses.slice(0, limit);
+
+    // Count the number of Feeds that are actually being used for this page and add to the initial offset
+    const lastOffset = offset + pastAnalysesSliced.reduce((acc: number, cur: StudyInstanceWithSeries) => {
+      return acc + cur.feedIds.length
+    }, 0);
+
+    return [pastAnalysesSliced, lastOffset, isLastPage];
   }
 
   static async getResults(feedIds: number[]): Promise<{series: ISeries[], classifications: string[]}> {
