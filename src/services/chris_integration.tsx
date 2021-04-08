@@ -3,7 +3,7 @@ import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries, TPluginStatuses } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
-import { PluginModels } from "../app.config";
+import { PluginModels, FEED_NOTE_TITLE } from "../app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
 import { groupBy } from "lodash";
 
@@ -167,7 +167,7 @@ class ChrisIntegration {
     const feed = await dircopyPluginInstance.getFeed();
     const note = await feed?.getNote();
     await note?.put({
-      title: "metadata",
+      title: FEED_NOTE_TITLE,
       content: JSON.stringify({
         timestamp,
         img
@@ -328,14 +328,18 @@ class ChrisIntegration {
       isAtEndOfFeeds = feedArray?.length < fetchLimit;
 
       // Get Note data and pair it with the respective Feed
-      const newFeedNoteArray: TFeedNote[] = await Promise.all(feedArray.map(async (feed: Feed): Promise<TFeedNote> => {
+      const newFeedNoteArray: TFeedNote[] = (await Promise.all(feedArray.map(async (feed: Feed): Promise<TFeedNote[]> => {
         const note: Note = await feed.getNote();
-        const noteContent: TFeedNoteContent = JSON.parse(note?.data?.content);
-        return {
+        if (!note || note.data.title !== FEED_NOTE_TITLE) {
+          return [];
+        }
+        const noteContent = JSON.parse(note?.data?.content);
+        console.log(typeof noteContent)
+        return [{
           feed,
           note: noteContent
-        };
-      }));
+        }];
+      }))).flat();
 
       feedNoteArray.push(...newFeedNoteArray);
 
