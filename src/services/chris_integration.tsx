@@ -1,9 +1,9 @@
-import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
+import Client, { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
-import { PluginModels } from "../api/app.config";
+import { PluginModels } from "../app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
 
 export interface LocalFile {
@@ -227,6 +227,17 @@ class ChrisIntegration {
       offset: 0,
     });
     return feeds.getItems()?.[0]?.data?.id;
+  }
+
+  /**
+   * Returns true if the plugin with the given id is in a terminated state (SUCCESS, ERROR, or CANCELLED)
+   * @param {number} id
+   */
+  static async checkIfPluginTerminated(id: number): Promise<boolean> {
+    const client: Client = ChrisAPIClient.getClient();
+    const plugin = await client.getPluginInstances({ id });
+    const status = plugin?.getItems()?.[0]?.data?.status;
+    return status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED;
   }
 
   /**
