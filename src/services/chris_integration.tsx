@@ -1,4 +1,4 @@
-import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
+import Client, { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
@@ -234,9 +234,9 @@ class ChrisIntegration {
    * @param {number} id
    */
   static async checkIfPluginTerminated(id: number): Promise<boolean> {
-    const client: any = ChrisAPIClient.getClient();
+    const client: Client = ChrisAPIClient.getClient();
     const plugin = await client.getPluginInstances({ id });
-    const status = plugin?.data?.[0]?.status;
+    const status = plugin?.getItems()?.[0]?.data?.status;
     return status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED;
   }
 
