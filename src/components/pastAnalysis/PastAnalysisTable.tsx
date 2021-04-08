@@ -34,7 +34,7 @@ type TableState = {
   lastOffset: number, // Page offset value for where to begin fetching the next unseen page
   lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
   storedPages: StudyInstanceWithSeries[], // Stores pages that have been seen in an array of pages
-  processingPluginIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
+  processingFeedIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
 }
 
 const initialTableState: TableState = {
@@ -43,7 +43,7 @@ const initialTableState: TableState = {
   lastOffset: 0,
   lastPage: -1,
   storedPages: [],
-  processingPluginIds: []
+  processingFeedIds: []
 }
 
 enum TableReducerActions {
@@ -72,7 +72,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         lastOffset: action.payload.lastOffset,
         lastPage: action.payload.lastPage,
         storedPages: [...state.storedPages, ...action.payload.newPage],
-        processingPluginIds: [...state.processingPluginIds, ...action.payload.processingPluginIds]
+        processingFeedIds: [...state.processingFeedIds, ...action.payload.processingPluginIds]
       }
     case TableReducerActions.incrementPage:
       return {
@@ -135,8 +135,8 @@ const PastAnalysisTable = () => {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, toFetch, maxFeedId);
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
-          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => study.analysisCreated === "")
-          .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
+          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !!study.pluginStatuses.jobsRunning)
+          .map((study: StudyInstanceWithSeries) => study.feedIds?.[0]);
 
           
           tableDispatch({ type: TableReducerActions.addNewPage, payload: {
@@ -158,8 +158,8 @@ const PastAnalysisTable = () => {
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
-    if (tableState.processingPluginIds) {
-      for (const id of tableState.processingPluginIds) {
+    if (tableState.processingFeedIds) {
+      for (const id of tableState.processingFeedIds) {
         const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
           // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
@@ -169,7 +169,7 @@ const PastAnalysisTable = () => {
         }
       }
     }
-  }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
+  }, tableState.processingFeedIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = [];
