@@ -17,6 +17,11 @@ export type DircopyResult = {
   img: DcmImage
 }
 
+export type TAnalysisResults = {
+  series: ISeries[];
+  classifications: string[];
+}
+
 type TFeedNoteContent = {
   timestamp: number,
   img: DcmImage
@@ -383,7 +388,7 @@ class ChrisIntegration {
     return [pastAnalysesSliced, lastOffset, isLastPage];
   }
 
-  static async getResults(feedIds: number[]): Promise<{series: ISeries[], classifications: string[]}> {
+  static async getResults(feedIds: number[]): Promise<TAnalysisResults> {
     const client: any = ChrisAPIClient.getClient();
     const series: ISeries[] = await Promise.all(feedIds.map(async (id: number): Promise<ISeries> => {
       const feed: Feed = await client.getFeed(id);

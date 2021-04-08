@@ -5,8 +5,8 @@ import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
 import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
 import { AppContext } from "../../context/context";
-import { StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
-import ChrisIntegration from "../../services/chris_integration";
+import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
+import ChrisIntegration, { TAnalysisResults } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
@@ -232,7 +232,8 @@ const PastAnalysisTable = () => {
     const rowsCopy = [...rows];
     rowsCopy[rowKey].isOpen = isOpen;
 
-    const data = ChrisIntegration.getResults(rowsCopy[rowKey].feedIds);
+    const data: Promise<TAnalysisResults> = ChrisIntegration.getResults(rowsCopy[rowKey].feedIds);
+
     const isProcessing = rowsCopy[rowKey].isProcessing;
 
     rowsCopy[rowKey + 1] = {

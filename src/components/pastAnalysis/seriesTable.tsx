@@ -8,10 +8,10 @@ import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyse
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
-import ChrisIntegration from '../../services/chris_integration';
+import { TAnalysisResults } from '../../services/chris_integration';
 
 interface SeriesTableProps {
-  data: Promise<{series: ISeries[], classifications: string[]}>
+  data: Promise<TAnalysisResults>
   isProcessing: boolean;
 }
 
