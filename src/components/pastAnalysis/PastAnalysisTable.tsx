@@ -180,7 +180,7 @@ const PastAnalysisTable = () => {
 
       const indexInRows: number = rows.length;
 
-      const isProcessing = !analysis.analysisCreated;
+      const isProcessing = !!analysis.pluginStatuses.jobsRunning;
       let analysisCreated;
       let badges;
       if (isProcessing) {
