@@ -11,11 +11,6 @@ export interface LocalFile {
   blob: Blob;
 }
 
-export type DircopyResult = {
-  instance: PluginInstance, 
-  img: DcmImage
-}
-
 interface DirCreateData extends IPluginCreateData {
   dir: string;
 }
@@ -138,21 +133,6 @@ class ChrisIntegration {
   }
 
   /**
-   * Runs pl-dircopy on a DcmImage
-   * @param img DcmImage
-   * @returns pl-dircopy instance with its corresponding DcmImage
-   */
-  static async runDircopy(img: DcmImage): Promise<DircopyResult> {
-    let client: Client = await ChrisAPIClient.getClient();
-
-    const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
-    const data: DirCreateData = { "dir": img.fname };
-    const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
-    console.log("PL-DIRCOPY task sent into the task queue");
-    return { instance: dircopyPluginInstance, img };
-  }
-
-  /**
    * Runs pl-med2-img and pl-covidnet/pl-ct-covidnet on a DcmImage, given its pl-dircopy instance obtained from runDircopy
    * @param img DcmImage
    * @param dircopyPluginInstance instance obtained from runDircopy
@@ -160,7 +140,7 @@ class ChrisIntegration {
    * @param chosenCTModel name of model to be used for pl-ct-covidnet
    * @returns plugin result after polling
    */
-  static async processOneImg(img: DcmImage, dircopyPluginInstance: PluginInstance, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
+   static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
     let client: Client = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
@@ -168,6 +148,12 @@ class ChrisIntegration {
 
     try {
       console.log(img.fname)
+
+      // PL-DIRCOPY
+      const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
+      const data: DirCreateData = { "dir": img.fname };
+      const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+      console.log("PL-DIRCOPY task sent into the task queue")
 
       // PL-MED2IMG
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
@@ -204,15 +190,13 @@ class ChrisIntegration {
           error: new Error('not registered')
         };
       }
-      const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
 
-      const covidnetResult = await pollingBackend(covidnetInstance);
-      if (covidnetResult.error) {
-        return covidnetResult;
-      }
-
-      return covidnetResult;
+      return {
+          plugin: 'plugins'
+      };
+      
     } catch (err) {
       console.log(err);
       return {
