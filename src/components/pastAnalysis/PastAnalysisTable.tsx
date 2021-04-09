@@ -158,7 +158,7 @@ const PastAnalysisTable = () => {
   useInterval(async () => {
     if (tableState.processingPluginIds) {
       for (const id of tableState.processingPluginIds) {
-        const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
+        const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
           // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
           newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);

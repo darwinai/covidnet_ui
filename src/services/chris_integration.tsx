@@ -143,7 +143,7 @@ class ChrisIntegration {
    * @returns pl-dircopy instance with its corresponding DcmImage
    */
   static async runDircopy(img: DcmImage): Promise<DircopyResult> {
-    let client: any = await ChrisAPIClient.getClient();
+    let client: Client = await ChrisAPIClient.getClient();
 
     const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
     const data: DirCreateData = { "dir": img.fname };
@@ -161,7 +161,7 @@ class ChrisIntegration {
    * @returns plugin result after polling
    */
   static async processOneImg(img: DcmImage, dircopyPluginInstance: PluginInstance, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
-    let client: any = await ChrisAPIClient.getClient();
+    let client: Client = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
     let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
