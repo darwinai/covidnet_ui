@@ -397,6 +397,8 @@ class ChrisIntegration {
       limit: 1000
     })
     const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data);
+    //console.log(patientImages[0].StudyDate);
+    console.log(res.getItems());
     return patientImages;
   }
 
@@ -410,7 +412,7 @@ class ChrisIntegration {
     const plugin = pluginInstance.getItems()[0]
     const pluginInstanceFiles = await plugin.getFiles({
       limit: 25,
-      offset: 0,
+      offset: 0
     });
     return pluginInstanceFiles.getItems();
   }

@@ -35,7 +35,7 @@ const CreateAnalysisWrapper = () => {
           console.error('Unable to initiate PACS retrieve');
           return;
         }
-      })
+      });
 
       // Update fname property of each image to be the filepath in Swift filesystem
       try {

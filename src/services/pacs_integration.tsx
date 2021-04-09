@@ -56,6 +56,8 @@ class PACSIntegration {
                         StudyDescription: series.StudyDescription.value,
                         SeriesInstanceUID: series.SeriesInstanceUID.value,
                         SeriesDescription: series.SeriesDescription.value,
+                        StudyDate: series.StudyDate.value,
+                        ProtocolName: series.ProtocolName.value,
                         Modality: series.Modality.value,
                         pacs_identifier: 'covidnet'
                 }))

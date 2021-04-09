@@ -13,6 +13,8 @@ export interface DcmImage {
   StudyDescription: string,
   SeriesInstanceUID: string,
   SeriesDescription: string,
+  StudyDate: string,
+  ProtocolName: string,
   Modality: string,
   pacs_identifier: string
 }
@@ -49,6 +51,7 @@ export interface PACSBaseResponse {
   StudyInstanceUID: PACSResponseProperty;
   SeriesInstanceUID: PACSResponseProperty;
   InstanceNumber: PACSResponseProperty;
+  ProtocolName: PACSResponseProperty;
   NumberOfSeriesRelatedInstances: PACSResponseProperty;
   PerformedStationAETitle: PACSResponseProperty;
 }

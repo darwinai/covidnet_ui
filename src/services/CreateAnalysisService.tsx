@@ -6,11 +6,12 @@ import NotificationService from "./notificationService";
 import { formatDate } from "../shared/utils";
 
 export interface StudyInstance {
-  studyInstanceUID: string;
-  studyDescription: string;
-  modality: string;
-  createdDate: string;
-  setModelType?: (modality: string) => void;
+  studyInstanceUID: string,
+  studyDescription: string,
+  modality: string,
+  studyDate: string,
+  protocolName: string,
+  setModelType?: (modality: string) => void
 }
 
 export interface AnalyzedImageResult {
@@ -25,12 +26,14 @@ class CreateAnalysisService {
     const seenUID: { [uid: string]: boolean } = {}
     dcmImages.forEach((img: DcmImage) => {
       // met a new uid
+      console.log(img.StudyDate)
       if (!seenUID[img.StudyInstanceUID]) {
         studyInstances.push({
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          createdDate: formatDate(img.creation_date)
+          studyDate: formatDate(img.StudyDate),
+          protocolName: img.ProtocolName
         })
         seenUID[img.StudyInstanceUID] = true;
       }
