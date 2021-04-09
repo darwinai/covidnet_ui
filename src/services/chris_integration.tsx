@@ -1,9 +1,9 @@
-import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
+import Client, { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
-import { PluginModels } from "../api/app.config";
+import { PluginModels } from "../app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
 
 export interface LocalFile {
@@ -206,7 +206,7 @@ class ChrisIntegration {
 
   static async getFilePathNameByUID(StudyInstanceUID: string, SeriesInstanceUID: string): Promise<string> {
     let client: any = await ChrisAPIClient.getClient();
-    
+
     const res = await client.getPACSFiles({
       StudyInstanceUID,
       SeriesInstanceUID,
@@ -226,6 +226,17 @@ class ChrisIntegration {
       offset: 0,
     });
     return feeds.getItems()?.[0]?.data?.id;
+  }
+
+  /**
+   * Returns true if the plugin with the given id is in a terminated state (SUCCESS, ERROR, or CANCELLED)
+   * @param {number} id
+   */
+  static async checkIfPluginTerminated(id: number): Promise<boolean> {
+    const client: Client = ChrisAPIClient.getClient();
+    const plugin = await client.getPluginInstances({ id });
+    const status = plugin?.getItems()?.[0]?.data?.status;
+    return status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED;
   }
 
   /**
@@ -257,13 +268,13 @@ class ChrisIntegration {
         offset: curOffset,
         max_id
       });
-      const feedArray = feeds.getItems();
-      
+      const feedArray = feeds?.getItems();
+
       curOffset += fetchLimit;
-  
+
       // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
-      isAtEndOfFeeds = feedArray.length < fetchLimit;
-      
+      isAtEndOfFeeds = feedArray?.length < fetchLimit;
+
       for (let feed of feedArray) {
         const pluginInstances = await feed.getPluginInstances({
           limit: 25,
@@ -274,23 +285,34 @@ class ChrisIntegration {
         for (let plugin of pluginlists) {
           let studyInstance: StudyInstanceWithSeries | null = null;
           // ignore plugins that are not models
-          if (!isModel(plugin.data.plugin_name)) continue; 
+          if (!isModel(plugin.data.plugin_name)) continue;
           // get dicom image data
           if (plugin.data.title !== '') {
-            const imgDatas: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
-            if (imgDatas.length > 0) {
+            const imgData: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
+            if (imgData?.length > 0) {
               // use dircopy start time to check
               for (let findDircopy of pluginlists) {
                 if (findDircopy.data.plugin_name === PluginModels.Plugins.FS_PLUGIN) {
                   const startedTime = formatTime(findDircopy.data.start_date);
-                  const possibileIndex = startedTime + imgDatas[0].StudyInstanceUID;
+                  const possibileIndex = startedTime + imgData[0].StudyInstanceUID;
                   // already exists so push it to te seriesList
                   if (!!pastAnalysisMap[possibileIndex]) {
                     studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr];
                   } else { // doesn't already exist so we create one
+                    const pluginStatus = plugin?.data?.status;
+                    let analysisCreated: string;
+                    // If the model plugin is not in a terminated state, mark analysisCreated as processing, otherwise, provide datetime
+                    if (pluginStatus !== PluginPollStatus.SUCCESS &&
+                      pluginStatus !== PluginPollStatus.ERROR &&
+                      pluginStatus !== PluginPollStatus.CANCELLED) {
+                      analysisCreated = "";
+                    } else {
+                      analysisCreated = modifyDatetime(findDircopy.data.start_date);
+                    }
+
                     studyInstance = {
-                      dcmImage: imgDatas[0],
-                      analysisCreated: modifyDatetime(findDircopy.data.start_date),
+                      dcmImage: imgData[0],
+                      analysisCreated,
                       series: []
                     };
                     // first update map with the index then push to the result array
@@ -304,27 +326,25 @@ class ChrisIntegration {
             // TODO: investigate else case
             return [[], curOffset, isAtEndOfFeeds];
           }
-  
+
           const pluginInstanceFiles = await plugin.getFiles({
             limit: 25,
             offset: 0,
           });
-  
           const newSeries: ISeries = {
             covidnetPluginId: plugin.data.id,
-            imageName: '',
-            imageId: '',
+            imageName: plugin?.data?.title || "File name not available",
+            imageId: "",
             classifications: new Map<string, number>(),
             geographic: null,
             opacity: null,
-            imageUrl: '',
+            imageUrl: "",
           };
-  
+
           for (let fileObj of pluginInstanceFiles.getItems()) {
             if (fileObj.data.fname.includes("prediction") && fileObj.data.fname.includes("json")) {
               let content = await this.fetchJsonFiles(fileObj.data.id);
               const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
-  
               Object.keys(content).forEach((key: string) => { // Reading in the classifcation titles and values
                 if ((key !== 'prediction') && (key !== "Prediction")) {
                   if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
@@ -332,7 +352,6 @@ class ChrisIntegration {
                   }
                 }
               });
-  
             } else if (fileObj.data.fname.includes('severity.json')) {
               let content = await this.fetchJsonFiles(fileObj.data.id)
               newSeries.geographic = {
@@ -345,25 +364,16 @@ class ChrisIntegration {
               }
             } else if (!fileObj.data.fname.includes('json')) {
               newSeries.imageId = fileObj.data.id;
-              
+
               // Fetch image URL
               if (newSeries.imageId) {
                 const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
                 const urlCreator = window.URL || window.webkitURL;
                 newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
               }
-  
-              // get dcmImageId from dircopy
-              const dircopyPlugin = pluginlists[pluginlists.findIndex((plugin: any) => plugin.data.plugin_name === PluginModels.Plugins.FS_PLUGIN)]
-              const dircopyFiles = (await dircopyPlugin.getFiles({
-                limit: 100,
-                offset: 0
-              })).data;
-              const dcmImageFile = dircopyFiles[dircopyFiles.findIndex((file: any) => file.fname.includes('.dcm'))]
-              newSeries.imageName = dcmImageFile.fname;
             }
           }
-          
+
           if (studyInstance) studyInstance.series.push(newSeries);
         }
       }
@@ -389,14 +399,14 @@ class ChrisIntegration {
 
   static async fetchPacFiles(patientID: any): Promise<DcmImage[]> {
     if (!patientID) return [];
-    
+
     let client: any = await ChrisAPIClient.getClient();
 
     const res = await client.getPACSFiles({
       PatientID: patientID,
       limit: 1000
     })
-    const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data)
+    const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data);
     return patientImages;
   }
 
@@ -417,7 +427,7 @@ class ChrisIntegration {
 
   static async pdfGeneration(selectedImage: selectedImageType) {
     const covidnetPluginId = selectedImage.studyInstance?.series[selectedImage.index].covidnetPluginId;
-    if (covidnetPluginId ===  null || covidnetPluginId ===  undefined) return;
+    if (covidnetPluginId === null || covidnetPluginId === undefined) return;
     const client: any = ChrisAPIClient.getClient();
     const pluginfiles = await this.findFilesGeneratedByPlugin(covidnetPluginId);
     let imgName: string = '';
