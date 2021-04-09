@@ -58,7 +58,7 @@ const FileLookup = () => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <div className="InputRow">
         <div className="InputRowField">
           <label>File Creation Date</label>
@@ -88,7 +88,7 @@ const FileLookup = () => {
           </Button>
         </div>
       </div>
-    </React.Fragment>
+    </>
   )
 }
 
