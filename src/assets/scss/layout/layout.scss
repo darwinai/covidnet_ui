@@ -11,7 +11,7 @@
 .footer {
   display: flex;
   position: fixed;
-  height: 2.5em;
+  height: $footer-height;
   bottom: 0em;
   left: 0em;
   right: 0em;
@@ -31,9 +31,11 @@
   }
 }
 
-.footer-styling {
-  padding-bottom: 3em;
-  padding-top: 5em;
+.page-wrapper {
+  width: 100%;
+  height: 100vh;
+  padding-top: var(--pf-c-page__header--MinHeight);
+  padding-bottom: $footer-height;
 }
 
 .pf-c-page__header-tools:nth-child(3) {

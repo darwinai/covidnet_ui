@@ -1,4 +1,4 @@
-import { IPluginCreateData, Note, FeedPluginInstanceList, PluginInstance, PluginInstanceFileList, Feed, FeedList } from "@fnndsc/chrisapi";
+import Client, { IPluginCreateData, Note, FeedPluginInstanceList, PluginInstance, PluginInstanceFileList, Feed, FeedList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries, TPluginStatuses } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
@@ -10,11 +10,6 @@ import { groupBy } from "lodash";
 export interface LocalFile {
   name: string;
   blob: Blob;
-}
-
-export type DircopyResult = {
-  instance: PluginInstance, 
-  img: DcmImage
 }
 
 export type TAnalysisResults = {
@@ -154,30 +149,6 @@ class ChrisIntegration {
   }
 
   /**
-   * Runs pl-dircopy on a DcmImage
-   * @param img DcmImage
-   * @returns pl-dircopy instance with its corresponding DcmImage
-   */
-  static async runDircopy(img: DcmImage, timestamp: number): Promise<DircopyResult> {
-    let client: any = await ChrisAPIClient.getClient();
-
-    const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
-    const data: DirCreateData = { "dir": img.fname, title: img.PatientID };
-    const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
-    const feed = await dircopyPluginInstance.getFeed();
-    const note = await feed?.getNote();
-    await note?.put({
-      title: FEED_NOTE_TITLE,
-      content: JSON.stringify({
-        timestamp,
-        img
-      })
-    })
-    console.log("PL-DIRCOPY task sent into the task queue");
-    return { instance: dircopyPluginInstance, img };
-  }
-
-  /**
    * Runs pl-med2-img and pl-covidnet/pl-ct-covidnet on a DcmImage, given its pl-dircopy instance obtained from runDircopy
    * @param img DcmImage
    * @param dircopyPluginInstance instance obtained from runDircopy
@@ -185,14 +156,29 @@ class ChrisIntegration {
    * @param chosenCTModel name of model to be used for pl-ct-covidnet
    * @returns plugin result after polling
    */
-  static async processOneImg(img: DcmImage, dircopyPluginInstance: PluginInstance, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
-    let client: any = await ChrisAPIClient.getClient();
+   static async processOneImg(img: DcmImage, timestamp: number, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
+    let client: Client = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
     let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
 
     try {
       console.log(img.fname)
+
+      // PL-DIRCOPY
+      const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
+      const data: DirCreateData = { "dir": img.fname, title: img.PatientID };
+      const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+      const feed = await dircopyPluginInstance.getFeed();
+      const note = await feed?.getNote();
+      await note?.put({
+        title: FEED_NOTE_TITLE,
+        content: JSON.stringify({
+          timestamp,
+          img
+        })
+      })
+      console.log("PL-DIRCOPY task sent into the task queue")
 
       // PL-MED2IMG
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
@@ -229,15 +215,13 @@ class ChrisIntegration {
           error: new Error('not registered')
         };
       }
-      const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
 
-      const covidnetResult = await pollingBackend(covidnetInstance);
-      if (covidnetResult.error) {
-        return covidnetResult;
-      }
-
-      return covidnetResult;
+      return {
+          plugin: 'plugins'
+      };
+      
     } catch (err) {
       console.log(err);
       return {
