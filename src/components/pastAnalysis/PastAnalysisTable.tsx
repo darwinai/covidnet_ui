@@ -3,7 +3,7 @@ import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
 import { AnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
@@ -29,22 +29,74 @@ interface tableRowsChild {
   cells: { [title: string]: ReactNode }[]
 }
 
-interface TableStates {
-  page: number,
-  maxFeedId: number | undefined,
-  lastOffset: number,
-  lastPage: number,
-  storedPages: StudyInstanceWithSeries[][],
-  processingPluginIds: number[]
+type TableState = {
+  page: number, // Current table page number
+  maxFeedId: number | undefined, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
+  lastOffset: number, // Page offset value for where to begin fetching the next unseen page
+  lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
+  storedPages: StudyInstanceWithSeries[][], // Stores pages that have been seen in an array of pages
+  processingPluginIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
+}
+
+const initialTableState: TableState = {
+  page: 0,
+  maxFeedId: -1,
+  lastOffset: 0,
+  lastPage: -1,
+  storedPages: [],
+  processingPluginIds: []
+}
+
+enum TableReducerActions {
+  updateMaxFeedId = "UPDATE_MAX_FEED_ID",
+  addNewPage = "ADD_NEW_PAGE",
+  incrementPage = "INCREMENT_PAGE",
+  decrementPage = "DECREMENT_PAGE"
+}
+
+type TableAction =
+  | { type: TableReducerActions.updateMaxFeedId, payload: { id: number } }
+  | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
+  | { type: TableReducerActions.incrementPage }
+  | { type: TableReducerActions.decrementPage }
+
+const tableReducer = (state: TableState, action: TableAction): TableState => {
+  switch (action.type) {
+    case TableReducerActions.updateMaxFeedId:
+      return {
+        ...initialTableState,
+        maxFeedId: action.payload.id,
+      }
+    case TableReducerActions.addNewPage:
+      return {
+        ...state,
+        lastOffset: action.payload.lastOffset,
+        lastPage: action.payload.lastPage,
+        storedPages: [...state.storedPages, action.payload.newPage],
+        processingPluginIds: [...state.processingPluginIds, ...action.payload.processingPluginIds]
+      }
+    case TableReducerActions.incrementPage:
+      return {
+        ...state,
+        page: state.page + 1
+      }
+    case TableReducerActions.decrementPage:
+      return {
+        ...state,
+        page: state.page - 1
+      }
+    default: return state;
+  }
 }
 
 const PastAnalysisTable: React.FC = () => {
   const { state: {
-    prevAnalyses: { perpage, areNewImgsAvailable, listOfAnalysis },
-    stagingDcmImages
+    prevAnalyses: { perpage }
   },
     dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
+
+  const [tableState, tableDispatch] = useReducer(tableReducer, initialTableState);
 
   const columns = [
     {
@@ -55,86 +107,40 @@ const PastAnalysisTable: React.FC = () => {
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
-  // Stores properties of the table used for pagination
-  const [tableStates, setTableStates] = useState<TableStates>({
-    page: 0, // Current table page number
-    maxFeedId: -1, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
-    lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
-    lastPage: -1, // Table page number of the very last page (-1 means last page has not yet been seen)
-    storedPages: [], // Stores pages that have been seen in an array of pages,
-    processingPluginIds: [] // Stores plugin IDs associated with processing studies, for selective polling
-  });
-
   // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
   // Used to identify which rows are new and need to be highlighted green
-  const [newRowsRef, setNewRowsRef] = useState<string[]>([]);
+  const newRowsRef = useRef<string[]>([]);
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
-  const updateMaxFeedId = () => {
-    ChrisIntegration.getLatestFeedId().then((id: number) => {
-      setTableStates((prevState: TableStates) => ({
-        page: 0,
-        maxFeedId: id,
-        lastOffset: 0,
-        lastPage: -1,
-        storedPages: [],
-        processingPluginIds: [...prevState.processingPluginIds]
-      }));
-    });
+  const updateMaxFeedId = async () => {
+    const id: number = await ChrisIntegration.getLatestFeedId()
+    tableDispatch({ type: TableReducerActions.updateMaxFeedId, payload: { id } });
   }
 
-  // If new past analyses are available, reset table to initial state and update maxFeedId
   useEffect(() => {
-    if (areNewImgsAvailable) {
-      setLoading(true);
-      // Right before resetting, get a list of all the "Analysis Created" properties on page 0
-      setNewRowsRef(tableStates.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
-      updateMaxFeedId();
-    }
-  }, [areNewImgsAvailable])
+    updateMaxFeedId();
+  }, [])
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
-      const { maxFeedId, page, lastOffset, storedPages } = tableStates;
-
-      // Update the maxFeedId when the PastAnalysisTable first mounts
-      if (maxFeedId === -1) {
-        updateMaxFeedId();
-        return;
-      }
-
-      // Get rows for analysis currently processing
-      const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
-      const numAnalyzing = imagesAnalyzing.length;
-
-      // Calculate number of past analysis rows to fetch, given the number of processing rows to display on current page
-      let fetchSize;
-      if (Math.floor(numAnalyzing / perpage) > page) { // There are enough processing rows to fill entire page, so don't fetch any past results
-        fetchSize = 0;
-      } else if (Math.floor(numAnalyzing / perpage) === page) { // Processing rows partially fill the page, fill rest of page with past results
-        fetchSize = perpage - (numAnalyzing % perpage);
-      } else { // No processing rows on current page, fill entire page with past results
-        fetchSize = perpage;
-      }
-      // Slice the array of processing rows to display on current page
-      const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
+      const { maxFeedId, page, lastOffset, storedPages } = tableState;
 
       if (!maxFeedId || maxFeedId >= 0) {
+        setLoading(true);
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
         // If current page has not yet been seen
         if (page >= storedPages.length) {
-          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
+          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
-            .map((study: StudyInstanceWithSeries) => study.series[0].covidnetPluginId);
+            .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
 
-          
-          let difference: number[] = tableStates.processingPluginIds.filter((id: number) => !processingPluginIds.includes(id));
-         
+
+          let difference: number[] = tableState.processingPluginIds.filter((id: number) => !processingPluginIds.includes(id));
+
           let notifications: NotificationItem[] = [];
           difference.map(async (id: number) => {
             const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
@@ -160,59 +166,39 @@ const PastAnalysisTable: React.FC = () => {
               payload: { notifications }
             });
           });
-          
-          curAnalyses = processingRows.concat(newAnalyses);
-          setTableStates(prevTableStates => ({
-            ...prevTableStates,
+
+          curAnalyses = newAnalyses;
+          tableDispatch({ type: TableReducerActions.addNewPage, payload: {
             lastOffset: newOffset,
             lastPage: isAtEndOfFeeds ? page : -1,
-            storedPages: [...prevTableStates.storedPages, curAnalyses],
+            newPage: curAnalyses,
             processingPluginIds
-          }));
+          }});
         } else {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages[page];
         }
 
-        dispatch({
-          type: AnalysisTypes.Update_list,
-          payload: { list: curAnalyses }
-        });
-
         updateRows(curAnalyses);
-
-        dispatch({
-          type: AnalysisTypes.Update_are_new_imgs_available,
-          payload: { isAvailable: false }
-        });
       }
       setLoading(false);
     })();
-  }, [tableStates, perpage, stagingDcmImages, dispatch]);
+  }, [tableState, perpage, dispatch]);
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
-    if (tableStates.processingPluginIds) {
-      for (const id of tableStates.processingPluginIds) {
+    if (tableState.processingPluginIds) {
+      for (const id of tableState.processingPluginIds) {
         const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
-          dispatch({
-            type: AnalysisTypes.Update_are_new_imgs_available,
-            payload: { isAvailable: true }
-          });
+          // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
+          newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
+          updateMaxFeedId();
           return;
         }
       }
     }
-  }, tableStates.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
-  // Increments or decrements current page number
-  const updatePage = (n: number) => {
-    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
-    setTableStates(prevTableStates => ({
-      ...prevTableStates,
-      page: prevTableStates.page + n
-    }));
-  }
+  }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = [];
@@ -269,7 +255,7 @@ const PastAnalysisTable: React.FC = () => {
   }
 
   const onCollapse = (event: any, rowKey: number, isOpen: any) => {
-    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
+    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     const rowsCopy = [...rows];
     rowsCopy[rowKey].isOpen = isOpen;
     setRows(rowsCopy);
@@ -290,7 +276,7 @@ const PastAnalysisTable: React.FC = () => {
     let backgroundStyle = {};
     if (isAnalyzing) {
       backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
-    } else if (newRowsRef?.length > 0 && !newRowsRef.includes(cells[4])) {
+    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(cells[4])) {
       backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
     } else {
       backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
@@ -313,8 +299,8 @@ const PastAnalysisTable: React.FC = () => {
   }
 
   const searchMRN = (text: string) => {
-    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
-    updateRows(listOfAnalysis.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
+    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
+    updateRows(tableState.storedPages[tableState.page].filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
   }
 
   return (
@@ -331,13 +317,13 @@ const PastAnalysisTable: React.FC = () => {
       </div>
 
       <div style={{ float: "right" }}>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => updatePage(-1)} disabled={loading || tableStates.page === 0}>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => tableDispatch({ type: TableReducerActions.decrementPage })} disabled={loading || tableState.page == 0}>
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-left" aria-hidden="true"></i>
           </span>
       &nbsp; Previous {perpage}
         </button>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={loading || tableStates.page === tableStates.lastPage}>Next {perpage}
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => tableDispatch({ type: TableReducerActions.incrementPage })} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-right" aria-hidden="true"></i>
           </span>

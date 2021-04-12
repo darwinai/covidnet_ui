@@ -137,8 +137,16 @@ class ChrisIntegration {
     return true;
   }
 
-  static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
-    let client: any = await ChrisAPIClient.getClient();
+  /**
+   * Runs pl-med2-img and pl-covidnet/pl-ct-covidnet on a DcmImage, given its pl-dircopy instance obtained from runDircopy
+   * @param img DcmImage
+   * @param dircopyPluginInstance instance obtained from runDircopy
+   * @param chosenXrayModel name of model to be used for pl-covidnet
+   * @param chosenCTModel name of model to be used for pl-ct-covidnet
+   * @returns plugin result after polling
+   */
+   static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
+    let client: Client = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
     let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
@@ -187,15 +195,13 @@ class ChrisIntegration {
           error: new Error('not registered')
         };
       }
-      const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
-      console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`);
+      await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
 
-      const covidnetResult = await pollingBackend(covidnetInstance);
-      if (covidnetResult.error) {
-        return covidnetResult;
-      }
-
-      return covidnetResult;
+      return {
+          plugin: 'plugins'
+      };
+      
     } catch (err) {
       console.log(err);
       return {
@@ -239,9 +245,9 @@ class ChrisIntegration {
    * @param {number} id
    */
   static async checkIfPluginTerminated(id: number): Promise<boolean> {
-    const client: any = ChrisAPIClient.getClient();
+    const client: Client = ChrisAPIClient.getClient();
     const plugin = await client.getPluginInstances({ id });
-    const status = plugin?.data?.[0]?.status;
+    const status = plugin?.getItems()?.[0]?.data?.status;
     return status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED;
   }
 

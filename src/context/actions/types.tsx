@@ -36,10 +36,6 @@ export enum DicomImagesTypes {
   Update_filtered_images = 'UPDATE_FILTERED_DICOM_IMAGES'
 }
 
-export enum StagingDcmImagesTypes {
-  UpdateStaging = 'UPDATE_STAGING',
-}
-
 export enum UpdatingModelSelectionTypes {
   XrayModelSelection = 'UPDATE_XRAY',
   CTModelSelection = 'UPDATE_CT',
