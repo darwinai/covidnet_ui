@@ -12,6 +12,7 @@ import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 import useInterval from "../../shared/useInterval";
 import { RESULT_POLL_INTERVAL } from "../../app.config";
+import { debounce } from "lodash";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -297,9 +298,14 @@ const PastAnalysisTable = () => {
     );
   }
 
+  const debouncedFilterUpdate = debounce((filter: string) => tableDispatch({
+    type: TableReducerActions.setFilter,
+    payload: { filter }
+  }), 500);
+
   const searchMRN = (filter: string) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
-    tableDispatch({ type: TableReducerActions.setFilter, payload: { filter } });
+    debouncedFilterUpdate(filter);
   }
 
   return (
