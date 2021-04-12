@@ -316,7 +316,7 @@ const PastAnalysisTable = () => {
           <InputGroupText>
             <FilterIcon />
           </InputGroupText>
-          <TextInput id="textInput5" type="number" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
+          <TextInput id="textInput5" type="text" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
           <InputGroupText> <SearchIcon /> </InputGroupText>
         </InputGroup>
       </div>
