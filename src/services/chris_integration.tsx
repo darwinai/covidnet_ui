@@ -1,4 +1,4 @@
-import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
+import Client, { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
@@ -32,7 +32,6 @@ interface PACSFile {
 enum PluginPollStatus {
   CREATED = "created",
   WAITING = "waiting",
-  WAITING_FOR_PREVIOUS = "waitingForPrevious",
   SCHEDULED = "scheduled",
   STARTED = "started",
   REGISTERING_FILES = "registeringFiles",

@@ -194,19 +194,17 @@ const PastAnalysisTable: React.FC = () => {
   useInterval(async () => {
     if (tableStates.processingPluginIds) {
       for (const id of tableStates.processingPluginIds) {
-        const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
+        const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
           dispatch({
             type: AnalysisTypes.Update_are_new_imgs_available,
             payload: { isAvailable: true }
           });
-
           return;
         }
       }
     }
   }, tableStates.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
-
   // Increments or decrements current page number
   const updatePage = (n: number) => {
     setNewRowsRef([]); // Reset to prevent highlight animation from playing again
