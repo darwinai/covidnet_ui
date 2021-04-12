@@ -66,6 +66,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
       return {
         ...initialTableState,
         maxFeedId: action.payload.id,
+        processingPluginIds: state.processingPluginIds
       }
     case TableReducerActions.addNewPage:
       return {
