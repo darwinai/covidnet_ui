@@ -281,7 +281,7 @@ class ChrisIntegration {
    * @param {number} limit Desired number of StudyInstanceWithSeries to receive
    * @param {number} max_id Maximum Feed ID search parameter
    */
-  static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
+  static async getPastAnalyses(offset: number, limit: number, filter: string, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
     const client: any = ChrisAPIClient.getClient();
 
     // Indicates when the last Feed on Swift has been reached to prevent further fetching
@@ -301,6 +301,7 @@ class ChrisIntegration {
       const feeds: FeedList = await client.getFeeds({
         limit: fetchLimit,
         offset: curOffset,
+        name: filter,
         max_id
       });
 

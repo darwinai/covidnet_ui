@@ -35,7 +35,8 @@ type TableState = {
   lastOffset: number, // Page offset value for where to begin fetching the next unseen page
   lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
   storedPages: StudyInstanceWithSeries[], // Stores pages that have been seen in an array of pages
-  processingFeedIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
+  processingFeedIds: number[], // Stores plugin ids associated with images that are currently processing, used for selective polling
+  filter: string // Patient MRN filter
 }
 
 const initialTableState: TableState = {
@@ -44,14 +45,16 @@ const initialTableState: TableState = {
   lastOffset: 0,
   lastPage: -1,
   storedPages: [],
-  processingFeedIds: []
+  processingFeedIds: [],
+  filter: ""
 }
 
 enum TableReducerActions {
   updateMaxFeedId = "UPDATE_MAX_FEED_ID",
   addNewPage = "ADD_NEW_PAGE",
   incrementPage = "INCREMENT_PAGE",
-  decrementPage = "DECREMENT_PAGE"
+  decrementPage = "DECREMENT_PAGE",
+  setFilter = "SET_FITLER"
 }
 
 type TableAction =
@@ -59,6 +62,7 @@ type TableAction =
   | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
   | { type: TableReducerActions.incrementPage }
   | { type: TableReducerActions.decrementPage }
+  | { type: TableReducerActions.setFilter, payload: { filter: string } }
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch(action.type) {
@@ -84,6 +88,12 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
       return {
         ...state,
         page: state.page - 1
+      }
+    case TableReducerActions.setFilter:
+      return {
+        ...initialTableState,
+        maxFeedId: state.maxFeedId,
+        filter: action.payload.filter
       }
     default: return state;
   }
@@ -123,9 +133,9 @@ const PastAnalysisTable = () => {
 
   useEffect(() => {
     (async () => {
-      const { maxFeedId, page, lastOffset, storedPages } = tableState;
-
+      const { maxFeedId, page, lastOffset, storedPages, filter } = tableState;
       if (!maxFeedId || maxFeedId >= 0) {
+        console.log(filter)
         setLoading(true);
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
@@ -133,7 +143,7 @@ const PastAnalysisTable = () => {
         // If current page has not yet been seen
         if (storedPages.length < page * perpage + perpage && tableState.lastPage !== tableState.page) {
           const toFetch = page * perpage + perpage - storedPages.length
-          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, toFetch, maxFeedId);
+          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, toFetch, filter, maxFeedId);
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !!study.pluginStatuses.jobsRunning)
@@ -287,9 +297,9 @@ const PastAnalysisTable = () => {
     );
   }
 
-  const searchMRN = (text: string) => {
+  const searchMRN = (filter: string) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
-    updateRows(tableState.storedPages.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
+    tableDispatch({ type: TableReducerActions.setFilter, payload: { filter } });
   }
 
   return (
