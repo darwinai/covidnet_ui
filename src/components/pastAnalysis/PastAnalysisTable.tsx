@@ -114,7 +114,7 @@ const PastAnalysisTable: React.FC = () => {
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = async () => {
-    const id: number = await ChrisIntegration.getLatestFeedId()
+    const id: number = await ChrisIntegration.getLatestFeedId();
     tableDispatch({ type: TableReducerActions.updateMaxFeedId, payload: { id } });
   }
 
@@ -139,42 +139,15 @@ const PastAnalysisTable: React.FC = () => {
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
             .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
 
-
-          let difference: number[] = tableState.processingPluginIds.filter((id: number) => !processingPluginIds.includes(id));
-
-          let notifications: NotificationItem[] = [];
-          difference.map(async (id: number) => {
-            const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
-            console.log(pluginData)
-            if (pluginData.status !== "finishedSuccessfully") {
-              notifications.push({
-                variant: NotificationItemVariant.DANGER,
-                title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
-                message: `During the analysis, the following error was raised:
-                    ${pluginData.plugin_name} failed.`,
-                timestamp: moment()
-              });
-            } else {
-              notifications.push({
-                variant: NotificationItemVariant.SUCCESS,
-                title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
-                message: `The image was processed successfully.`,
-                timestamp: moment()
-              });
-            }
-            dispatch({
-              type: NotificationActionTypes.SEND,
-              payload: { notifications }
-            });
-          });
-
           curAnalyses = newAnalyses;
-          tableDispatch({ type: TableReducerActions.addNewPage, payload: {
-            lastOffset: newOffset,
-            lastPage: isAtEndOfFeeds ? page : -1,
-            newPage: curAnalyses,
-            processingPluginIds
-          }});
+          tableDispatch({
+            type: TableReducerActions.addNewPage, payload: {
+              lastOffset: newOffset,
+              lastPage: isAtEndOfFeeds ? page : -1,
+              newPage: curAnalyses,
+              processingPluginIds
+            }
+          });
         } else {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages[page];
@@ -188,17 +161,44 @@ const PastAnalysisTable: React.FC = () => {
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
-    if (tableState.processingPluginIds) {
+    let finishedPlugins: number[] = [];
+    
       for (const id of tableState.processingPluginIds) {
         const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
           // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-          newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
-          updateMaxFeedId();
-          return;
+          // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
+          // updateMaxFeedId();
+          finishedPlugins.push(id);
         }
       }
-    }
+
+      let notifications: NotificationItem[] = [];
+      finishedPlugins.map(async (id: number) => {
+        const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
+        if (pluginData.status !== "finishedSuccessfully") {
+          notifications.push({
+            variant: NotificationItemVariant.DANGER,
+            title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
+            message: `During the analysis, the following error was raised:
+                    ${pluginData.plugin_name} failed.`,
+            timestamp: moment()
+          });
+        } else {
+          notifications.push({
+            variant: NotificationItemVariant.SUCCESS,
+            title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
+            message: `The image was processed successfully.`,
+            timestamp: moment()
+          });
+        }
+        dispatch({
+          type: NotificationActionTypes.SEND,
+          payload: { notifications }
+        });
+
+        //dispatch outside of map, loop through ifnished plugins agin and remove those speific items from state, change to set
+      });
   }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
