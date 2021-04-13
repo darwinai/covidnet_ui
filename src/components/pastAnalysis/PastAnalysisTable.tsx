@@ -51,7 +51,8 @@ enum TableReducerActions {
   updateMaxFeedId = "UPDATE_MAX_FEED_ID",
   addNewPage = "ADD_NEW_PAGE",
   incrementPage = "INCREMENT_PAGE",
-  decrementPage = "DECREMENT_PAGE"
+  decrementPage = "DECREMENT_PAGE",
+  updatePlugins = "UPDATE_PLUGINS"
 }
 
 type TableAction =
@@ -59,6 +60,7 @@ type TableAction =
   | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
   | { type: TableReducerActions.incrementPage }
   | { type: TableReducerActions.decrementPage }
+  | { type: TableReducerActions.updatePlugins, payload: { processingPluginIds: number[] } }
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
@@ -85,6 +87,11 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
       return {
         ...state,
         page: state.page - 1
+      }
+    case TableReducerActions.updatePlugins:
+      return {
+        ...state,
+        processingPluginIds: action.payload.processingPluginIds
       }
     default: return state;
   }
@@ -140,12 +147,14 @@ const PastAnalysisTable: React.FC = () => {
             .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
 
           curAnalyses = newAnalyses;
+
+
           tableDispatch({
             type: TableReducerActions.addNewPage, payload: {
               lastOffset: newOffset,
               lastPage: isAtEndOfFeeds ? page : -1,
               newPage: curAnalyses,
-              processingPluginIds
+              processingPluginIds: processingPluginIds.filter((id: number) => !tableState.processingPluginIds.includes(id))
             }
           });
         } else {
@@ -160,45 +169,55 @@ const PastAnalysisTable: React.FC = () => {
   }, [tableState, perpage, dispatch]);
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
+
   useInterval(async () => {
     let finishedPlugins: number[] = [];
-    
-      for (const id of tableState.processingPluginIds) {
-        const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
-        if (refresh) {
-          // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-          // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
-          // updateMaxFeedId();
-          finishedPlugins.push(id);
-        }
+
+    for (const id of tableState.processingPluginIds) {
+      if (await ChrisIntegration.checkIfPluginTerminated(id)) { // parallel async execution here
+        // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
+
+        // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
+        finishedPlugins.push(id);
       }
+    }
 
-      let notifications: NotificationItem[] = [];
-      finishedPlugins.map(async (id: number) => {
-        const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
-        if (pluginData.status !== "finishedSuccessfully") {
-          notifications.push({
-            variant: NotificationItemVariant.DANGER,
-            title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
-            message: `During the analysis, the following error was raised:
+    let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
+      const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
+      if (pluginData.status !== "finishedSuccessfully") {
+        return ({
+          variant: NotificationItemVariant.DANGER,
+          title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
+          message: `During the analysis, the following error was raised:
                     ${pluginData.plugin_name} failed.`,
-            timestamp: moment()
-          });
-        } else {
-          notifications.push({
-            variant: NotificationItemVariant.SUCCESS,
-            title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
-            message: `The image was processed successfully.`,
-            timestamp: moment()
-          });
-        }
-        dispatch({
-          type: NotificationActionTypes.SEND,
-          payload: { notifications }
+          timestamp: moment()
         });
+      } else {
+        return ({
+          variant: NotificationItemVariant.SUCCESS,
+          title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
+          message: `The image was processed successfully.`,
+          timestamp: moment()
+        });
+      }
+    }));
 
-        //dispatch outside of map, loop through ifnished plugins agin and remove those speific items from state, change to set
-      });
+    dispatch({
+      type: NotificationActionTypes.SEND,
+      payload: { notifications }
+    });
+
+    const updatedPlugins = tableState.processingPluginIds.filter((id: number) => {
+      return !finishedPlugins.includes(id);
+    });
+
+    dispatch({
+      type: TableReducerActions.updatePlugins,
+      payload: { processingPluginIds: updatedPlugins }
+    });
+
+    if (finishedPlugins.length) updateMaxFeedId();
+
   }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
