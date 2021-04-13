@@ -211,7 +211,7 @@ const PastAnalysisTable: React.FC = () => {
       return !finishedPlugins.includes(id);
     });
 
-    dispatch({
+    tableDispatch({
       type: TableReducerActions.updatePlugins,
       payload: { processingPluginIds: updatedPlugins }
     });
