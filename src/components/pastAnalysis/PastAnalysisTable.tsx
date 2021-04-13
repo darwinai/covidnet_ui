@@ -181,7 +181,7 @@ const PastAnalysisTable: React.FC = () => {
         finishedPlugins.push(id);
       }
     }
-
+  
     let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
       const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
       if (pluginData.status !== "finishedSuccessfully") {
@@ -201,23 +201,24 @@ const PastAnalysisTable: React.FC = () => {
         });
       }
     }));
-
-    dispatch({
-      type: NotificationActionTypes.SEND,
-      payload: { notifications }
-    });
-
-    const updatedPlugins = tableState.processingPluginIds.filter((id: number) => {
-      return !finishedPlugins.includes(id);
-    });
-
-    tableDispatch({
-      type: TableReducerActions.updatePlugins,
-      payload: { processingPluginIds: updatedPlugins }
-    });
-
-    if (finishedPlugins.length) updateMaxFeedId();
-
+  
+    if (finishedPlugins.length) {
+      dispatch({
+        type: NotificationActionTypes.SEND,
+        payload: { notifications }
+      });
+  
+      const updatedPlugins = tableState.processingPluginIds.filter((id: number) => {
+        return !finishedPlugins.includes(id);
+      });
+  
+      tableDispatch({
+        type: TableReducerActions.updatePlugins,
+        payload: { processingPluginIds: updatedPlugins }
+      });
+  
+      updateMaxFeedId();
+    }
   }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
