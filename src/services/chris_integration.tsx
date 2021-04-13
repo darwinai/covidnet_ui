@@ -448,7 +448,7 @@ class ChrisIntegration {
   }
 
   static async pdfGeneration(selectedImage: selectedImageType) {
-    const covidnetPluginId = selectedImage.studyInstance?.series[selectedImage.index].covidnetPluginId;
+    const covidnetPluginId = selectedImage.series?.covidnetPluginId;
     if (covidnetPluginId === null || covidnetPluginId === undefined) return;
     const client: any = ChrisAPIClient.getClient();
     const pluginfiles = await this.findFilesGeneratedByPlugin(covidnetPluginId);
@@ -463,7 +463,7 @@ class ChrisIntegration {
     const pluginData = {
       imagefile: imgName,
       previous_id: covidnetPluginId,
-      patientId: selectedImage.studyInstance?.dcmImage.PatientID
+      patientId: selectedImage.dcmImage?.PatientID
     }
     const pdfgeneratorInstance: PluginInstance = await client.createPluginInstance(pdfgenerationPlugin.data.id, pluginData);
     await pollingBackend(pdfgeneratorInstance);

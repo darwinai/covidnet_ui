@@ -99,8 +99,8 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
       type: AnalysisTypes.Update_selected_image,
       payload: {
         selectedImage: {
-          studyInstance,
-          index
+          dcmImage: studyInstance.dcmImage,
+          series: studyInstance.series[index]
         }
       }
     })

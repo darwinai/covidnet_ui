@@ -39,6 +39,10 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
     setDisabled(notifications.length === 0)
   }, [notifications.length]);
 
+  const viewImg = (id: number) => {
+
+  }
+
   return (
     <NotificationDrawer>
       <NotificationDrawerHeader count={notifications.length}>
@@ -54,6 +58,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
       <NotificationDrawerBody>
         <NotificationDrawerList>
           {notifications.map((item, index) => (
+            <button onClick={() => {}}>
             <NotificationDrawerListItem key={index} variant={item.variant}>
               <NotificationDrawerListItemHeader variant={item.variant} title={item.title}>
               </NotificationDrawerListItemHeader>
@@ -63,7 +68,9 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
               <Button variant={ButtonVariant.plain} aria-label="Close Notification" onClick={() => onNotificationClose(index)} className="times-logo notification-close">
                 <TimesCircleIcon aria-hidden="true" />
               </Button>
-            </NotificationDrawerListItem>))}
+            </NotificationDrawerListItem>
+            </button>
+          ))}
         </NotificationDrawerList>
       </NotificationDrawerBody>
     </NotificationDrawer>)
