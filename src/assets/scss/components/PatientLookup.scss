@@ -3,16 +3,13 @@
   flex-direction: row;
   margin: $page-section-margin;
   .InputRowField {
-    width: 25%;
+    width: 30em;
     padding-right: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     label {
       font-weight: bold;
-    }
-    #toggle-Privacy-Level {
-      width: 1000px;
     }
   }
 }
@@ -23,7 +20,7 @@
 }
 
 .PatientLookupWrapper {
-  padding-bottom: 0px;
+  padding-bottom: 0;
 }
 
 .noImagesFound {
@@ -31,4 +28,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.form-display {
+  display: inline-flex;
+  width: 100%;
 }

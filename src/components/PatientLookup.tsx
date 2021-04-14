@@ -1,59 +1,38 @@
 import {
-  Button, Dropdown,
-
-  DropdownItem, DropdownToggle,
-  Stack, StackItem,
-
-  TextInput
+  Button, Stack, StackItem, TextInput
 } from '@patternfly/react-core';
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
 import { AppContext } from "../context/context";
 import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
-import chris_integration from '../services/chris_integration';
-import pacs_integration from '../services/pacs_integration';
+import chris_integration from "../services/chris_integration";
+import pacs_integration from "../services/pacs_integration";
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
-
-enum PrivacyLevel {
-  ANONYMIZE_ALL_DATA = "Anonymize all data",
-  ANONYMIZE_X_DATA = "X"
-}
-
 interface PatientLookupProps {
   isOnDashboard: boolean
 }
 
-const PatientLookup = (props: PatientLookupProps) => {
+const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
+  const { state: { createAnalysis: { patientID } } } = useContext(AppContext);
+
   const { dispatch } = useContext(AppContext);
-  const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
-  const [patientID, setPatientID] = useState<string>("");
+  const [patientIDInput, setPatientIDInput] = useState<string>((patientID && !isOnDashboard) ? patientID : "");
   const history = useHistory();
 
-  const [isDropDownOpen, setDropDownOpen] = React.useState(false);
-
-  const onSelect = (value: any) => {
-    setDropDownOpen(!isDropDownOpen);
-    onFocus();
-  }
-
-  const onFocus = () => {
-    const element = document.getElementById('toggle-Privacy-Level');
-    if (element) element.focus();
-  };
-
-  const newLookup = async () => {
+  const newLookup = async (event?: React.FormEvent) => {
+    event?.preventDefault();
     dispatch({
       type: CreateAnalysisTypes.Update_patient_ID,
       payload: {
-        patientID
+        patientID: patientIDInput
       }
     });
 
     try {
       const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
-        await pacs_integration.queryPatientFiles(patientID) :
-        await chris_integration.fetchPacFiles(patientID);
+        await pacs_integration.queryPatientFiles(patientIDInput) :
+        await chris_integration.fetchPacFiles(patientIDInput);
 
       dispatch({
         type: DicomImagesTypes.Update_all_images,
@@ -70,31 +49,21 @@ const PatientLookup = (props: PatientLookupProps) => {
           payload: {
             studyUID: studyInstances[0].studyInstanceUID
           }
-        })
+        });
       }
     } catch (err) {
       console.error(err);
     }
+
+    if (isOnDashboard) {
+      history.push("/createAnalysis");
+    }
   }
 
-  const dropdownItems = [
-    <DropdownItem key="Anonymize all data" onClick={() => setPrivacyLevel(PrivacyLevel.ANONYMIZE_ALL_DATA)}>
-      {PrivacyLevel.ANONYMIZE_ALL_DATA}
-    </DropdownItem>,
-    <DropdownItem key="Anonymize x data" onClick={() => setPrivacyLevel(PrivacyLevel.ANONYMIZE_X_DATA)}>
-      {PrivacyLevel.ANONYMIZE_X_DATA}
-    </DropdownItem>,
-  ];
-
-  const navigateToCreateAnalysis = async () => {
-    await newLookup();
-    history.push("/createAnalysis");
-  }
-
-  const submitButton = props.isOnDashboard ? (
-    <RightArrowButton click={navigateToCreateAnalysis}>Continue</RightArrowButton>
+  const submitButton = isOnDashboard ? (
+    <RightArrowButton type="submit">Continue</RightArrowButton>
   ) : (
-    <Button variant="secondary" onClick={newLookup}>
+    <Button variant="secondary" type="submit">
       <b>New Lookup</b>
     </Button>
   );
@@ -104,33 +73,19 @@ const PatientLookup = (props: PatientLookupProps) => {
       <Stack>
         <StackItem className="input-row-label">Create a new Predictive analysis</StackItem>
         <StackItem className="InputRow">
+        <form onSubmit={newLookup} className="form-display">
           <div className="InputRowField">
             <label>Patient MRN</label>
-            <TextInput value={patientID} type="text" onChange={setPatientID} aria-label="text input example" />
-          </div>
-          <div className="InputRowField">
-            <label>Privacy Level</label>
-            <Dropdown
-              onSelect={onSelect}
-              toggle={
-                <DropdownToggle id="toggle-Privacy-Level" onToggle={setDropDownOpen}>
-                  <div className="dropdownContent">
-                    {privacyLevel}
-                  </div>
-                </DropdownToggle>
-              }
-              isOpen={isDropDownOpen}
-              dropdownItems={dropdownItems}
-            />
+            <TextInput value={patientIDInput} type="text" onChange={setPatientIDInput} aria-label="MRN Search Field" />
           </div>
           <div className="InputRowField">
             {submitButton}
           </div>
+        </form>
         </StackItem>
       </Stack>
     </React.Fragment>
   )
-
 }
 
 export default PatientLookup

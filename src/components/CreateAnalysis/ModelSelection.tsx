@@ -1,5 +1,5 @@
 import React, { SyntheticEvent, useContext, useEffect, useState } from 'react';
-import { PluginModels } from '../../api/app.config';
+import { PluginModels } from '../../app.config';
 import {
     Dropdown,
     DropdownToggle,
