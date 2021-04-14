@@ -275,7 +275,7 @@ class ChrisIntegration {
    * Returns true if the covidnet plugin associated with the given Feed id is in a terminated state (SUCCESS, ERROR, or CANCELLED)
    * @param {number} id
    */
-  static async checkIfPluginTerminated(id: number): Promise<boolean> {
+  static async checkIfAnalyisFinished(id: number): Promise<boolean> {
     const client: Client = ChrisAPIClient.getClient();
     const plugin = await client.getPluginInstances({
       feed_id: id,

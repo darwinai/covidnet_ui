@@ -56,7 +56,7 @@ enum TableReducerActions {
   addNewPage = "ADD_NEW_PAGE",
   incrementPage = "INCREMENT_PAGE",
   decrementPage = "DECREMENT_PAGE",
-  updatePlugins = "UPDATE_PLUGINS"
+  updateProcessingFeedIds = "UPDATE_PROCESSING_FEED_IDS"
 }
 
 type TableAction =
@@ -64,7 +64,7 @@ type TableAction =
   | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingFeedIds: number[] } }
   | { type: TableReducerActions.incrementPage }
   | { type: TableReducerActions.decrementPage }
-  | { type: TableReducerActions.updatePlugins, payload: { processingFeedIds: number[] } }
+  | { type: TableReducerActions.updateProcessingFeedIds, payload: { processingFeedIds: number[] } }
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
@@ -92,7 +92,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         ...state,
         page: state.page - 1
       }
-    case TableReducerActions.updatePlugins:
+    case TableReducerActions.updateProcessingFeedIds:
       return {
         ...state,
         processingFeedIds: action.payload.processingFeedIds
@@ -172,18 +172,18 @@ const PastAnalysisTable: React.FC = () => {
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
 
   useInterval(async () => {
-    let finishedPlugins: number[] = [];
+    let finishedFeeds: number[] = [];
 
     for (const id of tableState.processingFeedIds) {
-      if (await ChrisIntegration.checkIfPluginTerminated(id)) { // parallel async execution here
+      if (await ChrisIntegration.checkIfAnalyisFinished(id)) { // parallel async execution here
         // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
 
         // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
-        finishedPlugins.push(id);
+        finishedFeeds.push(id);
       }
     }
   
-    let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
+    let notifications: NotificationItem[] = await Promise.all(finishedFeeds.map(async (id: number) => {
       const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
       if (pluginData.status !== "finishedSuccessfully") {
         return ({
@@ -204,19 +204,19 @@ const PastAnalysisTable: React.FC = () => {
       }
     }));
   
-    if (finishedPlugins.length) {
+    if (finishedFeeds.length) {
       dispatch({
         type: NotificationActionTypes.SEND,
         payload: { notifications }
       });
   
-      const updatedPlugins = tableState.processingFeedIds.filter((id: number) => {
-        return !finishedPlugins.includes(id);
+      const updatedProcessingFeedIds = tableState.processingFeedIds.filter((id: number) => {
+        return !finishedFeeds.includes(id);
       });
   
       tableDispatch({
-        type: TableReducerActions.updatePlugins,
-        payload: { processingFeedIds: updatedPlugins }
+        type: TableReducerActions.updateProcessingFeedIds,
+        payload: { processingFeedIds: updatedProcessingFeedIds }
       });
   
       updateMaxFeedId();
