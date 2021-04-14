@@ -56,7 +56,7 @@ enum TableReducerActions {
 
 type TableAction =
   | { type: TableReducerActions.updateMaxFeedId, payload: { id: number } }
-  | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
+  | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingFeedIds: number[] } }
   | { type: TableReducerActions.incrementPage }
   | { type: TableReducerActions.decrementPage }
 
@@ -73,7 +73,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         lastOffset: action.payload.lastOffset,
         lastPage: action.payload.lastPage,
         storedPages: [...state.storedPages, ...action.payload.newPage],
-        processingFeedIds: [...state.processingFeedIds, ...action.payload.processingPluginIds]
+        processingFeedIds: [...state.processingFeedIds, ...action.payload.processingFeedIds]
       }
     case TableReducerActions.incrementPage:
       return {
@@ -136,15 +136,15 @@ const PastAnalysisTable = () => {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, toFetch, maxFeedId);
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
-          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !!study.pluginStatuses.jobsRunning)
-          .map((study: StudyInstanceWithSeries) => study.feedIds?.[0]);
+          const processingFeedIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !!study.pluginStatuses.jobsRunning)
+          .flatMap((study: StudyInstanceWithSeries) => study.feedIds);
 
           
           tableDispatch({ type: TableReducerActions.addNewPage, payload: {
             lastOffset: newOffset,
             lastPage: isAtEndOfFeeds ? page : -1,
             newPage: newAnalyses,
-            processingPluginIds
+            processingFeedIds
           }});
           curAnalyses = storedPages.slice(page * perpage, page * perpage + perpage).concat(newAnalyses);
         } else {
@@ -161,7 +161,7 @@ const PastAnalysisTable = () => {
   useInterval(async () => {
     if (tableState.processingFeedIds) {
       for (const id of tableState.processingFeedIds) {
-        const refresh: boolean = await ChrisIntegration.checkIfPluginTerminated(id);
+        const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
           // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
           newRowsRef.current = tableState.storedPages.slice(0, perpage)?.map((study: StudyInstanceWithSeries) => study.analysisCreated);

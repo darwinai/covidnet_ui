@@ -8,7 +8,7 @@ import CreateAnalysisService from "../../services/CreateAnalysisService";
 import ConfirmAnalysis from "./ConfirmAnalysis";
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
 import pacs_integration from "../../services/pacs_integration";
-import chris_integration, { DircopyResult } from "../../services/chris_integration";
+import chris_integration from "../../services/chris_integration";
 import { NotificationItem } from "../../context/reducers/notificationReducer";
 
 const CreateAnalysisWrapper = () => {
@@ -53,18 +53,16 @@ const CreateAnalysisWrapper = () => {
       type: CreateAnalysisTypes.Clear_selected_studies_UID
     });
 
-    const imgs: DircopyResult[] = await CreateAnalysisService.copyFiles(imagesSelected);
-
-    history.push("/");
-
     // Processing the images
     // Passing selected models to Chris_Integration for image analysis
-    const notifications: NotificationItem[] = await CreateAnalysisService.analyzeImages(imgs, models.xrayModel, models.ctModel);
+    const notifications: NotificationItem[] = await CreateAnalysisService.analyzeImages(imagesSelected, models.xrayModel, models.ctModel);
 
     dispatch({
       type: NotificationActionTypes.SEND,
       payload: { notifications }
     });
+    
+    history.push("/");
   }
 
   const panelContent = (

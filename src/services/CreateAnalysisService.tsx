@@ -1,7 +1,7 @@
 import { SelectedStudies } from "../context/reducers/createAnalysisReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { NotificationItem } from "../context/reducers/notificationReducer";
-import ChrisIntegration, { BackendPollResult, DircopyResult } from "./chris_integration";
+import ChrisIntegration, { BackendPollResult } from "./chris_integration";
 import NotificationService from "./notificationService";
 import { formatDate } from "../shared/utils";
 import { PluginInstance } from "@fnndsc/chrisapi";
@@ -64,43 +64,29 @@ class CreateAnalysisService {
   }
 
   /**
-   * Runs pl-dircopy on an array of DcmImages
-   * @param dcmImages 
-   * @returns Array of the dircopy plugin instance paired with its DcmImage in an object
-   */
-  static async copyFiles(dcmImages: DcmImage[]): Promise<DircopyResult[]> {
-    const timestamp = + new Date();
-    return Promise.all(dcmImages.map((img: DcmImage) => 
-      ChrisIntegration.runDircopy(img, timestamp)
-    ));
-  }
-
-  /**
    * Runs pl-med2img and the pl-covidnet/pl-ct-covidnet given the pl-dircopy instances and DcmImgages generated from copyFiles
    * @param XrayModel 
    * @param CTModel 
    * @returns 
    */
-  static async analyzeImages(imgs: DircopyResult[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
-    const promises = [];
-    for (let obj of imgs) {
-      promises.push(ChrisIntegration.processOneImg(obj.img, obj.instance, XrayModel, CTModel));
-    }
-    const processedImages = await Promise.allSettled(promises);
+  static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
+    const timestamp = + new Date();
+    const processedImages = await Promise.allSettled(dcmImages.map(async (img: DcmImage) => {
+      return await ChrisIntegration.processOneImg(img, timestamp, XrayModel, CTModel)
+    }));
 
-    const results: AnalyzedImageResult[] = [];
-    processedImages.forEach((processedImage, index) => {
-      if (processedImage.status === "fulfilled") {
-        results.push({
-          image: imgs[index].img,
-          processedResults: processedImage.value
-        })
+    const results = await processedImages.flatMap((img: PromiseSettledResult<BackendPollResult>, index: number) => {
+      if (img.status === "fulfilled" && img.value.error) {
+        return {
+          image: dcmImages[index],
+          processedResults: img.value
+        }
+      } else {
+        return [];
       }
     });
 
-    const notifications = results.map(result => NotificationService.analyzedImageToNotification(result));
-
-    return notifications;
+    return results.map(result => NotificationService.analyzedImageToNotification(result));
   }
 }
 
