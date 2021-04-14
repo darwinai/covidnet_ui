@@ -15,7 +15,6 @@ import { Link, useHistory } from "react-router-dom";
 import logo from "../../assets/images/logo-white.png";
 import { Types } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { NotificationItemVariant } from "../../context/reducers/notificationReducer";
 import PageNav from "./PageNav";
 import ChrisAPIClient from "../../api/chrisapiclient";
 

@@ -4,11 +4,10 @@ import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
 import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
-import { AnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
+import { NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
 import ChrisIntegration, { pluginData } from "../../services/chris_integration";
-import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
@@ -181,43 +180,43 @@ const PastAnalysisTable: React.FC = () => {
         finishedPlugins.push(id);
       }
     }
-  
+
     let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
-      const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
-      if (pluginData.status !== "finishedSuccessfully") {
+      const notificationInfo: pluginData = await ChrisIntegration.getPluginData(id);
+      if (notificationInfo.status !== "finishedSuccessfully") {
         return ({
           variant: NotificationItemVariant.DANGER,
-          title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
+          title: `Analysis of image '${notificationInfo.title.split('/').pop()}' failed`,
           message: `During the analysis, the following error was raised:
-                    ${pluginData.plugin_name} failed.`,
+                    ${notificationInfo.plugin_name} failed.`,
           timestamp: moment()
         });
       } else {
         return ({
           variant: NotificationItemVariant.SUCCESS,
-          title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
+          title: `Analysis of image '${notificationInfo.title.split('/').pop()}' finished`,
           message: `The image was processed successfully.`,
           timestamp: moment(),
           pluginId: id
         });
       }
     }));
-  
+
     if (finishedPlugins.length) {
       dispatch({
         type: NotificationActionTypes.SEND,
         payload: { notifications }
       });
-  
+
       const updatedPlugins = tableState.processingPluginIds.filter((id: number) => {
         return !finishedPlugins.includes(id);
       });
-  
+
       tableDispatch({
         type: TableReducerActions.updatePlugins,
         payload: { processingPluginIds: updatedPlugins }
       });
-  
+
       updateMaxFeedId();
     }
   }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
@@ -339,7 +338,8 @@ const PastAnalysisTable: React.FC = () => {
       </div>
 
       <div style={{ float: "right" }}>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => tableDispatch({ type: TableReducerActions.decrementPage })} disabled={loading || tableState.page == 0}>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }}
+          onClick={() => tableDispatch({ type: TableReducerActions.decrementPage })} disabled={loading || tableState.page === 0}>
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-left" aria-hidden="true"></i>
           </span>

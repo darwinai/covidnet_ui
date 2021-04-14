@@ -43,11 +43,12 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
     setDisabled(notifications.length === 0)
   }, [notifications.length]);
 
-  const viewImg = async (id?: number) => {
+  const viewImg = async (index: number, id?: number) => {
     if (id) {
       const plugin = await ChrisIntegration.fetchPluginInstanceFromId(id);
-      const series = await ChrisIntegration.fetchResults(plugin)
-      const dcmImage = await ChrisIntegration.getDcmImageDetailByFilePathName(plugin?.data?.title)
+      const series = await ChrisIntegration.fetchResults(plugin);
+      const dcmImage = await ChrisIntegration.getDcmImageDetailByFilePathName(plugin?.data?.title);
+
       dispatch({
         type: AnalysisTypes.Update_selected_image,
         payload: {
@@ -56,7 +57,10 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
             series
           }
         }
-      })
+      });
+
+      onNotificationClose(index);
+
       history.push('/viewImage');
     }
   }
@@ -76,7 +80,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
       <NotificationDrawerBody>
         <NotificationDrawerList>
           {notifications.map((item, index) => (
-            <NotificationDrawerListItem key={index} variant={item.variant}  onClick={() => {viewImg(item?.pluginId)}}>
+            <NotificationDrawerListItem key={index} variant={item.variant} onClick={() => { viewImg(index, item?.pluginId) }}>
               <NotificationDrawerListItemHeader variant={item.variant} title={item.title}>
               </NotificationDrawerListItemHeader>
               <NotificationDrawerListItemBody timestamp={item.timestamp.calendar()}>
