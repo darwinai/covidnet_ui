@@ -410,7 +410,60 @@ class ChrisIntegration {
     return [pastAnalysesToReturn, curOffset - 1, isAtEndOfFeeds];
   }
 
+  static async fetchResultsAndDcmImage(id: number) {
+    const client: Client = ChrisAPIClient.getClient();
+    const pluginData = await client.getPluginInstances({ id });
+    // const plugins: PluginInstance[] = pluginData.getItems();
+    const covidnet: PluginInstance = pluginData.getItems()?.[0];
+    const file = await covidnet.getFiles({
+      limit: 25,
+      offset: 0,
+    });
+    const files = await file.getItems();
+    const predictionFileId = files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "prediction-default.json")?.[0]?.data?.id;
+    const prediction = await this.fetchJsonFiles(predictionFileId);
+    const severityFileId =  files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
+    const severity = await this.fetchJsonFiles(severityFileId);
+    const imageFileId =  files.filter((file: any) => file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".jpg")?.[0]?.data?.id;
+    
+    let imageUrl: string = "";
+    if (imageFileId) {
+      const imgBlob = await DicomViewerService.fetchImageFile(imageFileId);
+      const urlCreator = window.URL || window.webkitURL;
+      imageUrl = urlCreator.createObjectURL(imgBlob);
+    }
+
+    const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
+
+    let classifications: Map<string, number> = new Map<string, number>();
+    Object.keys(prediction).forEach((key: string) => { // Reading in the classifcation titles and values
+      if ((key !== 'prediction') && (key !== "Prediction")) {
+        if ((key !== '**DISCLAIMER**') && (!isNaN(prediction[key]))) {
+          classifications.set(key, formatNumber(prediction[key]));
+        }
+      }
+    });
+    
+    const imgData: DcmImage[] = await this.getDcmImageDetailByFilePathName(covidnet.data.title);
+    return {
+      dcmImage: imgData[0],
+      series: {
+        covidnetPluginId: covidnet.data.id,
+        imageName: covidnet.data.title || "File name not available",
+        imageId: imageFileId || "",
+        classifications,
+        geographic: null,
+        opacity: null,
+        imageUrl: imageUrl || ""
+      }
+    }
+  }
+
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {
+    if (!fileId) {
+      return {}
+    }
+
     const client: any = ChrisAPIClient.getClient();
 
     let file = await client.getFile(fileId);

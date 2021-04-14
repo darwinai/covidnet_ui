@@ -14,12 +14,16 @@ import { AppContext } from '../../context/context';
 import { TimesIcon, TimesCircleIcon } from '@patternfly/react-icons';
 import { NotificationActionTypes } from '../../context/actions/types';
 import { NotificationItem } from '../../context/reducers/notificationReducer';
+import ChrisIntegration from "../../services/chris_integration";
+import { useHistory } from 'react-router-dom';
+import { AnalysisTypes } from '../../context/actions/types';
 
 interface NotificationDrawerWrapperProps {
   onClose: () => void;
 }
 
 const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ onClose }) => {
+  const history = useHistory();
   const [disabled, setDisabled] = useState(true);
   const { state: { notifications }, dispatch } = useContext(AppContext);
 
@@ -39,8 +43,17 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
     setDisabled(notifications.length === 0)
   }, [notifications.length]);
 
-  const viewImg = (id: number) => {
-
+  const viewImg = async (id?: number) => {
+    if (id) {
+      const res = await ChrisIntegration.fetchResultsAndDcmImage(id);
+      dispatch({
+        type: AnalysisTypes.Update_selected_image,
+        payload: {
+          selectedImage: res
+        }
+      })
+      history.push('/viewImage');
+    }
   }
 
   return (
@@ -58,8 +71,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
       <NotificationDrawerBody>
         <NotificationDrawerList>
           {notifications.map((item, index) => (
-            <button onClick={() => {}}>
-            <NotificationDrawerListItem key={index} variant={item.variant}>
+            <NotificationDrawerListItem key={index} variant={item.variant}  onClick={() => {viewImg(item?.pluginId)}}>
               <NotificationDrawerListItemHeader variant={item.variant} title={item.title}>
               </NotificationDrawerListItemHeader>
               <NotificationDrawerListItemBody timestamp={item.timestamp.calendar()}>
@@ -69,7 +81,6 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
                 <TimesCircleIcon aria-hidden="true" />
               </Button>
             </NotificationDrawerListItem>
-            </button>
           ))}
         </NotificationDrawerList>
       </NotificationDrawerBody>
