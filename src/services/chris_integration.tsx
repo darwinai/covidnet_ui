@@ -446,14 +446,23 @@ class ChrisIntegration {
         }
       }
     });
+
+    const geographic = {
+      severity: severity['Geographic severity'],
+      extentScore: severity['Geographic extent score']
+    }
+    const opacity = {
+      severity: severity['Opacity severity'],
+      extentScore: severity['Opacity extent score']
+    }
   
     return {
         covidnetPluginId: covidnetPlugin.data.id,
         imageName: covidnetPlugin.data.title || "File name not available",
         imageId: imageFileId || "",
         classifications,
-        geographic: null,
-        opacity: null,
+        geographic,
+        opacity,
         imageUrl: imageUrl || ""
     }
   }
