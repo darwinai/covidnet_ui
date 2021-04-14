@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Out epo
+      - name: Check Out repo
         uses: actions/checkout@v2
         
       - name: Set release tag
