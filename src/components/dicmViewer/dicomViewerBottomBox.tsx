@@ -29,7 +29,6 @@ const DicomViewerBottomBox = () => {
 
   //2018 01 05 2y 6m
   const { dcmImage, series } = selectedImage;
-  console.log(selectedImage)
 
   const generateBottomDisplay = (series?: ISeries) => {
     let bottomDisplay: any = [];

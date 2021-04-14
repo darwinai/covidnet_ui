@@ -211,9 +211,10 @@ class ChrisIntegration {
     }
   }
 
-  static async getDcmImageDetailByFilePathName(imgTitle: string): Promise<DcmImage[]> {
+  static async getDcmImageDetailByFilePathName(imgTitle: string): Promise<DcmImage> {
     const client: any = ChrisAPIClient.getClient();
-    return (await client.getPACSFiles({ fname_exact: imgTitle })).data
+    const files = await client.getPACSFiles({ fname_exact: imgTitle })
+    return files?.data?.[0];
   }
 
   static async getFilePathNameByUID(StudyInstanceUID: string, SeriesInstanceUID: string): Promise<string> {
@@ -310,13 +311,13 @@ class ChrisIntegration {
           if (!isModel(plugin.data.plugin_name)) continue;
           // get dicom image data
           if (plugin.data.title !== '') {
-            const imgData: DcmImage[] = await this.getDcmImageDetailByFilePathName(plugin.data.title);
-            if (imgData?.length > 0) {
+            const imgData: DcmImage = await this.getDcmImageDetailByFilePathName(plugin.data.title);
+            if (imgData) {
               // use dircopy start time to check
               for (let findDircopy of pluginlists) {
                 if (findDircopy.data.plugin_name === PluginModels.Plugins.FS_PLUGIN) {
                   const startedTime = formatTime(findDircopy.data.start_date);
-                  const possibileIndex = startedTime + imgData[0].StudyInstanceUID;
+                  const possibileIndex = startedTime + imgData.StudyInstanceUID;
                   // already exists so push it to te seriesList
                   if (!!pastAnalysisMap[possibileIndex]) {
                     studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr];
@@ -333,7 +334,7 @@ class ChrisIntegration {
                     }
 
                     studyInstance = {
-                      dcmImage: imgData[0],
+                      dcmImage: imgData,
                       analysisCreated,
                       series: []
                     };
@@ -410,12 +411,14 @@ class ChrisIntegration {
     return [pastAnalysesToReturn, curOffset - 1, isAtEndOfFeeds];
   }
 
-  static async fetchResultsAndDcmImage(id: number) {
+  static async fetchPluginInstanceFromId(id: number): Promise<PluginInstance> {
     const client: Client = ChrisAPIClient.getClient();
     const pluginData = await client.getPluginInstances({ id });
-    // const plugins: PluginInstance[] = pluginData.getItems();
-    const covidnet: PluginInstance = pluginData.getItems()?.[0];
-    const file = await covidnet.getFiles({
+    return pluginData.getItems()?.[0];
+  }
+
+  static async fetchResults(covidnetPlugin: PluginInstance): Promise<ISeries> {
+    const file = await covidnetPlugin.getFiles({
       limit: 25,
       offset: 0,
     });
@@ -443,19 +446,15 @@ class ChrisIntegration {
         }
       }
     });
-    
-    const imgData: DcmImage[] = await this.getDcmImageDetailByFilePathName(covidnet.data.title);
+  
     return {
-      dcmImage: imgData[0],
-      series: {
-        covidnetPluginId: covidnet.data.id,
-        imageName: covidnet.data.title || "File name not available",
+        covidnetPluginId: covidnetPlugin.data.id,
+        imageName: covidnetPlugin.data.title || "File name not available",
         imageId: imageFileId || "",
         classifications,
         geographic: null,
         opacity: null,
         imageUrl: imageUrl || ""
-      }
     }
   }
 
