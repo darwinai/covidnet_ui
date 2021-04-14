@@ -401,53 +401,9 @@ class ChrisIntegration {
   }
 
   static async getResults(feedIds: number[]): Promise<TAnalysisResults> {
-    const client: any = ChrisAPIClient.getClient();
     const series: ISeries[] = await Promise.all(feedIds.map(async (id: number): Promise<ISeries> => {
-      const feed: Feed = await client.getFeed(id);
-      const pluginsData: FeedPluginInstanceList = await feed.getPluginInstances({
-        limit: 25,
-        offset: 0
-      });
-      const plugins: PluginInstance[] = pluginsData.getItems();
-      const covidnet: PluginInstance[] = plugins.filter((plugin: PluginInstance) => plugin.data.plugin_name === "pl-covidnet" || plugin.data.plugin_name === "pl-ct-covidnet");
-      const file: PluginInstanceFileList = await covidnet[0]?.getFiles({
-        limit: 25,
-        offset: 0,
-      });
-      const files = await file.getItems();
-      const predictionFileId = files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "prediction-default.json")?.[0]?.data?.id;
-      const prediction = await this.fetchJsonFiles(predictionFileId);
-      const severityFileId =  files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
-      const severity = await this.fetchJsonFiles(severityFileId);
-      const imageFileId =  files.filter((file: any) => file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".jpg")?.[0]?.data?.id;
-      
-      let imageUrl: string = "";
-      if (imageFileId) {
-        const imgBlob = await DicomViewerService.fetchImageFile(imageFileId);
-        const urlCreator = window.URL || window.webkitURL;
-        imageUrl = urlCreator.createObjectURL(imgBlob);
-      }
-
-      const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
-
-      let classifications: Map<string, number> = new Map<string, number>();
-      Object.keys(prediction).forEach((key: string) => { // Reading in the classifcation titles and values
-        if ((key !== 'prediction') && (key !== "Prediction")) {
-          if ((key !== '**DISCLAIMER**') && (!isNaN(prediction[key]))) {
-            classifications.set(key, formatNumber(prediction[key]));
-          }
-        }
-      });
-
-      return {
-        covidnetPluginId: covidnet[0]?.data.id,
-        imageName: covidnet[0]?.data.title || "File name not available",
-        imageId: imageFileId || "",
-        classifications,
-        geographic: null,
-        opacity: null,
-        imageUrl: imageUrl || "",
-      }
+      const covidnetPlugin = await this.fetchCovidnetPluginInstanceFromFeedId(id);
+      return await this.fetchResults(covidnetPlugin);
     }));
     
     return {series, classifications: Array.from(series[0].classifications.keys())}
