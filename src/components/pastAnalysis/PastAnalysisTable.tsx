@@ -4,15 +4,18 @@ import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
 import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
-import { AnalysisTypes } from "../../context/actions/types";
+import { AnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
-import ChrisIntegration from "../../services/chris_integration";
+import ChrisIntegration, { pluginData } from "../../services/chris_integration";
+import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 import useInterval from "../../shared/useInterval";
 import { RESULT_POLL_INTERVAL } from "../../app.config";
+import { NotificationItem, NotificationItemVariant } from "../../context/reducers/notificationReducer";
+import moment from "moment";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -48,7 +51,8 @@ enum TableReducerActions {
   updateMaxFeedId = "UPDATE_MAX_FEED_ID",
   addNewPage = "ADD_NEW_PAGE",
   incrementPage = "INCREMENT_PAGE",
-  decrementPage = "DECREMENT_PAGE"
+  decrementPage = "DECREMENT_PAGE",
+  updatePlugins = "UPDATE_PLUGINS"
 }
 
 type TableAction =
@@ -56,13 +60,15 @@ type TableAction =
   | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
   | { type: TableReducerActions.incrementPage }
   | { type: TableReducerActions.decrementPage }
+  | { type: TableReducerActions.updatePlugins, payload: { processingPluginIds: number[] } }
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
-  switch(action.type) {
+  switch (action.type) {
     case TableReducerActions.updateMaxFeedId:
       return {
         ...initialTableState,
         maxFeedId: action.payload.id,
+        processingPluginIds: state.processingPluginIds
       }
     case TableReducerActions.addNewPage:
       return {
@@ -82,11 +88,16 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         ...state,
         page: state.page - 1
       }
+    case TableReducerActions.updatePlugins:
+      return {
+        ...state,
+        processingPluginIds: action.payload.processingPluginIds
+      }
     default: return state;
   }
 }
 
-const PastAnalysisTable = () => {
+const PastAnalysisTable: React.FC = () => {
   const { state: {
     prevAnalyses: { perpage }
   },
@@ -110,7 +121,7 @@ const PastAnalysisTable = () => {
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = async () => {
-    const id: number = await ChrisIntegration.getLatestFeedId()
+    const id: number = await ChrisIntegration.getLatestFeedId();
     tableDispatch({ type: TableReducerActions.updateMaxFeedId, payload: { id } });
   }
 
@@ -133,16 +144,19 @@ const PastAnalysisTable = () => {
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
-          .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
+            .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
 
           curAnalyses = newAnalyses;
-          tableDispatch({ type: TableReducerActions.addNewPage, payload: {
-            lastOffset: newOffset,
-            lastPage: isAtEndOfFeeds ? page : -1,
-            newPage: curAnalyses,
-            processingPluginIds
-          }});
 
+
+          tableDispatch({
+            type: TableReducerActions.addNewPage, payload: {
+              lastOffset: newOffset,
+              lastPage: isAtEndOfFeeds ? page : -1,
+              newPage: curAnalyses,
+              processingPluginIds: processingPluginIds.filter((id: number) => !tableState.processingPluginIds.includes(id))
+            }
+          });
         } else {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages[page];
@@ -155,17 +169,55 @@ const PastAnalysisTable = () => {
   }, [tableState, perpage, dispatch]);
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
+
   useInterval(async () => {
-    if (tableState.processingPluginIds) {
-      for (const id of tableState.processingPluginIds) {
-        const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
-        if (refresh) {
-          // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-          newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
-          updateMaxFeedId();
-          return;
-        }
+    let finishedPlugins: number[] = [];
+
+    for (const id of tableState.processingPluginIds) {
+      if (await ChrisIntegration.checkIfPluginTerminated(id)) { // parallel async execution here
+        // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
+
+        // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
+        finishedPlugins.push(id);
       }
+    }
+  
+    let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
+      const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
+      if (pluginData.status !== "finishedSuccessfully") {
+        return ({
+          variant: NotificationItemVariant.DANGER,
+          title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
+          message: `During the analysis, the following error was raised:
+                    ${pluginData.plugin_name} failed.`,
+          timestamp: moment()
+        });
+      } else {
+        return ({
+          variant: NotificationItemVariant.SUCCESS,
+          title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
+          message: `The image was processed successfully.`,
+          timestamp: moment()
+        });
+      }
+    }));
+  
+    if (finishedPlugins.length) {
+      dispatch({
+        type: NotificationActionTypes.SEND,
+        payload: { notifications }
+      });
+  
+      const updatedPlugins = tableState.processingPluginIds.filter((id: number) => {
+        return !finishedPlugins.includes(id);
+      });
+  
+      tableDispatch({
+        type: TableReducerActions.updatePlugins,
+        payload: { processingPluginIds: updatedPlugins }
+      });
+  
+      updateMaxFeedId();
     }
   }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 

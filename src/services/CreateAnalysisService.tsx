@@ -71,7 +71,7 @@ class CreateAnalysisService {
    */
   static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
     const processedImages = await Promise.allSettled(dcmImages.map(async (img: DcmImage) => {
-      return await ChrisIntegration.processOneImg(img, XrayModel, CTModel)
+      return await ChrisIntegration.processOneImg(img, XrayModel, CTModel);
     }));
 
     const results = await processedImages.flatMap((img: PromiseSettledResult<BackendPollResult>, index: number) => {
