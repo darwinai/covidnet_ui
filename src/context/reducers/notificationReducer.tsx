@@ -13,7 +13,8 @@ export interface NotificationItem {
   variant: 'success' | 'danger' | 'warning' | 'info' | 'default', //here need? how does it work? what's it doing? remove?
   title: string,
   message: string,
-  timestamp: Moment
+  timestamp: Moment,
+  pluginId?: number
 }
 
 export type NotificationState = NotificationItem[];

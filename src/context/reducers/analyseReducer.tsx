@@ -31,8 +31,8 @@ export type StudyInstanceWithSeries = {
 }
 
 export type selectedImageType = {
-  studyInstance: StudyInstanceWithSeries | null,
-  index: number
+  dcmImage?: DcmImage
+  series?: ISeries
 }
 
 export type IPrevAnalysesState = {
@@ -42,10 +42,7 @@ export type IPrevAnalysesState = {
 
 export let initialIPrevAnalysesState: IPrevAnalysesState = {
   perpage: 10,
-  selectedImage: {
-    studyInstance: null,
-    index: 0
-  },
+  selectedImage: {},
 }
 
 type AnalysesPayload = {
