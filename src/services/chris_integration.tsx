@@ -342,7 +342,6 @@ class ChrisIntegration {
           return [];
         }
         const noteContent = JSON.parse(note?.data?.content);
-        console.log(typeof noteContent)
         return [{
           feed,
           note: noteContent

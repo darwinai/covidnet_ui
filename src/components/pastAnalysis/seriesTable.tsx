@@ -106,7 +106,6 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ data, dcmImage, isProcessing 
 
 
   const viewImage = (index: number) => {
-    console.log({dcmImage, values})
     dispatch({
       type: AnalysisTypes.Update_selected_image,
       payload: {
