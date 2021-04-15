@@ -25,7 +25,6 @@ interface tableRowsParent {
 }
 
 interface tableRowsChild {
-  isOpen: boolean,
   parent: number,
   fullWidth: boolean,
   cells: { [title: string]: ReactNode }[]
@@ -100,6 +99,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
 }
 
 const isParentRow = (row: tableRowsParent | tableRowsChild): row is tableRowsParent => (
+  (row as tableRowsParent).isOpen !== undefined &&
   (row as tableRowsParent).analysis !== undefined &&
   (row as tableRowsParent).isProcessing !== undefined
 )
