@@ -4,7 +4,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
-import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
+import { ISeries, TStudyInstance } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';

@@ -1,10 +1,10 @@
-import { StudyInstanceWithSeries, ISeries } from "../context/reducers/analyseReducer";
+import { TStudyInstance, ISeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 
 class PastAnalysisService {
 
   static groupDcmImagesToStudyInstances(dcmImages: DcmImage[]) {
-    const studyInstances: StudyInstanceWithSeries[] = []
+    const studyInstances: TStudyInstance[] = []
 
     // Group DcmImages by their StudyInstanceUIDs
     const studyInstanceUIDMap = new Map<string, DcmImage[]>();

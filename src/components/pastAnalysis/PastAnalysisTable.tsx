@@ -6,7 +6,7 @@ import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-tab
 import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
 import { AnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
+import { ISeries, TStudyInstance } from "../../context/reducers/analyseReducer";
 import ChrisIntegration, { pluginData, TAnalysisResults } from "../../services/chris_integration";
 import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
@@ -20,7 +20,7 @@ import moment from "moment";
 interface tableRowsParent {
   isOpen: boolean,
   cells: string[],
-  analysis: StudyInstanceWithSeries,
+  analysis: TStudyInstance,
   isProcessing: boolean
 }
 
@@ -35,7 +35,7 @@ type TableState = {
   maxFeedId: number | undefined, // ID of the latest Feed on ChRIS as of when PastAnalysisTable first mounted OR was last reset
   lastOffset: number, // Page offset value for where to begin fetching the next unseen page
   lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
-  storedPages: StudyInstanceWithSeries[], // Stores pages that have been seen, in an array of pages
+  storedPages: TStudyInstance[], // Stores pages that have been seen, in an array of pages
   processingFeedIds: number[] // Stores Feed IDs associated with images that are currently processing
 }
 
@@ -58,7 +58,7 @@ enum TableReducerActions {
 
 type TableAction =
   | { type: TableReducerActions.updateMaxFeedId, payload: { id: number } }
-  | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingFeedIds: number[] } }
+  | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: TStudyInstance[], processingFeedIds: number[] } }
   | { type: TableReducerActions.incrementPage }
   | { type: TableReducerActions.decrementPage }
   | { type: TableReducerActions.updateProcessingFeedIds, payload: { processingFeedIds: number[] } }
@@ -142,15 +142,15 @@ const PastAnalysisTable: React.FC = () => {
 
       if (!maxFeedId || maxFeedId >= 0) {
         setLoading(true);
-        let curAnalyses: StudyInstanceWithSeries[] = [];
+        let curAnalyses: TStudyInstance[] = [];
 
         // If current page has not yet been seen and is not the last page
         if (storedPages.length < page * perpage + perpage && tableState.lastPage !== tableState.page) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
 
           // Extracts the Feed IDs associated with studies that are processing
-          const processingFeedIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !!study.pluginStatuses.jobsRunning)
-          .flatMap((study: StudyInstanceWithSeries) => study.feedIds);
+          const processingFeedIds = newAnalyses.filter((study: TStudyInstance) => !!study.pluginStatuses.jobsRunning)
+          .flatMap((study: TStudyInstance) => study.feedIds);
 
           tableDispatch({ type: TableReducerActions.addNewPage, payload: {
             lastOffset: newOffset,
@@ -211,7 +211,7 @@ const PastAnalysisTable: React.FC = () => {
       });
   
       // Right before refreshing table, get a list of all the "Analysis Created" properties on page 0
-      newRowsRef.current = tableState.storedPages.slice(0, perpage).filter((study: StudyInstanceWithSeries) => !study.pluginStatuses.jobsRunning).map((study: StudyInstanceWithSeries) => study.analysisCreated);
+      newRowsRef.current = tableState.storedPages.slice(0, perpage).filter((study: TStudyInstance) => !study.pluginStatuses.jobsRunning).map((study: TStudyInstance) => study.analysisCreated);
 
       tableDispatch({
         type: TableReducerActions.updateProcessingFeedIds,
@@ -222,7 +222,7 @@ const PastAnalysisTable: React.FC = () => {
     }
   }, tableState.processingFeedIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
-  const updateRows = (listOfAnalyses: StudyInstanceWithSeries[]) => {
+  const updateRows = (listOfAnalyses: TStudyInstance[]) => {
     const newRows: (tableRowsChild | tableRowsParent)[] = [];
     for (const analysis of listOfAnalyses) {
       const indexInRows = newRows.length;
@@ -352,7 +352,7 @@ const PastAnalysisTable: React.FC = () => {
 
   const searchMRN = (text: string) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
-    updateRows(tableState.storedPages.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
+    updateRows(tableState.storedPages.filter((analysis: TStudyInstance) => analysis.dcmImage.PatientID.includes(text)))
   }
 
   return (

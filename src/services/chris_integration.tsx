@@ -1,6 +1,6 @@
 import Client, { IPluginCreateData, Note, FeedPluginInstanceList, PluginInstance, PluginInstanceFileList, Feed, FeedList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
-import { ISeries, selectedImageType, StudyInstanceWithSeries, TPluginStatuses } from "../context/reducers/analyseReducer";
+import { ISeries, selectedImageType, TStudyInstance, TPluginStatuses } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
 import { PluginModels, FEED_NOTE_TITLE } from "../app.config";
@@ -305,7 +305,7 @@ class ChrisIntegration {
    * @param {number} limit Desired number of StudyInstanceWithSeries to receive
    * @param {number} max_id Maximum Feed ID search parameter
    */
-  static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
+  static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[TStudyInstance[], number, boolean]> {
     const client: any = ChrisAPIClient.getClient();
 
     // Indicates when the last Feed on Swift has been reached to prevent further fetching
@@ -359,7 +359,7 @@ class ChrisIntegration {
     const isLastPage = isAtEndOfFeeds && Object.keys(studyGroups).length <= limit;
 
     // Generate list of StudyInstanceWithSeries
-    const pastAnalyses: StudyInstanceWithSeries[] = Object.values(studyGroups).map((feedNotes: TFeedNote[]): StudyInstanceWithSeries => {
+    const pastAnalyses: TStudyInstance[] = Object.values(studyGroups).map((feedNotes: TFeedNote[]): TStudyInstance => {
       const firstFeedNote = feedNotes?.[0];
 
       const pluginStatuses = feedNotes.reduce((acc: TPluginStatuses, cur: TFeedNote) => {
@@ -384,8 +384,7 @@ class ChrisIntegration {
         dcmImage: firstFeedNote.note.img,
         analysisCreated: modifyDatetime(firstFeedNote.note.timestamp),
         feedIds,
-        pluginStatuses,
-        series: []
+        pluginStatuses
       }
     });
 
@@ -393,7 +392,7 @@ class ChrisIntegration {
     const pastAnalysesSliced = pastAnalyses.slice(0, limit);
 
     // Count the number of Feeds that are actually being used for this page and add to the initial offset
-    const lastOffset = offset + pastAnalysesSliced.reduce((acc: number, cur: StudyInstanceWithSeries) => {
+    const lastOffset = offset + pastAnalysesSliced.reduce((acc: number, cur: TStudyInstance) => {
       return acc + cur.feedIds.length
     }, 0);
 
