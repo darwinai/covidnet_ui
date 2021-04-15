@@ -18,7 +18,7 @@ const PredictionCircle: React.FC<circleProps> = ({largeCircle, predictionNumber,
     width: 120,
     padding: 0,
     title: `${predictionNumber}%`,
-    thresholds: [{value: 60}, {value: 90}]
+    thresholds: [{value: 0}, {value: 90}]
   }
 
   if (!largeCircle) { // check boolean condition here
