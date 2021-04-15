@@ -20,7 +20,6 @@ import moment from "moment";
 interface tableRowsParent {
   isOpen: boolean,
   cells: string[],
-  feedIds: number[],
   analysis: StudyInstanceWithSeries,
   isProcessing: boolean
 }
@@ -258,7 +257,6 @@ const PastAnalysisTable: React.FC = () => {
       newRows.push({
         isOpen: false,
         cells: cells,
-        feedIds: analysis.feedIds,
         analysis,
         isProcessing
       });
@@ -277,7 +275,6 @@ const PastAnalysisTable: React.FC = () => {
   }
 
   const isParentRow = (row: tableRowsParent | tableRowsChild): row is tableRowsParent => (
-    (row as tableRowsParent).feedIds !== undefined &&
     (row as tableRowsParent).analysis !== undefined &&
     (row as tableRowsParent).isProcessing !== undefined
   )
@@ -289,7 +286,7 @@ const PastAnalysisTable: React.FC = () => {
     const parentRow = rowsCopy[rowKey];
     if (isParentRow(parentRow)) {
       parentRow.isOpen = isOpen;
-      const data: Promise<TAnalysisResults> = ChrisIntegration.getResults(parentRow.feedIds);
+      const data: Promise<TAnalysisResults> = ChrisIntegration.getResults(parentRow.analysis.feedIds);
 
       const isProcessing = parentRow.isProcessing;
   
@@ -300,7 +297,7 @@ const PastAnalysisTable: React.FC = () => {
         parent: rowKey,
         fullWidth: true,
         cells: [{
-          title: (<SeriesTable data={data} isProcessing={isProcessing}></SeriesTable>)
+          title: (<SeriesTable data={data} dcmImage={parentRow.analysis.dcmImage} isProcessing={isProcessing}></SeriesTable>)
         }]
       }
       setRows(rowsCopy);
