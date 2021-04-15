@@ -32,11 +32,11 @@ interface tableRowsChild {
 
 type TableState = {
   page: number, // Current table page number
-  maxFeedId: number | undefined, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
+  maxFeedId: number | undefined, // ID of the latest Feed on ChRIS as of when PastAnalysisTable first mounted OR was last reset
   lastOffset: number, // Page offset value for where to begin fetching the next unseen page
   lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
-  storedPages: StudyInstanceWithSeries[], // Stores pages that have been seen in an array of pages
-  processingFeedIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
+  storedPages: StudyInstanceWithSeries[], // Stores pages that have been seen, in an array of pages
+  processingFeedIds: number[] // Stores Feed IDs associated with images that are currently processing
 }
 
 const initialTableState: TableState = {
@@ -98,6 +98,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
   }
 }
 
+// Type guard for checking if a table row is a parent row
 const isParentRow = (row: tableRowsParent | tableRowsChild): row is tableRowsParent => (
   (row as tableRowsParent).isOpen !== undefined &&
   (row as tableRowsParent).analysis !== undefined &&
@@ -108,8 +109,8 @@ const PastAnalysisTable: React.FC = () => {
   const { state: {
     prevAnalyses: { perpage }
   }, dispatch } = React.useContext(AppContext);
-  const [loading, setLoading] = useState(true);
 
+  const [loading, setLoading] = useState(true);
   const [tableState, tableDispatch] = useReducer(tableReducer, initialTableState);
 
   const columns = [
@@ -121,7 +122,7 @@ const PastAnalysisTable: React.FC = () => {
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
-  // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
+  // Will store an array of the "Analysis Created" property of rows on page 0 of the table
   // Used to identify which rows are new and need to be highlighted green
   const newRowsRef = useRef<string[]>([]);
 
@@ -141,26 +142,23 @@ const PastAnalysisTable: React.FC = () => {
 
       if (!maxFeedId || maxFeedId >= 0) {
         setLoading(true);
-        // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
-        // If current page has not yet been seen
+        // If current page has not yet been seen and is not the last page
         if (storedPages.length < page * perpage + perpage && tableState.lastPage !== tableState.page) {
-          const toFetch = page * perpage + perpage - storedPages.length
-          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, toFetch, maxFeedId);
+          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
 
-          // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
+          // Extracts the Feed IDs associated with studies that are processing
           const processingFeedIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !!study.pluginStatuses.jobsRunning)
           .flatMap((study: StudyInstanceWithSeries) => study.feedIds);
 
-          
           tableDispatch({ type: TableReducerActions.addNewPage, payload: {
             lastOffset: newOffset,
             lastPage: isAtEndOfFeeds ? page : -1,
             newPage: newAnalyses,
             processingFeedIds: processingFeedIds.filter((id: number) => !tableState.processingFeedIds.includes(id))
           }});
-          curAnalyses = storedPages.slice(page * perpage, page * perpage + perpage).concat(newAnalyses);
+          curAnalyses = newAnalyses;
         } else {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages.slice(page * perpage, page * perpage + perpage)
