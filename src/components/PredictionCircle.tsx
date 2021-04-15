@@ -21,7 +21,7 @@ const PredictionCircle: React.FC<circleProps> = ({largeCircle, predictionNumber,
     thresholds: [{value: 0}, {value: 90}]
   }
 
-  if (!largeCircle) { // check boolean condition here
+  if (!largeCircle) {
     predictionCircleAttributes.height = 150;
     predictionCircleAttributes.width = 150;
     divSize = "80px";
