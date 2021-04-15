@@ -285,23 +285,24 @@ const PastAnalysisTable: React.FC = () => {
     const parentRow = rowsCopy[rowKey];
     if (isParentRow(parentRow)) {
       parentRow.isOpen = isOpen;
-      const data: Promise<TAnalysisResults> = ChrisIntegration.getResults(parentRow.analysis.feedIds);
+      if (isOpen && rowsCopy[rowKey + 1].cells.length === 0) {
+        const data: Promise<TAnalysisResults> = ChrisIntegration.getResults(parentRow.analysis.feedIds);
 
-      const isProcessing = parentRow.isProcessing;
-  
-      rowsCopy[rowKey] = parentRow;
+        const isProcessing = parentRow.isProcessing;
+    
+        rowsCopy[rowKey] = parentRow;
 
-      rowsCopy[rowKey + 1] = {
-        isOpen: false,
-        parent: rowKey,
-        fullWidth: true,
-        cells: [{
-          title: (<SeriesTable data={data} dcmImage={parentRow.analysis.dcmImage} isProcessing={isProcessing}></SeriesTable>)
-        }]
+        rowsCopy[rowKey + 1] = {
+          isOpen: false,
+          parent: rowKey,
+          fullWidth: true,
+          cells: [{
+            title: (<SeriesTable data={data} dcmImage={parentRow.analysis.dcmImage} isProcessing={isProcessing}></SeriesTable>)
+          }]
+        }
       }
       setRows(rowsCopy);
     }
-
   }
 
   const customRowWrapper = (tableRow: any) => {
