@@ -64,7 +64,7 @@ const SelectedStudyDetail = () => {
               const isSelected: boolean = CreateAnalysisService.isImgSelected(selectedStudyUIDs, img);
               return (
                 <div className="half_width margin-top-bottom" key={i}>
-                  <label className={`container ${isSelected ? 'blueText' : null}`}>{img.ProtocolName}
+                  <label className={`container ${isSelected ? 'blueText' : null}`}>{img.SeriesDescription || img.SeriesDescription}
                     <input type="checkbox" checked={isSelected} onChange={() => addImgToAnalysis(isSelected, img)} />
                     <span className="checkmark"></span>
                   </label>

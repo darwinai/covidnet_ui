@@ -9,7 +9,6 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   studyDescription,
   modality,
   studyDate,
-  protocolName,
   setModelType
 }) => {
   const { state: { createAnalysis: { selectedStudyUIDs, currSelectedStudyUID } }, dispatch } = useContext(AppContext);

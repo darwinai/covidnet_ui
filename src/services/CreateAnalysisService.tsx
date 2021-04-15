@@ -10,7 +10,6 @@ export interface StudyInstance {
   studyDescription: string,
   modality: string,
   studyDate: string,
-  protocolName: string,
   setModelType?: (modality: string) => void
 }
 
@@ -32,8 +31,7 @@ class CreateAnalysisService {
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          studyDate: formatDate(img.StudyDate),
-          protocolName: img.ProtocolName
+          studyDate: formatDate(img.StudyDate)
         })
         seenUID[img.StudyInstanceUID] = true;
       }
