@@ -211,11 +211,13 @@ const PastAnalysisTable: React.FC = () => {
         type: NotificationActionTypes.SEND,
         payload: { notifications }
       });
-  
+
       const updatedProcessingFeedIds = tableState.processingFeedIds.filter((id: number) => {
         return !finishedFeeds.includes(id);
       });
   
+      newRowsRef.current = tableState.storedPages.slice(0, perpage).filter((study: StudyInstanceWithSeries) => !study.pluginStatuses.jobsRunning).map((study: StudyInstanceWithSeries) => study.analysisCreated);
+
       tableDispatch({
         type: TableReducerActions.updateProcessingFeedIds,
         payload: { processingFeedIds: updatedProcessingFeedIds }
@@ -314,14 +316,16 @@ const PastAnalysisTable: React.FC = () => {
       ...props
     } = tableRow;
 
-    const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the index of Analysis Created column
 
+    const analysisCreated = cells[4] // 4 is the index of Analysis Created column
+    const isAnalyzing: boolean = analysisCreated && analysisCreated.title;
     // Style the current row
     let backgroundStyle = {};
     if (isAnalyzing) {
       backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
-    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(cells[4])) {
+    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(analysisCreated)) {
       backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
+      newRowsRef.current = [...newRowsRef.current, analysisCreated];
     } else {
       backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
     }
@@ -340,6 +344,15 @@ const PastAnalysisTable: React.FC = () => {
         style={backgroundStyle}
       />
     );
+  }
+
+  const changePage = (direction: "previous" | "next") => {
+    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
+    if (direction === "previous") {
+      tableDispatch({ type: TableReducerActions.decrementPage })
+    } else if (direction === "next") {
+      tableDispatch({ type: TableReducerActions.incrementPage })
+    }
   }
 
   const searchMRN = (text: string) => {
@@ -361,13 +374,13 @@ const PastAnalysisTable: React.FC = () => {
       </div>
 
       <div style={{ float: "right" }}>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => tableDispatch({ type: TableReducerActions.decrementPage })} disabled={loading || tableState.page == 0}>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => changePage("previous")} disabled={loading || tableState.page == 0}>
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-left" aria-hidden="true"></i>
           </span>
       &nbsp; Previous {perpage}
         </button>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => tableDispatch({ type: TableReducerActions.incrementPage })} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => changePage("next")} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-right" aria-hidden="true"></i>
           </span>
