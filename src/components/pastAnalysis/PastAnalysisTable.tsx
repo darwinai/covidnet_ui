@@ -21,6 +21,7 @@ interface tableRowsParent {
   isOpen: boolean,
   cells: string[],
   feedIds: number[],
+  analysis: StudyInstanceWithSeries,
   isProcessing: boolean
 }
 
@@ -28,9 +29,7 @@ interface tableRowsChild {
   isOpen: boolean,
   parent: number,
   fullWidth: boolean,
-  cells: { [title: string]: ReactNode }[],
-  feedIds: number[],
-  isProcessing: boolean
+  cells: { [title: string]: ReactNode }[]
 }
 
 type TableState = {
@@ -260,6 +259,7 @@ const PastAnalysisTable: React.FC = () => {
         isOpen: false,
         cells: cells,
         feedIds: analysis.feedIds,
+        analysis,
         isProcessing
       });
 
@@ -269,36 +269,43 @@ const PastAnalysisTable: React.FC = () => {
           isOpen: false,
           parent: indexInRows,
           fullWidth: true,
-          cells: [],
-          feedIds: [],
-          isProcessing
+          cells: []
         });
       }
     }
     setRows(newRows);
   }
 
+  const isParentRow = (row: tableRowsParent | tableRowsChild): row is tableRowsParent => (
+    (row as tableRowsParent).feedIds !== undefined &&
+    (row as tableRowsParent).analysis !== undefined &&
+    (row as tableRowsParent).isProcessing !== undefined
+  )
+
   const onCollapse = async (event: any, rowKey: number, isOpen: any) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     const rowsCopy = [...rows];
-    rowsCopy[rowKey].isOpen = isOpen;
+    
+    const parentRow = rowsCopy[rowKey];
+    if (isParentRow(parentRow)) {
+      parentRow.isOpen = isOpen;
+      const data: Promise<TAnalysisResults> = ChrisIntegration.getResults(parentRow.feedIds);
 
-    const data: Promise<TAnalysisResults> = ChrisIntegration.getResults(rowsCopy[rowKey].feedIds);
+      const isProcessing = parentRow.isProcessing;
+  
+      rowsCopy[rowKey] = parentRow;
 
-    const isProcessing = rowsCopy[rowKey].isProcessing;
-
-    rowsCopy[rowKey + 1] = {
-      isOpen: false,
-      parent: rowKey,
-      fullWidth: true,
-      cells: [{
-        title: (<SeriesTable data={data} isProcessing={isProcessing}></SeriesTable>)
-      }],
-      feedIds: [],
-      isProcessing
+      rowsCopy[rowKey + 1] = {
+        isOpen: false,
+        parent: rowKey,
+        fullWidth: true,
+        cells: [{
+          title: (<SeriesTable data={data} isProcessing={isProcessing}></SeriesTable>)
+        }]
+      }
+      setRows(rowsCopy);
     }
 
-    setRows(rowsCopy);
   }
 
   const customRowWrapper = (tableRow: any) => {
