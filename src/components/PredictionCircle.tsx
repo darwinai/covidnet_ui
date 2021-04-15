@@ -28,7 +28,6 @@ const PredictionCircle: React.FC<circleProps> = ({largeCircle, predictionNumber,
   }
 
   if (isNormal) {
-    console.log("cheese");
     predictionCircleAttributes.thresholds = [];
   }
 
