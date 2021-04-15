@@ -177,7 +177,7 @@ const PastAnalysisTable: React.FC = () => {
     let finishedFeeds: number[] = [];
 
     for (const id of tableState.processingFeedIds) {
-      if (await ChrisIntegration.checkIfAnalyisFinished(id)) { // parallel async execution here
+      if (await ChrisIntegration.checkIfAnalysisFinished(id)) { // parallel async execution here
         // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
 
         // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
