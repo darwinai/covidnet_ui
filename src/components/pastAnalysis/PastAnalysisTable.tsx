@@ -99,11 +99,15 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
   }
 }
 
+const isParentRow = (row: tableRowsParent | tableRowsChild): row is tableRowsParent => (
+  (row as tableRowsParent).analysis !== undefined &&
+  (row as tableRowsParent).isProcessing !== undefined
+)
+
 const PastAnalysisTable: React.FC = () => {
   const { state: {
     prevAnalyses: { perpage }
-  },
-    dispatch } = React.useContext(AppContext);
+  }, dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
 
   const [tableState, tableDispatch] = useReducer(tableReducer, initialTableState);
@@ -273,11 +277,6 @@ const PastAnalysisTable: React.FC = () => {
     }
     setRows(newRows);
   }
-
-  const isParentRow = (row: tableRowsParent | tableRowsChild): row is tableRowsParent => (
-    (row as tableRowsParent).analysis !== undefined &&
-    (row as tableRowsParent).isProcessing !== undefined
-  )
 
   const onCollapse = async (event: any, rowKey: number, isOpen: any) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
