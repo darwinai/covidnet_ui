@@ -172,15 +172,11 @@ const PastAnalysisTable: React.FC = () => {
   }, [tableState, perpage, dispatch]);
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
-
   useInterval(async () => {
     let finishedFeeds: number[] = [];
 
     for (const id of tableState.processingFeedIds) {
-      if (await ChrisIntegration.checkIfAnalysisFinished(id)) { // parallel async execution here
-        // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-
-        // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
+      if (await ChrisIntegration.checkIfAnalysisFinished(id)) {
         finishedFeeds.push(id);
       }
     }
@@ -216,6 +212,7 @@ const PastAnalysisTable: React.FC = () => {
         return !finishedFeeds.includes(id);
       });
   
+      // Right before refreshing table, get a list of all the "Analysis Created" properties on page 0
       newRowsRef.current = tableState.storedPages.slice(0, perpage).filter((study: StudyInstanceWithSeries) => !study.pluginStatuses.jobsRunning).map((study: StudyInstanceWithSeries) => study.analysisCreated);
 
       tableDispatch({
