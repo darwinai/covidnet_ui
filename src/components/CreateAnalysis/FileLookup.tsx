@@ -80,8 +80,6 @@ const FileLookup = () => {
             </SplitItem>
           </Split>
         </div>
-      </div>
-      <div className="InputRow">
         <div className="InputRowField">
           <Button variant="secondary" onClick={clearFilters}>
             <b>Clear Filters</b>
