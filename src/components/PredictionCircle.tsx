@@ -4,29 +4,39 @@ import React from "react";
 interface circleProps {
   largeCircle: boolean;
   predictionNumber: number;
+  isNormal: boolean;
 }
 
-const PredictionCircle = (props: circleProps) => {
-  const { largeCircle, predictionNumber } = props
-  let size = 120
-  let divSize = '100px'
-  if (!largeCircle) {
-    size = 150
-    divSize = "80px"
+const PredictionCircle: React.FC<circleProps> = ({largeCircle, predictionNumber, isNormal}) => {
+  let divSize = '100px';
+
+  let predictionCircleAttributes = {
+    ariaDesc: "Prediction Result of Analysis",
+    constrainToVisibleArea: true,
+    data: { x: 'Prediction', y: predictionNumber },
+    height: 120,
+    width: 120,
+    padding: 0,
+    title: `${predictionNumber}%`,
+    thresholds: [{value: 60}, {value: 90}]
   }
+
+  if (!largeCircle) { // check boolean condition here
+    predictionCircleAttributes.height = 150;
+    predictionCircleAttributes.width = 150;
+    divSize = "80px";
+  }
+
+  if (isNormal) {
+    console.log("cheese");
+    predictionCircleAttributes.thresholds = [];
+  }
+
   return (
     <div style={{ height: divSize, width: divSize }}>
-      <ChartDonutUtilization
-        ariaDesc="Storage capacity"
-        constrainToVisibleArea={true}
-        data={{ x: 'Prediction', y: predictionNumber }}
-        height={size}
-        width={size}
-        padding={0}
-        title={`${predictionNumber}%`}
-        thresholds={[{ value: 60 }, { value: 90 }]}
-      />
+      <ChartDonutUtilization {...predictionCircleAttributes} />
     </div>
   )
 }
+
 export default PredictionCircle
