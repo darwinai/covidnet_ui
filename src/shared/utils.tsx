@@ -1,4 +1,5 @@
 import moment from "moment";
+import { DateTime } from "luxon";
 
 export const formatDate = (dateStr: string): string => {
   return moment(dateStr).format("YYYY MM DD");
@@ -17,21 +18,5 @@ export const formatTime = (oldDay: string): string => {
 }
 
 export const modifyDatetime = (oldDay: string): string => {
-  let today = new Date().setHours(0, 0, 0, 0);
-  let diff = Math.abs(+today - +new Date(oldDay.split('T')[0]));
-  diff = Math.floor(diff / (1000 * 60 * 60 * 24)) // diff is in days, 1ms * 1000 * 60 * 60 * 24
-  let description = diff > 1 ? "days ago" : "day ago";
-  let rvtVal = `${diff} ${description}`;
-  if (diff / 30 >= 1) {
-    description = diff / 30 >= 2 ? "months ago" : "month ago";
-    diff = Math.floor((diff / 30));
-    rvtVal = `${diff} ${description}`;
-  } else if (diff / 7 >= 1) {
-    description = diff / 7 >= 2 ? "weeks ago" : "week ago";
-    diff = Math.floor(diff / 7);
-    rvtVal = `${diff} ${description}`;
-  } else if (diff < 1) {
-    rvtVal = oldDay.split('T')[1].split('.')[0];
-  }
-  return rvtVal;
+  return DateTime.fromISO(oldDay).toRelativeCalendar() || ""; //capitalize first letter, test for days, weeks, months, years
 }

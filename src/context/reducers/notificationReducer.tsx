@@ -10,7 +10,7 @@ export enum NotificationItemVariant {
 }
 
 export interface NotificationItem {
-  variant: 'success' | 'danger' | 'warning' | 'info' | 'default'
+  variant: 'success' | 'danger' | 'warning' | 'info' | 'default' //here
   title: string;
   message: string;
   timestamp: Moment;
