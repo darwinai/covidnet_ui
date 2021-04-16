@@ -25,7 +25,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
   const [patientBirthdate, setPatientBirthdate] = useState("");
   const [patientSex, setPatientSex] = useState("");
 
-  useEffect(() => { // here
+  useEffect(() => {
     const image: DcmImage = dcmImages?.allDcmImages[0];
     if (image) {
       setPatientName(image.PatientName);
@@ -34,7 +34,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
     }
   }, [dcmImages]);
 
-  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages); // here
+  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
   const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(createAnalysis.selectedStudyUIDs);
 
   const setModelType = (modality: string) => {

@@ -31,8 +31,6 @@ const SelectionStudy: React.FC<StudyInstance> = ({
     });
   }
 
-  console.log(studyDate)
-
   const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0;
 
   return (
