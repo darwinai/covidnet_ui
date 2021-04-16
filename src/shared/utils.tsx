@@ -1,8 +1,7 @@
-import moment from "moment";
 import { DateTime } from "luxon";
 
 export const formatDate = (dateStr: string): string => {
-  return moment(dateStr).format("YYYY MM DD");
+  return DateTime.fromISO(dateStr).toFormat('yyyy MM dd');
 }
 
 export const formatGender = (gender: string): string => {
@@ -10,7 +9,7 @@ export const formatGender = (gender: string): string => {
 }
 
 export const calculatePatientAge = (patientDOB: string): number => {
-  return moment().diff(patientDOB, 'year');
+  return Math.trunc(-DateTime.fromISO(patientDOB).diffNow('years').years);
 }
 
 export const formatTime = (oldDay: string): string => {
@@ -18,5 +17,5 @@ export const formatTime = (oldDay: string): string => {
 }
 
 export const modifyDatetime = (oldDay: string): string => {
-  return DateTime.fromISO(oldDay).toRelativeCalendar() || ""; //capitalize first letter, test for days, weeks, months, years
+  return (DateTime.fromISO(oldDay).toRelativeCalendar() || "").split(' ').map((date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(' ');
 }
