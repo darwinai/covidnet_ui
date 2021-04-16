@@ -15,7 +15,6 @@ import { Link, useHistory } from "react-router-dom";
 import logo from "../../assets/images/logo-white.png";
 import { Types } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { NotificationItemVariant } from "../../context/reducers/notificationReducer";
 import PageNav from "./PageNav";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
@@ -39,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     dispatch({
       type: Types.Logout_update,
       payload: null
-    })
+    });
     history.push("/login")
   }
 
@@ -47,16 +46,11 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     <DropdownItem key={"Sign out"} onClick={logout} >Sign out</DropdownItem>,
   ];
 
-  const variant = state.notifications.length > 0
-    ? state.notifications.some(notification => notification.variant === NotificationItemVariant.DANGER)
-      ? "attention" : "unread"
-      : "read";
-
   const pageToolbar = state.user.loggedIn ? (
     <PageHeaderTools>
       <PageHeaderToolsItem>
         <NotificationBadge
-          variant={variant}
+          variant="read"
           count={state.notifications.length}
           onClick={onNotificationBadgeClick}
           aria-label="Notifications">

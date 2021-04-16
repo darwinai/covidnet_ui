@@ -62,26 +62,29 @@ class CreateAnalysisService {
     return imgs.filter((img: DcmImage) => this.isImgSelected(selectedStudyUIDs, img));
   }
 
+  /**
+   * Runs pl-med2img and the pl-covidnet/pl-ct-covidnet given the pl-dircopy instances and DcmImgages generated from copyFiles
+   * @param XrayModel 
+   * @param CTModel 
+   * @returns 
+   */
   static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
-    const promises = [];
-    for (let img of dcmImages) {
-      promises.push(ChrisIntegration.processOneImg(img, XrayModel, CTModel));
-    }
-    const processedImages = await Promise.allSettled(promises);
+    const processedImages = await Promise.allSettled(dcmImages.map(async (img: DcmImage) => {
+      return await ChrisIntegration.processOneImg(img, XrayModel, CTModel);
+    }));
 
-    const results: AnalyzedImageResult[] = [];
-    processedImages.forEach((processedImage, index) => {
-      if (processedImage.status === "fulfilled") {
-        results.push({
+    const results = await processedImages.flatMap((img: PromiseSettledResult<BackendPollResult>, index: number) => {
+      if (img.status === "fulfilled" && img.value.error) {
+        return {
           image: dcmImages[index],
-          processedResults: processedImage.value
-        })
+          processedResults: img.value
+        }
+      } else {
+        return [];
       }
     });
 
-    const notifications = results.map(result => NotificationService.analyzedImageToNotification(result));
-
-    return notifications;
+    return results.map(result => NotificationService.analyzedImageToNotification(result));
   }
 }
 

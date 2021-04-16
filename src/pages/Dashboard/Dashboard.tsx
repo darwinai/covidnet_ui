@@ -26,5 +26,4 @@ const DashboardPage: React.FC<AllProps> = () => {
   );
 }
 
-
 export { DashboardPage as Dashboard };

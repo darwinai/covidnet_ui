@@ -7,13 +7,13 @@ import PredictionCircle from "../PredictionCircle";
 import { formatGender } from "../../shared/utils";
 
 const DicomViewerBottomBox = () => {
-  const { state: { imgViewer: { isBottomHided }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext)
+  const { state: { imgViewer: { isBottomHided }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext);
 
   const toggle = () => {
     dispatch({
       type: ImageViewerTypes.Update_is_bottom_hidded,
       payload: { isBottomHided: !isBottomHided }
-    })
+    });
   }
 
   const geoOpacityNumbers = (
@@ -28,8 +28,7 @@ const DicomViewerBottomBox = () => {
   }
 
   //2018 01 05 2y 6m
-  const { studyInstance, index } = selectedImage;
-  let imageDetail = studyInstance?.series[index];
+  const { dcmImage, series } = selectedImage;
 
   const generateBottomDisplay = (series?: ISeries) => {
     let bottomDisplay: any = [];
@@ -71,7 +70,7 @@ const DicomViewerBottomBox = () => {
       <div className="hideButton">
         <div className='predictionValues moveUp'>
 
-          {generateBottomDisplay(imageDetail)}
+          {generateBottomDisplay(series)}
         
         </div>
         <span className="pointer" onClick={toggle}>{!isBottomHided ? 'hide ' : 'expand '}</span>	&nbsp;
@@ -85,14 +84,14 @@ const DicomViewerBottomBox = () => {
         </div>
         <div className="flex_row bottomInfoBox">
           <div className="padding-l-2rem">
-            <h2>{studyInstance?.dcmImage.PatientName}</h2>
-            <p><span>MRN</span> #{studyInstance?.dcmImage.PatientID}</p>
-            <p><span>DOB</span> {studyInstance?.dcmImage.PatientBirthDate}</p>
-            <p><span>GENDER</span> {studyInstance ? formatGender(studyInstance.dcmImage.PatientSex) : ''}</p>
+            <h2>{dcmImage?.PatientName}</h2>
+            <p><span>MRN</span> #{dcmImage?.PatientID}</p>
+            <p><span>DOB</span> {dcmImage?.PatientBirthDate}</p>
+            <p><span>GENDER</span> {dcmImage ? formatGender(dcmImage.PatientSex) : ''}</p>
           </div>
           <div className="padding-l-2rem">
-            <h2>{studyInstance?.dcmImage.StudyDescription}</h2>
-            <p><span>DATE</span> {studyInstance?.analysisCreated}</p>
+            <h2>{dcmImage?.StudyDescription}</h2>
+            <p><span>DATE</span> {dcmImage?.creation_date}</p>
             <p><span>AETITLE</span> Station1234</p>
             <p><span>MODALITY</span> XRAY</p>
           </div>
@@ -100,14 +99,14 @@ const DicomViewerBottomBox = () => {
             <span className='logo-text'>COVID-Net</span>
             <div className="flex_row">
             
-              {generateDisplayCircles(imageDetail)}
+              {generateDisplayCircles(series)}
 
               <div className="padding-l-2rem">
-                <p><span>GEOGRAPHIC SEVERITY</span>&nbsp;{geoOpacityNumbers(imageDetail, 'geographic', 'severity')}</p>
-                <p><span>GEOGRAPHIC EXTENT</span>&nbsp;{geoOpacityNumbers(imageDetail, 'geographic', 'extentScore')}</p>
+                <p><span>GEOGRAPHIC SEVERITY</span>&nbsp;{geoOpacityNumbers(series, 'geographic', 'severity')}</p>
+                <p><span>GEOGRAPHIC EXTENT</span>&nbsp;{geoOpacityNumbers(series, 'geographic', 'extentScore')}</p>
                 <br />
-                <p><span>OPACITY SEVERITY</span>&nbsp;{geoOpacityNumbers(imageDetail, 'opacity', 'severity')}</p>
-                <p><span>OPACITY EXTENT</span>&nbsp;{geoOpacityNumbers(imageDetail, 'opacity', 'extentScore')}</p>
+                <p><span>OPACITY SEVERITY</span>&nbsp;{geoOpacityNumbers(series, 'opacity', 'severity')}</p>
+                <p><span>OPACITY EXTENT</span>&nbsp;{geoOpacityNumbers(series, 'opacity', 'extentScore')}</p>
               </div>
             </div>
           </div>

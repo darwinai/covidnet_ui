@@ -9,9 +9,11 @@ export type ActionMap<M extends { [index: string]: any }> = {
   }
 };
 
+
 export enum Types {
   Login_update = 'LOGIN_UPDATE',
-  Logout_update = 'LOGOUT_UPDATE'
+  Logout_update = 'LOGOUT_UPDATE',
+  NotificationActionTypes = "NotificationActionTypes"
 }
 
 export enum AnalysisTypes {
@@ -34,10 +36,6 @@ export enum DicomImagesTypes {
   Update_filtered_images = 'UPDATE_FILTERED_DICOM_IMAGES'
 }
 
-export enum StagingDcmImagesTypes {
-  UpdateStaging = 'UPDATE_STAGING',
-}
-
 export enum UpdatingModelSelectionTypes {
   XrayModelSelection = 'UPDATE_XRAY',
   CTModelSelection = 'UPDATE_CT',
@@ -50,5 +48,7 @@ export enum ImageViewerTypes {
 }
 
 export enum NotificationActionTypes {
-  SEND
+  SEND = 'SEND_NOTIFICATIONS',
+  CLEAR = 'CLEAR_NOTIFICATIONS',
+  REMOVE = 'REMOVE_NOTIFICATIONS'
 }
