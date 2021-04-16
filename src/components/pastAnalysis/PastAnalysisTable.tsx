@@ -174,7 +174,7 @@ const PastAnalysisTable: React.FC = () => {
     let finishedFeeds: number[] = [];
 
     for (const id of tableState.processingFeedIds) {
-      if (await ChrisIntegration.checkIfAnalysisFinished(id)) {
+      if (await ChrisIntegration.checkIfFeedJobsCompleted(id)) {
         finishedFeeds.push(id);
       }
     }

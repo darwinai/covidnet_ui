@@ -272,17 +272,19 @@ class ChrisIntegration {
   }
 
   /**
-   * Returns true if the covidnet plugin associated with the given Feed id is in a terminated state (SUCCESS, ERROR, or CANCELLED)
-   * @param {number} id
+   * Returns true if the all the jobs associated with the Feed ID are either finished, errored, or cancelled
+   * @param {number} id Feed ID
    */
-  static async checkIfAnalysisFinished(id: number): Promise<boolean> {
+  static async checkIfFeedJobsCompleted(id: number): Promise<boolean> {
     const client: Client = ChrisAPIClient.getClient();
-    const plugin = await client.getPluginInstances({
-      feed_id: id,
-      plugin_name: "covidnet"
-    });
-    const status = plugin?.getItems()?.[0]?.data?.status;
-    return status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED;
+    const feed: Feed = await client.getFeed(id);
+    const feedData = feed?.data
+    const jobsRunning = feedData?.created_jobs +
+                        feedData?.registering_jobs +
+                        feedData?.scheduled_jobs +
+                        feedData?.started_jobs +
+                        feedData?.waiting_jobs;
+    return jobsRunning === 0;
   }
 
   static async getPluginData(id: number): Promise<pluginData> {
