@@ -20,6 +20,16 @@
   padding: 1.5em 0;
   min-height: unset;
 
+  .footer-content {
+    .pf-c-page__header-tools:first-child {
+      margin-right: 0em;
+    }
+
+    .pf-c-page__header-tools:last-child {
+      margin-left: 0em;
+    }
+  }
+
   .footer-text {
     color: white;
     text-align: center;
