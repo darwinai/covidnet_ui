@@ -397,8 +397,6 @@ class ChrisIntegration {
       limit: 1000
     })
     const patientImages: DcmImage[] = res.getItems().map((img: PACSFile) => img.data);
-    //console.log(patientImages[0].StudyDate);
-    console.log(res.getItems());
     return patientImages;
   }
 

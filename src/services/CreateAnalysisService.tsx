@@ -25,7 +25,6 @@ class CreateAnalysisService {
     const seenUID: { [uid: string]: boolean } = {}
     dcmImages.forEach((img: DcmImage) => {
       // met a new uid
-      console.log(img.StudyDate)
       if (!seenUID[img.StudyInstanceUID]) {
         studyInstances.push({
           studyInstanceUID: img.StudyInstanceUID,
