@@ -7,13 +7,13 @@ import PredictionCircle from "../PredictionCircle";
 import { formatGender } from "../../shared/utils";
 
 const DicomViewerBottomBox = () => {
-  const { state: { imgViewer: { isBottomHided }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext);
+  const { state: { imgViewer: { isBottomHided }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext)
 
   const toggle = () => {
     dispatch({
       type: ImageViewerTypes.Update_is_bottom_hidded,
       payload: { isBottomHided: !isBottomHided }
-    });
+    })
   }
 
   const geoOpacityNumbers = (

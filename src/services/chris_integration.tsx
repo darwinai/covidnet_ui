@@ -46,12 +46,6 @@ export interface BackendPollResult {
   error?: Error;
 }
 
-export interface pluginData {
-  title: string,
-  status: string,
-  plugin_name: string
-}
-
 export const pollingBackend = async (pluginInstance: PluginInstance): Promise<BackendPollResult> => {
   const maxWaitInterval = 600000; // 10 minutes
   let waitInterval = 1000;
@@ -152,7 +146,7 @@ class ChrisIntegration {
     let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
 
     try {
-      console.log(img.fname);
+      console.log(img.fname)
 
       // PL-DIRCOPY
       const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
@@ -162,8 +156,8 @@ class ChrisIntegration {
 
       // PL-MED2IMG
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
-      const filename = img.fname.split('/').pop()?.split('.')[0];
-      console.log(filename);
+      const filename = img.fname.split('/').pop()?.split('.')[0]
+      console.log(filename)
       const imgData = {
         inputFile: img.fname.split('/').pop(),
         sliceToConvert: 0,
@@ -235,7 +229,7 @@ class ChrisIntegration {
     const client: any = ChrisAPIClient.getClient();
     const feeds = await client.getFeeds({
       limit: 1,
-      offset: 0
+      offset: 0,
     });
     return feeds.getItems()?.[0]?.data?.id;
   }
@@ -249,16 +243,6 @@ class ChrisIntegration {
     const plugin = await client.getPluginInstances({ id });
     const status = plugin?.getItems()?.[0]?.data?.status;
     return status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED;
-  }
-
-  static async getPluginData(id: number): Promise<pluginData> {
-    const client: any = ChrisAPIClient.getClient();
-    const plugin = await client.getPluginInstances({ id });
-    return ({
-      title: plugin?.data?.[0]?.title,
-      status: plugin?.data?.[0]?.status,
-      plugin_name: plugin?.data?.[0]?.plugin_name
-    });
   }
 
   /**

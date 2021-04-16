@@ -9,13 +9,14 @@ interface WrapperProps {
   children: React.ReactNode;
 }
 
-const Wrapper: React.FC<WrapperProps> = ({children}) => {
+const Wrapper = (props: WrapperProps) => {
   const [isDrawerExpanded, setIsDrawerOpen] = React.useState(false);
+  const { children } = props;
 
   return (
     <Page
-      header={<Header onNotificationBadgeClick={() => setIsDrawerOpen(!isDrawerExpanded)} />}
-      notificationDrawer={<NotificationDrawerWrapper onClose={() => setIsDrawerOpen(!isDrawerExpanded)} />}
+      header={<Header onNotificationBadgeClick={() => setIsDrawerOpen(!isDrawerExpanded)}/>}
+      notificationDrawer={<NotificationDrawerWrapper onClose={() => setIsDrawerOpen(!isDrawerExpanded)}/>}
       isNotificationDrawerExpanded={isDrawerExpanded}
       className="page-wrapper"
     >

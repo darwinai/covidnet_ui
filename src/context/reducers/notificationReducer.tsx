@@ -10,21 +10,22 @@ export enum NotificationItemVariant {
 }
 
 export interface NotificationItem {
-  variant: 'success' | 'danger' | 'warning' | 'info' | 'default', //here need? how does it work? what's it doing? remove?
-  title: string,
-  message: string,
-  timestamp: Moment
+  variant: 'success' | 'danger' | 'warning' | 'info' | 'default'
+  title: string;
+  message: string;
+  timestamp: Moment;
 }
 
 export type NotificationState = NotificationItem[];
 
 export const initialNotificationsState: NotificationState = [];
+
+// { 'variant': 'info', 'title': 'Unread info notification title', 'message': 'This is an info notification description', 'timestamp': moment().subtract(1, 'days') },
+// { 'variant': 'warning', 'title': 'Unread warning notification title', 'message': 'This is a warning!!', 'timestamp': moment().subtract(5, 'minutes') },
+// { 'variant': 'danger', 'title': 'Unread danger notification title', 'message': 'This is dangerous...', 'timestamp': moment().subtract(1, 'hour') },
+
 interface NotificationPayload {
   [NotificationActionTypes.SEND]: {
-    notifications: NotificationItem[]
-  },
-  [NotificationActionTypes.CLEAR]: {},
-  [NotificationActionTypes.REMOVE]: {
     notifications: NotificationItem[]
   }
 }
@@ -33,20 +34,15 @@ export type NotificationActions = ActionMap<NotificationPayload>[
   keyof ActionMap<NotificationPayload>
 ]
 
+
 export const notificationsReducer = (
   state: NotificationState,
   action: NotificationActions
 ) => {
   switch (action.type) {
-    case NotificationActionTypes.SEND:
-      return state.concat(action.payload.notifications).sort((a, b) => b.timestamp.diff(a.timestamp)); // chronological order for notifications
-
-    case NotificationActionTypes.CLEAR:  // clear all notifications currently being stored
-      return [];
-
-    case NotificationActionTypes.REMOVE:  // update notifications to not include removed notification
-      return action.payload.notifications;
-
+    case NotificationActionTypes.SEND: {
+      return state.concat(action.payload.notifications).sort((a, b) => b.timestamp.diff(a.timestamp)) // earliest at the front
+    }
     default:
       return state
   }
