@@ -180,7 +180,7 @@ const PastAnalysisTable: React.FC = () => {
     }
   
     let notifications: NotificationItem[] = await Promise.all(finishedFeeds.map(async (id: number) => {
-      const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
+      const pluginData: pluginData = await ChrisIntegration.getCovidnetPluginData(id);
       if (pluginData.status !== "finishedSuccessfully") {
         return ({
           variant: NotificationItemVariant.DANGER,
