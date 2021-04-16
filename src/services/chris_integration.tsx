@@ -302,9 +302,9 @@ class ChrisIntegration {
 
   /**
    * Starting at the provided offset, coninuously fetches Feeds from Swift until able to return an array of
-   * StudyInstanceWithSeries of the provided size (limit)
+   * TStudyInstance of the provided size (limit)
    * @param {number} offset Page offset
-   * @param {number} limit Desired number of StudyInstanceWithSeries to receive
+   * @param {number} limit Desired number of TStudyInstance to receive
    * @param {number} max_id Maximum Feed ID search parameter
    */
   static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[TStudyInstance[], number, boolean]> {
@@ -314,7 +314,6 @@ class ChrisIntegration {
     let isAtEndOfFeeds = false;
 
     let curOffset = offset;
-    const fetchLimit = limit;
 
     // Feed and Note data that have been fetched so far
     const feedNoteArray: TFeedNote[] = [];
@@ -322,20 +321,20 @@ class ChrisIntegration {
     // Feeds grouped by [timestamp, StudyInstanceUID]
     let studyGroups: Object = {};
 
-    // Keep fetching Feeds in batch sizes of "fetchLimit" and grouping them until studyGroups contains ("limit" + 1) number of groups
+    // Keep fetching Feeds in batch sizes of "limit" and grouping them until studyGroups contains ("limit" + 1) number of groups
     while (Object.keys(studyGroups).length <= limit && !isAtEndOfFeeds) {
       const feeds: FeedList = await client.getFeeds({
-        limit: fetchLimit,
+        limit: limit,
         offset: curOffset,
         max_id
       });
 
-      curOffset += fetchLimit;
+      curOffset += limit;
       
       const feedArray: Feed[] = feeds?.getItems();
 
-      // If the number of Feeds received was less than fetchLimit, end of Feeds has been reached
-      isAtEndOfFeeds = feedArray?.length < fetchLimit;
+      // If the number of Feeds in the response was less than fetchLimit, it means that the end of Feeds in the DB has been reached
+      isAtEndOfFeeds = feedArray?.length < limit;
 
       // Get Note data and pair it with the respective Feed
       const newFeedNoteArray: TFeedNote[] = (await Promise.all(feedArray.map(async (feed: Feed): Promise<TFeedNote[]> => {
@@ -352,14 +351,15 @@ class ChrisIntegration {
 
       feedNoteArray.push(...newFeedNoteArray);
 
-      // Group Feeds into an object by [timestamp, StudyInstanceUID]
+      // Group Feeds into an object by [timestamp, StudyInstanceUID]. Each group represents a row on the table.
       studyGroups = groupBy(feedNoteArray, (feedNote: any) => [feedNote.note.timestamp, feedNote.note.img.StudyInstanceUID]);
     }
 
-    // If the end of Feeds was reached and number of groups doesn't exceed limit, this is the last page to be fetched
+    // If the end of Feeds was reached and the number of groups doesn't exceed the desired limit, mark this is as the last page to be fetched
+    // This flag will prevent the table from allowing the click the Next button
     const isLastPage = isAtEndOfFeeds && Object.keys(studyGroups).length <= limit;
 
-    // Generate list of StudyInstanceWithSeries
+    // Generate list of TStudyInstance
     const pastAnalyses: TStudyInstance[] = Object.values(studyGroups).map((feedNotes: TFeedNote[]): TStudyInstance => {
       const firstFeedNote = feedNotes?.[0];
 
@@ -389,7 +389,7 @@ class ChrisIntegration {
       }
     });
 
-    // Discard the extra analysis
+    // Discard the extra analysis, if there is one
     const pastAnalysesSliced = pastAnalyses.slice(0, limit);
 
     // Count the number of Feeds that are actually being used for this page and add to the initial offset
