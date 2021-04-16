@@ -136,7 +136,6 @@ const PastAnalysisTable = () => {
     (async () => {
       const { maxFeedId, page, lastOffset, storedPages, filter } = tableState;
       if (!maxFeedId || maxFeedId >= 0) {
-        console.log(filter)
         setLoading(true);
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
