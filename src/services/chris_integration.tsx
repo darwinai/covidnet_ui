@@ -3,7 +3,7 @@ import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, TStudyInstance, TPluginStatuses } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
-import { PluginModels, FEED_NOTE_TITLE } from "../app.config";
+import { PluginModels, FEED_NOTE_TITLE, BASE_COVIDNET_MODEL_PLUGIN_NAME } from "../app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
 import { groupBy } from "lodash";
 
@@ -287,11 +287,14 @@ class ChrisIntegration {
     return jobsRunning === 0;
   }
 
-  static async getPluginData(id: number): Promise<pluginData> {
+  /**
+   * Fetches the covidnet model plugin data associated with the given Feed ID
+  */
+  static async getCovidnetPluginData(id: number): Promise<pluginData> {
     const client: any = ChrisAPIClient.getClient();
     const plugin = await client.getPluginInstances({
       feed_id: id,
-      plugin_name: "covidnet"
+      plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
     });
     return ({
       title: plugin?.data?.[0]?.title,
@@ -413,7 +416,7 @@ class ChrisIntegration {
     const client: Client = ChrisAPIClient.getClient();
     const pluginData = await client.getPluginInstances({
       feed_id: id,
-      plugin_name: "covidnet"
+      plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
     });
     return pluginData.getItems()?.[0];
   }
