@@ -84,7 +84,7 @@ class CreateAnalysisService {
       }
     });
 
-    return results.map(result => NotificationService.analyzedImageToNotification(result));
+    return results.map(result => NotificationService.failedAnalysisNotifications(result));
   }
 }
 
