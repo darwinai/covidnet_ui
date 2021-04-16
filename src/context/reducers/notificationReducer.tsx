@@ -13,7 +13,7 @@ export interface NotificationItem {
   variant: 'success' | 'danger' | 'warning' | 'info' | 'default' //here
   title: string;
   message: string;
-  timestamp: Moment;
+  timestamp: Moment; // TODO: Migrate to Luxon, since Moment is now deprecated
 }
 
 export type NotificationState = NotificationItem[];
