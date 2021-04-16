@@ -8,15 +8,15 @@ const FileLookup = () => {
     const { state: {dcmImages}, dispatch } = useContext(AppContext);
 
     const [seriesInstanceUID, setSeriesInstanceUID] = useState<string>('');
-    const [minCreationDate, setMinCreationDate] = useState<string>('');
-    const [maxCreationDate, setMaxCreationDate] = useState<string>('');
+    const [minStudyDate, setMinStudyDate] = useState<string>('');
+    const [maxStudyDate, setMaxStudyDate] = useState<string>('');
 
     useEffect(() => {
       const filteredDcmImages = dcmImages.allDcmImages.filter(image => {
-        const imageCreationDate = Date.parse(image.creation_date.substring(0, 10));
+        const imageStudyDate = Date.parse(image.StudyDate);
         return (seriesInstanceUID === '' || image.SeriesInstanceUID.includes(seriesInstanceUID)) &&
-        (minCreationDate === '' || imageCreationDate >= Date.parse(minCreationDate)) &&
-        (maxCreationDate === '' || imageCreationDate <= Date.parse(maxCreationDate))
+        (minStudyDate === '' || imageStudyDate >= Date.parse(minStudyDate)) &&
+        (maxStudyDate === '' || imageStudyDate <= Date.parse(maxStudyDate))
       });
 
       dispatch({
@@ -34,28 +34,28 @@ const FileLookup = () => {
           }
         });
       }
-    }, [seriesInstanceUID, minCreationDate, maxCreationDate]);
+    }, [seriesInstanceUID, minStudyDate, maxStudyDate]);
 
     const clearFilters = async () => {
       setSeriesInstanceUID('');
-      setMinCreationDate('');
-      setMaxCreationDate('');
+      setMinStudyDate('');
+      setMaxStudyDate('');
     }
 
     const onMinDateChange = (_str: string, date?: Date) => {
       if (date && isValidDate(date)) {
-        setMinCreationDate(date.toISOString().substring(0, 10));
-        if (date >= new Date(maxCreationDate)) {
-          setMaxCreationDate('');
+        setMinStudyDate(date.toISOString().substring(0, 10));
+        if (date >= new Date(maxStudyDate)) {
+          setMaxStudyDate('');
         }
       }
     };
 
     const onMaxDateChange = (_str: string, date?: Date) => {
       if (date && isValidDate(date)) {
-        setMaxCreationDate(date.toISOString().substring(0, 10));
-        if (date <= new Date(minCreationDate)) {
-          setMinCreationDate('');
+        setMaxStudyDate(date.toISOString().substring(0, 10));
+        if (date <= new Date(minStudyDate)) {
+          setMinStudyDate('');
         }
       }
     };
@@ -68,11 +68,11 @@ const FileLookup = () => {
             <TextInput value={seriesInstanceUID} type="text" onChange={setSeriesInstanceUID} aria-label="Series UID" />
           </div>
           <div className="InputRowField">
-            <label>File Creation Date</label>
+            <label>Study Date</label>
             <Split hasGutter>
               <SplitItem>
                 <DatePicker
-                  value={minCreationDate}
+                  value={minStudyDate}
                   onChange={onMinDateChange}
                   aria-label="From date"
                 />
@@ -80,7 +80,7 @@ const FileLookup = () => {
               <SplitItem>to</SplitItem>
               <SplitItem>
                 <DatePicker
-                  value={maxCreationDate}
+                  value={maxStudyDate}
                   onChange={onMaxDateChange}
                   aria-label="To date"
                 />
