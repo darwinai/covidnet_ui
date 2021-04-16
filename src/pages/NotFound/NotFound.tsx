@@ -1,12 +1,9 @@
 import { Alert, PageSection, PageSectionVariants } from "@patternfly/react-core";
-import * as React from "react";
+import React from "react";
 import Wrapper from "../../containers/Layout/PageWrapper";
 import "./not-found.scss";
 
 class NotFoundPage extends React.Component {
-    componentDidMount() {
-        document.title = "Page Not Found";
-    }
 
     render() {
         return (

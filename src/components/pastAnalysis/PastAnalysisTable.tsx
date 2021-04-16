@@ -13,6 +13,8 @@ import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
+import useInterval from "../../shared/useInterval";
+import { RESULT_POLL_INTERVAL } from "../../app.config";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -31,7 +33,8 @@ interface TableStates {
   maxFeedId: number | undefined,
   lastOffset: number,
   lastPage: number,
-  storedPages: StudyInstanceWithSeries[][]
+  storedPages: StudyInstanceWithSeries[][],
+  processingPluginIds: number[]
 }
 
 const PastAnalysisTable = () => {
@@ -58,7 +61,8 @@ const PastAnalysisTable = () => {
     maxFeedId: -1, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
     lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
     lastPage: -1, // Table page number of the very last page (-1 means last page has not yet been seen)
-    storedPages: [] // Stores pages that have been seen in an array of pages
+    storedPages: [], // Stores pages that have been seen in an array of pages,
+    processingPluginIds: [] // Stores plugin IDs associated with processing studies, for selective polling
   });
 
   // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
@@ -73,7 +77,8 @@ const PastAnalysisTable = () => {
         maxFeedId: id,
         lastOffset: 0,
         lastPage: -1,
-        storedPages: []
+        storedPages: [],
+        processingPluginIds: []
       });
     });
   }
@@ -123,25 +128,17 @@ const PastAnalysisTable = () => {
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
 
-          // Update latest offset
-          setTableStates(prevTableStates => ({
-            ...prevTableStates,
-            lastOffset: newOffset
-          }));
+          // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
+          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
+          .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
 
-          // If the end of Feeds on Swift has been reached, record the current page as the last page to prevent further navigation by user
-          if (isAtEndOfFeeds) {
-            setTableStates(prevTableStates => ({
-              ...prevTableStates,
-              lastPage: page
-            }));
-          }
-
-          // Append processing rows to fetched results rows and update storedPages
           curAnalyses = processingRows.concat(newAnalyses);
           setTableStates(prevTableStates => ({
             ...prevTableStates,
-            storedPages: [...prevTableStates.storedPages, curAnalyses]
+            lastOffset: newOffset,
+            lastPage: isAtEndOfFeeds ? page: -1,
+            storedPages: [...prevTableStates.storedPages, curAnalyses],
+            processingPluginIds: [...prevTableStates.processingPluginIds, ...processingPluginIds]
           }));
         } else {
           // If page has already been seen, access its contents from storedPages
@@ -152,6 +149,7 @@ const PastAnalysisTable = () => {
           type: AnalysisTypes.Update_list,
           payload: { list: curAnalyses }
         });
+
         updateRows(curAnalyses);
 
         dispatch({
@@ -161,8 +159,25 @@ const PastAnalysisTable = () => {
       }
       setLoading(false);
     })();
-  }, [tableStates.maxFeedId, tableStates.page, perpage, dispatch, history, stagingDcmImages]);
+  }, [tableStates, perpage, stagingDcmImages, dispatch]);
 
+
+  // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
+  useInterval(async () => {
+    if (tableStates.processingPluginIds) {
+      for (const id of tableStates.processingPluginIds) {
+        const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
+        if (refresh) {
+          dispatch({
+            type: AnalysisTypes.Update_are_new_imgs_available,
+            payload: { isAvailable: true }
+          });
+          return;
+        }
+      }
+    }
+  }, tableStates.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
+  
   // Increments or decrements current page number
   const updatePage = (n: number) => {
     setNewRowsRef([]); // Reset to prevent highlight animation from playing again
