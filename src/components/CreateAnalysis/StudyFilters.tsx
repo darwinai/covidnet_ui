@@ -4,7 +4,7 @@ import { AppContext } from "../../context/context";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../../context/actions/types";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
 
-const FileLookup = () => {
+const StudyFilters = () => {
     const { state: {dcmImages}, dispatch } = useContext(AppContext);
 
     const [seriesInstanceUID, setSeriesInstanceUID] = useState<string>('');
@@ -99,4 +99,4 @@ const FileLookup = () => {
     )
 }
 
-export default FileLookup;
+export default StudyFilters;

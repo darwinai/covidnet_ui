@@ -6,7 +6,7 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
-import FileLookup from './FileLookup';
+import StudyFilters from './StudyFilters';
 import Error from "../../shared/error";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
@@ -81,7 +81,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
           </div>
         </div>
         <PageSection className="PatientLookupWrapper" variant={PageSectionVariants.light}>
-          <FileLookup />
+          <StudyFilters />
         </PageSection>
         {
           studyInstances.length > 0 ?
