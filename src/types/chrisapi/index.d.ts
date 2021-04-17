@@ -388,6 +388,14 @@ declare module "@fnndsc/chrisapi" {
       creation_date: string;
       modification_date: string;
       creator_username: string;
+      finished_jobs: number;
+      errored_jobs: number;
+      cancelled_jobs: number;
+      created_jobs: number;
+      registering_jobs: number;
+      scheduled_jobs: number;
+      started_jobs: number;
+      waiting_jobs: number;
     }
 
     /**
