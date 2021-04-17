@@ -368,13 +368,13 @@ class ChrisIntegration {
 
       const pluginStatuses = feedNotes.reduce((acc: TPluginStatuses, cur: TFeedNote) => {
         const feedData = cur.feed.data;
-        if (feedData.finished_jobs === 3) {
-          acc.jobsDone += 1
-        } else if (feedData.errored_jobs + feedData.cancelled_jobs > 0) {
-          acc.jobsErrored += 1
-        } else {
-          acc.jobsRunning += 1
-        }
+        acc.jobsDone += feedData.finished_jobs
+        acc.jobsErrored += feedData.errored_jobs + feedData.cancelled_jobs
+        acc.jobsRunning += feedData.created_jobs +
+                           feedData.registering_jobs +
+                           feedData.scheduled_jobs +
+                           feedData.started_jobs +
+                           feedData.waiting_jobs;
         return acc;
       }, {
         jobsDone: 0,

@@ -239,7 +239,7 @@ const PastAnalysisTable: React.FC = () => {
         badges = {
           title: (
           <>
-            {<Badge className="badge-margin" isRead={!analysis.pluginStatuses.jobsDone}>{analysis.pluginStatuses.jobsDone}</Badge>}
+            {<Badge className="badge-margin" isRead={!analysis.feedIds.length}>{analysis.feedIds.length}</Badge>}
             {<Badge className="badge-danger" isRead={!analysis.pluginStatuses.jobsErrored}>{analysis.pluginStatuses.jobsErrored}</Badge>}
           </>)
         };
