@@ -1,4 +1,3 @@
-import { Stack, StackItem } from '@patternfly/react-core';
 import React from "react";
 import PatientLookup from '../PatientLookup';
 
@@ -47,15 +46,11 @@ const CreateAnalysis: React.FC = () => {
   // }
 
   return (
-    <Stack>
-      <StackItem>Create a new Predictive analysis</StackItem>
-      <StackItem isFilled>
-        <PatientLookup isOnDashboard={true}></PatientLookup>
-        {/* <Button onClick={submitFile}>Choose File...</Button> */}
-      </StackItem>
-    </Stack>
+    <>
+      <PatientLookup isOnDashboard={true}></PatientLookup>
+      {/* <Button onClick={submitFile}>Choose File...</Button> */}
+    </>
   );
 }
 
 export { CreateAnalysis as CreateAnalysisSection };
-

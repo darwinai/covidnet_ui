@@ -101,9 +101,9 @@ const PastAnalysisTable = () => {
     prevAnalyses: { perpage }
   },
     dispatch } = React.useContext(AppContext);
-  const [loading, setLoading] = useState(true);
 
   const [tableState, tableDispatch] = useReducer(tableReducer, initialTableState);
+  const [isLoading, setIsLoading] = useState(true);
 
   const columns = [
     {
@@ -133,7 +133,7 @@ const PastAnalysisTable = () => {
       const { maxFeedId, page, lastOffset, storedPages } = tableState;
 
       if (!maxFeedId || maxFeedId >= 0) {
-        setLoading(true);
+        setIsLoading(true);
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
@@ -143,16 +143,19 @@ const PastAnalysisTable = () => {
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
-          .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
+            .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
 
           curAnalyses = newAnalyses;
-          tableDispatch({ type: TableReducerActions.addNewPage, payload: {
-            lastOffset: newOffset,
-            lastPage: isAtEndOfFeeds ? page : -1,
-            newPage: curAnalyses,
-            processingPluginIds
-          }});
 
+
+          tableDispatch({
+            type: TableReducerActions.addNewPage, payload: {
+              lastOffset: newOffset,
+              lastPage: isAtEndOfFeeds ? page : -1,
+              newPage: curAnalyses,
+              processingPluginIds: processingPluginIds.filter((id: number) => !tableState.processingPluginIds.includes(id))
+            }
+          });
         } else {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages[page];
@@ -160,7 +163,7 @@ const PastAnalysisTable = () => {
 
         updateRows(curAnalyses);
       }
-      setLoading(false);
+      setIsLoading(false);
     })();
   }, [tableState, perpage, dispatch]);
 
@@ -321,33 +324,36 @@ const PastAnalysisTable = () => {
   }
 
   return (
-    <div className="PastAnalysis">
-      <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
-      <div className="MRNsearchBar">
-        <InputGroup>
-          <InputGroupText>
-            <FilterIcon />
-          </InputGroupText>
-          <TextInput id="textInput5" type="number" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
-          <InputGroupText> <SearchIcon /> </InputGroupText>
-        </InputGroup>
-      </div>
+    <div className="PastAnalysis flex-column">
+      <div>
+        <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
+        <div className="flex-row-space-between">
+          <div className="MRNsearchBar">
+            <InputGroup>
+              <InputGroupText>
+                <FilterIcon />
+              </InputGroupText>
+              <TextInput id="textInput5" type="number" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
+              <InputGroupText> <SearchIcon /> </InputGroupText>
+            </InputGroup>
+          </div>
 
-      <div style={{ float: "right" }}>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }}
-          onClick={() => tableDispatch({ type: TableReducerActions.decrementPage })} disabled={loading || tableState.page === 0}>
-          <span className="pf-c-button__icon pf-m-end">
-            <i className="fas fa-arrow-left" aria-hidden="true"></i>
-          </span>
-      &nbsp; Previous {perpage}
-        </button>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => tableDispatch({ type: TableReducerActions.incrementPage })} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
-          <span className="pf-c-button__icon pf-m-end">
-            <i className="fas fa-arrow-right" aria-hidden="true"></i>
-          </span>
-        </button>
+          <div style={{ float: "right" }}>
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => tableDispatch({ type: TableReducerActions.decrementPage })} disabled={isLoading || tableState.page === 0}>
+              <span className="pf-c-button__icon pf-m-end">
+                <i className="fas fa-arrow-left" aria-hidden="true"></i>
+              </span>
+          &nbsp; Previous {perpage}
+            </button>
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => tableDispatch({ type: TableReducerActions.incrementPage })} disabled={isLoading || tableState.page === tableState.lastPage}>Next {perpage}
+              <span className="pf-c-button__icon pf-m-end">
+                <i className="fas fa-arrow-right" aria-hidden="true"></i>
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
-      { loading ? (
+      { isLoading ? (
         <div className="loading">
           <Spinner size="xl" /> &nbsp; Loading
         </div>
