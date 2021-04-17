@@ -10,10 +10,11 @@ export enum NotificationItemVariant {
 }
 
 export interface NotificationItem {
-  variant: 'success' | 'danger' | 'warning' | 'info' | 'default'
-  title: string;
-  message: string;
-  timestamp: Moment;
+  variant: 'success' | 'danger' | 'warning' | 'info' | 'default',
+  title: string,
+  message: string,
+  timestamp: Moment,
+  pluginId?: number
 }
 
 export type NotificationState = NotificationItem[];

@@ -7,12 +7,15 @@ import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react
 import { AnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
-import ChrisIntegration from "../../services/chris_integration";
+import { NotificationActionTypes } from "../../context/actions/types";
+import ChrisIntegration, { pluginData } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 import useInterval from "../../shared/useInterval";
 import { RESULT_POLL_INTERVAL } from "../../app.config";
+import { NotificationItem, NotificationItemVariant } from "../../context/reducers/notificationReducer";
+import moment from "moment";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -48,7 +51,8 @@ enum TableReducerActions {
   updateMaxFeedId = "UPDATE_MAX_FEED_ID",
   addNewPage = "ADD_NEW_PAGE",
   incrementPage = "INCREMENT_PAGE",
-  decrementPage = "DECREMENT_PAGE"
+  decrementPage = "DECREMENT_PAGE",
+  updatePlugins = "UPDATE_PLUGINS"
 }
 
 type TableAction =
@@ -56,6 +60,7 @@ type TableAction =
   | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
   | { type: TableReducerActions.incrementPage }
   | { type: TableReducerActions.decrementPage }
+  | { type: TableReducerActions.updatePlugins, payload: { processingPluginIds: number[] } }
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch(action.type) {
@@ -81,6 +86,11 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
       return {
         ...state,
         page: state.page - 1
+      }
+    case TableReducerActions.updatePlugins:
+      return {
+        ...state,
+        processingPluginIds: action.payload.processingPluginIds
       }
     default: return state;
   }
@@ -156,16 +166,54 @@ const PastAnalysisTable = () => {
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
-    if (tableState.processingPluginIds) {
-      for (const id of tableState.processingPluginIds) {
-        const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
-        if (refresh) {
-          // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-          newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
-          updateMaxFeedId();
-          return;
-        }
+    let finishedPlugins: number[] = [];
+
+    for (const id of tableState.processingPluginIds) {
+      if (await ChrisIntegration.checkIfPluginTerminated(id)) { // parallel async execution here
+        // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
+
+        // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
+        finishedPlugins.push(id);
       }
+    }
+
+    let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
+      const notificationInfo: pluginData = await ChrisIntegration.getPluginData(id);
+      if (notificationInfo.status !== "finishedSuccessfully") {
+        return ({
+          variant: NotificationItemVariant.DANGER,
+          title: `Analysis of image '${notificationInfo.title.split('/').pop()}' failed`,
+          message: `During the analysis, the following error was raised:
+                    ${notificationInfo.plugin_name} failed.`,
+          timestamp: moment()
+        });
+      } else {
+        return ({
+          variant: NotificationItemVariant.SUCCESS,
+          title: `Analysis of image '${notificationInfo.title.split('/').pop()}' finished`,
+          message: `The image was processed successfully.`,
+          timestamp: moment(),
+          pluginId: id
+        });
+      }
+    }));
+
+    if (finishedPlugins.length) {
+      dispatch({
+        type: NotificationActionTypes.SEND,
+        payload: { notifications }
+      });
+
+      const updatedPlugins = tableState.processingPluginIds.filter((id: number) => {
+        return !finishedPlugins.includes(id);
+      });
+
+      tableDispatch({
+        type: TableReducerActions.updatePlugins,
+        payload: { processingPluginIds: updatedPlugins }
+      });
+
+      updateMaxFeedId();
     }
   }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
@@ -286,7 +334,8 @@ const PastAnalysisTable = () => {
       </div>
 
       <div style={{ float: "right" }}>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => tableDispatch({ type: TableReducerActions.decrementPage })} disabled={loading || tableState.page == 0}>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }}
+          onClick={() => tableDispatch({ type: TableReducerActions.decrementPage })} disabled={loading || tableState.page === 0}>
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-left" aria-hidden="true"></i>
           </span>

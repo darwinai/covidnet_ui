@@ -46,5 +46,7 @@ export enum ImageViewerTypes {
 }
 
 export enum NotificationActionTypes {
-  SEND
+  SEND = 'SEND_NOTIFICATIONS',
+  CLEAR = 'CLEAR_NOTIFICATIONS',
+  REMOVE = 'REMOVE_NOTIFICATIONS'
 }

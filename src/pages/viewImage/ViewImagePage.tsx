@@ -11,12 +11,12 @@ const ViewImagePage = () => {
   const history = useHistory();
 
   useEffect(() => {
-    if (!selectedImage.studyInstance) {
+    if (!selectedImage) {
       history.push('/')
       return;
     };
 
-    const imageId = selectedImage.studyInstance?.series?.[selectedImage.index]?.imageId;
+    const imageId = selectedImage?.series?.imageId;
 
     if (imageId) {
       DicomViewerService.fetchImageFile(imageId)
