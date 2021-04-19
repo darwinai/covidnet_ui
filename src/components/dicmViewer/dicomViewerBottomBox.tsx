@@ -29,10 +29,10 @@ const DicomViewerBottomBox = () => {
 
   //2018 01 05 2y 6m
   const { studyInstance, index } = selectedImage;
-  let imageDetail = studyInstance?.series[index];
+  const imageDetail = studyInstance?.series[index];
 
   const generateBottomDisplay = (series?: ISeries) => {
-    let bottomDisplay: any = [];
+    const bottomDisplay: any = [];
 
     if (!series) {
       return;
@@ -47,7 +47,7 @@ const DicomViewerBottomBox = () => {
   }
 
   const generateDisplayCircles = (series?: ISeries) => {
-    let displayCircles: any = [];
+    const displayCircles: any = [];
 
     if (!series) {
       return;

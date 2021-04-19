@@ -17,7 +17,7 @@ export const formatTime = (oldDay: string): string => {
 }
 
 export const modifyDatetime = (oldDay: string): string => {
-  let today = new Date().setHours(0, 0, 0, 0)
+  const today = new Date().setHours(0, 0, 0, 0)
   let diff = Math.abs(+today - +new Date(oldDay.split("T")[0]))
   diff = Math.floor(diff / (1000 * 60 * 60 * 24)) // diff is in days, 1ms * 1000 * 60 * 60 * 24
   let description = "days ago"

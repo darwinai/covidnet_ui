@@ -64,7 +64,7 @@ class CreateAnalysisService {
 
   static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
     const promises = [];
-    for (let img of dcmImages) {
+    for (const img of dcmImages) {
       promises.push(ChrisIntegration.processOneImg(img, XrayModel, CTModel));
     }
     const processedImages = await Promise.allSettled(promises);

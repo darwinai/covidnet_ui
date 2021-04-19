@@ -46,7 +46,7 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({isXray}) => { // Drop-do
         }
       };
 
-    let dropdownItems = Object.keys(isXray ? PluginModels.XrayModels : PluginModels.CTModels).map((key: string) => (<DropdownItem key={key}>{key}</DropdownItem>));
+    const dropdownItems = Object.keys(isXray ? PluginModels.XrayModels : PluginModels.CTModels).map((key: string) => (<DropdownItem key={key}>{key}</DropdownItem>));
 
     return (
       <React.Fragment>

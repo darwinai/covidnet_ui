@@ -23,7 +23,7 @@ const ViewImagePage = () => {
         .then((imgBlob: any) => {
           const myImage: any = document.querySelector("#dicomViewerImg");
           const urlCreator = window.URL || window.webkitURL;
-          let objectURL = urlCreator.createObjectURL(imgBlob);
+          const objectURL = urlCreator.createObjectURL(imgBlob);
           if (myImage) { myImage.src = objectURL; }
           const container = document.getElementById("imageContainer");
           const instance = renderer({ minScale: .1, maxScale: 30, element: container?.children[0], scaleSensitivity: 50 });

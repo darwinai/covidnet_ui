@@ -8,7 +8,7 @@ const navMap = [
 ];
 
 const PageNav = () => {
-  let location = useLocation();
+  const location = useLocation();
 
   return (
     <Nav aria-label="Nav" theme="light" variant="horizontal">
