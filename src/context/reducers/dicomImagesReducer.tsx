@@ -13,6 +13,7 @@ export interface DcmImage {
   StudyDescription: string,
   SeriesInstanceUID: string,
   SeriesDescription: string,
+  StudyDate: string,
   Modality: string,
   pacs_identifier: string
 }
