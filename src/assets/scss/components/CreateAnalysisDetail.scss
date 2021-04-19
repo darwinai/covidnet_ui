@@ -24,6 +24,7 @@ $description-top-padding: 0.3rem;
   @include flex(row);
   width: $full;
   margin: $page-section-margin;
+  
   h1 {
     font-weight: bold;
     font-size: 2rem;
