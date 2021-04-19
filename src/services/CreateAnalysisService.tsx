@@ -79,9 +79,7 @@ class CreateAnalysisService {
       }
     });
 
-    const notifications = results.map(result => NotificationService.analyzedImageToNotification(result));
-
-    return notifications;
+    return results.map(result => NotificationService.analyzedImageToNotification(result));
   }
 }
 

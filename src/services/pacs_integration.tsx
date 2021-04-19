@@ -15,8 +15,7 @@ class PACSIntegration {
             const responseHeader = rawResponse.split("\r");
             // the 4th element of responseHeader contains the stringified JSON body return payload
             const responseBody = responseHeader?.[4];
-            const responseJSON: PFDCMResponse = JSON.parse(responseBody);
-            return responseJSON;
+            return JSON.parse(responseBody);
         } catch (err) {
             console.log(err);
             return undefined;

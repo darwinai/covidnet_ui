@@ -119,7 +119,7 @@ export class GalleryItemModel {
   // Description: takes an explorer tree node and returns a gallery Item
   _buildGalleryItem(node: IUITreeNode): IGalleryItem {
     const fileType = getFileExtension(node.module);
-    const galleryItem = {
+    return {
       ...node.file,
       uiId: node.uiId,
       fileName: node.module,
@@ -127,7 +127,5 @@ export class GalleryItemModel {
       isActive: false,
       index: this.index,
     };
-
-    return galleryItem;
   }
 }

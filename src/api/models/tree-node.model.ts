@@ -33,7 +33,6 @@ export default class TreeNodeModel {
 
     // Description: determines the total height depending on the number of rows / levels in the tree
   static calculateTotalTreeHeight(totalRows: number): number {
-    const height = (totalRows <= 1) ? 80 : Number(60 + ((totalRows - 1) * 70));
-    return height;
+    return (totalRows <= 1) ? 80 : Number(60 + ((totalRows - 1) * 70));
   }
 }

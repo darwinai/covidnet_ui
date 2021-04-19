@@ -51,15 +51,13 @@ export const statusLabels: any = {
 // Description: This will fix the title field for the UI demo - should be replaced with plugin name or title
 // (!!plugin.title &&  plugin.title.length) ? plugin.title : plugin.plugin_name;
 export function getPluginInstanceTitle(plugin: IPluginItem) {
-  const title =
-    plugin.plugin_name === "dircopy"
-      ? "PACS Pull"
-      : plugin.plugin_name === "freesurfer_pp"
+  return plugin.plugin_name === "dircopy"
+    ? "PACS Pull"
+    : plugin.plugin_name === "freesurfer_pp"
       ? "Freesurfer"
       : !!plugin.title && plugin.title.length
-      ? plugin.title
-      : plugin.plugin_name;
-  return title;
+        ? plugin.title
+        : plugin.plugin_name;
 }
 
 // Description: Similar to above  above, but works with new types and appends version.
