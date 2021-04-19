@@ -153,7 +153,6 @@ const PastAnalysisTable: React.FC = () => {
           // Extracts the Feed IDs associated with studies that are processing
           const processingFeedIds = newAnalyses.filter((study: TStudyInstance) => !!study.pluginStatuses.jobsRunning)
           .flatMap((study: TStudyInstance) => study.feedIds);
-
           tableDispatch({ type: TableReducerActions.addNewPage, payload: {
             lastOffset: newOffset,
             lastPage: isAtEndOfFeeds ? page : -1,
@@ -373,13 +372,13 @@ const PastAnalysisTable: React.FC = () => {
           </div>
 
           <div style={{ float: "right" }}>
-            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => changePage("previous")} disabled={loading || tableState.page == 0}>
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => changePage("previous")} disabled={isLoading || tableState.page == 0}>
               <span className="pf-c-button__icon pf-m-end">
                 <i className="fas fa-arrow-left" aria-hidden="true"></i>
               </span>
           &nbsp; Previous {perpage}
             </button>
-            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => changePage("next")} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => changePage("next")} disabled={isLoading || tableState.page === tableState.lastPage}>Next {perpage}
               <span className="pf-c-button__icon pf-m-end">
                 <i className="fas fa-arrow-right" aria-hidden="true"></i>
               </span>
