@@ -25,14 +25,14 @@ const SelectedStudyDetail = () => {
   }
 
   if (images.length > 0) {
-    const { StudyDescription, PatientBirthDate, Modality } = images[0];
+    const { StudyDescription, PatientBirthDate, Modality, PatientName } = images[0];
     return (
       <div className="detail-select">
         <div className="flex_row">
           <div className="half_width padding_2rem">
             <h1 className="study-title"> {StudyDescription} <span className="outtline-box red-small">{Modality}</span></h1>
             <p>
-              {Modality === "CR" ? "Xray scans of suspected patient" : "CT scans of suspected patient"}
+              Chest scans of patient {PatientName}
             </p>
             <div className="padding_bot_1rem"></div>
             <div className="flex_row">
