@@ -1,5 +1,5 @@
 import ChrisAPIClient from "../api/chrisapiclient";
-import { windowLevelBounds } from "../services/renderService";
+import { windowLevelBounds } from "./renderService";
 
 export enum windowLevelType {
   brightness,

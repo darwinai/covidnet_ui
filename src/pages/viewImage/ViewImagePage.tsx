@@ -7,14 +7,14 @@ import DicomViewerService, { windowLevelType } from "../../services/dicomViewerS
 import renderer from "../../services/renderService";
 
 const ViewImagePage = () => {
-  const { state: { imgViewer: { mod }, prevAnalyses: { selectedImage }, imgViewer: { isImgInverted } } } = useContext(AppContext);
+  const { state: { imgViewer: {mod, isImgInverted}, prevAnalyses: { selectedImage }} } = useContext(AppContext);
   const history = useHistory();
 
   useEffect(() => {
     if (!selectedImage.studyInstance) {
       history.push("/")
       return;
-    };
+    }
 
     const imageId = selectedImage.studyInstance?.series?.[selectedImage.index]?.imageId;
 
@@ -23,7 +23,7 @@ const ViewImagePage = () => {
         .then((imgBlob: any) => {
           const myImage: any = document.querySelector("#dicomViewerImg");
           const urlCreator = window.URL || window.webkitURL;
-          const objectURL = urlCreator.createObjectURL(imgBlob);
+          let objectURL = urlCreator.createObjectURL(imgBlob);
           if (myImage) { myImage.src = objectURL; }
           const container = document.getElementById("imageContainer");
           const instance = renderer({ minScale: .1, maxScale: 30, element: container?.children[0], scaleSensitivity: 50 });

@@ -215,8 +215,8 @@ declare module "@fnndsc/chrisapi" {
     /**
      * Upload a file and create a new uploaded file resource through the REST API.
      *
-     * @param {data} IRequestData
-     * @param {uploadFileObj} IUploadFileObj
+     * @param {Object} IRequestData
+     * @param {Object} IUploadFileObj
      */
     uploadFile: (data: Object, uploadFileObj: Object) => UploadedFile
 
@@ -1195,11 +1195,11 @@ declare module "@fnndsc/chrisapi" {
      * Get an array of parameter names that can be used as properties of the data
      * object in PUT requests.
      *
-     * @return {?string[]} - array of PUT data property name or null if this list
+     * @return {string[] | null} - array of PUT data property name or null if this list
      * resource's data has not been fetched from the API yet or it doesn't support
      * PUT requests.
      */
-    getPUTDataParameters(): ?string[];
+    getPUTDataParameters(): string[] | null;
 
     /**
      * Internal method to fetch a related resource from the REST API that is referenced
@@ -1269,10 +1269,10 @@ declare module "@fnndsc/chrisapi" {
      * Get an array of search parameter names that can be used as properties of the
      * ``params`` argument to the ``getSearch`` method.
      *
-     * @return {?string[]} - array of search parameter names or null if this list
+     * @return {string[] | null} - array of search parameter names or null if this list
      * resource's data has not been fetched from the API yet.
      */
-    getSearchParameters(): ?string[];
+    getSearchParameters(): string[] | null;
 
     /**
      * Fetch this list resource from the REST API based on search parameters.

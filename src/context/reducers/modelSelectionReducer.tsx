@@ -1,5 +1,5 @@
 import { ActionMap, UpdatingModelSelectionTypes } from "../actions/types";
-import { PluginModels } from "../../../src/api/app.config"
+import { PluginModels } from "../../api/app.config"
 
 export type ModelSelection = {
    xrayModel: string,
