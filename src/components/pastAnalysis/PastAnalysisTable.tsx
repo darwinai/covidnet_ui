@@ -310,7 +310,7 @@ const PastAnalysisTable = () => {
               <span className="pf-c-button__icon pf-m-end">
                 <i className="fas fa-arrow-left" aria-hidden="true"></i>
               </span>
-          &nbsp; Previous {perpage}
+              &nbsp; Previous {perpage}
             </button>
             <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={isLoading || tableStates.page === tableStates.lastPage}>Next {perpage}
               <span className="pf-c-button__icon pf-m-end">
