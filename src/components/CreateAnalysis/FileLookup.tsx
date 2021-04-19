@@ -43,7 +43,7 @@ const FileLookup = () => {
     if (date && isValidDate(date)) {
       setMinCreationDate(date.toISOString().substring(0, 10));
       if (date >= new Date(maxCreationDate)) {
-        setMaxCreationDate('');
+        setMaxCreationDate("");
       }
     }
   };
