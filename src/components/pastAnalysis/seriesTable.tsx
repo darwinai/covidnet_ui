@@ -65,7 +65,9 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
         analysisCells.push({
           title: (<PredictionCircle key={key}
             largeCircle={isLargestNumber(value, analysis.classifications)}
-            predictionNumber={value} />)
+            predictionNumber={value}
+            isNormal={key === "Normal"}
+            />)
         });
       });
     } else if (classifications?.length) { // If this Series' analysis was unsuccessful, but the list of classes is known, display 'N/A' for each classification result
