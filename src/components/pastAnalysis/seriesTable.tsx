@@ -66,7 +66,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
           title: (<PredictionCircle key={key}
             largeCircle={isLargestNumber(value, analysis.classifications)}
             predictionNumber={value} 
-            isNormal={key === 'Normal'}
+            isNormal={key === "Normal"}
             />)
         });
       });
