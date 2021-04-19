@@ -35,8 +35,8 @@ const FileLookup = () => {
   }, [minCreationDate, maxCreationDate]);
 
   const clearFilters = async () => {
-    setMinCreationDate('');
-    setMaxCreationDate('');
+    setMinCreationDate("");
+    setMaxCreationDate("");
   }
 
   const onMinDateChange = (_str: string, date?: Date) => {
