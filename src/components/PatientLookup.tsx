@@ -1,6 +1,6 @@
 import {
   Button, Stack, StackItem, TextInput
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
