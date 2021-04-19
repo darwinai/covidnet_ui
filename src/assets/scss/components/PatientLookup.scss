@@ -1,15 +1,18 @@
 .InputRow {
   display: flex;
   margin: 1rem;
+  
   .InputRowField {
     width: 30em;
     padding-right: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    
     label {
       font-weight: bold;
     }
+    
     div {
       justify-content: space-between;
     }

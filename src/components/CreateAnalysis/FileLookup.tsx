@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Button, DatePicker, Split, SplitItem, isValidDate } from '@patternfly/react-core';
+import { Button, DatePicker, Split, SplitItem, isValidDate } from "@patternfly/react-core";
 import { AppContext } from "../../context/context";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../../context/actions/types";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
@@ -8,14 +8,14 @@ import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 const FileLookup = () => {
   const { state: { dcmImages }, dispatch } = useContext(AppContext);
 
-  const [minCreationDate, setMinCreationDate] = useState<string>('');
-  const [maxCreationDate, setMaxCreationDate] = useState<string>('');
+  const [minCreationDate, setMinCreationDate] = useState<string>("");
+  const [maxCreationDate, setMaxCreationDate] = useState<string>("");
 
   useEffect(() => {
     const filteredDcmImages = dcmImages.allDcmImages.filter((image: DcmImage) => {
       const imageCreationDate = Date.parse(image.creation_date.substring(0, 10));
-      return (minCreationDate === '' || imageCreationDate >= Date.parse(minCreationDate)) &&
-        (maxCreationDate === '' || imageCreationDate <= Date.parse(maxCreationDate))
+      return (minCreationDate === "" || imageCreationDate >= Date.parse(minCreationDate)) &&
+        (maxCreationDate === "" || imageCreationDate <= Date.parse(maxCreationDate))
     });
 
     dispatch({
@@ -36,15 +36,15 @@ const FileLookup = () => {
   }, [minCreationDate, maxCreationDate]);
 
   const clearFilters = async () => {
-    setMinCreationDate('');
-    setMaxCreationDate('');
+    setMinCreationDate("");
+    setMaxCreationDate("");
   }
 
   const onMinDateChange = (_str: string, date?: Date) => {
     if (date && isValidDate(date)) {
       setMinCreationDate(date.toISOString().substring(0, 10));
       if (date >= new Date(maxCreationDate)) {
-        setMaxCreationDate('');
+        setMaxCreationDate("");
       }
     }
   };
@@ -53,7 +53,7 @@ const FileLookup = () => {
     if (date && isValidDate(date)) {
       setMaxCreationDate(date.toISOString().substring(0, 10));
       if (date <= new Date(minCreationDate)) {
-        setMinCreationDate('');
+        setMinCreationDate("");
       }
     }
   };
