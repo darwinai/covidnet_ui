@@ -13,7 +13,7 @@ const FileLookup = () => {
   useEffect(() => {
     const filteredDcmImages = dcmImages.allDcmImages.filter(image => {
       const imageCreationDate = Date.parse(image.creation_date.substring(0, 10));
-      return (minCreationDate === '' || imageCreationDate >= Date.parse(minCreationDate)) &&
+      return (minCreationDate === "" || imageCreationDate >= Date.parse(minCreationDate)) &&
         (maxCreationDate === '' || imageCreationDate <= Date.parse(maxCreationDate))
     });
 
