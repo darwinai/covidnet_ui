@@ -8,32 +8,22 @@ interface circleProps {
 }
 
 const PredictionCircle: React.FC<circleProps> = ({largeCircle, predictionNumber, isNormal}) => {
-  let divSize = '100px';
-
-  let predictionCircleAttributes = {
-    ariaDesc: "Prediction Result of Analysis",
-    constrainToVisibleArea: true,
-    data: { x: 'Prediction', y: predictionNumber },
-    height: 120,
-    width: 120,
-    padding: 0,
-    title: `${predictionNumber}%`,
-    thresholds: [{value: 0}, {value: 90}]
-  }
-
-  if (!largeCircle) {
-    predictionCircleAttributes.height = 150;
-    predictionCircleAttributes.width = 150;
-    divSize = "80px";
-  }
-
-  if (isNormal) {
-    predictionCircleAttributes.thresholds = [];
-  }
+  let divSize = (!largeCircle) ? "80px" : "100px";
+  let size = (!largeCircle) ? 120 : 150;
+  let thresholds = (isNormal) ? [] : [{ value: 0 }, { value: 90 }];
 
   return (
     <div style={{ height: divSize, width: divSize }}>
-      <ChartDonutUtilization {...predictionCircleAttributes} />
+      <ChartDonutUtilization
+      ariaDesc="Prediction Result of Analysis"
+      constrainToVisibleArea={true}
+      data={{ x: 'Prediction', y: predictionNumber }}
+      height={size}
+      width={size}
+      padding={0}
+      title={`${predictionNumber}%`}
+      thresholds={thresholds}
+       />
     </div>
   )
 }
