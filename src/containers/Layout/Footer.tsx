@@ -16,7 +16,7 @@ const Footer: React.FC<FooterProps> = ({ isLogin }) => {
     <div className="footer-content">
       <PageHeaderTools>
         <PageHeaderToolsItem>
-          <p className="footer-text">An open-source neural network for disease detection created by&nbsp;
+          <p className="footer-text">An open source clinical decision support UI platform created by&nbsp;
             <a href="https://www.darwinai.com/" target="_blank" rel="noopener noreferrer">DarwinAI</a>,&nbsp;
             <a href="https://chrisproject.org/" target="_blank" rel="noopener noreferrer">ChRIS</a>, and&nbsp;
             <a href="https://redhat.com/chris" target="_blank" rel="noopener noreferrer">RedHat</a>&nbsp;</p>
