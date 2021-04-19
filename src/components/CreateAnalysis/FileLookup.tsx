@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Button, DatePicker, Split, SplitItem, isValidDate } from '@patternfly/react-core';
+import { Button, DatePicker, Split, SplitItem, isValidDate } from "@patternfly/react-core";
 import { AppContext } from "../../context/context";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../../context/actions/types";
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
