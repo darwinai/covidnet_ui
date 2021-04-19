@@ -59,7 +59,7 @@ const DicomViewerBottomBox = () => {
         <PredictionCircle
           largeCircle={isLargestNumber(value, series.classifications)}
           predictionNumber={value}
-          isNormal={key === 'Normal'}
+          isNormal={key === "Normal"}
           />
         <div className="topMargin">{key}</div>
       </div>)
