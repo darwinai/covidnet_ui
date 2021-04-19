@@ -7,8 +7,8 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 const FileLookup = () => {
   const { state: { dcmImages }, dispatch } = useContext(AppContext);
 
-  const [minCreationDate, setMinCreationDate] = useState<string>('');
-  const [maxCreationDate, setMaxCreationDate] = useState<string>('');
+  const [minCreationDate, setMinCreationDate] = useState<string>("");
+  const [maxCreationDate, setMaxCreationDate] = useState<string>("");
 
   useEffect(() => {
     const filteredDcmImages = dcmImages.allDcmImages.filter(image => {
