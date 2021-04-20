@@ -71,21 +71,21 @@ class CreateAnalysisService {
    */
   static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
     const processedImages = await Promise.allSettled(dcmImages.map(async (img: DcmImage) => {
-      return await ChrisIntegration.processOneImg(img, XrayModel, CTModel)
+      return await ChrisIntegration.processOneImg(img, XrayModel, CTModel);
     }));
 
     const results = await processedImages.flatMap((img: PromiseSettledResult<BackendPollResult>, index: number) => {
-      if (img.status === "fulfilled" && img.value.error) {
+      if (img?.status === "fulfilled" && img?.value?.error) {
         return {
           image: dcmImages[index],
           processedResults: img.value
-        }
+        };
       } else {
         return [];
       }
     });
 
-    return results.map(result => NotificationService.analyzedImageToNotification(result));
+    return results.map((result: AnalyzedImageResult) => NotificationService.analyzedImageToNotification(result));
   }
 }
 
