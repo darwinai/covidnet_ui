@@ -81,10 +81,10 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     className="header"
     aria-label="Page Header"
     headerTools={pageToolbar}
-    logo={<React.Fragment>
+    logo={<>
       <img onClick={() => history.push("/")} src={logo} className="logo" alt="DarwinAI Logo" />
-      <span className="logo-text">COVID-Net</span>
-    </React.Fragment>}
+      <Link to="/" className="logo-text">COVID-Net</Link>
+    </>}
     topNav={<PageNav />}
   />;
 }
