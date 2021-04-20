@@ -1,21 +1,21 @@
 import { ActionMap, DicomImagesTypes } from "../actions/types";
 
 export interface DcmImage {
-  id: number,
-  creation_date: string,
-  fname: string,
-  PatientID: string
-  PatientName: string,
-  PatientBirthDate: string,
-  PatientAge: number,
-  PatientSex: string,
-  StudyInstanceUID: string,
-  StudyDescription: string,
-  SeriesInstanceUID: string,
-  SeriesDescription: string,
-  StudyDate: string,
-  Modality: string,
-  pacs_identifier: string
+  id: number;
+  creation_date: string;
+  fname: string;
+  PatientID: string;
+  PatientName: string;
+  PatientBirthDate: string;
+  PatientAge: number;
+  PatientSex: string;
+  StudyInstanceUID: string;
+  StudyDescription: string;
+  SeriesInstanceUID: string;
+  SeriesDescription: string;
+  StudyDate: string;
+  Modality: string;
+  pacs_identifier: string;
 }
 
 export interface PACSResponseProperty {
