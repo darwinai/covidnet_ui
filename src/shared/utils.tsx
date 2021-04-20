@@ -9,7 +9,7 @@ export const formatGender = (gender: string): string => {
 }
 
 export const calculatePatientAge = (patientDOB: string): number => {
-  return Math.trunc(-DateTime.fromISO(patientDOB).diffNow('years').years);
+  return Math.trunc(-DateTime.fromISO(patientDOB).diffNow("years").years);
 }
 
 export const formatTime = (oldDay: string): string => {
