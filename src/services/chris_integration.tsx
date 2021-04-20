@@ -255,9 +255,9 @@ class ChrisIntegration {
     const client: Client = ChrisAPIClient.getClient();
     const plugin = await client.getPluginInstances({ id });
     return ({
-      title: plugin?.getItems()?.[0]?.title,
-      status: plugin?.getItems()?.[0]?.status,
-      pluginName: plugin?.getItems()?.[0]?.plugin_name
+      title: plugin?.getItems()?.[0]?.data?.title,
+      status: plugin?.getItems()?.[0]?.data?.status,
+      pluginName: plugin?.getItems()?.[0]?.data?.plugin_name
     });
   }
 
