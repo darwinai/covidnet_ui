@@ -1,24 +1,26 @@
 .InputRow {
   display: flex;
-  flex-direction: row;
   margin: 1rem;
+  
   .InputRowField {
-    width: 25%;
+    width: 30em;
     padding-right: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    
     label {
       font-weight: bold;
     }
-    #toggle-Privacy-Level {
-      width: 1000px;
+    
+    div {
+      justify-content: space-between;
     }
   }
 }
 
 .PatientLookupWrapper {
-  padding-bottom: 0px;
+  padding-bottom: 0;
 }
 
 .noImagesFound {
@@ -30,4 +32,5 @@
 
 .form-display {
   display: inline-flex;
+  width: 100%;
 }
