@@ -15,8 +15,8 @@ const StudyFilters = () => {
       const filteredDcmImages = dcmImages.allDcmImages.filter(image => {
         const imageStudyDate = Date.parse(image.StudyDate);
         return (seriesInstanceUID === '' || image.SeriesInstanceUID.includes(seriesInstanceUID)) &&
-        (minStudyDate === '' || imageStudyDate >= Date.parse(minStudyDate)) &&
-        (maxStudyDate === '' || imageStudyDate <= Date.parse(maxStudyDate))
+        (minStudyDate === "" || imageStudyDate >= Date.parse(minStudyDate)) &&
+        (maxStudyDate === "" || imageStudyDate <= Date.parse(maxStudyDate))
       });
 
       dispatch({
