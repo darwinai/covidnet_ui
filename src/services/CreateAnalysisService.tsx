@@ -64,10 +64,10 @@ class CreateAnalysisService {
   }
 
   /**
-   * Runs pl-med2img and the pl-covidnet/pl-ct-covidnet given the pl-dircopy instances and DcmImgages generated from copyFiles
-   * @param XrayModel 
-   * @param CTModel 
-   * @returns 
+   * Runs an analysis on each of the DcmImages
+   * @param {string} XrayModel The name of the COVID-Net model to use on x-ray images
+   * @param {string} CTModel The name of the COVID-Net model to use on the CT images
+   * @returns {Promise<NotificationItem[]>} Notifications of any plugin failures that occur in processOneImg
    */
   static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
     const processedImages = await Promise.allSettled(dcmImages.map(async (img: DcmImage) => {

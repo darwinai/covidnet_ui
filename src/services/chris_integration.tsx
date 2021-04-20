@@ -132,12 +132,11 @@ class ChrisIntegration {
   }
 
   /**
-   * Runs pl-med2-img and pl-covidnet/pl-ct-covidnet on a DcmImage, given its pl-dircopy instance obtained from runDircopy
-   * @param img DcmImage
-   * @param dircopyPluginInstance instance obtained from runDircopy
-   * @param chosenXrayModel name of model to be used for pl-covidnet
-   * @param chosenCTModel name of model to be used for pl-ct-covidnet
-   * @returns plugin result after polling
+   * Initiate pl-dircopy, pl-med2img, and the appropriate COVID-Net plugin in sequence on the provided DcmImage
+   * @param {DcmImage} img The DICOM data to run the analysis on
+   * @param {string} chosenXrayModel The name of the COVID-Net model to use on the x-ray images
+   * @param {string} chosenCTModel The name of the COVID-Net model to use on the CT images
+   * @returns {BackendPollResult} The result of initiating the plugins
    */
    static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
     let client: Client = await ChrisAPIClient.getClient();
