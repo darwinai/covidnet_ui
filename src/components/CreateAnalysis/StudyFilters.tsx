@@ -7,7 +7,7 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 const StudyFilters = () => {
     const { state: {dcmImages}, dispatch } = useContext(AppContext);
 
-    const [seriesInstanceUID, setSeriesInstanceUID] = useState<string>('');
+    const [seriesInstanceUID, setSeriesInstanceUID] = useState<string>("");
     const [minStudyDate, setMinStudyDate] = useState<string>('');
     const [maxStudyDate, setMaxStudyDate] = useState<string>('');
 
