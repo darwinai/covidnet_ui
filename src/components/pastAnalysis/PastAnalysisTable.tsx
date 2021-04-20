@@ -269,6 +269,14 @@ const PastAnalysisTable = () => {
     updateRows(tableState.storedPages[tableState.page].filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
   }
 
+  const decrementPage = () => {
+    tableDispatch({ type: TableReducerActions.DECREMENT_PAGE });
+  }
+
+  const incrementPage = () => {
+    tableDispatch({ type: TableReducerActions.INCREMENT_PAGE });
+  }
+
   return (
     <div className="PastAnalysis">
       <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
@@ -283,13 +291,13 @@ const PastAnalysisTable = () => {
       </div>
 
       <div style={{ float: "right" }}>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => tableDispatch({ type: TableReducerActions.DECREMENT_PAGE })} disabled={loading || tableState.page == 0}>
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={decrementPage} disabled={loading || tableState.page == 0}>
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-left" aria-hidden="true"></i>
           </span>
       &nbsp; Previous {perpage}
         </button>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => tableDispatch({ type: TableReducerActions.INCREMENT_PAGE })} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={incrementPage} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-right" aria-hidden="true"></i>
           </span>
