@@ -88,7 +88,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
 
 const PastAnalysisTable = () => {
   const { state: { prevAnalyses: { perpage } }, dispatch } = React.useContext(AppContext);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [tableState, tableDispatch] = useReducer(tableReducer, INITIAL_TABLE_STATE);
 
@@ -120,7 +120,7 @@ const PastAnalysisTable = () => {
       const { maxFeedId, page, lastOffset, storedPages } = tableState;
 
       if (!maxFeedId || maxFeedId >= 0) {
-        setLoading(true);
+        setIsLoading(true);
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
@@ -147,7 +147,7 @@ const PastAnalysisTable = () => {
 
         updateRows(curAnalyses);
       }
-      setLoading(false);
+      setIsLoading(false);
     })();
   }, [tableState, perpage, dispatch]);
 
@@ -278,32 +278,37 @@ const PastAnalysisTable = () => {
   }
 
   return (
-    <div className="PastAnalysis">
-      <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
-      <div className="MRNsearchBar">
-        <InputGroup>
-          <InputGroupText>
-            <FilterIcon />
-          </InputGroupText>
-          <TextInput id="textInput5" type="number" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
-          <InputGroupText> <SearchIcon /> </InputGroupText>
-        </InputGroup>
-      </div>
+    <div className="PastAnalysis flex-column">
+      <div>
+        <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
+        <div className="flex-row-space-between">
+          <div className="MRNsearchBar">
+            <InputGroup>
+              <InputGroupText>
+                <FilterIcon />
+              </InputGroupText>
+              <TextInput id="textInput5" type="number" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
+              <InputGroupText> <SearchIcon /> </InputGroupText>
+            </InputGroup>
+          </div>
 
-      <div className="page-navigation-buttons">
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm p pf-u-mr-md" type="button" onClick={decrementPage} disabled={loading || tableState.page == 0}>
-          <span className="pf-c-button__icon pf-m-end">
-            <i className="fas fa-arrow-left" aria-hidden="true"></i>
-          </span>
-          &nbsp; Previous {perpage}
-        </button>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={incrementPage} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
-          <span className="pf-c-button__icon pf-m-end">
-            <i className="fas fa-arrow-right" aria-hidden="true"></i>
-          </span>
-        </button>
+          <div className="page-navigation-buttons">
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm p pf-u-mr-md" type="button" onClick={decrementPage} disabled={isLoading || tableState.page == 0}>
+              <span className="pf-c-button__icon pf-m-end">
+                <i className="fas fa-arrow-left" aria-hidden="true"></i>
+              </span>
+              &nbsp; Previous {perpage}
+            </button>
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={incrementPage} disabled={isLoading || tableState.page === tableState.lastPage}>
+              Next {perpage}
+              <span className="pf-c-button__icon pf-m-end">
+                <i className="fas fa-arrow-right" aria-hidden="true"></i>
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
-      { loading ? (
+      { isLoading ? (
         <div className="loading">
           <Spinner size="xl" /> &nbsp; Loading
         </div>
