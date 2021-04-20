@@ -6,15 +6,15 @@ import NotificationService from "./notificationService";
 import { formatDate } from "../shared/utils";
 
 export interface StudyInstance {
-  studyInstanceUID: string,
-  studyDescription: string,
-  modality: string,
-  studyDate: string,
-  setModelType?: (modality: string) => void
+  studyInstanceUID: string;
+  studyDescription: string;
+  modality: string;
+  studyDate: string;
+  setModelType?: (modality: string) => void;
 }
 
 export interface AnalyzedImageResult {
-  image: DcmImage,
+  image: DcmImage;
   processedResults: BackendPollResult;
 }
 
