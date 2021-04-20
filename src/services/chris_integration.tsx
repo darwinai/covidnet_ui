@@ -49,7 +49,7 @@ export interface BackendPollResult {
 export interface pluginData {
   title: string,
   status: string,
-  plugin_name: string
+  pluginName: string
 }
 
 export const pollingBackend = async (pluginInstance: PluginInstance): Promise<BackendPollResult> => {
@@ -252,12 +252,12 @@ class ChrisIntegration {
   }
 
   static async getPluginData(id: number): Promise<pluginData> {
-    const client: any = ChrisAPIClient.getClient();
+    const client: Client = ChrisAPIClient.getClient();
     const plugin = await client.getPluginInstances({ id });
     return ({
-      title: plugin?.data?.[0]?.title,
-      status: plugin?.data?.[0]?.status,
-      plugin_name: plugin?.data?.[0]?.plugin_name
+      title: plugin?.getItems()?.[0]?.title,
+      status: plugin?.getItems()?.[0]?.status,
+      pluginName: plugin?.getItems()?.[0]?.plugin_name
     });
   }
 

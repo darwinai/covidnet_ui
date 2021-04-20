@@ -10,10 +10,10 @@ export enum NotificationItemVariant {
 }
 
 export interface NotificationItem {
-  variant: 'success' | 'danger' | 'warning' | 'info' | 'default', //here need? how does it work? what's it doing? remove?
-  title: string,
-  message: string,
-  timestamp: Moment
+  variant: 'success' | 'danger' | 'warning' | 'info' | 'default';
+  title: string;
+  message: string;
+  timestamp: Moment;
 }
 
 export type NotificationState = NotificationItem[];
@@ -39,7 +39,7 @@ export const notificationsReducer = (
 ) => {
   switch (action.type) {
     case NotificationActionTypes.SEND:
-      return state.concat(action.payload.notifications).sort((a, b) => b.timestamp.diff(a.timestamp)); // chronological order for notifications
+      return state.concat([...state, ...action.payload.notifications].sort((a, b) => b.timestamp.diff(a.timestamp))); // chronological order for notifications
 
     case NotificationActionTypes.CLEAR:  // clear all notifications currently being stored
       return [];

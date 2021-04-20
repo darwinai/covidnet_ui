@@ -189,7 +189,7 @@ const PastAnalysisTable: React.FC = () => {
           variant: NotificationItemVariant.DANGER,
           title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
           message: `During the analysis, the following error was raised:
-                    ${pluginData.plugin_name} failed.`,
+                    ${pluginData.pluginName} failed.`,
           timestamp: moment()
         });
       } else {

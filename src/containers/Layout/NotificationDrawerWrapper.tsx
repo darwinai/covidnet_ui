@@ -20,10 +20,10 @@ interface NotificationDrawerWrapperProps {
 }
 
 const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ onClose }) => {
-  const [disabled, setDisabled] = useState(true);
+  const [disabledClearAll, setDisabledClearAll] = useState(true);
   const { state: { notifications }, dispatch } = useContext(AppContext);
 
-  const onNotificationClose = (index: number) => {
+  const onNotificationRemoval = (index: number) => {
     let newNotifications: NotificationItem[] = notifications.slice(0);
     newNotifications.splice(index, 1);
 
@@ -35,18 +35,20 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
     });
   }
 
+  const onNotificationClear = () => {
+    dispatch({
+      type: NotificationActionTypes.CLEAR
+    });
+  }
+
   useEffect(() => {
-    setDisabled(notifications.length === 0)
+    setDisabledClearAll(notifications.length === 0)
   }, [notifications.length]);
 
   return (
     <NotificationDrawer>
       <NotificationDrawerHeader count={notifications.length}>
-        <Button variant="tertiary" aria-label="Clear All" isDisabled={disabled} onClick={() => {
-          dispatch({
-            type: NotificationActionTypes.CLEAR
-          });
-        }}>Clear All</Button>
+        <Button variant={ButtonVariant.tertiary} aria-label="Clear All Notifications" isDisabled={disabledClearAll} onClick={onNotificationClear}>Clear All</Button>
         <Button variant={ButtonVariant.plain} aria-label="Close Notification Drawer" onClick={onClose} className="times-logo">
           <TimesIcon aria-hidden="true" />
         </Button>
@@ -60,7 +62,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
               <NotificationDrawerListItemBody timestamp={item.timestamp.calendar()}>
                 {item.message}
               </NotificationDrawerListItemBody>
-              <Button variant={ButtonVariant.plain} aria-label="Close Notification" onClick={() => onNotificationClose(index)} className="times-logo notification-close">
+              <Button variant={ButtonVariant.plain} aria-label="Remove Notification" onClick={() => onNotificationRemoval(index)} className="times-logo notification-remove-btn">
                 <TimesCircleIcon aria-hidden="true" />
               </Button>
             </NotificationDrawerListItem>))}
