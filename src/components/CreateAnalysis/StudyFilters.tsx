@@ -38,8 +38,8 @@ const StudyFilters = () => {
 
     const clearFilters = async () => {
       setSeriesInstanceUID('');
-      setMinStudyDate('');
-      setMaxStudyDate('');
+      setMinStudyDate("");
+      setMaxStudyDate("");
     }
 
     const onMinDateChange = (_str: string, date?: Date) => {
