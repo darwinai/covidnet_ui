@@ -133,9 +133,9 @@ class ChrisIntegration {
 
   /**
    * Initiate pl-dircopy, pl-med2img, and the appropriate COVID-Net plugin in sequence on the provided DcmImage
-   * @param {DcmImage} img The DICOM data to run the analysis on
-   * @param {string} chosenXrayModel The name of the COVID-Net model to use on the x-ray images
-   * @param {string} chosenCTModel The name of the COVID-Net model to use on the CT images
+   * @param {DcmImage} img - The DICOM data to run the analysis on
+   * @param {string} chosenXrayModel - The name of the COVID-Net model to use on the x-ray images
+   * @param {string} chosenCTModel - The name of the COVID-Net model to use on the CT images
    * @returns {BackendPollResult} The result of initiating the plugins
    */
    static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
