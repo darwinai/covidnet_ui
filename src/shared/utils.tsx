@@ -17,5 +17,5 @@ export const formatTime = (oldDay: string): string => {
 }
 
 export const modifyDatetime = (oldDay: string): string => {
-  return (DateTime.fromISO(oldDay).toRelativeCalendar() || "").split(' ').map((date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(' ');
+  return (DateTime.fromISO(oldDay).toRelativeCalendar() || "").split(" ").map((date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ");
 }
