@@ -55,7 +55,7 @@ const StudyFilters = () => {
       if (date && isValidDate(date)) {
         setMaxStudyDate(date.toISOString().substring(0, 10));
         if (date <= new Date(minStudyDate)) {
-          setMinStudyDate('');
+          setMinStudyDate("");
         }
       }
     };
