@@ -25,7 +25,7 @@ interface NotificationPayload {
   },
   [NotificationActionTypes.CLEAR]: {},
   [NotificationActionTypes.REMOVE]: {
-    notifications: NotificationItem[]
+    index: number
   }
 }
 
@@ -45,7 +45,7 @@ export const notificationsReducer = (
       return [];
 
     case NotificationActionTypes.REMOVE:  // update notifications to not include removed notification
-      return action.payload.notifications;
+      return [...state].slice(0).splice(action.payload.index, 1);
 
     default:
       return state
