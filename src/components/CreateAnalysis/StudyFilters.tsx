@@ -8,8 +8,8 @@ const StudyFilters = () => {
     const { state: {dcmImages}, dispatch } = useContext(AppContext);
 
     const [seriesInstanceUID, setSeriesInstanceUID] = useState<string>("");
-    const [minStudyDate, setMinStudyDate] = useState<string>('');
-    const [maxStudyDate, setMaxStudyDate] = useState<string>('');
+    const [minStudyDate, setMinStudyDate] = useState<string>("");
+    const [maxStudyDate, setMaxStudyDate] = useState<string>("");
 
     useEffect(() => {
       const filteredDcmImages = dcmImages.allDcmImages.filter(image => {
