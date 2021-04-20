@@ -65,9 +65,9 @@ class CreateAnalysisService {
 
   /**
    * Runs an analysis on each of the DcmImages
-   * @param {DcmImage[]} dcmImages The list of DICOM data to run analyses on
-   * @param {string} XrayModel The name of the COVID-Net model to use on x-ray images
-   * @param {string} CTModel The name of the COVID-Net model to use on the CT images
+   * @param {DcmImage[]} dcmImages - The list of DICOM data to run analyses on
+   * @param {string} XrayModel - The name of the COVID-Net model to use on x-ray images
+   * @param {string} CTModel - The name of the COVID-Net model to use on the CT images
    * @returns {Promise<NotificationItem[]>} Notifications of any plugin failures that occur in processOneImg
    */
   static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
