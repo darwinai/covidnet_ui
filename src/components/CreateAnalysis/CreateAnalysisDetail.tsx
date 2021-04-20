@@ -6,7 +6,7 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
-import StudyFilters from './StudyFilters';
+import StudyFilters from "./StudyFilters";
 import Error from "../../shared/error";
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
