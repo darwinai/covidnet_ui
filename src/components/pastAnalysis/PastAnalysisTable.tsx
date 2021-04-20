@@ -87,10 +87,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
 }
 
 const PastAnalysisTable = () => {
-  const { state: {
-    prevAnalyses: { perpage }
-  },
-    dispatch } = React.useContext(AppContext);
+  const { state: { prevAnalyses: { perpage } }, dispatch } = React.useContext(AppContext);
   const [loading, setLoading] = useState(true);
 
   const [tableState, tableDispatch] = useReducer(tableReducer, INITIAL_TABLE_STATE);
