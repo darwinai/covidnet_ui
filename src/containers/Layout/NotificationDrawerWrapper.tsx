@@ -9,7 +9,7 @@ import {
   NotificationDrawerListItemHeader,
   ButtonVariant
 } from '@patternfly/react-core';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from '../../context/context';
 import { TimesIcon, TimesCircleIcon } from "@patternfly/react-icons";
 import { NotificationActionTypes } from "../../context/actions/types";
