@@ -13,7 +13,7 @@ export const calculatePatientAge = (patientDOB: string): number => {
 }
 
 export const formatTime = (oldDay: string): string => {
-  return oldDay.split('.')[0];
+  return oldDay.split(".")[0];
 }
 
 export const modifyDatetime = (oldDay: string): string => {
