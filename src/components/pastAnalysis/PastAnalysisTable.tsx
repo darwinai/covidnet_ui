@@ -290,12 +290,12 @@ const PastAnalysisTable = () => {
         </InputGroup>
       </div>
 
-      <div style={{ float: "right" }}>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={decrementPage} disabled={loading || tableState.page == 0}>
+      <div className="page-navigation-buttons">
+        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm p pf-u-mr-md" type="button" onClick={decrementPage} disabled={loading || tableState.page == 0}>
           <span className="pf-c-button__icon pf-m-end">
             <i className="fas fa-arrow-left" aria-hidden="true"></i>
           </span>
-      &nbsp; Previous {perpage}
+          &nbsp; Previous {perpage}
         </button>
         <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={incrementPage} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
           <span className="pf-c-button__icon pf-m-end">
