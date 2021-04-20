@@ -11,9 +11,9 @@ import {
 } from '@patternfly/react-core';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../context/context';
-import { TimesIcon, TimesCircleIcon } from '@patternfly/react-icons';
-import { NotificationActionTypes } from '../../context/actions/types';
-import { NotificationItem } from '../../context/reducers/notificationReducer';
+import { TimesIcon, TimesCircleIcon } from "@patternfly/react-icons";
+import { NotificationActionTypes } from "../../context/actions/types";
+import { NotificationItem } from "../../context/reducers/notificationReducer";
 
 interface NotificationDrawerWrapperProps {
   onClose: () => void;
