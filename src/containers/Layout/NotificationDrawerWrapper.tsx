@@ -24,13 +24,13 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
   const { state: { notifications }, dispatch } = useContext(AppContext);
 
   const onNotificationRemoval = (index: number) => {
-    let newNotifications: NotificationItem[] = notifications.slice(0);
-    newNotifications.splice(index, 1);
+    // let newNotifications: NotificationItem[] = notifications.slice(0);
+    // newNotifications.splice(index, 1);
 
     dispatch({
       type: NotificationActionTypes.REMOVE,
       payload: {
-        notifications: newNotifications
+        index
       }
     });
   }
