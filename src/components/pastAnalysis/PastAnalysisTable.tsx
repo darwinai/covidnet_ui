@@ -4,15 +4,17 @@ import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
 import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
-import { AnalysisTypes } from "../../context/actions/types";
+import { NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
-import ChrisIntegration from "../../services/chris_integration";
+import ChrisIntegration, { pluginData, PluginPollStatus } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 import useInterval from "../../shared/useInterval";
 import { RESULT_POLL_INTERVAL } from "../../app.config";
+import { NotificationItem, NotificationItemVariant } from "../../context/reducers/notificationReducer";
+import moment from "moment";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -48,7 +50,8 @@ enum TableReducerActions {
   UPDATE_MAX_FEED_ID = "UPDATE_MAX_FEED_ID",
   ADD_NEW_PAGE = "ADD_NEW_PAGE",
   INCREMENT_PAGE = "INCREMENT_PAGE",
-  DECREMENT_PAGE = "DECREMENT_PAGE"
+  DECREMENT_PAGE = "DECREMENT_PAGE",
+  UPDATE_PLUGINS = "UPDATE_PLUGINS"
 }
 
 type TableAction =
@@ -56,9 +59,10 @@ type TableAction =
   | { type: TableReducerActions.ADD_NEW_PAGE, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
   | { type: TableReducerActions.INCREMENT_PAGE }
   | { type: TableReducerActions.DECREMENT_PAGE }
+  | { type: TableReducerActions.UPDATE_PLUGINS, payload: { processingPluginIds: number[] } };
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
-  switch(action.type) {
+  switch (action.type) {
     case TableReducerActions.UPDATE_MAX_FEED_ID:
       return {
         ...INITIAL_TABLE_STATE,
@@ -82,11 +86,16 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         ...state,
         page: state.page - 1
       }
+    case TableReducerActions.UPDATE_PLUGINS:
+      return {
+        ...state,
+        processingPluginIds: action.payload.processingPluginIds
+      }
     default: return state;
   }
 }
 
-const PastAnalysisTable = () => {
+const PastAnalysisTable: React.FC = () => {
   const { state: { prevAnalyses: { perpage } }, dispatch } = React.useContext(AppContext);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -107,7 +116,7 @@ const PastAnalysisTable = () => {
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = async () => {
-    const id: number = await ChrisIntegration.getLatestFeedId()
+    const id: number = await ChrisIntegration.getLatestFeedId();
     tableDispatch({ type: TableReducerActions.UPDATE_MAX_FEED_ID, payload: { id } });
   }
 
@@ -130,15 +139,17 @@ const PastAnalysisTable = () => {
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
-          .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
+            .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
 
           curAnalyses = newAnalyses;
-          tableDispatch({ type: TableReducerActions.ADD_NEW_PAGE, payload: {
-            lastOffset: newOffset,
-            lastPage: isAtEndOfFeeds ? page : -1,
-            newPage: curAnalyses,
-            processingPluginIds
-          }});
+          tableDispatch({
+            type: TableReducerActions.ADD_NEW_PAGE, payload: {
+              lastOffset: newOffset,
+              lastPage: isAtEndOfFeeds ? page : -1,
+              newPage: curAnalyses,
+              processingPluginIds: processingPluginIds.filter((id: number) => !tableState.processingPluginIds.includes(id))
+            }
+          });
 
         } else {
           // If page has already been seen, access its contents from storedPages
@@ -152,17 +163,52 @@ const PastAnalysisTable = () => {
   }, [tableState, perpage, dispatch]);
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
+
   useInterval(async () => {
-    if (tableState.processingPluginIds) {
-      for (const id of tableState.processingPluginIds) {
-        const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
-        if (refresh) {
-          // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-          newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
-          updateMaxFeedId();
-          return;
-        }
+    const finishedPlugins = (await Promise.all(tableState.processingPluginIds.map(async (id: number) => {
+      if (await ChrisIntegration.checkIfPluginTerminated(id)) {
+        return [id];
+      } else {
+        return [];
       }
+    }))).flat();
+
+    let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
+      const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
+      if (pluginData.status !== PluginPollStatus.SUCCESS) {
+        return ({
+          variant: NotificationItemVariant.DANGER,
+          title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
+          message: `During the analysis, the following error was raised:
+                    ${pluginData.pluginName} failed.`,
+          timestamp: moment()
+        });
+      } else {
+        return ({
+          variant: NotificationItemVariant.SUCCESS,
+          title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
+          message: `The image was processed successfully.`,
+          timestamp: moment()
+        });
+      }
+    }));
+
+    if (finishedPlugins.length) {
+      dispatch({
+        type: NotificationActionTypes.SEND,
+        payload: { notifications }
+      });
+
+      const updatedPlugins = tableState.processingPluginIds.filter((id: number) => {
+        return !finishedPlugins.includes(id);
+      });
+
+      tableDispatch({
+        type: TableReducerActions.UPDATE_PLUGINS,
+        payload: { processingPluginIds: updatedPlugins }
+      });
+
+      updateMaxFeedId();
     }
   }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 

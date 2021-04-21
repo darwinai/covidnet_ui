@@ -29,7 +29,7 @@ interface PACSFile {
   data: DcmImage;
 }
 
-enum PluginPollStatus {
+export enum PluginPollStatus {
   CREATED = "created",
   WAITING = "waiting",
   SCHEDULED = "scheduled",
@@ -44,6 +44,12 @@ export interface BackendPollResult {
   plugin: string;
   status?: PluginPollStatus;
   error?: Error;
+}
+
+export interface pluginData {
+  title: string;
+  status: string;
+  pluginName: string;
 }
 
 export const pollingBackend = async (pluginInstance: PluginInstance): Promise<BackendPollResult> => {
@@ -145,7 +151,7 @@ class ChrisIntegration {
     let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
 
     try {
-      console.log(img.fname)
+      console.log(img.fname);
 
       // PL-DIRCOPY
       const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
@@ -194,7 +200,7 @@ class ChrisIntegration {
       return {
           plugin: 'plugins'
       };
-      
+
     } catch (err) {
       console.log(err);
       return {
@@ -228,7 +234,7 @@ class ChrisIntegration {
     const client: any = ChrisAPIClient.getClient();
     const feeds = await client.getFeeds({
       limit: 1,
-      offset: 0,
+      offset: 0
     });
     return feeds.getItems()?.[0]?.data?.id;
   }
@@ -242,6 +248,16 @@ class ChrisIntegration {
     const plugin = await client.getPluginInstances({ id });
     const status = plugin?.getItems()?.[0]?.data?.status;
     return status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED;
+  }
+
+  static async getPluginData(id: number): Promise<pluginData> {
+    const client: Client = ChrisAPIClient.getClient();
+    const plugin = await client.getPluginInstances({ id });
+    return ({
+      title: plugin?.getItems()?.[0]?.data?.title,
+      status: plugin?.getItems()?.[0]?.data?.status,
+      pluginName: plugin?.getItems()?.[0]?.data?.plugin_name
+    });
   }
 
   /**

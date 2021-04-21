@@ -24,7 +24,7 @@ const RouterWrapper: React.FC = ({ children }) => {
         const res: User = await client.getUser();
         const user: IUserState = res?.data;
         dispatch({
-          type: Types.Login_update,
+          type: Types.LOGIN_UPDATE,
           payload: user
         });
         
