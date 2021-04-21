@@ -9,12 +9,12 @@ export interface StudyInstance {
   studyInstanceUID: string;
   studyDescription: string;
   modality: string;
-  createdDate: string;
+  studyDate: string;
   setModelType?: (modality: string) => void;
 }
 
 export interface AnalyzedImageResult {
-  image: DcmImage,
+  image: DcmImage;
   processedResults: BackendPollResult;
 }
 
@@ -30,7 +30,7 @@ class CreateAnalysisService {
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          createdDate: formatDate(img.creation_date)
+          studyDate: formatDate(img.StudyDate)
         })
         seenUID[img.StudyInstanceUID] = true;
       }

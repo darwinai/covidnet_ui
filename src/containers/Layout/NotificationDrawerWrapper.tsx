@@ -23,7 +23,6 @@ interface NotificationDrawerWrapperProps {
 
 const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ onClose }) => {
   const history = useHistory();
-  const [disabledClearAll, setDisabledClearAll] = useState(true);
   const { state: { notifications }, dispatch } = useContext(AppContext);
 
   const onNotificationRemoval = (index: number) => {
@@ -40,11 +39,6 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
       type: NotificationActionTypes.CLEAR
     });
   }
-
-  useEffect(() => {
-    setDisabledClearAll(notifications.length === 0)
-  }, [notifications.length]);
-
   const viewImg = async (index: number, id?: number) => {
     if (id) {
       const plugin = await ChrisIntegration.fetchPluginInstanceFromId(id);
@@ -71,7 +65,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
   return (
     <NotificationDrawer>
       <NotificationDrawerHeader count={notifications.length}>
-        <Button variant={ButtonVariant.tertiary} aria-label="Clear All Notifications" isDisabled={disabledClearAll} onClick={onNotificationClear}>Clear All</Button>
+        <Button variant={ButtonVariant.tertiary} aria-label="Clear All Notifications" isDisabled={!notifications.length} onClick={onNotificationClear}>Clear All</Button>
         <Button variant={ButtonVariant.plain} aria-label="Close Notification Drawer" onClick={onClose} className="times-logo">
           <TimesIcon aria-hidden="true" />
         </Button>

@@ -7,7 +7,7 @@ import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react
 import { NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
-import ChrisIntegration, { pluginData } from "../../services/chris_integration";
+import ChrisIntegration, { pluginData, PluginPollStatus } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
@@ -62,7 +62,7 @@ type TableAction =
   | { type: TableReducerActions.UPDATE_PLUGINS, payload: { processingPluginIds: number[] } };
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
-  switch(action.type) {
+  switch (action.type) {
     case TableReducerActions.UPDATE_MAX_FEED_ID:
       return {
         ...INITIAL_TABLE_STATE,
@@ -106,7 +106,7 @@ const PastAnalysisTable: React.FC = () => {
       title: "Study",
       cellFormatters: [expandable]
     },
-    "Patient MRN", "Patient DOB", "Patient Age", "Analysis Created", ""
+    "Study Date", "Patient MRN", "Patient DOB", "Analysis Created", ""
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -165,20 +165,17 @@ const PastAnalysisTable: React.FC = () => {
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
 
   useInterval(async () => {
-    let finishedPlugins: number[] = [];
-
-    for (const id of tableState.processingPluginIds) {
-      if (await ChrisIntegration.checkIfPluginTerminated(id)) { // parallel async execution here
-        // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-
-        // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
-        finishedPlugins.push(id);
+    const finishedPlugins = (await Promise.all(tableState.processingPluginIds.map(async (id: number) => {
+      if (await ChrisIntegration.checkIfPluginTerminated(id)) {
+        return [id];
+      } else {
+        return [];
       }
-    }
+    }))).flat();
 
     let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
       const notificationInfo: pluginData = await ChrisIntegration.getPluginData(id);
-      if (notificationInfo.status !== "finishedSuccessfully") {
+      if (notificationInfo.status !== PluginPollStatus.SUCCESS) {
         return ({
           variant: NotificationItemVariant.DANGER,
           title: `Analysis of image '${notificationInfo.title.split('/').pop()}' failed`,
@@ -245,9 +242,9 @@ const PastAnalysisTable: React.FC = () => {
 
       const cells: any[] = [
         analysis.dcmImage.StudyDescription,
+        analysis.dcmImage.StudyDate,
         analysis.dcmImage.PatientID,
-        analysis.dcmImage.PatientBirthDate,
-        `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y`,
+        `${analysis.dcmImage.PatientBirthDate} (${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y)`,
         analysisCreated,
         badges
       ];

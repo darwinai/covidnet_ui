@@ -5,17 +5,17 @@ import { CreateAnalysisTypes, DicomImagesTypes } from "../../context/actions/typ
 import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 
-const FileLookup = () => {
-  const { state: { dcmImages }, dispatch } = useContext(AppContext);
+const StudyFilters = () => {
+  const { state: {dcmImages}, dispatch } = useContext(AppContext);
 
-  const [minCreationDate, setMinCreationDate] = useState<string>("");
-  const [maxCreationDate, setMaxCreationDate] = useState<string>("");
+  const [minStudyDate, setMinStudyDate] = useState<string>("");
+  const [maxStudyDate, setMaxStudyDate] = useState<string>("");
 
   useEffect(() => {
     const filteredDcmImages = dcmImages.allDcmImages.filter((image: DcmImage) => {
-      const imageCreationDate = Date.parse(image.creation_date.substring(0, 10));
-      return (minCreationDate === "" || imageCreationDate >= Date.parse(minCreationDate)) &&
-        (maxCreationDate === "" || imageCreationDate <= Date.parse(maxCreationDate))
+      const imageStudyDate = Date.parse(image.StudyDate);
+      return (minStudyDate === "" || imageStudyDate >= Date.parse(minStudyDate)) &&
+        (maxStudyDate === "" || imageStudyDate <= Date.parse(maxStudyDate));
     });
 
     dispatch({
@@ -33,27 +33,27 @@ const FileLookup = () => {
         }
       });
     }
-  }, [minCreationDate, maxCreationDate]);
+  }, [minStudyDate, maxStudyDate]);
 
   const clearFilters = async () => {
-    setMinCreationDate("");
-    setMaxCreationDate("");
+    setMinStudyDate("");
+    setMaxStudyDate("");
   }
 
   const onMinDateChange = (_str: string, date?: Date) => {
     if (date && isValidDate(date)) {
-      setMinCreationDate(date.toISOString().substring(0, 10));
-      if (date >= new Date(maxCreationDate)) {
-        setMaxCreationDate("");
+      setMinStudyDate(date.toISOString().substring(0, 10));
+      if (date >= new Date(maxStudyDate)) {
+        setMaxStudyDate("");
       }
     }
   };
 
   const onMaxDateChange = (_str: string, date?: Date) => {
     if (date && isValidDate(date)) {
-      setMaxCreationDate(date.toISOString().substring(0, 10));
-      if (date <= new Date(minCreationDate)) {
-        setMinCreationDate("");
+      setMaxStudyDate(date.toISOString().substring(0, 10));
+      if (date <= new Date(minStudyDate)) {
+        setMinStudyDate("");
       }
     }
   };
@@ -61,21 +61,21 @@ const FileLookup = () => {
   return (
     <div className="InputRow">
       <div className="InputRowField">
-        <label>File Creation Date</label>
+        <label>Study Date</label>
         <Split hasGutter>
           <SplitItem>
             <DatePicker
-              value={minCreationDate}
+              value={minStudyDate}
               onChange={onMinDateChange}
-              aria-label="From date"
+              aria-label="Minimum Study Date"
             />
           </SplitItem>
           <SplitItem>to</SplitItem>
           <SplitItem>
             <DatePicker
-              value={maxCreationDate}
+              value={maxStudyDate}
               onChange={onMaxDateChange}
-              aria-label="To date"
+              aria-label="Maximum Study Date"
             />
           </SplitItem>
         </Split>
@@ -87,6 +87,6 @@ const FileLookup = () => {
       </div>
     </div>
   )
-}
+};
 
-export default FileLookup;
+export default StudyFilters;
