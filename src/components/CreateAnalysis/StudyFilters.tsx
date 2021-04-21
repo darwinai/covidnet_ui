@@ -11,12 +11,12 @@ const StudyFilters = () => {
   const [minStudyDate, setMinStudyDate] = useState<string>("");
   const [maxStudyDate, setMaxStudyDate] = useState<string>("");
 
-    useEffect(() => {
-      const filteredDcmImages = dcmImages.allDcmImages.filter((image: DcmImage) => {
-        const imageStudyDate = Date.parse(image.StudyDate);
-        return (minStudyDate === "" || imageStudyDate >= Date.parse(minStudyDate)) &&
-        (maxStudyDate === "" || imageStudyDate <= Date.parse(maxStudyDate))
-      });
+  useEffect(() => {
+    const filteredDcmImages = dcmImages.allDcmImages.filter((image: DcmImage) => {
+      const imageStudyDate = Date.parse(image.StudyDate);
+      return (minStudyDate === "" || imageStudyDate >= Date.parse(minStudyDate)) &&
+        (maxStudyDate === "" || imageStudyDate <= Date.parse(maxStudyDate));
+    });
 
     dispatch({
       type: DicomImagesTypes.Update_filtered_images,
