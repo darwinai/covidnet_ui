@@ -1,24 +1,32 @@
 .InputRow {
   display: flex;
   flex-direction: row;
-  margin: 1rem;
+  margin: $page-section-margin;
+  
   .InputRowField {
-    width: 25%;
+    width: 30em;
     padding-right: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    
     label {
       font-weight: bold;
     }
-    #toggle-Privacy-Level {
-      width: 1000px;
+    
+    div {
+      justify-content: space-between;
     }
   }
 }
 
+.input-row-label {
+  margin: $page-section-margin;
+  margin-bottom: 0;
+}
+
 .PatientLookupWrapper {
-  padding-bottom: 0px;
+  padding-bottom: 0;
 }
 
 .noImagesFound {
@@ -30,4 +38,5 @@
 
 .form-display {
   display: inline-flex;
+  width: 100%;
 }

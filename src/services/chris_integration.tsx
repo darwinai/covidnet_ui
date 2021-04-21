@@ -1,9 +1,9 @@
-import { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
+import Client, { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
-import { PluginModels } from "../api/app.config";
+import { PluginModels } from "../app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
 
 export interface LocalFile {
@@ -32,7 +32,6 @@ interface PACSFile {
 enum PluginPollStatus {
   CREATED = "created",
   WAITING = "waiting",
-  WAITING_FOR_PREVIOUS = "waitingForPrevious",
   SCHEDULED = "scheduled",
   STARTED = "started",
   REGISTERING_FILES = "registeringFiles",
@@ -132,8 +131,15 @@ class ChrisIntegration {
     return true;
   }
 
-  static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
-    let client: any = await ChrisAPIClient.getClient();
+  /**
+   * Initiate pl-dircopy, pl-med2img, and the appropriate COVID-Net plugin in sequence on the provided DcmImage
+   * @param {DcmImage} img - The DICOM data to run the analysis on
+   * @param {string} chosenXrayModel - The name of the COVID-Net model to use on the x-ray images
+   * @param {string} chosenCTModel - The name of the COVID-Net model to use on the CT images
+   * @returns {BackendPollResult} The result of initiating the plugins
+   */
+   static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
+    let client: Client = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
     let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
@@ -182,15 +188,13 @@ class ChrisIntegration {
           error: new Error('not registered')
         };
       }
-      const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
 
-      const covidnetResult = await pollingBackend(covidnetInstance);
-      if (covidnetResult.error) {
-        return covidnetResult;
-      }
-
-      return covidnetResult;
+      return {
+          plugin: 'plugins'
+      };
+      
     } catch (err) {
       console.log(err);
       return {
@@ -227,6 +231,17 @@ class ChrisIntegration {
       offset: 0,
     });
     return feeds.getItems()?.[0]?.data?.id;
+  }
+
+  /**
+   * Returns true if the plugin with the given id is in a terminated state (SUCCESS, ERROR, or CANCELLED)
+   * @param {number} id
+   */
+  static async checkIfPluginTerminated(id: number): Promise<boolean> {
+    const client: Client = ChrisAPIClient.getClient();
+    const plugin = await client.getPluginInstances({ id });
+    const status = plugin?.getItems()?.[0]?.data?.status;
+    return status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED;
   }
 
   /**

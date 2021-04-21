@@ -1,22 +1,14 @@
 import {
-  Button, Dropdown,
-  DropdownItem, DropdownToggle,
-  TextInput
-} from '@patternfly/react-core';
+  Button, Stack, StackItem, TextInput
+} from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
 import { AppContext } from "../context/context";
 import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
-import chris_integration from '../services/chris_integration';
-import pacs_integration from '../services/pacs_integration';
+import chris_integration from "../services/chris_integration";
+import pacs_integration from "../services/pacs_integration";
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
-
-enum PrivacyLevel {
-  ANONYMIZE_ALL_DATA = "Anonymize all data",
-  ANONYMIZE_X_DATA = "X"
-}
-
 interface PatientLookupProps {
   isOnDashboard: boolean
 }
@@ -25,21 +17,8 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
   const { state: { createAnalysis: { patientID } } } = useContext(AppContext);
 
   const { dispatch } = useContext(AppContext);
-  const [privacyLevel, setPrivacyLevel] = useState(PrivacyLevel.ANONYMIZE_ALL_DATA)
   const [patientIDInput, setPatientIDInput] = useState<string>((patientID && !isOnDashboard) ? patientID : "");
   const history = useHistory();
-
-  const [isDropDownOpen, setDropDownOpen] = React.useState(false);
-
-  const onSelect = () => {
-    setDropDownOpen(!isDropDownOpen);
-    onFocus();
-  }
-
-  const onFocus = () => {
-    const element = document.getElementById('toggle-Privacy-Level');
-    if (element) element.focus();
-  };
 
   const newLookup = async (event?: React.FormEvent) => {
     event?.preventDefault();
@@ -81,15 +60,6 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
     }
   }
 
-  const dropdownItems = [
-    <DropdownItem key="Anonymize all data" onClick={() => setPrivacyLevel(PrivacyLevel.ANONYMIZE_ALL_DATA)}>
-      {PrivacyLevel.ANONYMIZE_ALL_DATA}
-    </DropdownItem>,
-    <DropdownItem key="Anonymize x data" onClick={() => setPrivacyLevel(PrivacyLevel.ANONYMIZE_X_DATA)}>
-      {PrivacyLevel.ANONYMIZE_X_DATA}
-    </DropdownItem>,
-  ];
-
   const submitButton = isOnDashboard ? (
     <RightArrowButton type="submit">Continue</RightArrowButton>
   ) : (
@@ -100,33 +70,21 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
 
   return (
     <React.Fragment>
-      <div className="InputRow">
+      <Stack>
+        <StackItem className="input-row-label">Create a new Predictive analysis</StackItem>
+        <StackItem className="InputRow">
         <form onSubmit={newLookup} className="form-display">
           <div className="InputRowField">
             <label>Patient MRN</label>
             <TextInput value={patientIDInput} type="text" onChange={setPatientIDInput} aria-label="MRN Search Field" />
           </div>
           <div className="InputRowField">
-            <label>Privacy Level</label>
-            <Dropdown
-              onSelect={onSelect}
-              toggle={
-                <DropdownToggle id="toggle-Privacy-Level" onToggle={setDropDownOpen}>
-                  <div className="dropdownContent">
-                    {privacyLevel}
-                  </div>
-                </DropdownToggle>
-              }
-              isOpen={isDropDownOpen}
-              dropdownItems={dropdownItems}
-            />
-          </div>
-          <div className="InputRowField">
             {submitButton}
           </div>
         </form>
-      </div>
-    </React.Fragment >
+        </StackItem>
+      </Stack>
+    </React.Fragment>
   )
 }
 

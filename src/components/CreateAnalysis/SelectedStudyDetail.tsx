@@ -11,8 +11,6 @@ const SelectedStudyDetail = () => {
 
   const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID);
 
-  let content = null;
-
   const addImgToAnalysis = (isSelected: boolean, img: DcmImage): void => {
     let actionType = CreateAnalysisTypes.Add_selected_studies_UID;
     if (isSelected) actionType = CreateAnalysisTypes.Remove_selected_studies_UID;
@@ -23,17 +21,16 @@ const SelectedStudyDetail = () => {
         SeriesInstanceUID: img.SeriesInstanceUID,
         fname: img.fname
       }
-    })
+    });
   }
 
   if (images.length > 0) {
-    const { StudyDescription, StudyInstanceUID, PatientBirthDate, Modality } = images[0];
-    content = (
+    const { StudyDescription, PatientBirthDate, Modality, PatientName } = images[0];
+    return (
       <div className="detail-select">
         <div className="flex_row">
           <div className="half_width padding_2rem">
             <h1 className="study-title"> {StudyDescription} <span className="outtline-box red-small">{Modality}</span></h1>
-            <p className="color_grey s-large">Study Instance UID#{StudyInstanceUID}</p>
             <div className="padding_bot_1rem"></div>
             <div className="flex_row">
               <div className="half_width">
@@ -47,8 +44,7 @@ const SelectedStudyDetail = () => {
             </div>
           </div>
           <div className="half_width padding_2rem s-large">
-            Chest Scans of suspected patient.
-      </div>
+          </div>
         </div>
         <div className="padding_left_right_2rem">
           <Alert isInline variant="warning" title="Select frontal chest images only">
@@ -74,10 +70,10 @@ const SelectedStudyDetail = () => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  return content;
+  return null;
 }
 
 export default SelectedStudyDetail;
