@@ -48,22 +48,23 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
   const viewImg = async (index: number, id?: number) => {
     if (id) {
       const plugin = await ChrisIntegration.fetchPluginInstanceFromId(id);
-      const series = await ChrisIntegration.fetchResults(plugin);
-      const dcmImage = await ChrisIntegration.getDcmImageDetailByFilePathName(plugin?.data?.title);
-
-      dispatch({
-        type: AnalysisTypes.Update_selected_image,
-        payload: {
-          selectedImage: {
-            dcmImage,
-            series
+      if (plugin?.data?.title) {
+        const series = await ChrisIntegration.fetchResults(plugin);
+        const dcmImage = await ChrisIntegration.getDcmImageDetailByFilePathName(plugin?.data?.title);
+        dispatch({
+          type: AnalysisTypes.Update_selected_image,
+          payload: {
+            selectedImage: {
+              dcmImage,
+              series
+            }
           }
-        }
-      });
-
-      onNotificationRemoval(index);
-
-      history.push('/viewImage');
+        });
+  
+        onNotificationRemoval(index);
+  
+        history.push('/viewImage');
+      }
     }
   }
 
