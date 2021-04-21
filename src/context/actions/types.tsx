@@ -11,9 +11,14 @@ export type ActionMap<M extends { [index: string]: any }> = {
 
 
 export enum Types {
+<<<<<<< HEAD
   Login_update = 'LOGIN_UPDATE',
   Logout_update = 'LOGOUT_UPDATE',
   NotificationActionTypes = "NotificationActionTypes"
+=======
+  LOGIN_UPDATE = "LOGIN_UPDATE",
+  LOGOUT_UPDATE = "LOGOUT_UPDATE"
+>>>>>>> 66b2fd66c18b5f6e717ae0926a6e408ad69adc91
 }
 
 export enum AnalysisTypes {
@@ -48,7 +53,13 @@ export enum ImageViewerTypes {
 }
 
 export enum NotificationActionTypes {
+<<<<<<< HEAD
   SEND = 'SEND_NOTIFICATIONS',
   CLEAR = 'CLEAR_NOTIFICATIONS',
   REMOVE = 'REMOVE_NOTIFICATIONS'
+=======
+  SEND = "SEND_NOTIFICATIONS",
+  CLEAR = "CLEAR_NOTIFICATIONS",
+  REMOVE = "REMOVE_NOTIFICATIONS"
+>>>>>>> 66b2fd66c18b5f6e717ae0926a6e408ad69adc91
 }

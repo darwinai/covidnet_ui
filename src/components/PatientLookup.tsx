@@ -1,4 +1,6 @@
-import { Button,TextInput } from "@patternfly/react-core";
+import {
+  Button, Stack, StackItem, TextInput
+} from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
@@ -68,7 +70,9 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
 
   return (
     <React.Fragment>
-      <div className="InputRow">
+      <Stack>
+        <StackItem className="input-row-label">Create a new Predictive analysis</StackItem>
+        <StackItem className="InputRow">
         <form onSubmit={newLookup} className="form-display">
           <div className="InputRowField">
             <label>Patient MRN</label>
@@ -78,8 +82,9 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
             {submitButton}
           </div>
         </form>
-      </div>
-    </React.Fragment >
+        </StackItem>
+      </Stack>
+    </React.Fragment>
   )
 }
 

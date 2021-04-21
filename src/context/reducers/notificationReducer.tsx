@@ -10,11 +10,11 @@ export enum NotificationItemVariant {
 }
 
 export interface NotificationItem {
-  variant: 'success' | 'danger' | 'warning' | 'info' | 'default',
-  title: string,
-  message: string,
-  timestamp: Moment,
-  pluginId?: number
+  variant: 'success' | 'danger' | 'warning' | 'info' | 'default';
+  title: string;
+  message: string;
+  timestamp: Moment;
+  pluginId?: number;
 }
 
 export type NotificationState = NotificationItem[];
@@ -26,7 +26,7 @@ interface NotificationPayload {
   },
   [NotificationActionTypes.CLEAR]: {},
   [NotificationActionTypes.REMOVE]: {
-    notifications: NotificationItem[]
+    index: number
   }
 }
 
@@ -40,13 +40,16 @@ export const notificationsReducer = (
 ) => {
   switch (action.type) {
     case NotificationActionTypes.SEND:
-      return state.concat(action.payload.notifications).sort((a, b) => b.timestamp.diff(a.timestamp)); // chronological order for notifications
+      return [...state, ...action.payload.notifications].sort((a, b) => b.timestamp.diff(a.timestamp)); // chronological order for notifications
 
     case NotificationActionTypes.CLEAR:  // clear all notifications currently being stored
       return [];
 
     case NotificationActionTypes.REMOVE:  // update notifications to not include removed notification
-      return action.payload.notifications;
+      return [
+        ...state.slice(0, action.payload.index),
+        ...state.slice(action.payload.index + 1)
+      ];
 
     default:
       return state

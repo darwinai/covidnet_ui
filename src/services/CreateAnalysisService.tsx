@@ -9,12 +9,12 @@ export interface StudyInstance {
   studyInstanceUID: string;
   studyDescription: string;
   modality: string;
-  createdDate: string;
+  studyDate: string;
   setModelType?: (modality: string) => void;
 }
 
 export interface AnalyzedImageResult {
-  image: DcmImage,
+  image: DcmImage;
   processedResults: BackendPollResult;
 }
 
@@ -30,7 +30,7 @@ class CreateAnalysisService {
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          createdDate: formatDate(img.creation_date)
+          studyDate: formatDate(img.StudyDate)
         })
         seenUID[img.StudyInstanceUID] = true;
       }
@@ -63,10 +63,11 @@ class CreateAnalysisService {
   }
 
   /**
-   * Runs pl-med2img and the pl-covidnet/pl-ct-covidnet given the pl-dircopy instances and DcmImgages generated from copyFiles
-   * @param XrayModel 
-   * @param CTModel 
-   * @returns 
+   * Runs an analysis on each of the DcmImages
+   * @param {DcmImage[]} dcmImages - The list of DICOM data to run analyses on
+   * @param {string} XrayModel - The name of the COVID-Net model to use on x-ray images
+   * @param {string} CTModel - The name of the COVID-Net model to use on the CT images
+   * @returns {Promise<NotificationItem[]>} Notifications of any plugin failures that occur in processOneImg
    */
   static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
     const processedImages = await Promise.allSettled(dcmImages.map(async (img: DcmImage) => {
@@ -74,17 +75,17 @@ class CreateAnalysisService {
     }));
 
     const results = await processedImages.flatMap((img: PromiseSettledResult<BackendPollResult>, index: number) => {
-      if (img.status === "fulfilled" && img.value.error) {
+      if (img?.status === "fulfilled" && img?.value?.error) {
         return {
           image: dcmImages[index],
           processedResults: img.value
-        }
+        };
       } else {
         return [];
       }
     });
 
-    return results.map(result => NotificationService.failedAnalysisNotifications(result));
+    return results.map((result: AnalyzedImageResult) => NotificationService.analyzedImageToNotification(result));
   }
 }
 
