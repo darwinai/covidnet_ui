@@ -131,8 +131,15 @@ class ChrisIntegration {
     return true;
   }
 
-  static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
-    let client: any = await ChrisAPIClient.getClient();
+  /**
+   * Initiate pl-dircopy, pl-med2img, and the appropriate COVID-Net plugin in sequence on the provided DcmImage
+   * @param {DcmImage} img - The DICOM data to run the analysis on
+   * @param {string} chosenXrayModel - The name of the COVID-Net model to use on the x-ray images
+   * @param {string} chosenCTModel - The name of the COVID-Net model to use on the CT images
+   * @returns {BackendPollResult} The result of initiating the plugins
+   */
+   static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
+    let client: Client = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
     let CTModel: string = PluginModels.CTModels[chosenCTModel]; // Configuring ChRIS to use the correct CT model
@@ -181,15 +188,13 @@ class ChrisIntegration {
           error: new Error('not registered')
         };
       }
-      const covidnetInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
 
-      const covidnetResult = await pollingBackend(covidnetInstance);
-      if (covidnetResult.error) {
-        return covidnetResult;
-      }
-
-      return covidnetResult;
+      return {
+          plugin: 'plugins'
+      };
+      
     } catch (err) {
       console.log(err);
       return {

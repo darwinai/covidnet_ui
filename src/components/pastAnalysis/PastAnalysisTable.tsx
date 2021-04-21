@@ -3,13 +3,11 @@ import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
-import React, { ReactNode, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
 import { AnalysisTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
 import ChrisIntegration from "../../services/chris_integration";
-import PastAnalysisService from "../../services/pastAnalysisService";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
@@ -28,164 +26,145 @@ interface tableRowsChild {
   cells: { [title: string]: ReactNode }[]
 }
 
-interface TableStates {
-  page: number,
-  maxFeedId: number | undefined,
-  lastOffset: number,
-  lastPage: number,
-  storedPages: StudyInstanceWithSeries[][],
-  processingPluginIds: number[]
+type TableState = {
+  page: number, // Current table page number
+  maxFeedId: number | undefined, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
+  lastOffset: number, // Page offset value for where to begin fetching the next unseen page
+  lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
+  storedPages: StudyInstanceWithSeries[][], // Stores pages that have been seen in an array of pages
+  processingPluginIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
+}
+
+const INITIAL_TABLE_STATE: TableState = {
+  page: 0,
+  maxFeedId: -1,
+  lastOffset: 0,
+  lastPage: -1,
+  storedPages: [],
+  processingPluginIds: []
+}
+
+enum TableReducerActions {
+  UPDATE_MAX_FEED_ID = "UPDATE_MAX_FEED_ID",
+  ADD_NEW_PAGE = "ADD_NEW_PAGE",
+  INCREMENT_PAGE = "INCREMENT_PAGE",
+  DECREMENT_PAGE = "DECREMENT_PAGE"
+}
+
+type TableAction =
+  | { type: TableReducerActions.UPDATE_MAX_FEED_ID, payload: { id: number } }
+  | { type: TableReducerActions.ADD_NEW_PAGE, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
+  | { type: TableReducerActions.INCREMENT_PAGE }
+  | { type: TableReducerActions.DECREMENT_PAGE }
+
+const tableReducer = (state: TableState, action: TableAction): TableState => {
+  switch(action.type) {
+    case TableReducerActions.UPDATE_MAX_FEED_ID:
+      return {
+        ...INITIAL_TABLE_STATE,
+        maxFeedId: action.payload.id,
+      }
+    case TableReducerActions.ADD_NEW_PAGE:
+      return {
+        ...state,
+        lastOffset: action.payload.lastOffset,
+        lastPage: action.payload.lastPage,
+        storedPages: [...state.storedPages, action.payload.newPage],
+        processingPluginIds: [...state.processingPluginIds, ...action.payload.processingPluginIds]
+      }
+    case TableReducerActions.INCREMENT_PAGE:
+      return {
+        ...state,
+        page: state.page + 1
+      }
+    case TableReducerActions.DECREMENT_PAGE:
+      return {
+        ...state,
+        page: state.page - 1
+      }
+    default: return state;
+  }
 }
 
 const PastAnalysisTable = () => {
-  const { state: {
-    prevAnalyses: { perpage, areNewImgsAvailable, listOfAnalysis },
-    stagingDcmImages
-  },
-    dispatch } = React.useContext(AppContext);
+  const { state: { prevAnalyses: { perpage } }, dispatch } = React.useContext(AppContext);
   const [isLoading, setIsLoading] = useState(true);
-  const history = useHistory();
+
+  const [tableState, tableDispatch] = useReducer(tableReducer, INITIAL_TABLE_STATE);
 
   const columns = [
     {
       title: "Study",
       cellFormatters: [expandable]
     },
-    "Patient MRN", "Patient DOB", "Patient Age", "Analysis Created", ""
+    "Study Date", "Patient MRN", "Patient DOB", "Analysis Created", ""
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
-  // Stores properties of the table used for pagination
-  const [tableStates, setTableStates] = useState<TableStates>({
-    page: 0, // Current table page number
-    maxFeedId: -1, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
-    lastOffset: 0, // Page offset value for where to begin fetching the next unseen page
-    lastPage: -1, // Table page number of the very last page (-1 means last page has not yet been seen)
-    storedPages: [], // Stores pages that have been seen in an array of pages,
-    processingPluginIds: [] // Stores plugin IDs associated with processing studies, for selective polling
-  });
-
   // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
   // Used to identify which rows are new and need to be highlighted green
-  const [newRowsRef, setNewRowsRef] = useState<string[]>([]);
+  const newRowsRef = useRef<string[]>([]);
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
-  const updateMaxFeedId = () => {
-    ChrisIntegration.getLatestFeedId().then((id: number) => {
-      setTableStates({
-        page: 0,
-        maxFeedId: id,
-        lastOffset: 0,
-        lastPage: -1,
-        storedPages: [],
-        processingPluginIds: []
-      });
-    });
+  const updateMaxFeedId = async () => {
+    const id: number = await ChrisIntegration.getLatestFeedId()
+    tableDispatch({ type: TableReducerActions.UPDATE_MAX_FEED_ID, payload: { id } });
   }
 
-  // If new past analyses are available, reset table to initial state and update maxFeedId
   useEffect(() => {
-    if (areNewImgsAvailable) {
-      setIsLoading(true);
-      // Right before resetting, get a list of all the "Analysis Created" properties on page 0
-      setNewRowsRef(tableStates.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated));
-      updateMaxFeedId();
-    }
-  }, [areNewImgsAvailable])
+    updateMaxFeedId();
+  }, [])
 
   useEffect(() => {
     (async () => {
-      setIsLoading(true);
-      const { maxFeedId, page, lastOffset, storedPages } = tableStates;
-
-      // Update the maxFeedId when the PastAnalysisTable first mounts
-      if (maxFeedId === -1) {
-        updateMaxFeedId();
-        return;
-      }
-
-      // Get rows for analysis currently processing
-      const imagesAnalyzing: StudyInstanceWithSeries[] = PastAnalysisService.groupDcmImagesToStudyInstances(stagingDcmImages);
-      const numAnalyzing = imagesAnalyzing.length;
-
-      // Calculate number of past analysis rows to fetch, given the number of processing rows to display on current page
-      let fetchSize;
-      if (Math.floor(numAnalyzing / perpage) > page) { // There are enough processing rows to fill entire page, so don't fetch any past results
-        fetchSize = 0;
-      } else if (Math.floor(numAnalyzing / perpage) === page) { // Processing rows partially fill the page, fill rest of page with past results
-        fetchSize = perpage - (numAnalyzing % perpage);
-      } else { // No processing rows on current page, fill entire page with past results
-        fetchSize = perpage;
-      }
-      // Slice the array of processing rows to display on current page
-      const processingRows = imagesAnalyzing.slice(page * perpage, (page + 1) * perpage);
+      const { maxFeedId, page, lastOffset, storedPages } = tableState;
 
       if (!maxFeedId || maxFeedId >= 0) {
+        setIsLoading(true);
         // Accumulates with the rows of current page
         let curAnalyses: StudyInstanceWithSeries[] = [];
 
         // If current page has not yet been seen
         if (page >= storedPages.length) {
-          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, fetchSize, maxFeedId);
+          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
 
           // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
           const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
           .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
 
-          curAnalyses = processingRows.concat(newAnalyses);
-          setTableStates(prevTableStates => ({
-            ...prevTableStates,
+          curAnalyses = newAnalyses;
+          tableDispatch({ type: TableReducerActions.ADD_NEW_PAGE, payload: {
             lastOffset: newOffset,
-            lastPage: isAtEndOfFeeds ? page: -1,
-            storedPages: [...prevTableStates.storedPages, curAnalyses],
-            processingPluginIds: [...prevTableStates.processingPluginIds, ...processingPluginIds]
-          }));
+            lastPage: isAtEndOfFeeds ? page : -1,
+            newPage: curAnalyses,
+            processingPluginIds
+          }});
+
         } else {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages[page];
         }
 
-        dispatch({
-          type: AnalysisTypes.Update_list,
-          payload: { list: curAnalyses }
-        });
-
         updateRows(curAnalyses);
-
-        dispatch({
-          type: AnalysisTypes.Update_are_new_imgs_available,
-          payload: { isAvailable: false }
-        });
       }
       setIsLoading(false);
     })();
-  }, [tableStates, perpage, stagingDcmImages, dispatch]);
-
+  }, [tableState, perpage, dispatch]);
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
   useInterval(async () => {
-    if (tableStates.processingPluginIds) {
-      for (const id of tableStates.processingPluginIds) {
+    if (tableState.processingPluginIds) {
+      for (const id of tableState.processingPluginIds) {
         const refresh = await ChrisIntegration.checkIfPluginTerminated(id);
         if (refresh) {
-          dispatch({
-            type: AnalysisTypes.Update_are_new_imgs_available,
-            payload: { isAvailable: true }
-          });
+          // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
+          newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
+          updateMaxFeedId();
           return;
         }
       }
     }
-  }, tableStates.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
-  
-  // Increments or decrements current page number
-  const updatePage = (n: number) => {
-    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
-    setTableStates(prevTableStates => ({
-      ...prevTableStates,
-      page: prevTableStates.page + n
-    }));
-  }
+  }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
   const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
     const rows: (tableRowsChild | tableRowsParent)[] = [];
@@ -216,9 +195,9 @@ const PastAnalysisTable = () => {
 
       const cells: any[] = [
         analysis.dcmImage.StudyDescription,
+        analysis.dcmImage.StudyDate,
         analysis.dcmImage.PatientID,
-        analysis.dcmImage.PatientBirthDate,
-        `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y`,
+        `${analysis.dcmImage.PatientBirthDate} (${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y)`,
         analysisCreated,
         badges
       ];
@@ -242,7 +221,7 @@ const PastAnalysisTable = () => {
   }
 
   const onCollapse = (event: any, rowKey: number, isOpen: any) => {
-    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
+    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     const rowsCopy = [...rows];
     rowsCopy[rowKey].isOpen = isOpen;
     setRows(rowsCopy);
@@ -263,7 +242,7 @@ const PastAnalysisTable = () => {
     let backgroundStyle = {};
     if (isAnalyzing) {
       backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
-    } else if (newRowsRef?.length > 0 && !newRowsRef.includes(cells[4])) {
+    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(cells[4])) {
       backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
     } else {
       backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
@@ -286,8 +265,16 @@ const PastAnalysisTable = () => {
   }
 
   const searchMRN = (text: string) => {
-    setNewRowsRef([]); // Reset to prevent highlight animation from playing again
-    updateRows(listOfAnalysis.filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
+    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
+    updateRows(tableState.storedPages[tableState.page].filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
+  }
+
+  const decrementPage = () => {
+    tableDispatch({ type: TableReducerActions.DECREMENT_PAGE });
+  }
+
+  const incrementPage = () => {
+    tableDispatch({ type: TableReducerActions.INCREMENT_PAGE });
   }
 
   return (
@@ -305,14 +292,14 @@ const PastAnalysisTable = () => {
             </InputGroup>
           </div>
 
-          <div style={{ float: "right" }}>
-            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => updatePage(-1)} disabled={isLoading || tableStates.page == 0}>
+          <div className="page-navigation-buttons">
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm p pf-u-mr-md" type="button" onClick={decrementPage} disabled={isLoading || tableState.page == 0}>
               <span className="pf-c-button__icon pf-m-end">
                 <i className="fas fa-arrow-left" aria-hidden="true"></i>
               </span>
               &nbsp; Previous {perpage}
             </button>
-            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => updatePage(1)} disabled={isLoading || tableStates.page === tableStates.lastPage}>
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={incrementPage} disabled={isLoading || tableState.page === tableState.lastPage}>
               Next {perpage}
               <span className="pf-c-button__icon pf-m-end">
                 <i className="fas fa-arrow-right" aria-hidden="true"></i>
