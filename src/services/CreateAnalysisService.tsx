@@ -4,7 +4,6 @@ import { NotificationItem } from "../context/reducers/notificationReducer";
 import ChrisIntegration, { BackendPollResult } from "./chris_integration";
 import NotificationService from "./notificationService";
 import { formatDate } from "../shared/utils";
-import { PluginInstance } from "@fnndsc/chrisapi";
 
 export interface StudyInstance {
   studyInstanceUID: string;
@@ -86,7 +85,7 @@ class CreateAnalysisService {
       }
     });
 
-    return results.map((result: AnalyzedImageResult) => NotificationService.analyzedImageToNotification(result));
+    return results.map((result: AnalyzedImageResult) => NotificationService.failedAnalysisNotifications(result));
   }
 }
 
