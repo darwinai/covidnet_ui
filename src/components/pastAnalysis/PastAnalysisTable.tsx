@@ -174,21 +174,22 @@ const PastAnalysisTable: React.FC = () => {
     }))).flat();
 
     let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
-      const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
-      if (pluginData.status !== PluginPollStatus.SUCCESS) {
+      const notificationInfo: pluginData = await ChrisIntegration.getPluginData(id);
+      if (notificationInfo.status !== PluginPollStatus.SUCCESS) {
         return ({
           variant: NotificationItemVariant.DANGER,
-          title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
+          title: `Analysis of image '${notificationInfo.title.split('/').pop()}' failed`,
           message: `During the analysis, the following error was raised:
-                    ${pluginData.pluginName} failed.`,
+                    ${notificationInfo.pluginName} failed.`,
           timestamp: moment()
         });
       } else {
         return ({
           variant: NotificationItemVariant.SUCCESS,
-          title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
+          title: `Analysis of image '${notificationInfo.title.split('/').pop()}' finished`,
           message: `The image was processed successfully.`,
-          timestamp: moment()
+          timestamp: moment(),
+          pluginId: id
         });
       }
     }));

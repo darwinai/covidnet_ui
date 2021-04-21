@@ -14,6 +14,7 @@ export interface NotificationItem {
   title: string;
   message: string;
   timestamp: Moment;
+  pluginId?: number;
 }
 
 export type NotificationState = NotificationItem[];

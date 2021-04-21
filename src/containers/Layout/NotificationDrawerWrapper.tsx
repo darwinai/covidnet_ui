@@ -13,12 +13,16 @@ import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from '../../context/context';
 import { TimesIcon, TimesCircleIcon } from "@patternfly/react-icons";
 import { NotificationActionTypes } from "../../context/actions/types";
+import ChrisIntegration from "../../services/chris_integration";
+import { useHistory } from "react-router-dom";
+import { AnalysisTypes } from "../../context/actions/types";
 
 interface NotificationDrawerWrapperProps {
   onClose: () => void;
 }
 
 const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ onClose }) => {
+  const history = useHistory();
   const { state: { notifications }, dispatch } = useContext(AppContext);
 
   const onNotificationRemoval = (index: number) => {
@@ -35,6 +39,28 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
       type: NotificationActionTypes.CLEAR
     });
   }
+  const viewImg = async (index: number, id?: number) => {
+    if (id) {
+      const plugin = await ChrisIntegration.fetchPluginInstanceFromId(id);
+      if (plugin?.data?.title) {
+        const series = await ChrisIntegration.fetchResults(plugin);
+        const dcmImage = await ChrisIntegration.getDcmImageDetailByFilePathName(plugin?.data?.title);
+        dispatch({
+          type: AnalysisTypes.Update_selected_image,
+          payload: {
+            selectedImage: {
+              dcmImage,
+              series
+            }
+          }
+        });
+  
+        onNotificationRemoval(index);
+  
+        history.push('/viewImage');
+      }
+    }
+  }
 
   return (
     <NotificationDrawer>
@@ -47,7 +73,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
       <NotificationDrawerBody>
         <NotificationDrawerList>
           {notifications.map((item, index) => (
-            <NotificationDrawerListItem key={index} variant={item.variant}>
+            <NotificationDrawerListItem key={index} variant={item.variant} onClick={() => { viewImg(index, item?.pluginId) }}>
               <NotificationDrawerListItemHeader variant={item.variant} title={item.title}>
               </NotificationDrawerListItemHeader>
               <NotificationDrawerListItemBody timestamp={item.timestamp.calendar()}>
@@ -56,7 +82,8 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
               <Button variant={ButtonVariant.plain} aria-label="Remove Notification" onClick={() => onNotificationRemoval(index)} className="times-logo notification-remove-btn">
                 <TimesCircleIcon aria-hidden="true" />
               </Button>
-            </NotificationDrawerListItem>))}
+            </NotificationDrawerListItem>
+          ))}
         </NotificationDrawerList>
       </NotificationDrawerBody>
     </NotificationDrawer>)
