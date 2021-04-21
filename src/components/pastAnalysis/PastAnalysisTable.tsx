@@ -165,14 +165,13 @@ const PastAnalysisTable: React.FC = () => {
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
 
   useInterval(async () => {
-    let finishedPlugins: number[] = [];
-
-    await Promise.all(tableState.processingPluginIds.map(async (id: number) => {
+    const finishedPlugins = (await Promise.all(tableState.processingPluginIds.map(async (id: number) => {
       if (await ChrisIntegration.checkIfPluginTerminated(id)) {
-        // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-        finishedPlugins.push(id);
+        return [id];
+      } else {
+        return [];
       }
-    }));
+    }))).flat();
 
     let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
       const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
