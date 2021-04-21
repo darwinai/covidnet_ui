@@ -47,9 +47,9 @@ export interface BackendPollResult {
 }
 
 export interface pluginData {
-  title: string,
-  status: string,
-  pluginName: string
+  title: string;
+  status: string;
+  pluginName: string;
 }
 
 export const pollingBackend = async (pluginInstance: PluginInstance): Promise<BackendPollResult> => {
