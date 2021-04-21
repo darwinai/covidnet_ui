@@ -51,11 +51,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     <PageHeaderTools>
       <PageHeaderToolsItem>
         <NotificationBadge
-<<<<<<< HEAD
-          variant="read"
-=======
           variant={NotificationBadgeVariant.read}
->>>>>>> 66b2fd66c18b5f6e717ae0926a6e408ad69adc91
           count={state.notifications.length}
           onClick={onNotificationBadgeClick}
           aria-label="Notifications">
