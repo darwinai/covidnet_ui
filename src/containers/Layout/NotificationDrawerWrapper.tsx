@@ -61,7 +61,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
         }
       });
 
-      onNotificationClose(index);
+      onNotificationRemoval(index);
 
       history.push('/viewImage');
     }
