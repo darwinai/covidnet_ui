@@ -97,7 +97,7 @@ const PastAnalysisTable = () => {
       title: "Study",
       cellFormatters: [expandable]
     },
-    "Patient MRN", "Patient DOB", "Patient Age", "Analysis Created", ""
+    "Study Date", "Patient MRN", "Patient DOB", "Analysis Created", ""
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -195,9 +195,9 @@ const PastAnalysisTable = () => {
 
       const cells: any[] = [
         analysis.dcmImage.StudyDescription,
+        analysis.dcmImage.StudyDate,
         analysis.dcmImage.PatientID,
-        analysis.dcmImage.PatientBirthDate,
-        `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y`,
+        `${analysis.dcmImage.PatientBirthDate} (${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y)`,
         analysisCreated,
         badges
       ];

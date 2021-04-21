@@ -15,7 +15,7 @@ export interface StudyInstance {
 }
 
 export interface AnalyzedImageResult {
-  image: DcmImage,
+  image: DcmImage;
   processedResults: BackendPollResult;
 }
 
