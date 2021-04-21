@@ -8,13 +8,14 @@ import {
   NotificationDrawerListItemBody,
   NotificationDrawerListItemHeader,
   ButtonVariant
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from '../../context/context';
 import { TimesIcon, TimesCircleIcon } from "@patternfly/react-icons";
 import { NotificationActionTypes } from "../../context/actions/types";
 import ChrisIntegration from "../../services/chris_integration";
 import { useHistory } from "react-router-dom";
+import { NotificationItem } from "../../context/reducers/notificationReducer";
 import { AnalysisTypes } from "../../context/actions/types";
 
 interface NotificationDrawerWrapperProps {

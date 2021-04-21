@@ -150,7 +150,6 @@ const PastAnalysisTable: React.FC = () => {
               processingPluginIds: processingPluginIds.filter((id: number) => !tableState.processingPluginIds.includes(id))
             }
           });
-
         } else {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages[page];

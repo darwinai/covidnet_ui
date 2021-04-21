@@ -161,8 +161,8 @@ class ChrisIntegration {
 
       // PL-MED2IMG
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
-      const filename = img.fname.split('/').pop()?.split('.')[0]
-      console.log(filename)
+      const filename = img.fname.split('/').pop()?.split('.')[0];
+      console.log(filename);
       const imgData = {
         inputFile: img.fname.split('/').pop(),
         sliceToConvert: 0,
@@ -200,7 +200,6 @@ class ChrisIntegration {
       return {
           plugin: 'plugins'
       };
-
     } catch (err) {
       console.log(err);
       return {
