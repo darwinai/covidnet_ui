@@ -39,7 +39,7 @@ export const notificationsReducer = (
 ) => {
   switch (action.type) {
     case NotificationActionTypes.SEND:
-      return state.concat([...state, ...action.payload.notifications].sort((a, b) => b.timestamp.diff(a.timestamp))); // chronological order for notifications
+      return [...state, ...action.payload.notifications].sort((a, b) => b.timestamp.diff(a.timestamp)); // chronological order for notifications
 
     case NotificationActionTypes.CLEAR:  // clear all notifications currently being stored
       return [];

@@ -19,7 +19,7 @@ interface NotificationDrawerWrapperProps {
 }
 
 const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ onClose }) => {
-  const [disabledClearAll, setDisabledClearAll] = useState(true);
+  const [isClearAllDisabled, setIsClearAllDisabled] = useState(true);
   const { state: { notifications }, dispatch } = useContext(AppContext);
 
   const onNotificationRemoval = (index: number) => {
@@ -38,13 +38,13 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
   }
 
   useEffect(() => {
-    setDisabledClearAll(notifications.length === 0)
+    setIsClearAllDisabled(notifications.length === 0)
   }, [notifications.length]);
 
   return (
     <NotificationDrawer>
       <NotificationDrawerHeader count={notifications.length}>
-        <Button variant={ButtonVariant.tertiary} aria-label="Clear All Notifications" isDisabled={disabledClearAll} onClick={onNotificationClear}>Clear All</Button>
+        <Button variant={ButtonVariant.tertiary} aria-label="Clear All Notifications" isDisabled={isClearAllDisabled} onClick={onNotificationClear}>Clear All</Button>
         <Button variant={ButtonVariant.plain} aria-label="Close Notification Drawer" onClick={onClose} className="times-logo">
           <TimesIcon aria-hidden="true" />
         </Button>

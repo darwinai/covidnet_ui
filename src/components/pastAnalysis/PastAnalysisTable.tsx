@@ -62,7 +62,7 @@ type TableAction =
   | { type: TableReducerActions.UPDATE_PLUGINS, payload: { processingPluginIds: number[] } };
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
-  switch(action.type) {
+  switch (action.type) {
     case TableReducerActions.UPDATE_MAX_FEED_ID:
       return {
         ...INITIAL_TABLE_STATE,
@@ -167,14 +167,12 @@ const PastAnalysisTable: React.FC = () => {
   useInterval(async () => {
     let finishedPlugins: number[] = [];
 
-    for (const id of tableState.processingPluginIds) {
-      if (await ChrisIntegration.checkIfPluginTerminated(id)) { // parallel async execution here
+    await Promise.all(tableState.processingPluginIds.map(async (id: number) => {
+      if (await ChrisIntegration.checkIfPluginTerminated(id)) {
         // Right before updating max feed ID and refreshing table, get a list of all the "Analysis Created" properties on page 0
-
-        // newRowsRef.current = tableState.storedPages[0]?.map((study: StudyInstanceWithSeries) => study.analysisCreated);
         finishedPlugins.push(id);
       }
-    }
+    }));
 
     let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
       const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
