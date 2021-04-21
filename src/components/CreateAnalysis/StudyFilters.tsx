@@ -6,7 +6,7 @@ import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnaly
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 
 const StudyFilters = () => {
-    const { state: {dcmImages}, dispatch } = useContext(AppContext);
+  const { state: {dcmImages}, dispatch } = useContext(AppContext);
 
     const [minStudyDate, setMinStudyDate] = useState<string>("");
     const [maxStudyDate, setMaxStudyDate] = useState<string>("");
