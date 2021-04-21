@@ -8,7 +8,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   studyInstanceUID,
   studyDescription,
   modality,
-  createdDate,
+  studyDate,
   setModelType
 }) => {
   const { state: { createAnalysis: { selectedStudyUIDs, currSelectedStudyUID } }, dispatch } = useContext(AppContext);
@@ -32,7 +32,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   }
 
   const isSelected: boolean = !!imagesSelectedDict && Object.keys(imagesSelectedDict).length > 0;
-  
+
   return (
     <div
       className={`SelectionStudy ${isSelected ? 'selected' : ''}`}
@@ -42,7 +42,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
         {isSelected ?
           (<Badge>{Object.keys(imagesSelectedDict).length}</Badge>) : null}
         &nbsp;{studyDescription}</h1>
-      <p className="greyText"><span className="outtline-box">{modality}</span> {createdDate} </p>
+      <p className="greyText"><span className="outtline-box">{modality}</span> {studyDate}</p>
     </div>
   )
 }

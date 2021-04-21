@@ -425,7 +425,7 @@ class ChrisIntegration {
     const plugin = pluginInstance.getItems()[0]
     const pluginInstanceFiles = await plugin.getFiles({
       limit: 25,
-      offset: 0,
+      offset: 0
     });
     return pluginInstanceFiles.getItems();
   }
