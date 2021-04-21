@@ -7,7 +7,7 @@ import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react
 import { NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
-import ChrisIntegration, { pluginData } from "../../services/chris_integration";
+import ChrisIntegration, { pluginData, PluginPollStatus } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
@@ -175,7 +175,7 @@ const PastAnalysisTable: React.FC = () => {
 
     let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
       const pluginData: pluginData = await ChrisIntegration.getPluginData(id);
-      if (pluginData.status !== "finishedSuccessfully") {
+      if (pluginData.status !== PluginPollStatus.SUCCESS) {
         return ({
           variant: NotificationItemVariant.DANGER,
           title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,

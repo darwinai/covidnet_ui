@@ -29,7 +29,7 @@ interface PACSFile {
   data: DcmImage;
 }
 
-enum PluginPollStatus {
+export enum PluginPollStatus {
   CREATED = "created",
   WAITING = "waiting",
   SCHEDULED = "scheduled",
