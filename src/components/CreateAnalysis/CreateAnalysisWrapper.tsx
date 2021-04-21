@@ -1,7 +1,7 @@
 import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { StagingDcmImagesTypes, CreateAnalysisTypes, AnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
+import { CreateAnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import CreateAnalysisService from "../../services/CreateAnalysisService";
@@ -9,6 +9,7 @@ import ConfirmAnalysis from "./ConfirmAnalysis";
 import CreateAnalysisDetail from "./CreateAnalysisDetail";
 import pacs_integration from "../../services/pacs_integration";
 import chris_integration from "../../services/chris_integration";
+import { NotificationItem } from "../../context/reducers/notificationReducer";
 
 const CreateAnalysisWrapper = () => {
   const { state: { dcmImages, models, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);
@@ -35,7 +36,7 @@ const CreateAnalysisWrapper = () => {
           console.error('Unable to initiate PACS retrieve');
           return;
         }
-      })
+      });
 
       // Update fname property of each image to be the filepath in Swift filesystem
       try {
@@ -48,33 +49,19 @@ const CreateAnalysisWrapper = () => {
       }
     }
 
-    // Updating staging images
-    dispatch({
-      type: StagingDcmImagesTypes.UpdateStaging,
-      payload: { imgs: imagesSelected }
-    });
-
     dispatch({
       type: CreateAnalysisTypes.Clear_selected_studies_UID
     });
 
     // Processing the images
-    CreateAnalysisService.analyzeImages(imagesSelected, models.xrayModel, models.ctModel) // Passing selected models to Chris_Integration for image analysis
-      .then((notifications) => {
-        dispatch({
-          type: StagingDcmImagesTypes.UpdateStaging,
-          payload: { imgs: [] }
-        });
-        dispatch({
-          type: AnalysisTypes.Update_are_new_imgs_available,
-          payload: { isAvailable: true }
-        });
-        dispatch({
-          type: NotificationActionTypes.SEND,
-          payload: { notifications }
-        });
-      });
+    // Passing selected models to Chris_Integration for image analysis
+    const notifications: NotificationItem[] = await CreateAnalysisService.analyzeImages(imagesSelected, models.xrayModel, models.ctModel);
 
+    dispatch({
+      type: NotificationActionTypes.SEND,
+      payload: { notifications }
+    });
+    
     history.push("/");
   }
 

@@ -1,5 +1,5 @@
 import { DcmImage, PFDCMResponse, PACSMainResponse, PACSSeries} from "../context/reducers/dicomImagesReducer";
-import { BASE_PACS_FILE_PATH } from '../api/app.config';
+import { BASE_PACS_FILE_PATH } from '../app.config';
 import axios from 'axios';
 
 declare var process: {
@@ -56,6 +56,7 @@ class PACSIntegration {
                         StudyDescription: series.StudyDescription.value,
                         SeriesInstanceUID: series.SeriesInstanceUID.value,
                         SeriesDescription: series.SeriesDescription.value,
+                        StudyDate: series.StudyDate.value,
                         Modality: series.Modality.value,
                         pacs_identifier: 'covidnet'
                 }))

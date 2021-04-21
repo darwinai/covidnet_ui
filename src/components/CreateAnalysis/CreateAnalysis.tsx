@@ -1,4 +1,3 @@
-import { Stack, StackItem } from '@patternfly/react-core';
 import React from "react";
 import PatientLookup from '../PatientLookup';
 
@@ -27,6 +26,7 @@ const CreateAnalysis: React.FC = () => {
   //     };
   //   });
   // }
+  
 
   // const submitFile = () => {
   //   openLocalFilePicker().then(async (files: LocalFile[]) => {
@@ -47,15 +47,8 @@ const CreateAnalysis: React.FC = () => {
   // }
 
   return (
-    <Stack>
-      <StackItem>Create a new predictive analysis</StackItem>
-      <StackItem isFilled>
-        <PatientLookup isOnDashboard={true}></PatientLookup>
-        {/* <Button onClick={submitFile}>Choose File...</Button> */}
-      </StackItem>
-    </Stack>
+      <PatientLookup isOnDashboard={true}></PatientLookup>
   );
 }
 
 export { CreateAnalysis as CreateAnalysisSection };
-

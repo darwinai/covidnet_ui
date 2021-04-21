@@ -4,17 +4,18 @@ import { NotificationItem } from "../context/reducers/notificationReducer";
 import ChrisIntegration, { BackendPollResult } from "./chris_integration";
 import NotificationService from "./notificationService";
 import { formatDate } from "../shared/utils";
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 export interface StudyInstance {
   studyInstanceUID: string;
   studyDescription: string;
   modality: string;
-  createdDate: string;
+  studyDate: string;
   setModelType?: (modality: string) => void;
 }
 
 export interface AnalyzedImageResult {
-  image: DcmImage,
+  image: DcmImage;
   processedResults: BackendPollResult;
 }
 
@@ -30,7 +31,7 @@ class CreateAnalysisService {
           studyInstanceUID: img.StudyInstanceUID,
           studyDescription: img.StudyDescription,
           modality: img.Modality,
-          createdDate: formatDate(img.creation_date)
+          studyDate: formatDate(img.StudyDate)
         })
         seenUID[img.StudyInstanceUID] = true;
       }
@@ -62,26 +63,30 @@ class CreateAnalysisService {
     return imgs.filter((img: DcmImage) => this.isImgSelected(selectedStudyUIDs, img));
   }
 
+  /**
+   * Runs an analysis on each of the DcmImages
+   * @param {DcmImage[]} dcmImages - The list of DICOM data to run analyses on
+   * @param {string} XrayModel - The name of the COVID-Net model to use on x-ray images
+   * @param {string} CTModel - The name of the COVID-Net model to use on the CT images
+   * @returns {Promise<NotificationItem[]>} Notifications of any plugin failures that occur in processOneImg
+   */
   static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
-    const promises = [];
-    for (let img of dcmImages) {
-      promises.push(ChrisIntegration.processOneImg(img, XrayModel, CTModel));
-    }
-    const processedImages = await Promise.allSettled(promises);
+    const processedImages = await Promise.allSettled(dcmImages.map(async (img: DcmImage) => {
+      return await ChrisIntegration.processOneImg(img, XrayModel, CTModel);
+    }));
 
-    const results: AnalyzedImageResult[] = [];
-    processedImages.forEach((processedImage, index) => {
-      if (processedImage.status === "fulfilled") {
-        results.push({
+    const results = await processedImages.flatMap((img: PromiseSettledResult<BackendPollResult>, index: number) => {
+      if (img?.status === "fulfilled" && img?.value?.error) {
+        return {
           image: dcmImages[index],
-          processedResults: processedImage.value
-        })
+          processedResults: img.value
+        };
+      } else {
+        return [];
       }
     });
 
-    const notifications = results.map(result => NotificationService.analyzedImageToNotification(result));
-
-    return notifications;
+    return results.map((result: AnalyzedImageResult) => NotificationService.analyzedImageToNotification(result));
   }
 }
 
