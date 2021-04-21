@@ -131,7 +131,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ data, dcmImage, isProcessing 
       (
         <div className="results-spinner-container">
           <Spinner size="lg" />
-          </div>
+        </div>
       )
     }
     </>
