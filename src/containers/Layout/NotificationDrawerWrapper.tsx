@@ -15,7 +15,7 @@ import { TimesIcon, TimesCircleIcon } from "@patternfly/react-icons";
 import { NotificationActionTypes } from "../../context/actions/types";
 import ChrisIntegration from "../../services/chris_integration";
 import { useHistory } from "react-router-dom";
-import { AnalysisTypes } from '../../context/actions/types';
+import { AnalysisTypes } from "../../context/actions/types";
 
 interface NotificationDrawerWrapperProps {
   onClose: () => void;
