@@ -8,8 +8,8 @@ import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 const StudyFilters = () => {
   const { state: {dcmImages}, dispatch } = useContext(AppContext);
 
-    const [minStudyDate, setMinStudyDate] = useState<string>("");
-    const [maxStudyDate, setMaxStudyDate] = useState<string>("");
+  const [minStudyDate, setMinStudyDate] = useState<string>("");
+  const [maxStudyDate, setMaxStudyDate] = useState<string>("");
 
     useEffect(() => {
       const filteredDcmImages = dcmImages.allDcmImages.filter((image: DcmImage) => {
