@@ -46,9 +46,7 @@ const CreateAnalysis: React.FC = () => {
   //   })
   // }
 
-  return (
-      <PatientLookup isOnDashboard={true}></PatientLookup>
-  );
+  return <PatientLookup isOnDashboard={true}></PatientLookup>;
 }
 
 export { CreateAnalysis as CreateAnalysisSection };
