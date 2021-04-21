@@ -14,8 +14,8 @@ export let initialIUserState = {
 }
 
 type UserPayload = {
-  [Types.Login_update]: IUserState,
-  [Types.Logout_update]: null
+  [Types.LOGIN_UPDATE]: IUserState,
+  [Types.LOGOUT_UPDATE]: null
 }
 
 export type UserActions = ActionMap<UserPayload>[
@@ -28,12 +28,12 @@ export const userReducer = (
 ) => {
   switch (action.type) {
     // case Types.
-    case Types.Login_update:
+    case Types.LOGIN_UPDATE:
       return {
         ...action.payload,
         loggedIn: true
       }
-    case Types.Logout_update:
+    case Types.LOGOUT_UPDATE:
       return {
         username: '',
         email: '',

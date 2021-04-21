@@ -28,12 +28,9 @@
   }
 }
 
-.encapsulation {
-  .pf-c-page__main-section {
-    padding: 0px;
-  }
-  
-  .page-section-no-results {
-    padding: 2em;
-  }
+.page-section-no-results {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }

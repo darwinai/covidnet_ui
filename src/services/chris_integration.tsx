@@ -50,7 +50,7 @@ interface PACSFile {
   data: DcmImage;
 }
 
-enum PluginPollStatus {
+export enum PluginPollStatus {
   CREATED = "created",
   WAITING = "waiting",
   SCHEDULED = "scheduled",
@@ -68,9 +68,9 @@ export interface BackendPollResult {
 }
 
 export interface pluginData {
-  title: string,
-  status: string,
-  plugin_name: string
+  title: string;
+  status: string;
+  pluginName: string;
 }
 
 export const pollingBackend = async (pluginInstance: PluginInstance): Promise<BackendPollResult> => {
@@ -159,12 +159,11 @@ class ChrisIntegration {
   }
 
   /**
-   * Runs pl-med2-img and pl-covidnet/pl-ct-covidnet on a DcmImage, given its pl-dircopy instance obtained from runDircopy
-   * @param img DcmImage
-   * @param dircopyPluginInstance instance obtained from runDircopy
-   * @param chosenXrayModel name of model to be used for pl-covidnet
-   * @param chosenCTModel name of model to be used for pl-ct-covidnet
-   * @returns plugin result after polling
+   * Initiate pl-dircopy, pl-med2img, and the appropriate COVID-Net plugin in sequence on the provided DcmImage
+   * @param {DcmImage} img - The DICOM data to run the analysis on
+   * @param {string} chosenXrayModel - The name of the COVID-Net model to use on the x-ray images
+   * @param {string} chosenCTModel - The name of the COVID-Net model to use on the CT images
+   * @returns {BackendPollResult} The result of initiating the plugins
    */
    static async processOneImg(img: DcmImage, timestamp: number, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
     let client: Client = await ChrisAPIClient.getClient();
@@ -231,7 +230,6 @@ class ChrisIntegration {
       return {
           plugin: 'plugins'
       };
-      
     } catch (err) {
       console.log(err);
       return {
@@ -291,15 +289,15 @@ class ChrisIntegration {
    * Fetches the covidnet model plugin data associated with the given Feed ID
   */
   static async getCovidnetPluginData(id: number): Promise<pluginData> {
-    const client: any = ChrisAPIClient.getClient();
+    const client: Client = ChrisAPIClient.getClient();
     const plugin = await client.getPluginInstances({
       feed_id: id,
       plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
     });
     return ({
-      title: plugin?.data?.[0]?.title,
-      status: plugin?.data?.[0]?.status,
-      plugin_name: plugin?.data?.[0]?.plugin_name
+      title: plugin?.getItems()?.[0]?.data?.title,
+      status: plugin?.getItems()?.[0]?.data?.status,
+      pluginName: plugin?.getItems()?.[0]?.data?.plugin_name
     });
   }
 
@@ -471,6 +469,12 @@ class ChrisIntegration {
     }
   }
 
+  static async fetchPluginInstanceFromId(id: number): Promise<PluginInstance> {
+    const client: Client = ChrisAPIClient.getClient();
+    const pluginData = await client.getPluginInstances({ id });
+    return pluginData.getItems()?.[0];
+  }
+
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {
     if (!fileId) {
       return {}
@@ -507,7 +511,7 @@ class ChrisIntegration {
     const plugin = pluginInstance.getItems()[0]
     const pluginInstanceFiles = await plugin.getFiles({
       limit: 25,
-      offset: 0,
+      offset: 0
     });
     return pluginInstanceFiles.getItems();
   }

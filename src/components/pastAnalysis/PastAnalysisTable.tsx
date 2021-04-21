@@ -4,11 +4,10 @@ import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
 import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
-import { AnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
+import { NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { ISeries, TStudyInstance } from "../../context/reducers/analyseReducer";
-import ChrisIntegration, { pluginData, TAnalysisResults } from "../../services/chris_integration";
-import PastAnalysisService from "../../services/pastAnalysisService";
+import { TStudyInstance } from "../../context/reducers/analyseReducer";
+import ChrisIntegration, { pluginData, TAnalysisResults, PluginPollStatus } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
@@ -39,7 +38,7 @@ type TableState = {
   processingFeedIds: number[] // Stores Feed IDs associated with images that are currently processing
 }
 
-const initialTableState: TableState = {
+const INITIAL_TABLE_STATE: TableState = {
   page: 0,
   maxFeedId: -1,
   lastOffset: 0,
@@ -49,29 +48,28 @@ const initialTableState: TableState = {
 }
 
 enum TableReducerActions {
-  updateMaxFeedId = "UPDATE_MAX_FEED_ID",
-  addNewPage = "ADD_NEW_PAGE",
-  incrementPage = "INCREMENT_PAGE",
-  decrementPage = "DECREMENT_PAGE",
-  updateProcessingFeedIds = "UPDATE_PROCESSING_FEED_IDS"
+  UPDATE_MAX_FEED_ID = "UPDATE_MAX_FEED_ID",
+  ADD_NEW_PAGE = "ADD_NEW_PAGE",
+  INCREMENT_PAGE = "INCREMENT_PAGE",
+  DECREMENT_PAGE = "DECREMENT_PAGE",
+  UPDATE_PROCESSING_FEED_IDS = "UPDATE_PROCESSING_FEED_IDS"
 }
 
 type TableAction =
-  | { type: TableReducerActions.updateMaxFeedId, payload: { id: number } }
-  | { type: TableReducerActions.addNewPage, payload: { lastOffset: number, lastPage: number, newPage: TStudyInstance[], processingFeedIds: number[] } }
-  | { type: TableReducerActions.incrementPage }
-  | { type: TableReducerActions.decrementPage }
-  | { type: TableReducerActions.updateProcessingFeedIds, payload: { processingFeedIds: number[] } }
+  | { type: TableReducerActions.UPDATE_MAX_FEED_ID, payload: { id: number } }
+  | { type: TableReducerActions.ADD_NEW_PAGE, payload: { lastOffset: number, lastPage: number, newPage: TStudyInstance[], processingFeedIds: number[] } }
+  | { type: TableReducerActions.INCREMENT_PAGE }
+  | { type: TableReducerActions.DECREMENT_PAGE }
+  | { type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS, payload: { processingFeedIds: number[] } };
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
-    case TableReducerActions.updateMaxFeedId:
+    case TableReducerActions.UPDATE_MAX_FEED_ID:
       return {
-        ...initialTableState,
+        ...INITIAL_TABLE_STATE,
         maxFeedId: action.payload.id,
-        processingFeedIds: state.processingFeedIds
       }
-    case TableReducerActions.addNewPage:
+    case TableReducerActions.ADD_NEW_PAGE:
       return {
         ...state,
         lastOffset: action.payload.lastOffset,
@@ -79,17 +77,17 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         storedPages: [...state.storedPages, ...action.payload.newPage],
         processingFeedIds: [...state.processingFeedIds, ...action.payload.processingFeedIds]
       }
-    case TableReducerActions.incrementPage:
+    case TableReducerActions.INCREMENT_PAGE:
       return {
         ...state,
         page: state.page + 1
       }
-    case TableReducerActions.decrementPage:
+    case TableReducerActions.DECREMENT_PAGE:
       return {
         ...state,
         page: state.page - 1
       }
-    case TableReducerActions.updateProcessingFeedIds:
+    case TableReducerActions.UPDATE_PROCESSING_FEED_IDS:
       return {
         ...state,
         processingFeedIds: action.payload.processingFeedIds
@@ -106,30 +104,28 @@ const isParentRow = (row: tableRowsParent | tableRowsChild): row is tableRowsPar
 )
 
 const PastAnalysisTable: React.FC = () => {
-  const { state: {
-    prevAnalyses: { perpage }
-  }, dispatch } = React.useContext(AppContext);
+  const { state: { prevAnalyses: { perpage } }, dispatch } = React.useContext(AppContext);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [loading, setLoading] = useState(true);
-  const [tableState, tableDispatch] = useReducer(tableReducer, initialTableState);
+  const [tableState, tableDispatch] = useReducer(tableReducer, INITIAL_TABLE_STATE);
 
   const columns = [
     {
       title: "Study",
       cellFormatters: [expandable]
     },
-    "Patient MRN", "Patient DOB", "Patient Age", "Analysis Created", ""
+    "Study Date", "Patient MRN", "Patient DOB", "Analysis Created", ""
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
-  // Will store an array of the "Analysis Created" property of rows on page 0 of the table
+  // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
   // Used to identify which rows are new and need to be highlighted green
   const newRowsRef = useRef<string[]>([]);
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = async () => {
     const id: number = await ChrisIntegration.getLatestFeedId();
-    tableDispatch({ type: TableReducerActions.updateMaxFeedId, payload: { id } });
+    tableDispatch({ type: TableReducerActions.UPDATE_MAX_FEED_ID, payload: { id } });
   }
 
   useEffect(() => {
@@ -141,7 +137,7 @@ const PastAnalysisTable: React.FC = () => {
       const { maxFeedId, page, lastOffset, storedPages } = tableState;
 
       if (!maxFeedId || maxFeedId >= 0) {
-        setLoading(true);
+        setIsLoading(true);
         let curAnalyses: TStudyInstance[] = [];
 
         // If current page has not yet been seen and is not the last page
@@ -152,7 +148,7 @@ const PastAnalysisTable: React.FC = () => {
           const processingFeedIds = newAnalyses.filter((study: TStudyInstance) => !!study.pluginStatuses.jobsRunning)
           .flatMap((study: TStudyInstance) => study.feedIds);
 
-          tableDispatch({ type: TableReducerActions.addNewPage, payload: {
+          tableDispatch({ type: TableReducerActions.ADD_NEW_PAGE, payload: {
             lastOffset: newOffset,
             lastPage: isAtEndOfFeeds ? page : -1,
             newPage: newAnalyses,
@@ -165,41 +161,42 @@ const PastAnalysisTable: React.FC = () => {
         }
         updateRows(curAnalyses);
       }
-      setLoading(false);
+      setIsLoading(false);
     })();
   }, [tableState, perpage, dispatch]);
 
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
-  useInterval(async () => {
-    let finishedFeeds: number[] = [];
 
-    for (const id of tableState.processingFeedIds) {
+  useInterval(async () => {
+    const finishedFeeds = (await Promise.all(tableState.processingFeedIds.map(async (id: number) => {
       if (await ChrisIntegration.checkIfFeedJobsCompleted(id)) {
-        finishedFeeds.push(id);
+        return [id];
+      } else {
+        return [];
       }
-    }
-  
+    }))).flat();
+
     let notifications: NotificationItem[] = await Promise.all(finishedFeeds.map(async (id: number) => {
-      const pluginData: pluginData = await ChrisIntegration.getCovidnetPluginData(id);
-      if (pluginData.status !== "finishedSuccessfully") {
+      const notificationInfo: pluginData = await ChrisIntegration.getCovidnetPluginData(id);
+      if (notificationInfo.status !== PluginPollStatus.SUCCESS) {
         return ({
           variant: NotificationItemVariant.DANGER,
-          title: `Analysis of image '${pluginData.title.split('/').pop()}' failed`,
+          title: `Analysis of image '${notificationInfo.title.split('/').pop()}' failed`,
           message: `During the analysis, the following error was raised:
-                    ${pluginData.plugin_name} failed.`,
+                    ${notificationInfo.pluginName} failed.`,
           timestamp: moment()
         });
       } else {
         return ({
           variant: NotificationItemVariant.SUCCESS,
-          title: `Analysis of image '${pluginData.title.split('/').pop()}' finished`,
+          title: `Analysis of image '${notificationInfo.title.split('/').pop()}' finished`,
           message: `The image was processed successfully.`,
           timestamp: moment(),
           pluginId: id
         });
       }
     }));
-  
+
     if (finishedFeeds.length) {
       dispatch({
         type: NotificationActionTypes.SEND,
@@ -214,7 +211,7 @@ const PastAnalysisTable: React.FC = () => {
       newRowsRef.current = tableState.storedPages.slice(0, perpage).filter((study: TStudyInstance) => !study.pluginStatuses.jobsRunning).map((study: TStudyInstance) => study.analysisCreated);
 
       tableDispatch({
-        type: TableReducerActions.updateProcessingFeedIds,
+        type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS,
         payload: { processingFeedIds: updatedProcessingFeedIds }
       });
   
@@ -247,9 +244,9 @@ const PastAnalysisTable: React.FC = () => {
 
       const cells: any[] = [
         analysis.dcmImage.StudyDescription,
+        analysis.dcmImage.StudyDate,
         analysis.dcmImage.PatientID,
-        analysis.dcmImage.PatientBirthDate,
-        `${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y`,
+        `${analysis.dcmImage.PatientBirthDate} (${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y)`,
         analysisCreated,
         badges
       ];
@@ -344,9 +341,9 @@ const PastAnalysisTable: React.FC = () => {
   const changePage = (direction: "previous" | "next") => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     if (direction === "previous") {
-      tableDispatch({ type: TableReducerActions.decrementPage })
+      tableDispatch({ type: TableReducerActions.DECREMENT_PAGE })
     } else if (direction === "next") {
-      tableDispatch({ type: TableReducerActions.incrementPage })
+      tableDispatch({ type: TableReducerActions.INCREMENT_PAGE })
     }
   }
 
@@ -355,33 +352,46 @@ const PastAnalysisTable: React.FC = () => {
     updateRows(tableState.storedPages.filter((analysis: TStudyInstance) => analysis.dcmImage.PatientID.includes(text)))
   }
 
-  return (
-    <div className="PastAnalysis">
-      <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
-      <div className="MRNsearchBar">
-        <InputGroup>
-          <InputGroupText>
-            <FilterIcon />
-          </InputGroupText>
-          <TextInput id="textInput5" type="number" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
-          <InputGroupText> <SearchIcon /> </InputGroupText>
-        </InputGroup>
-      </div>
+  const decrementPage = () => {
+    tableDispatch({ type: TableReducerActions.DECREMENT_PAGE });
+  }
 
-      <div style={{ float: "right" }}>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" style={{ marginRight: "1em" }} onClick={() => changePage("previous")} disabled={loading || tableState.page == 0}>
-          <span className="pf-c-button__icon pf-m-end">
-            <i className="fas fa-arrow-left" aria-hidden="true"></i>
-          </span>
-      &nbsp; Previous {perpage}
-        </button>
-        <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={() => changePage("next")} disabled={loading || tableState.page === tableState.lastPage}>Next {perpage}
-          <span className="pf-c-button__icon pf-m-end">
-            <i className="fas fa-arrow-right" aria-hidden="true"></i>
-          </span>
-        </button>
+  const incrementPage = () => {
+    tableDispatch({ type: TableReducerActions.INCREMENT_PAGE });
+  }
+
+  return (
+    <div className="PastAnalysis flex-column">
+      <div>
+        <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
+        <div className="flex-row-space-between">
+          <div className="MRNsearchBar">
+            <InputGroup>
+              <InputGroupText>
+                <FilterIcon />
+              </InputGroupText>
+              <TextInput id="textInput5" type="number" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
+              <InputGroupText> <SearchIcon /> </InputGroupText>
+            </InputGroup>
+          </div>
+
+          <div className="page-navigation-buttons">
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm p pf-u-mr-md" type="button" onClick={decrementPage} disabled={isLoading || tableState.page == 0}>
+              <span className="pf-c-button__icon pf-m-end">
+                <i className="fas fa-arrow-left" aria-hidden="true"></i>
+              </span>
+              &nbsp; Previous {perpage}
+            </button>
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm" type="button" onClick={incrementPage} disabled={isLoading || tableState.page === tableState.lastPage}>
+              Next {perpage}
+              <span className="pf-c-button__icon pf-m-end">
+                <i className="fas fa-arrow-right" aria-hidden="true"></i>
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
-      { loading ? (
+      { isLoading ? (
         <div className="loading">
           <Spinner size="xl" /> &nbsp; Loading
         </div>
