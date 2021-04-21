@@ -3,6 +3,7 @@ import {
   DropdownItem,
   DropdownToggle,
   NotificationBadge,
+  NotificationBadgeVariant,
   PageHeader,
   PageHeaderTools,
   PageHeaderToolsGroup,
@@ -36,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     window.sessionStorage.removeItem("AUTH_TOKEN");
     ChrisAPIClient.setIsTokenAuthorized(false);
     dispatch({
-      type: Types.Logout_update,
+      type: Types.LOGOUT_UPDATE,
       payload: null
     });
     history.push("/login")
@@ -50,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     <PageHeaderTools>
       <PageHeaderToolsItem>
         <NotificationBadge
-          variant="read"
+          variant={NotificationBadgeVariant.read}
           count={state.notifications.length}
           onClick={onNotificationBadgeClick}
           aria-label="Notifications">
@@ -75,10 +76,11 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     className="header"
     aria-label="Page Header"
     headerTools={pageToolbar}
-    logo={<React.Fragment>
+    logo={<>
       <img onClick={() => history.push("/")} src={logo} className="logo" alt="DarwinAI Logo" />
-      <span className="logo-text">COVID-Net</span>
-    </React.Fragment>}
+      <Link to="/" className="logo-text">COVID-Net</Link>
+    </>}
+    logoComponent={"div"}
     topNav={<PageNav />}
   />;
 }

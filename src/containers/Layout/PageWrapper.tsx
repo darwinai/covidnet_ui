@@ -1,5 +1,5 @@
 import { Page } from "@patternfly/react-core";
-import * as React from "react";
+import React from "react";
 import Footer from "./Footer";
 import Header from "./Header";
 import "../../assets/scss/layout/layout.scss";

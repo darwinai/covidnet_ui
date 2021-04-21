@@ -1,5 +1,5 @@
 import { History } from 'history';
-import * as React from 'react';
+import React from "react";
 import { BrowserRouter } from 'react-router-dom';
 import { AppProvider } from "./context/context";
 import RouterWrapper from "./RouterWrapper";

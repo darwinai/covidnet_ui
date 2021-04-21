@@ -37,12 +37,12 @@ const DicomViewerBottomBox = () => {
       return;
     }
 
-     // Dynamically generate the titles to display for the classifications
-      series.classifications.forEach((value: number, key: string) => {
-        bottomDisplay.push(<p key={key}>{key}: <span className="blueText">{value}</span></p>);
-      });
+    // Dynamically generate the titles to display for the classifications
+    series.classifications.forEach((value: number, key: string) => {
+      bottomDisplay.push(<p key={key}>{key}: <span className="blueText">{value}</span></p>);
+    });
 
-      return bottomDisplay;
+    return bottomDisplay;
   }
 
   const generateDisplayCircles = (series?: ISeries) => {
@@ -50,19 +50,22 @@ const DicomViewerBottomBox = () => {
 
     if (!series) {
       return;
-    } 
-    
-     // Dynamically display the prediction classes/values in the dicomviewerbottombox
-      series.classifications.forEach((value: number, key: string) => {
-        displayCircles.push(<div className="PredictionArea" key={key}>
-        <PredictionCircle largeCircle={isLargestNumber(value, series.classifications)}
-          predictionNumber={value}/>
+    }
+
+    // Dynamically display the prediction classes/values in the dicomviewerbottombox
+    series.classifications.forEach((value: number, key: string) => {
+      displayCircles.push(<div className="PredictionArea" key={key}>
+        <PredictionCircle
+          largeCircle={isLargestNumber(value, series.classifications)}
+          predictionNumber={value}
+          isNormal={key === "Normal"}
+          />
         <div className="topMargin">{key}</div>
       </div>)
-      });
+    });
 
-      return displayCircles;
-    }
+    return displayCircles;
+  }
 
   return (
     <div id="ViewerbottomBox"

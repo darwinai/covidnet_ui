@@ -9,11 +9,10 @@ import {
   NotificationDrawerListItemHeader,
   ButtonVariant
 } from '@patternfly/react-core';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from '../../context/context';
-import { TimesIcon, TimesCircleIcon } from '@patternfly/react-icons';
-import { NotificationActionTypes } from '../../context/actions/types';
-import { NotificationItem } from '../../context/reducers/notificationReducer';
+import { TimesIcon, TimesCircleIcon } from "@patternfly/react-icons";
+import { NotificationActionTypes } from "../../context/actions/types";
 import ChrisIntegration from "../../services/chris_integration";
 import { useHistory } from 'react-router-dom';
 import { AnalysisTypes } from '../../context/actions/types';
@@ -24,23 +23,26 @@ interface NotificationDrawerWrapperProps {
 
 const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ onClose }) => {
   const history = useHistory();
-  const [disabled, setDisabled] = useState(true);
+  const [disabledClearAll, setDisabledClearAll] = useState(true);
   const { state: { notifications }, dispatch } = useContext(AppContext);
 
-  const onNotificationClose = (index: number) => {
-    let newNotifications: NotificationItem[] = notifications.slice(0);
-    newNotifications.splice(index, 1);
-
+  const onNotificationRemoval = (index: number) => {
     dispatch({
       type: NotificationActionTypes.REMOVE,
       payload: {
-        notifications: newNotifications
+        index
       }
     });
   }
 
+  const onNotificationClear = () => {
+    dispatch({
+      type: NotificationActionTypes.CLEAR
+    });
+  }
+
   useEffect(() => {
-    setDisabled(notifications.length === 0)
+    setDisabledClearAll(notifications.length === 0)
   }, [notifications.length]);
 
   const viewImg = async (index: number, id?: number) => {
@@ -68,11 +70,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
   return (
     <NotificationDrawer>
       <NotificationDrawerHeader count={notifications.length}>
-        <Button variant="tertiary" aria-label="Clear All" isDisabled={disabled} onClick={() => {
-          dispatch({
-            type: NotificationActionTypes.CLEAR
-          });
-        }}>Clear All</Button>
+        <Button variant={ButtonVariant.tertiary} aria-label="Clear All Notifications" isDisabled={disabledClearAll} onClick={onNotificationClear}>Clear All</Button>
         <Button variant={ButtonVariant.plain} aria-label="Close Notification Drawer" onClick={onClose} className="times-logo">
           <TimesIcon aria-hidden="true" />
         </Button>
@@ -86,7 +84,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
               <NotificationDrawerListItemBody timestamp={item.timestamp.calendar()}>
                 {item.message}
               </NotificationDrawerListItemBody>
-              <Button variant={ButtonVariant.plain} aria-label="Close Notification" onClick={() => onNotificationClose(index)} className="times-logo notification-close">
+              <Button variant={ButtonVariant.plain} aria-label="Remove Notification" onClick={() => onNotificationRemoval(index)} className="times-logo notification-remove-btn">
                 <TimesCircleIcon aria-hidden="true" />
               </Button>
             </NotificationDrawerListItem>
