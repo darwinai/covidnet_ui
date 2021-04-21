@@ -56,7 +56,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
   const rows = analysisList.map((analysis: ISeries, index: number) => {
     const isAnalysisValid = !!analysis.classifications.size;
     let analysisCells: any = [
-      { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" alt="Analysis Scan Thumbnail" /></div> : <div><PreviewNotAvailable /></div>) },
+      { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" alt="Analysis Scan Thumbnail" /></div> : <div><PreviewNotAvailable/></div>) },
       { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
     ];
 

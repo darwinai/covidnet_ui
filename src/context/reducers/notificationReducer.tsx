@@ -13,7 +13,7 @@ export interface NotificationItem {
   variant: 'success' | 'danger' | 'warning' | 'info' | 'default';
   title: string;
   message: string;
-  timestamp: Moment;
+  timestamp: Moment; // TODO: Migrate to Luxon, since Moment is now deprecated
   pluginId?: number;
 }
 
