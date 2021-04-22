@@ -410,7 +410,7 @@ class ChrisIntegration {
 
     // Count the number of Feeds that are actually being used for this page and add to the initial offset
     const lastOffset = offset + pastAnalysesSliced.reduce((acc: number, cur: TStudyInstance) => {
-      return acc + cur.feedIds.length
+      return acc + cur.feedIds.length;
     }, 0);
 
     return [pastAnalysesSliced, lastOffset, isLastPage];
