@@ -1,15 +1,20 @@
 .series-table-row {
-    .thumbnail {
-        height: 7em;
-        min-height: 7em;
-        width: 7em;
-        min-width: 7em;
-    }
+  .thumbnail {
+    height: 7em;
+    min-height: 7em;
+    width: 7em;
+    min-width: 7em;
+  }
 }
 
 .analysis-failed-text {
-    color: var(--pf-global--danger-color--100);
-    margin-left: 0.5em;
+  color: var(--pf-global--danger-color--100);
+  margin-left: 0.5em;
+}
+
+.results-spinner-container {
+  display: flex;
+  justify-content: center;
 }
 
 .results-spinner-container {

@@ -13,6 +13,7 @@ import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 import useInterval from "../../shared/useInterval";
 import { RESULT_POLL_INTERVAL } from "../../app.config";
+import { debounce } from "lodash";
 import { NotificationItem, NotificationItemVariant } from "../../context/reducers/notificationReducer";
 import moment from "moment";
 
@@ -36,6 +37,7 @@ type TableState = {
   lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
   storedPages: TStudyInstance[][], // Stores pages that have been seen, in an array of pages
   processingFeedIds: number[] // Stores Feed IDs associated with images that are currently processing
+  filter: string // Patient MRN filter
 }
 
 const INITIAL_TABLE_STATE: TableState = {
@@ -44,7 +46,8 @@ const INITIAL_TABLE_STATE: TableState = {
   lastOffset: 0,
   lastPage: -1,
   storedPages: [],
-  processingFeedIds: []
+  processingFeedIds: [],
+  filter: ""
 }
 
 enum TableReducerActions {
@@ -52,7 +55,8 @@ enum TableReducerActions {
   ADD_NEW_PAGE = "ADD_NEW_PAGE",
   INCREMENT_PAGE = "INCREMENT_PAGE",
   DECREMENT_PAGE = "DECREMENT_PAGE",
-  UPDATE_PROCESSING_FEED_IDS = "UPDATE_PROCESSING_FEED_IDS"
+  UPDATE_PROCESSING_FEED_IDS = "UPDATE_PROCESSING_FEED_IDS",
+  SET_FITLER = "SET_FITLER"
 }
 
 type TableAction =
@@ -60,7 +64,8 @@ type TableAction =
   | { type: TableReducerActions.ADD_NEW_PAGE, payload: { lastOffset: number, lastPage: number, newPage: TStudyInstance[], processingFeedIds: number[] } }
   | { type: TableReducerActions.INCREMENT_PAGE }
   | { type: TableReducerActions.DECREMENT_PAGE }
-  | { type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS, payload: { processingFeedIds: number[] } };
+  | { type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS, payload: { processingFeedIds: number[] } }
+  | { type: TableReducerActions.SET_FITLER, payload: { filter: string } };;
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
@@ -91,6 +96,12 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
       return {
         ...state,
         processingFeedIds: action.payload.processingFeedIds
+      }
+    case TableReducerActions.SET_FITLER:
+      return {
+        ...INITIAL_TABLE_STATE,
+        maxFeedId: state.maxFeedId,
+        filter: action.payload.filter
       }
     default: return state;
   }
@@ -134,7 +145,7 @@ const PastAnalysisTable: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const { maxFeedId, page, lastOffset, storedPages } = tableState;
+      const { maxFeedId, page, lastOffset, storedPages, filter } = tableState;
 
       if (!maxFeedId || maxFeedId >= 0) {
         setIsLoading(true);
@@ -142,7 +153,7 @@ const PastAnalysisTable: React.FC = () => {
 
         // If current page has not yet been seen and is not the last page
         if (page >= storedPages.length) {
-          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
+          const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, filter, maxFeedId);
 
           // Extracts the Feed IDs associated with studies that are processing
           const processingFeedIds = newAnalyses.filter((study: TStudyInstance) => !!study.pluginStatuses.jobsRunning)
@@ -338,20 +349,15 @@ const PastAnalysisTable: React.FC = () => {
     );
   }
 
-  const changePage = (direction: "previous" | "next") => {
-    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
-    if (direction === "previous") {
-      tableDispatch({ type: TableReducerActions.DECREMENT_PAGE })
-    } else if (direction === "next") {
-      tableDispatch({ type: TableReducerActions.INCREMENT_PAGE })
-    }
-  }
+  const debouncedFilterUpdate = debounce((filter: string) => tableDispatch({
+    type: TableReducerActions.SET_FITLER,
+    payload: { filter }
+  }), 500);
 
-  const searchMRN = (text: string) => {
+  const searchMRN = (filter: string) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
-    updateRows(tableState.storedPages[tableState.page].filter((analysis: TStudyInstance) => analysis.dcmImage.PatientID.includes(text)));
+    debouncedFilterUpdate(filter);
   }
-
   const decrementPage = () => {
     tableDispatch({ type: TableReducerActions.DECREMENT_PAGE });
   }
@@ -370,7 +376,7 @@ const PastAnalysisTable: React.FC = () => {
               <InputGroupText>
                 <FilterIcon />
               </InputGroupText>
-              <TextInput id="textInput5" type="number" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
+              <TextInput id="textInput5" type="text" placeholder="Patient MRN" aria-label="Dollar amount input example" onChange={searchMRN} />
               <InputGroupText> <SearchIcon /> </InputGroupText>
             </InputGroup>
           </div>
