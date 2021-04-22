@@ -28,8 +28,8 @@ const Footer: React.FC<FooterProps> = ({ isLogin }) => {
           <p className="footer-text">
             Learn more about&nbsp;
             <a href="https://alexswong.github.io/COVID-Net/" target="_blank" rel="noopener noreferrer">COVID-Net</a>
-            &nbsp;and&nbsp;
-            <a href="https://github.com/darwinai/covidnet_ui" target="_blank" rel="noopener noreferrer">the COVID-Net UI</a>
+            &nbsp;and the&nbsp;
+            <a href="https://github.com/darwinai/covidnet_ui" target="_blank" rel="noopener noreferrer">COVID-Net UI</a>
           </p>
         </PageHeaderToolsItem>
       </PageHeaderTools>
