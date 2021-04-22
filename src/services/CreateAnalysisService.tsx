@@ -81,7 +81,7 @@ class CreateAnalysisService {
         return {
           image: dcmImages[index],
           processedResults: img.value
-        }
+        };
       } else {
         return [];
       }
