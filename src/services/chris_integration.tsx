@@ -427,7 +427,7 @@ class ChrisIntegration {
       return await this.getCovidnetResults(covidnetPlugin);
     }));
     
-    return {series, classifications: Array.from(series[0].classifications.keys())}
+    return {series, classifications: Array.from(series?.[0]?.classifications.keys())}
   }
 
   /**
