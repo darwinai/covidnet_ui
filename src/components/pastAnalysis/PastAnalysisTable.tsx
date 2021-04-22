@@ -369,7 +369,7 @@ const PastAnalysisTable: React.FC = () => {
   return (
     <div className="PastAnalysis flex-column">
       <div>
-        <h2 className="PastAnalysisTitle">Past predictive analysis</h2>
+        <h2 className="PastAnalysisTitle">Past predictive analyses</h2>
         <div className="flex-row-space-between">
           <div className="MRNsearchBar">
             <InputGroup>
