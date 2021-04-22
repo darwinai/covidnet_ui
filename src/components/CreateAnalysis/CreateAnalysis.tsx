@@ -2,50 +2,6 @@ import React from "react";
 import PatientLookup from '../PatientLookup';
 
 const CreateAnalysis: React.FC = () => {
-  // const { state, dispatch } = useContext(AppContext);
-  // const { prevAnalyses } = state;
-  // const { page, perpage } = prevAnalyses;
-
-  // const openLocalFilePicker = (): Promise<LocalFile[]> => {
-
-  //   const input = document.createElement("input");
-  //   input.type = "file";
-  //   input.multiple = true;
-  //   input.click();
-  //   return new Promise(res => {
-  //     input.onchange = async () => {
-  //       if (input.files) {
-  //         const files = Array.from(input.files).map(file => {
-  //           return {
-  //             name: file.name,
-  //             blob: file
-  //           };
-  //         });
-  //         res(files); // resolve
-  //       }
-  //     };
-  //   });
-  // }
-  
-
-  // const submitFile = () => {
-  //   openLocalFilePicker().then(async (files: LocalFile[]) => {
-  //     const res: boolean = await ChrisIntegration.processNewAnalysis(files)
-  //     if (res) {
-  //       const analysisList = await ChrisIntegration.getPastAnalaysis(page, perpage)
-  //       dispatch({
-  //         type: AnalysisTypes.Update_list,
-  //         payload: { list: analysisList }
-  //       })
-  //       const total = await ChrisIntegration.getTotalAnalyses()
-  //       dispatch({
-  //         type: AnalysisTypes.Update_total,
-  //         payload: { total: total }
-  //       })
-  //     }
-  //   })
-  // }
-
   return <PatientLookup isOnDashboard={true}></PatientLookup>;
 }
 
