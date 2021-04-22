@@ -16,6 +16,6 @@ export const formatTime = (oldDay: string): string => {
   return oldDay.split(".")[0];
 }
 
-export const modifyDatetime = (oldDay: string): string => {
-  return (DateTime.fromISO(oldDay).toRelativeCalendar() || "").split(" ").map((date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ");
+export const modifyDatetime = (oldDay: number): string => {
+  return (DateTime.fromMillis(oldDay).toRelativeCalendar() || "").split(" ").map((date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ");
 }

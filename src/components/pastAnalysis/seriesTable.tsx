@@ -1,17 +1,19 @@
-import { Button } from '@patternfly/react-core';
+import { Button, Spinner } from '@patternfly/react-core';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table';
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
-import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
+import { ISeries, TStudyInstance } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import { TAnalysisResults } from '../../services/chris_integration';
+import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 
 interface SeriesTableProps {
-  studyInstance: StudyInstanceWithSeries;
-  classifications: string[];
+  data: Promise<TAnalysisResults>;
+  dcmImage: DcmImage;
   isProcessing: boolean;
 }
 
@@ -29,18 +31,27 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
   }
 }
 
-const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classifications, isProcessing }) => {
+const SeriesTable: React.FC<SeriesTableProps> = ({ data, dcmImage, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
-  const { series: analysisList } = studyInstance;
+  const [values, setValues] = useState<{series: ISeries[], classifications: string[]}>({series: [], classifications: []});
+
+  useEffect(() => {
+    (async () => {
+      const {series, classifications} = await data;
+      setValues({series, classifications});
+    })();
+
+  }, [])
+  
 
   let titles = [
     { title: (<span className='classificationText'><br />Preview</span>) },
     { title: (<span className='classificationText'><br />Image</span>) }
   ];
 
-  if (classifications.length) {
-    classifications.forEach((value: string) => {
+  if (values.classifications.length) {
+    values.classifications.forEach((value: string) => {
       titles.push({ title: (<><br /><span className="classificationText">{value}</span></>) }); // Adding the column titles for each analysis
     });
   } else {
@@ -53,7 +64,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
 
   const columns = titles;
 
-  const rows = analysisList.map((analysis: ISeries, index: number) => {
+  const rows = values.series.map((analysis: ISeries, index: number) => {
     const isAnalysisValid = !!analysis.classifications.size;
     let analysisCells: any = [
       { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" alt="Analysis Scan Thumbnail" /></div> : <div><PreviewNotAvailable/></div>) },
@@ -70,8 +81,8 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
             />)
         });
       });
-    } else if (classifications?.length) { // If this Series' analysis was unsuccessful, but the list of classes is known, display 'N/A' for each classification result
-      analysisCells.push(...classifications.map(() => ({
+    } else if (values.classifications?.length) { // If this Series' analysis was unsuccessful, but the list of classes is known, display 'N/A' for each classification result
+      analysisCells.push(...values.classifications.map(() => ({
         title: ("N/A")
       })));
     } else { // If this Series' analysis was unsuccessful, and the list of classes is unknown
@@ -101,8 +112,8 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
       type: AnalysisTypes.Update_selected_image,
       payload: {
         selectedImage: {
-          dcmImage: studyInstance.dcmImage,
-          series: studyInstance.series[index]
+          dcmImage,
+          series: values.series[index]
         }
       }
     })
@@ -110,10 +121,22 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ studyInstance, classification
   }
 
   return (
-    <Table aria-label="Simple Table" cells={columns} rows={rows}>
-      <TableHeader />
-      <TableBody className="series-table-row" />
-    </Table>
+    <>
+    { 
+      values.series.length ?
+      (
+          <Table aria-label="Simple Table" cells={columns} rows={rows}>
+            <TableHeader />
+            <TableBody className="series-table-row" />
+          </Table>
+      ):
+      (
+        <div className="results-spinner-container">
+          <Spinner size="lg" />
+        </div>
+      )
+    }
+    </>
   )
 }
 

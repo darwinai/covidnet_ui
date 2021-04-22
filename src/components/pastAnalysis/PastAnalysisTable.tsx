@@ -6,8 +6,8 @@ import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-tab
 import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
 import { NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { ISeries, StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
-import ChrisIntegration, { pluginData, PluginPollStatus } from "../../services/chris_integration";
+import { TStudyInstance } from "../../context/reducers/analyseReducer";
+import ChrisIntegration, { pluginData, TAnalysisResults, PluginPollStatus } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
@@ -18,11 +18,12 @@ import moment from "moment";
 
 interface tableRowsParent {
   isOpen: boolean,
-  cells: string[]
+  cells: string[],
+  analysis: TStudyInstance,
+  isProcessing: boolean
 }
 
 interface tableRowsChild {
-  isOpen: boolean,
   parent: number,
   fullWidth: boolean,
   cells: { [title: string]: ReactNode }[]
@@ -30,11 +31,11 @@ interface tableRowsChild {
 
 type TableState = {
   page: number, // Current table page number
-  maxFeedId: number | undefined, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
+  maxFeedId: number | undefined, // ID of the latest Feed on ChRIS as of when PastAnalysisTable first mounted OR was last reset
   lastOffset: number, // Page offset value for where to begin fetching the next unseen page
   lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
-  storedPages: StudyInstanceWithSeries[][], // Stores pages that have been seen in an array of pages
-  processingPluginIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
+  storedPages: TStudyInstance[][], // Stores pages that have been seen, in an array of pages
+  processingFeedIds: number[] // Stores Feed IDs associated with images that are currently processing
 }
 
 const INITIAL_TABLE_STATE: TableState = {
@@ -43,7 +44,7 @@ const INITIAL_TABLE_STATE: TableState = {
   lastOffset: 0,
   lastPage: -1,
   storedPages: [],
-  processingPluginIds: []
+  processingFeedIds: []
 }
 
 enum TableReducerActions {
@@ -51,15 +52,15 @@ enum TableReducerActions {
   ADD_NEW_PAGE = "ADD_NEW_PAGE",
   INCREMENT_PAGE = "INCREMENT_PAGE",
   DECREMENT_PAGE = "DECREMENT_PAGE",
-  UPDATE_PLUGINS = "UPDATE_PLUGINS"
+  UPDATE_PROCESSING_FEED_IDS = "UPDATE_PROCESSING_FEED_IDS"
 }
 
 type TableAction =
   | { type: TableReducerActions.UPDATE_MAX_FEED_ID, payload: { id: number } }
-  | { type: TableReducerActions.ADD_NEW_PAGE, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingPluginIds: number[] } }
+  | { type: TableReducerActions.ADD_NEW_PAGE, payload: { lastOffset: number, lastPage: number, newPage: TStudyInstance[], processingFeedIds: number[] } }
   | { type: TableReducerActions.INCREMENT_PAGE }
   | { type: TableReducerActions.DECREMENT_PAGE }
-  | { type: TableReducerActions.UPDATE_PLUGINS, payload: { processingPluginIds: number[] } };
+  | { type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS, payload: { processingFeedIds: number[] } };
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
@@ -74,7 +75,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         lastOffset: action.payload.lastOffset,
         lastPage: action.payload.lastPage,
         storedPages: [...state.storedPages, action.payload.newPage],
-        processingPluginIds: [...state.processingPluginIds, ...action.payload.processingPluginIds]
+        processingFeedIds: [...state.processingFeedIds, ...action.payload.processingFeedIds]
       }
     case TableReducerActions.INCREMENT_PAGE:
       return {
@@ -86,14 +87,21 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         ...state,
         page: state.page - 1
       }
-    case TableReducerActions.UPDATE_PLUGINS:
+    case TableReducerActions.UPDATE_PROCESSING_FEED_IDS:
       return {
         ...state,
-        processingPluginIds: action.payload.processingPluginIds
+        processingFeedIds: action.payload.processingFeedIds
       }
     default: return state;
   }
 }
+
+// Type guard for checking if a table row is a parent row
+const isParentRow = (row: tableRowsParent | tableRowsChild): row is tableRowsParent => (
+  (row as tableRowsParent).isOpen !== undefined &&
+  (row as tableRowsParent).analysis !== undefined &&
+  (row as tableRowsParent).isProcessing !== undefined
+)
 
 const PastAnalysisTable: React.FC = () => {
   const { state: { prevAnalyses: { perpage } }, dispatch } = React.useContext(AppContext);
@@ -130,31 +138,27 @@ const PastAnalysisTable: React.FC = () => {
 
       if (!maxFeedId || maxFeedId >= 0) {
         setIsLoading(true);
-        // Accumulates with the rows of current page
-        let curAnalyses: StudyInstanceWithSeries[] = [];
+        let curAnalyses: TStudyInstance[] = [];
 
-        // If current page has not yet been seen
+        // If current page has not yet been seen and is not the last page
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, maxFeedId);
 
-          // Extracts the plugin IDs associated with studies that are processing (have no analysisCreated date)
-          const processingPluginIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !study.analysisCreated)
-            .flatMap((study: StudyInstanceWithSeries) => study.series.map((series: ISeries) => series.covidnetPluginId));
+          // Extracts the Feed IDs associated with studies that are processing
+          const processingFeedIds = newAnalyses.filter((study: TStudyInstance) => !!study.pluginStatuses.jobsRunning)
+          .flatMap((study: TStudyInstance) => study.feedIds);
 
+          tableDispatch({ type: TableReducerActions.ADD_NEW_PAGE, payload: {
+            lastOffset: newOffset,
+            lastPage: isAtEndOfFeeds ? page : -1,
+            newPage: newAnalyses,
+            processingFeedIds: processingFeedIds.filter((id: number) => !tableState.processingFeedIds.includes(id))
+          }});
           curAnalyses = newAnalyses;
-          tableDispatch({
-            type: TableReducerActions.ADD_NEW_PAGE, payload: {
-              lastOffset: newOffset,
-              lastPage: isAtEndOfFeeds ? page : -1,
-              newPage: curAnalyses,
-              processingPluginIds: processingPluginIds.filter((id: number) => !tableState.processingPluginIds.includes(id))
-            }
-          });
         } else {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages[page];
         }
-
         updateRows(curAnalyses);
       }
       setIsLoading(false);
@@ -164,16 +168,16 @@ const PastAnalysisTable: React.FC = () => {
   // Polls ChRIS backend and refreshes table if any of the plugins with the given IDs have a terminated status
 
   useInterval(async () => {
-    const finishedPlugins = (await Promise.all(tableState.processingPluginIds.map(async (id: number) => {
-      if (await ChrisIntegration.checkIfPluginTerminated(id)) {
+    const finishedFeeds = (await Promise.all(tableState.processingFeedIds.map(async (id: number) => {
+      if (await ChrisIntegration.checkIfFeedJobsCompleted(id)) {
         return [id];
       } else {
         return [];
       }
     }))).flat();
 
-    let notifications: NotificationItem[] = await Promise.all(finishedPlugins.map(async (id: number) => {
-      const notificationInfo: pluginData = await ChrisIntegration.getPluginData(id);
+    let notifications: NotificationItem[] = await Promise.all(finishedFeeds.map(async (id: number) => {
+      const notificationInfo: pluginData = await ChrisIntegration.getCovidnetPluginData(id);
       if (notificationInfo.status !== PluginPollStatus.SUCCESS) {
         return ({
           variant: NotificationItemVariant.DANGER,
@@ -188,40 +192,38 @@ const PastAnalysisTable: React.FC = () => {
           title: `Analysis of image '${notificationInfo.title.split('/').pop()}' finished`,
           message: `The image was processed successfully.`,
           timestamp: moment(),
-          pluginId: id
+          feedId: id
         });
       }
     }));
 
-    if (finishedPlugins.length) {
+    if (finishedFeeds.length) {
       dispatch({
         type: NotificationActionTypes.SEND,
         payload: { notifications }
       });
 
-      const updatedPlugins = tableState.processingPluginIds.filter((id: number) => {
-        return !finishedPlugins.includes(id);
+      const updatedProcessingFeedIds = tableState.processingFeedIds.filter((id: number) => {
+        return !finishedFeeds.includes(id);
       });
+  
+      // Right before refreshing table, get a list of all the "Analysis Created" properties on page 0
+      newRowsRef.current = tableState.storedPages[0].filter((study: TStudyInstance) => !study.pluginStatuses.jobsRunning).map((study: TStudyInstance) => study.analysisCreated);
 
       tableDispatch({
-        type: TableReducerActions.UPDATE_PLUGINS,
-        payload: { processingPluginIds: updatedPlugins }
+        type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS,
+        payload: { processingFeedIds: updatedProcessingFeedIds }
       });
-
+  
       updateMaxFeedId();
     }
-  }, tableState.processingPluginIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
+  }, tableState.processingFeedIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
-  const updateRows = (listOfAnalysis: StudyInstanceWithSeries[]) => {
-    const rows: (tableRowsChild | tableRowsParent)[] = [];
-    for (const analysis of listOfAnalysis) {
-      const validAnalyses = analysis.series.filter((series: ISeries) => series.classifications.size > 0);
-      const classifications = validAnalyses?.[0]?.classifications ? Array.from(validAnalyses?.[0]?.classifications?.keys()) : [];
-      const numInvalidAnalyses = analysis.series.length - validAnalyses.length;
-
-      const indexInRows: number = rows.length;
-
-      const isProcessing = !analysis.analysisCreated;
+  const updateRows = (listOfAnalyses: TStudyInstance[]) => {
+    const newRows: (tableRowsChild | tableRowsParent)[] = [];
+    for (const analysis of listOfAnalyses) {
+      const indexInRows = newRows.length;
+      const isProcessing = !!analysis.pluginStatuses.jobsRunning;
       let analysisCreated;
       let badges;
       if (isProcessing) {
@@ -232,9 +234,10 @@ const PastAnalysisTable: React.FC = () => {
       } else {
         analysisCreated = analysis.analysisCreated;
         badges = {
-          title: (<>
-            {<Badge className="badge-margin" isRead={!validAnalyses.length}>{validAnalyses.length}</Badge>}
-            {<Badge className="badge-danger" isRead={!numInvalidAnalyses}>{numInvalidAnalyses}</Badge>}
+          title: (
+          <>
+            {<Badge className="badge-margin" isRead={!analysis.feedIds.length}>{analysis.feedIds.length}</Badge>}
+            {<Badge className="badge-danger" isRead={!analysis.pluginStatuses.jobsErrored}>{analysis.pluginStatuses.jobsErrored}</Badge>}
           </>)
         };
       }
@@ -248,29 +251,52 @@ const PastAnalysisTable: React.FC = () => {
         badges
       ];
 
-      rows.push({
+      // Top-level row
+      newRows.push({
         isOpen: false,
-        cells: cells
+        cells: cells,
+        analysis,
+        isProcessing
       });
-      if (analysis.series.length > 0) {
-        rows.push({
+
+      // Blank nested row
+      if (analysis.feedIds.length > 0) {
+        newRows.push({
           isOpen: false,
           parent: indexInRows,
           fullWidth: true,
-          cells: [{
-            title: (<SeriesTable studyInstance={analysis} isProcessing={isProcessing} classifications={classifications}></SeriesTable>)
-          }]
+          cells: []
         });
       }
     }
-    setRows(rows);
+    setRows(newRows);
   }
 
-  const onCollapse = (event: any, rowKey: number, isOpen: any) => {
+  const onCollapse = async (event: any, rowKey: number, isOpen: any) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     const rowsCopy = [...rows];
-    rowsCopy[rowKey].isOpen = isOpen;
-    setRows(rowsCopy);
+    
+    const parentRow = rowsCopy[rowKey];
+    if (isParentRow(parentRow)) {
+      parentRow.isOpen = isOpen;
+      if (isOpen && rowsCopy[rowKey + 1].cells.length === 0) {
+        const data: Promise<TAnalysisResults> = ChrisIntegration.getResultsAndClassesFromFeedIds(parentRow.analysis.feedIds);
+
+        const isProcessing = parentRow.isProcessing;
+    
+        rowsCopy[rowKey] = parentRow;
+
+        rowsCopy[rowKey + 1] = {
+          isOpen: false,
+          parent: rowKey,
+          fullWidth: true,
+          cells: [{
+            title: (<SeriesTable data={data} dcmImage={parentRow.analysis.dcmImage} isProcessing={isProcessing}></SeriesTable>)
+          }]
+        }
+      }
+      setRows(rowsCopy);
+    }
   }
 
   const customRowWrapper = (tableRow: any) => {
@@ -282,14 +308,16 @@ const PastAnalysisTable: React.FC = () => {
       ...props
     } = tableRow;
 
-    const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the index of Analysis Created column
 
+    const analysisCreated = cells[4] // 4 is the index of Analysis Created column
+    const isAnalyzing: boolean = analysisCreated && analysisCreated.title;
     // Style the current row
     let backgroundStyle = {};
     if (isAnalyzing) {
       backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
-    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(cells[4])) {
+    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(analysisCreated)) {
       backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
+      newRowsRef.current = [...newRowsRef.current, analysisCreated];
     } else {
       backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
     }
@@ -310,9 +338,18 @@ const PastAnalysisTable: React.FC = () => {
     );
   }
 
+  const changePage = (direction: "previous" | "next") => {
+    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
+    if (direction === "previous") {
+      tableDispatch({ type: TableReducerActions.DECREMENT_PAGE })
+    } else if (direction === "next") {
+      tableDispatch({ type: TableReducerActions.INCREMENT_PAGE })
+    }
+  }
+
   const searchMRN = (text: string) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
-    updateRows(tableState.storedPages[tableState.page].filter((analysis: StudyInstanceWithSeries) => analysis.dcmImage.PatientID.includes(text)))
+    updateRows(tableState.storedPages[tableState.page].filter((analysis: TStudyInstance) => analysis.dcmImage.PatientID.includes(text)));
   }
 
   const decrementPage = () => {

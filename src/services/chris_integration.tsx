@@ -1,14 +1,35 @@
-import Client, { IPluginCreateData, PluginInstance } from "@fnndsc/chrisapi";
+import Client, { IPluginCreateData, Note, FeedPluginInstanceList, PluginInstance, PluginInstanceFileList, Feed, FeedList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
-import { ISeries, selectedImageType, StudyInstanceWithSeries } from "../context/reducers/analyseReducer";
+import { ISeries, selectedImageType, TStudyInstance, TPluginStatuses } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
-import { PluginModels } from "../app.config";
+import { PluginModels, FEED_NOTE_TITLE, BASE_COVIDNET_MODEL_PLUGIN_NAME } from "../app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
+import { groupBy } from "lodash";
 
 export interface LocalFile {
   name: string;
   blob: Blob;
+}
+
+export type DircopyResult = {
+  instance: PluginInstance, 
+  img: DcmImage
+}
+
+export type TAnalysisResults = {
+  series: ISeries[];
+  classifications: string[];
+}
+
+type TFeedNoteContent = {
+  timestamp: number,
+  img: DcmImage
+}
+
+type TFeedNote = {
+  feed: Feed,
+  note: TFeedNoteContent
 }
 
 interface DirCreateData extends IPluginCreateData {
@@ -144,7 +165,7 @@ class ChrisIntegration {
    * @param {string} chosenCTModel - The name of the COVID-Net model to use on the CT images
    * @returns {BackendPollResult} The result of initiating the plugins
    */
-   static async processOneImg(img: DcmImage, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
+   static async processOneImg(img: DcmImage, timestamp: number, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
     let client: Client = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
@@ -155,8 +176,17 @@ class ChrisIntegration {
 
       // PL-DIRCOPY
       const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
-      const data: DirCreateData = { "dir": img.fname };
+      const data: DirCreateData = { "dir": img.fname, title: img.PatientID };
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
+      const feed = await dircopyPluginInstance.getFeed();
+      const note = await feed?.getNote();
+      await note?.put({
+        title: FEED_NOTE_TITLE,
+        content: JSON.stringify({
+          timestamp,
+          img
+        })
+      })
       console.log("PL-DIRCOPY task sent into the task queue")
 
       // PL-MED2IMG
@@ -209,12 +239,23 @@ class ChrisIntegration {
     }
   }
 
-  static async getDcmImageDetailByFilePathName(imgTitle: string): Promise<DcmImage> {
+  /**
+   * Gets the header data for a given DICOM filepath
+   * @param {string} filepath - Filepath for the DICOM on Swift
+   * @returns {Promise<DcmImage>} DICOM header data
+   */
+  static async getDcmImageDetailByFilePathName(filepath: string): Promise<DcmImage> {
     const client: any = ChrisAPIClient.getClient();
-    const files = await client.getPACSFiles({ fname_exact: imgTitle })
+    const files = await client.getPACSFiles({ fname_exact: filepath })
     return files?.data?.[0];
   }
 
+  /**
+   * Gets the filepath to a DICOM given its Study and Series UIDs
+   * @param {string} StudyInstanceUID - DICOM StudyInstanceUID
+   * @param {string} SeriesInstanceUID - DICOM SeriesInstanceUID
+   * @returns {Promise<string>} Filepath to DICOM
+   */
   static async getFilePathNameByUID(StudyInstanceUID: string, SeriesInstanceUID: string): Promise<string> {
     let client: any = await ChrisAPIClient.getClient();
 
@@ -228,7 +269,8 @@ class ChrisIntegration {
   }
 
   /**
-   * Gets the ID of the latest Feed stored in Swift
+   * Gets the ID of the most recent Feed in ChRIS
+   * @returns {Promise<number>} Feed ID
    */
   static async getLatestFeedId(): Promise<number> {
     const client: any = ChrisAPIClient.getClient();
@@ -240,19 +282,33 @@ class ChrisIntegration {
   }
 
   /**
-   * Returns true if the plugin with the given id is in a terminated state (SUCCESS, ERROR, or CANCELLED)
-   * @param {number} id
+   * Returns true if the all the jobs associated with the Feed ID are either finished, errored, or cancelled
+   * @param {number} id - Feed ID
+   * @returns {Promise<boolean>} True of all Feed jobs are completed
    */
-  static async checkIfPluginTerminated(id: number): Promise<boolean> {
+  static async checkIfFeedJobsCompleted(id: number): Promise<boolean> {
     const client: Client = ChrisAPIClient.getClient();
-    const plugin = await client.getPluginInstances({ id });
-    const status = plugin?.getItems()?.[0]?.data?.status;
-    return status === PluginPollStatus.SUCCESS || status === PluginPollStatus.ERROR || status === PluginPollStatus.CANCELLED;
+    const feed: Feed = await client.getFeed(id);
+    const feedData = feed?.data;
+    const jobsRunning = feedData?.created_jobs +
+                        feedData?.registering_jobs +
+                        feedData?.scheduled_jobs +
+                        feedData?.started_jobs +
+                        feedData?.waiting_jobs;
+    return jobsRunning === 0;
   }
 
-  static async getPluginData(id: number): Promise<pluginData> {
+  /**
+   * Gets title, status, and plugin name for the covidnet plugin associated with given Feed ID
+   * @param {number} id - Feed ID
+   * @returns {Promise<pluginData>} Plugin data
+   */
+  static async getCovidnetPluginData(feedId: number): Promise<pluginData> {
     const client: Client = ChrisAPIClient.getClient();
-    const plugin = await client.getPluginInstances({ id });
+    const plugin = await client.getPluginInstances({
+      feed_id: feedId,
+      plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
+    });
     return ({
       title: plugin?.getItems()?.[0]?.data?.title,
       status: plugin?.getItems()?.[0]?.data?.status,
@@ -262,160 +318,138 @@ class ChrisIntegration {
 
   /**
    * Starting at the provided offset, coninuously fetches Feeds from Swift until able to return an array of
-   * StudyInstanceWithSeries of the provided size (limit)
+   * TStudyInstance of the provided size (limit)
    * @param {number} offset Page offset
-   * @param {number} limit Desired number of StudyInstanceWithSeries to receive
+   * @param {number} limit Desired number of TStudyInstance to receive
    * @param {number} max_id Maximum Feed ID search parameter
    */
-  static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[StudyInstanceWithSeries[], number, boolean]> {
-    const pastAnalysis: StudyInstanceWithSeries[] = [];
-    const pastAnalysisMap: { [timeAndStudyUID: string]: { indexInArr: number } } = {}
-
+  static async getPastAnalyses(offset: number, limit: number, max_id?: number): Promise<[TStudyInstance[], number, boolean]> {
     const client: any = ChrisAPIClient.getClient();
 
     // Indicates when the last Feed on Swift has been reached to prevent further fetching
     let isAtEndOfFeeds = false;
 
-    // Aim to have 1 extra StudyInstanceWithSeries to ensure that Feeds associated with the same Study grouping 
-    // are not separated across pages. The extra StudyInstanceWithSeries will be discarded at the end
-    let fetchLimit = limit + 1;
-
     let curOffset = offset;
 
-    // Keep fetching Feeds until the desired number of StudyInstanceWithSeries is collected OR the end of Feeds has been reached
-    while (pastAnalysis.length < limit + 1 && !isAtEndOfFeeds) {
-      const feeds = await client.getFeeds({
-        limit: fetchLimit,
+    // Feed and Note data that have been fetched so far
+    const feedNoteArray: TFeedNote[] = [];
+
+    // Feeds grouped by [timestamp, StudyInstanceUID]
+    let studyGroups: Object = {};
+
+    // Keep fetching Feeds in batch sizes of "limit" and grouping them until studyGroups contains ("limit" + 1) number of groups
+    while (Object.keys(studyGroups).length <= limit && !isAtEndOfFeeds) {
+      const feeds: FeedList = await client.getFeeds({
+        limit: limit,
         offset: curOffset,
         max_id
       });
-      const feedArray = feeds?.getItems();
 
-      curOffset += fetchLimit;
+      curOffset += limit;
+      
+      const feedArray: Feed[] = feeds?.getItems();
 
-      // If fetch returns less feeds than requested, then the end of the list of Feeds has been reached
-      isAtEndOfFeeds = feedArray?.length < fetchLimit;
+      // If the number of Feeds in the response was less than fetchLimit, it means that the end of Feeds in the DB has been reached
+      isAtEndOfFeeds = feedArray?.length < limit;
 
-      for (let feed of feedArray) {
-        const pluginInstances = await feed.getPluginInstances({
-          limit: 25,
-          offset: 0
-        });
-        // iterate it over all feeds
-        const pluginlists = pluginInstances.getItems();
-        for (let plugin of pluginlists) {
-          let studyInstance: StudyInstanceWithSeries | null = null;
-          // ignore plugins that are not models
-          if (!isModel(plugin.data.plugin_name)) continue;
-          // get dicom image data
-          if (plugin.data.title !== '') {
-            const imgData: DcmImage = await this.getDcmImageDetailByFilePathName(plugin.data.title);
-            if (imgData) {
-              // use dircopy start time to check
-              for (let findDircopy of pluginlists) {
-                if (findDircopy.data.plugin_name === PluginModels.Plugins.FS_PLUGIN) {
-                  const startedTime = formatTime(findDircopy.data.start_date);
-                  const possibileIndex = startedTime + imgData.StudyInstanceUID;
-                  // already exists so push it to te seriesList
-                  if (!!pastAnalysisMap[possibileIndex]) {
-                    studyInstance = pastAnalysis[pastAnalysisMap[possibileIndex].indexInArr];
-                  } else { // doesn't already exist so we create one
-                    const pluginStatus = plugin?.data?.status;
-                    let analysisCreated: string;
-                    // If the model plugin is not in a terminated state, mark analysisCreated as processing, otherwise, provide datetime
-                    if (pluginStatus !== PluginPollStatus.SUCCESS &&
-                      pluginStatus !== PluginPollStatus.ERROR &&
-                      pluginStatus !== PluginPollStatus.CANCELLED) {
-                      analysisCreated = "";
-                    } else {
-                      analysisCreated = modifyDatetime(findDircopy.data.start_date);
-                    }
-
-                    studyInstance = {
-                      dcmImage: imgData,
-                      analysisCreated,
-                      series: []
-                    };
-                    // first update map with the index then push to the result array
-                    pastAnalysisMap[possibileIndex] = { indexInArr: pastAnalysis.length };
-                    pastAnalysis.push(studyInstance);
-                  }
-                }
-              }
-            }
-          } else {
-            // TODO: investigate else case
-            return [[], curOffset, isAtEndOfFeeds];
-          }
-
-          const pluginInstanceFiles = await plugin.getFiles({
-            limit: 25,
-            offset: 0,
-          });
-          const newSeries: ISeries = {
-            covidnetPluginId: plugin.data.id,
-            imageName: plugin?.data?.title || "File name not available",
-            imageId: "",
-            classifications: new Map<string, number>(),
-            geographic: null,
-            opacity: null,
-            imageUrl: "",
-          };
-
-          for (let fileObj of pluginInstanceFiles.getItems()) {
-            if (fileObj.data.fname.includes("prediction") && fileObj.data.fname.includes("json")) {
-              let content = await this.fetchJsonFiles(fileObj.data.id);
-              const formatNumber = (num: any) => (Math.round(Number(num) * 10000) / 100); // to round to 2 decimal place percentage
-              Object.keys(content).forEach((key: string) => { // Reading in the classifcation titles and values
-                if ((key !== 'prediction') && (key !== "Prediction")) {
-                  if ((key !== '**DISCLAIMER**') && (!isNaN(content[key]))) {
-                    newSeries.classifications.set(key, formatNumber(content[key]));
-                  }
-                }
-              });
-            } else if (fileObj.data.fname.includes('severity.json')) {
-              let content = await this.fetchJsonFiles(fileObj.data.id)
-              newSeries.geographic = {
-                severity: content['Geographic severity'],
-                extentScore: content['Geographic extent score']
-              }
-              newSeries.opacity = {
-                severity: content['Opacity severity'],
-                extentScore: content['Opacity extent score']
-              }
-            } else if (!fileObj.data.fname.includes('json')) {
-              newSeries.imageId = fileObj.data.id;
-
-              // Fetch image URL
-              if (newSeries.imageId) {
-                const imgBlob = await DicomViewerService.fetchImageFile(newSeries.imageId);
-                const urlCreator = window.URL || window.webkitURL;
-                newSeries.imageUrl = urlCreator.createObjectURL(imgBlob);
-              }
-            }
-          }
-
-          if (studyInstance) studyInstance.series.push(newSeries);
+      // Get Note data and pair it with the respective Feed
+      const newFeedNoteArray: TFeedNote[] = (await Promise.all(feedArray.map(async (feed: Feed): Promise<TFeedNote[]> => {
+        const note: Note = await feed.getNote();
+        if (!note || note.data.title !== FEED_NOTE_TITLE) {
+          return [];
         }
-      }
+        const noteContent = JSON.parse(note?.data?.content);
+        return [{
+          feed,
+          note: noteContent
+        }];
+      }))).flat();
 
-      // Update fetchLimit to be remaining number of StudyInstanceWithSeries desired
-      fetchLimit = limit + 1 - pastAnalysis.length;
+      feedNoteArray.push(...newFeedNoteArray);
+
+      // Group Feeds into an object by [timestamp, StudyInstanceUID]. Each group represents a row on the table.
+      studyGroups = groupBy(feedNoteArray, (feedNote: TFeedNote) => [feedNote.note.timestamp, feedNote.note.img.StudyInstanceUID]);
     }
 
-    // If the end of Feeds was reached, return all collected StudyInstanceWithSeries, otherwise, discard the last extra Study
-    const pastAnalysesToReturn = isAtEndOfFeeds ? pastAnalysis : pastAnalysis.slice(0, -1);
+    // If the end of Feeds was reached and the number of groups doesn't exceed the desired limit, mark this is as the last page to be fetched
+    // This flag will prevent the table from allowing the click the Next button
+    const isLastPage = isAtEndOfFeeds && Object.keys(studyGroups).length <= limit;
 
-    return [pastAnalysesToReturn, curOffset - 1, isAtEndOfFeeds];
+    // Generate list of TStudyInstance
+    const pastAnalyses: TStudyInstance[] = Object.values(studyGroups).map((feedNotes: TFeedNote[]): TStudyInstance => {
+      const firstFeedNote = feedNotes?.[0];
+
+      const pluginStatuses = feedNotes.reduce((acc: TPluginStatuses, cur: TFeedNote) => {
+        const feedData = cur.feed.data;
+        acc.jobsDone += feedData.finished_jobs
+        acc.jobsErrored += feedData.errored_jobs + feedData.cancelled_jobs
+        acc.jobsRunning += feedData.created_jobs +
+                           feedData.registering_jobs +
+                           feedData.scheduled_jobs +
+                           feedData.started_jobs +
+                           feedData.waiting_jobs;
+        return acc;
+      }, {
+        jobsDone: 0,
+        jobsErrored: 0,
+        jobsRunning: 0
+      });
+
+      const feedIds = feedNotes.map((feedNote: TFeedNote) => feedNote.feed.data.id);
+
+      return {
+        dcmImage: firstFeedNote.note.img,
+        analysisCreated: modifyDatetime(firstFeedNote.note.timestamp),
+        feedIds,
+        pluginStatuses
+      }
+    });
+
+    // Discard the extra analysis, if there is one
+    const pastAnalysesSliced = pastAnalyses.slice(0, limit);
+
+    // Count the number of Feeds that are actually being used for this page and add to the initial offset
+    const lastOffset = offset + pastAnalysesSliced.reduce((acc: number, cur: TStudyInstance) => {
+      return acc + cur.feedIds.length;
+    }, 0);
+
+    return [pastAnalysesSliced, lastOffset, isLastPage];
   }
 
-  static async fetchPluginInstanceFromId(id: number): Promise<PluginInstance> {
+  /**
+   * Gets the list of Series results, along with a list of the names for the classes used to title the columns of the SeriesTable
+   * @param {number[]} feedIds List of Feed IDs
+   * @return {Promise<TAnalysisResults>} Results from analysis
+   */
+  static async getResultsAndClassesFromFeedIds(feedIds: number[]): Promise<TAnalysisResults> {
+    const series: ISeries[] = await Promise.all(feedIds.map(async (id: number): Promise<ISeries> => {
+      const covidnetPlugin = await this.getCovidnetPluginInstanceFromFeedId(id);
+      return await this.getCovidnetResults(covidnetPlugin);
+    }));
+    
+    return {series, classifications: Array.from(series?.[0]?.classifications.keys())}
+  }
+
+  /**
+   * Gets covidnet plugin instance that belongs to the given Feed
+   * @param {number} feedId Feed ID
+   * @return {Promise<PluginInstance>} covidnet plugin instance
+   */
+  static async getCovidnetPluginInstanceFromFeedId(feedId: number): Promise<PluginInstance> {
     const client: Client = ChrisAPIClient.getClient();
-    const pluginData = await client.getPluginInstances({ id });
+    const pluginData = await client.getPluginInstances({
+      feed_id: feedId,
+      plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
+    });
     return pluginData.getItems()?.[0];
   }
 
-  static async fetchResults(covidnetPlugin: PluginInstance): Promise<ISeries> {
+  /**
+   * Gets results generated from the covidnet plugin
+   * @param {PluginInstance} covidnetPlugin covidnet plugin instance
+   * @return {Promise<ISeries>} Results
+   */
+  static async getCovidnetResults(covidnetPlugin: PluginInstance): Promise<ISeries> {
     const file = await covidnetPlugin.getFiles({
       limit: 25,
       offset: 0,
@@ -463,6 +497,12 @@ class ChrisIntegration {
         opacity,
         imageUrl: imageUrl || ""
     }
+  }
+
+  static async fetchPluginInstanceFromId(id: number): Promise<PluginInstance> {
+    const client: Client = ChrisAPIClient.getClient();
+    const pluginData = await client.getPluginInstances({ id });
+    return pluginData.getItems()?.[0];
   }
 
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {

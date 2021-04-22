@@ -42,10 +42,11 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
   }
   const viewImg = async (index: number, id?: number) => {
     if (id) {
-      const plugin = await ChrisIntegration.fetchPluginInstanceFromId(id);
+      const plugin = await ChrisIntegration.getCovidnetPluginInstanceFromFeedId(id);
       if (plugin?.data?.title) {
-        const series = await ChrisIntegration.fetchResults(plugin);
+        const series = await ChrisIntegration.getCovidnetResults(plugin);
         const dcmImage = await ChrisIntegration.getDcmImageDetailByFilePathName(plugin?.data?.title);
+      
         dispatch({
           type: AnalysisTypes.Update_selected_image,
           payload: {
@@ -74,7 +75,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
       <NotificationDrawerBody>
         <NotificationDrawerList>
           {notifications.map((item, index) => (
-            <NotificationDrawerListItem key={index} variant={item.variant} onClick={() => { viewImg(index, item?.pluginId) }}>
+            <NotificationDrawerListItem key={index} variant={item.variant} onClick={() => { viewImg(index, item?.feedId) }}>
               <NotificationDrawerListItemHeader variant={item.variant} title={item.title}>
               </NotificationDrawerListItemHeader>
               <NotificationDrawerListItemBody timestamp={item.timestamp.calendar()}>

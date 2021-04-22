@@ -4,6 +4,7 @@ import { NotificationItem } from "../context/reducers/notificationReducer";
 import ChrisIntegration, { BackendPollResult } from "./chris_integration";
 import NotificationService from "./notificationService";
 import { formatDate } from "../shared/utils";
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 export interface StudyInstance {
   studyInstanceUID: string;
@@ -70,8 +71,9 @@ class CreateAnalysisService {
    * @returns {Promise<NotificationItem[]>} Notifications of any plugin failures that occur in processOneImg
    */
   static async analyzeImages(dcmImages: DcmImage[], XrayModel: string, CTModel: string): Promise<NotificationItem[]> {
+    const timestamp = + new Date();
     const processedImages = await Promise.allSettled(dcmImages.map(async (img: DcmImage) => {
-      return await ChrisIntegration.processOneImg(img, XrayModel, CTModel);
+      return await ChrisIntegration.processOneImg(img, timestamp, XrayModel, CTModel)
     }));
 
     const results = await processedImages.flatMap((img: PromiseSettledResult<BackendPollResult>, index: number) => {
