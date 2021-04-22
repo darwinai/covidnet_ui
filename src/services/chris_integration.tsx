@@ -501,12 +501,6 @@ class ChrisIntegration {
     }
   }
 
-  static async fetchPluginInstanceFromId(id: number): Promise<PluginInstance> {
-    const client: Client = ChrisAPIClient.getClient();
-    const pluginData = await client.getPluginInstances({ id });
-    return pluginData.getItems()?.[0];
-  }
-
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {
     if (!fileId) {
       return {}
