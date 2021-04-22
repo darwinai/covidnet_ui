@@ -368,7 +368,7 @@ class ChrisIntegration {
       feedNoteArray.push(...newFeedNoteArray);
 
       // Group Feeds into an object by [timestamp, StudyInstanceUID]. Each group represents a row on the table.
-      studyGroups = groupBy(feedNoteArray, (feedNote: any) => [feedNote.note.timestamp, feedNote.note.img.StudyInstanceUID]);
+      studyGroups = groupBy(feedNoteArray, (feedNote: TFeedNote) => [feedNote.note.timestamp, feedNote.note.img.StudyInstanceUID]);
     }
 
     // If the end of Feeds was reached and the number of groups doesn't exceed the desired limit, mark this is as the last page to be fetched
