@@ -6,7 +6,7 @@ import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-tab
 import React, { ReactNode, useEffect, useState, useReducer, useRef } from "react";
 import { NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { StudyInstanceWithSeries } from "../../context/reducers/analyseReducer";
+import { TStudyInstance } from "../../context/reducers/analyseReducer";
 import ChrisIntegration, { pluginData, TAnalysisResults, PluginPollStatus } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
 import { Badge } from "@patternfly/react-core";
@@ -20,26 +20,23 @@ import moment from "moment";
 interface tableRowsParent {
   isOpen: boolean,
   cells: string[],
-  feedIds: number[],
+  analysis: TStudyInstance,
   isProcessing: boolean
 }
 
 interface tableRowsChild {
-  isOpen: boolean,
   parent: number,
   fullWidth: boolean,
-  cells: { [title: string]: ReactNode }[],
-  feedIds: number[],
-  isProcessing: boolean
+  cells: { [title: string]: ReactNode }[]
 }
 
 type TableState = {
   page: number, // Current table page number
-  maxFeedId: number | undefined, // ID of the latest Feed on Swift as of when PastAnalysisTable first mounted OR was last reset
+  maxFeedId: number | undefined, // ID of the latest Feed on ChRIS as of when PastAnalysisTable first mounted OR was last reset
   lastOffset: number, // Page offset value for where to begin fetching the next unseen page
   lastPage: number, // Table page number of the very last page (-1 means last page has not yet been seen)
-  storedPages: StudyInstanceWithSeries[][], // Stores pages that have been seen in an array of pages
-  processingFeedIds: number[] // Stores plugin ids associated with images that are currently processing, used for selective polling
+  storedPages: TStudyInstance[][], // Stores pages that have been seen, in an array of pages
+  processingFeedIds: number[] // Stores Feed IDs associated with images that are currently processing
   filter: string // Patient MRN filter
 }
 
@@ -58,17 +55,17 @@ enum TableReducerActions {
   ADD_NEW_PAGE = "ADD_NEW_PAGE",
   INCREMENT_PAGE = "INCREMENT_PAGE",
   DECREMENT_PAGE = "DECREMENT_PAGE",
-  UPDATE_PLUGINS = "UPDATE_PLUGINS",
+  UPDATE_PROCESSING_FEED_IDS = "UPDATE_PROCESSING_FEED_IDS",
   SET_FITLER = "SET_FITLER"
 }
 
 type TableAction =
   | { type: TableReducerActions.UPDATE_MAX_FEED_ID, payload: { id: number } }
-  | { type: TableReducerActions.ADD_NEW_PAGE, payload: { lastOffset: number, lastPage: number, newPage: StudyInstanceWithSeries[], processingFeedIds: number[] } }
+  | { type: TableReducerActions.ADD_NEW_PAGE, payload: { lastOffset: number, lastPage: number, newPage: TStudyInstance[], processingFeedIds: number[] } }
   | { type: TableReducerActions.INCREMENT_PAGE }
   | { type: TableReducerActions.DECREMENT_PAGE }
-  | { type: TableReducerActions.UPDATE_PLUGINS, payload: { processingFeedIds: number[] } }
-  | { type: TableReducerActions.SET_FITLER, payload: { filter: string } };
+  | { type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS, payload: { processingFeedIds: number[] } }
+  | { type: TableReducerActions.SET_FITLER, payload: { filter: string } };;
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
@@ -95,7 +92,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         ...state,
         page: state.page - 1
       }
-    case TableReducerActions.UPDATE_PLUGINS:
+    case TableReducerActions.UPDATE_PROCESSING_FEED_IDS:
       return {
         ...state,
         processingFeedIds: action.payload.processingFeedIds
@@ -109,6 +106,13 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
     default: return state;
   }
 }
+
+// Type guard for checking if a table row is a parent row
+const isParentRow = (row: tableRowsParent | tableRowsChild): row is tableRowsParent => (
+  (row as tableRowsParent).isOpen !== undefined &&
+  (row as tableRowsParent).analysis !== undefined &&
+  (row as tableRowsParent).isProcessing !== undefined
+)
 
 const PastAnalysisTable: React.FC = () => {
   const { state: { prevAnalyses: { perpage } }, dispatch } = React.useContext(AppContext);
@@ -145,24 +149,23 @@ const PastAnalysisTable: React.FC = () => {
 
       if (!maxFeedId || maxFeedId >= 0) {
         setIsLoading(true);
-        // Accumulates with the rows of current page
-        let curAnalyses: StudyInstanceWithSeries[] = [];
+        let curAnalyses: TStudyInstance[] = [];
 
-        // If current page has not yet been seen
+        // If current page has not yet been seen and is not the last page
         if (page >= storedPages.length) {
           const [newAnalyses, newOffset, isAtEndOfFeeds] = await ChrisIntegration.getPastAnalyses(lastOffset, perpage, filter, maxFeedId);
-          const processingFeedIds = newAnalyses.filter((study: StudyInstanceWithSeries) => !!study.pluginStatuses.jobsRunning)
-          .map((study: StudyInstanceWithSeries) => study.feedIds?.[0]);
 
+          // Extracts the Feed IDs associated with studies that are processing
+          const processingFeedIds = newAnalyses.filter((study: TStudyInstance) => !!study.pluginStatuses.jobsRunning)
+          .flatMap((study: TStudyInstance) => study.feedIds);
+
+          tableDispatch({ type: TableReducerActions.ADD_NEW_PAGE, payload: {
+            lastOffset: newOffset,
+            lastPage: isAtEndOfFeeds ? page : -1,
+            newPage: newAnalyses,
+            processingFeedIds: processingFeedIds.filter((id: number) => !tableState.processingFeedIds.includes(id))
+          }});
           curAnalyses = newAnalyses;
-          tableDispatch({
-            type: TableReducerActions.ADD_NEW_PAGE, payload: {
-              lastOffset: newOffset,
-              lastPage: isAtEndOfFeeds ? page : -1,
-              newPage: curAnalyses,
-              processingFeedIds: processingFeedIds.filter((id: number) => !tableState.processingFeedIds.includes(id))
-            }
-          });
         } else {
           // If page has already been seen, access its contents from storedPages
           curAnalyses = storedPages[page];
@@ -177,7 +180,7 @@ const PastAnalysisTable: React.FC = () => {
 
   useInterval(async () => {
     const finishedFeeds = (await Promise.all(tableState.processingFeedIds.map(async (id: number) => {
-      if (await ChrisIntegration.checkIfPluginTerminated(id)) {
+      if (await ChrisIntegration.checkIfFeedJobsCompleted(id)) {
         return [id];
       } else {
         return [];
@@ -185,7 +188,7 @@ const PastAnalysisTable: React.FC = () => {
     }))).flat();
 
     let notifications: NotificationItem[] = await Promise.all(finishedFeeds.map(async (id: number) => {
-      const notificationInfo: pluginData = await ChrisIntegration.getPluginData(id);
+      const notificationInfo: pluginData = await ChrisIntegration.getCovidnetPluginData(id);
       if (notificationInfo.status !== PluginPollStatus.SUCCESS) {
         return ({
           variant: NotificationItemVariant.DANGER,
@@ -200,7 +203,7 @@ const PastAnalysisTable: React.FC = () => {
           title: `Analysis of image '${notificationInfo.title.split('/').pop()}' finished`,
           message: `The image was processed successfully.`,
           timestamp: moment(),
-          pluginId: id
+          feedId: id
         });
       }
     }));
@@ -211,20 +214,23 @@ const PastAnalysisTable: React.FC = () => {
         payload: { notifications }
       });
 
-      const updatedPlugins = tableState.processingFeedIds.filter((id: number) => {
+      const updatedProcessingFeedIds = tableState.processingFeedIds.filter((id: number) => {
         return !finishedFeeds.includes(id);
       });
+  
+      // Right before refreshing table, get a list of all the "Analysis Created" properties on page 0
+      newRowsRef.current = tableState.storedPages[0].filter((study: TStudyInstance) => !study.pluginStatuses.jobsRunning).map((study: TStudyInstance) => study.analysisCreated);
 
       tableDispatch({
-        type: TableReducerActions.UPDATE_PLUGINS,
-        payload: { processingFeedIds: updatedPlugins }
+        type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS,
+        payload: { processingFeedIds: updatedProcessingFeedIds }
       });
-
+  
       updateMaxFeedId();
     }
   }, tableState.processingFeedIds.length ? RESULT_POLL_INTERVAL : 0); // Pauses polling if there are no processing rows
 
-  const updateRows = (listOfAnalyses: StudyInstanceWithSeries[]) => {
+  const updateRows = (listOfAnalyses: TStudyInstance[]) => {
     const newRows: (tableRowsChild | tableRowsParent)[] = [];
     for (const analysis of listOfAnalyses) {
       const indexInRows = newRows.length;
@@ -241,7 +247,7 @@ const PastAnalysisTable: React.FC = () => {
         badges = {
           title: (
           <>
-            {<Badge className="badge-margin" isRead={!analysis.pluginStatuses.jobsDone}>{analysis.pluginStatuses.jobsDone}</Badge>}
+            {<Badge className="badge-margin" isRead={!analysis.feedIds.length}>{analysis.feedIds.length}</Badge>}
             {<Badge className="badge-danger" isRead={!analysis.pluginStatuses.jobsErrored}>{analysis.pluginStatuses.jobsErrored}</Badge>}
           </>)
         };
@@ -260,7 +266,7 @@ const PastAnalysisTable: React.FC = () => {
       newRows.push({
         isOpen: false,
         cells: cells,
-        feedIds: analysis.feedIds,
+        analysis,
         isProcessing
       });
 
@@ -270,9 +276,7 @@ const PastAnalysisTable: React.FC = () => {
           isOpen: false,
           parent: indexInRows,
           fullWidth: true,
-          cells: [],
-          feedIds: [],
-          isProcessing
+          cells: []
         });
       }
     }
@@ -282,24 +286,28 @@ const PastAnalysisTable: React.FC = () => {
   const onCollapse = async (event: any, rowKey: number, isOpen: any) => {
     newRowsRef.current = []; // Reset to prevent highlight animation from playing again
     const rowsCopy = [...rows];
-    rowsCopy[rowKey].isOpen = isOpen;
+    
+    const parentRow = rowsCopy[rowKey];
+    if (isParentRow(parentRow)) {
+      parentRow.isOpen = isOpen;
+      if (isOpen && rowsCopy[rowKey + 1].cells.length === 0) {
+        const data: Promise<TAnalysisResults> = ChrisIntegration.getResultsAndClassesFromFeedIds(parentRow.analysis.feedIds);
 
-    const data: Promise<TAnalysisResults> = ChrisIntegration.getResults(rowsCopy[rowKey].feedIds);
+        const isProcessing = parentRow.isProcessing;
+    
+        rowsCopy[rowKey] = parentRow;
 
-    const isProcessing = rowsCopy[rowKey].isProcessing;
-
-    rowsCopy[rowKey + 1] = {
-      isOpen: false,
-      parent: rowKey,
-      fullWidth: true,
-      cells: [{
-        title: (<SeriesTable data={data} isProcessing={isProcessing}></SeriesTable>)
-      }],
-      feedIds: [],
-      isProcessing
+        rowsCopy[rowKey + 1] = {
+          isOpen: false,
+          parent: rowKey,
+          fullWidth: true,
+          cells: [{
+            title: (<SeriesTable data={data} dcmImage={parentRow.analysis.dcmImage} isProcessing={isProcessing}></SeriesTable>)
+          }]
+        }
+      }
+      setRows(rowsCopy);
     }
-
-    setRows(rowsCopy);
   }
 
   const customRowWrapper = (tableRow: any) => {
@@ -311,14 +319,16 @@ const PastAnalysisTable: React.FC = () => {
       ...props
     } = tableRow;
 
-    const isAnalyzing: boolean = cells[4] && cells[4].title; // 4 is the index of Analysis Created column
 
+    const analysisCreated = cells[4] // 4 is the index of Analysis Created column
+    const isAnalyzing: boolean = analysisCreated && analysisCreated.title;
     // Style the current row
     let backgroundStyle = {};
     if (isAnalyzing) {
       backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
-    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(cells[4])) {
+    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(analysisCreated)) {
       backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
+      newRowsRef.current = [...newRowsRef.current, analysisCreated];
     } else {
       backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
     }

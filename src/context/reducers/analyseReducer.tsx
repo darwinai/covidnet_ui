@@ -22,11 +22,10 @@ export type TPluginStatuses = {
   jobsErrored: number
 }
 
-export type StudyInstanceWithSeries = {
+export type TStudyInstance = {
   feedIds: number[],
   dcmImage: DcmImage,
   analysisCreated: string,
-  series: ISeries[],
   pluginStatuses: TPluginStatuses
 }
 

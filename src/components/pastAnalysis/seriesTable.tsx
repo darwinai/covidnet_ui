@@ -4,14 +4,16 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
-import { ISeries, StudyInstanceWithSeries } from '../../context/reducers/analyseReducer';
+import { ISeries, TStudyInstance } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { TAnalysisResults } from '../../services/chris_integration';
+import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 
 interface SeriesTableProps {
-  data: Promise<TAnalysisResults>
+  data: Promise<TAnalysisResults>;
+  dcmImage: DcmImage;
   isProcessing: boolean;
 }
 
@@ -29,7 +31,7 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
   }
 }
 
-const SeriesTable: React.FC<SeriesTableProps> = ({ data, isProcessing }) => {
+const SeriesTable: React.FC<SeriesTableProps> = ({ data, dcmImage, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
   const [values, setValues] = useState<{series: ISeries[], classifications: string[]}>({series: [], classifications: []});
@@ -106,15 +108,15 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ data, isProcessing }) => {
 
 
   const viewImage = (index: number) => {
-    // dispatch({
-    //   type: AnalysisTypes.Update_selected_image,
-    //   payload: {
-    //     selectedImage: {
-    //       studyInstance: studyInstance,
-    //       index
-    //     }
-    //   }
-    // })
+    dispatch({
+      type: AnalysisTypes.Update_selected_image,
+      payload: {
+        selectedImage: {
+          dcmImage,
+          series: values.series[index]
+        }
+      }
+    })
     history.push('/viewImage');
   }
 
@@ -131,7 +133,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ data, isProcessing }) => {
       (
         <div className="results-spinner-container">
           <Spinner size="lg" />
-          </div>
+        </div>
       )
     }
     </>
