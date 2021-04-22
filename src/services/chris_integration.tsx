@@ -289,7 +289,7 @@ class ChrisIntegration {
   static async checkIfFeedJobsCompleted(id: number): Promise<boolean> {
     const client: Client = ChrisAPIClient.getClient();
     const feed: Feed = await client.getFeed(id);
-    const feedData = feed?.data
+    const feedData = feed?.data;
     const jobsRunning = feedData?.created_jobs +
                         feedData?.registering_jobs +
                         feedData?.scheduled_jobs +
