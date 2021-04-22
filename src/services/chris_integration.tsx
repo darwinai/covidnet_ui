@@ -239,12 +239,23 @@ class ChrisIntegration {
     }
   }
 
-  static async getDcmImageDetailByFilePathName(imgTitle: string): Promise<DcmImage> {
+  /**
+   * Gets the header data for a given DICOM filepath
+   * @param {string} filepath - Filepath for the DICOM on Swift
+   * @returns {Promise<DcmImage>} DICOM header data
+   */
+  static async getDcmImageDetailByFilePathName(filepath: string): Promise<DcmImage> {
     const client: any = ChrisAPIClient.getClient();
-    const files = await client.getPACSFiles({ fname_exact: imgTitle })
+    const files = await client.getPACSFiles({ fname_exact: filepath })
     return files?.data?.[0];
   }
 
+  /**
+   * Gets the filepath to a DICOM given its Study and Series UIDs
+   * @param {string} StudyInstanceUID - DICOM StudyInstanceUID
+   * @param {string} SeriesInstanceUID - DICOM SeriesInstanceUID
+   * @returns {Promise<string>} Filepath to DICOM
+   */
   static async getFilePathNameByUID(StudyInstanceUID: string, SeriesInstanceUID: string): Promise<string> {
     let client: any = await ChrisAPIClient.getClient();
 
@@ -258,7 +269,8 @@ class ChrisIntegration {
   }
 
   /**
-   * Gets the ID of the latest Feed stored in Swift
+   * Gets the ID of the most recent Feed in ChRIS
+   * @returns {Promise<number>} Feed ID
    */
   static async getLatestFeedId(): Promise<number> {
     const client: any = ChrisAPIClient.getClient();
@@ -271,7 +283,8 @@ class ChrisIntegration {
 
   /**
    * Returns true if the all the jobs associated with the Feed ID are either finished, errored, or cancelled
-   * @param {number} id Feed ID
+   * @param {number} id - Feed ID
+   * @returns {Promise<boolean>} True of all Feed jobs are completed
    */
   static async checkIfFeedJobsCompleted(id: number): Promise<boolean> {
     const client: Client = ChrisAPIClient.getClient();
@@ -286,12 +299,14 @@ class ChrisIntegration {
   }
 
   /**
-   * Fetches the covidnet model plugin data associated with the given Feed ID
-  */
-  static async getCovidnetPluginData(id: number): Promise<pluginData> {
+   * Gets title, status, and plugin name for the covidnet plugin associated with given Feed ID
+   * @param {number} id - Feed ID
+   * @returns {Promise<pluginData>} Plugin data
+   */
+  static async getCovidnetPluginData(feedId: number): Promise<pluginData> {
     const client: Client = ChrisAPIClient.getClient();
     const plugin = await client.getPluginInstances({
-      feed_id: id,
+      feed_id: feedId,
       plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
     });
     return ({
@@ -401,25 +416,40 @@ class ChrisIntegration {
     return [pastAnalysesSliced, lastOffset, isLastPage];
   }
 
-  static async getResults(feedIds: number[]): Promise<TAnalysisResults> {
+  /**
+   * Gets the list of Series results, along with a list of the names for the classes used to title the columns of the SeriesTable
+   * @param {number[]} feedIds List of Feed IDs
+   * @return {Promise<TAnalysisResults>} Results from analysis
+   */
+  static async getResultsAndClassesFromFeedIds(feedIds: number[]): Promise<TAnalysisResults> {
     const series: ISeries[] = await Promise.all(feedIds.map(async (id: number): Promise<ISeries> => {
-      const covidnetPlugin = await this.fetchCovidnetPluginInstanceFromFeedId(id);
-      return await this.fetchResults(covidnetPlugin);
+      const covidnetPlugin = await this.getCovidnetPluginInstanceFromFeedId(id);
+      return await this.getCovidnetResults(covidnetPlugin);
     }));
     
     return {series, classifications: Array.from(series[0].classifications.keys())}
   }
 
-  static async fetchCovidnetPluginInstanceFromFeedId(id: number): Promise<PluginInstance> {
+  /**
+   * Gets covidnet plugin instance that belongs to the given Feed
+   * @param {number} feedId Feed ID
+   * @return {Promise<PluginInstance>} covidnet plugin instance
+   */
+  static async getCovidnetPluginInstanceFromFeedId(feedId: number): Promise<PluginInstance> {
     const client: Client = ChrisAPIClient.getClient();
     const pluginData = await client.getPluginInstances({
-      feed_id: id,
+      feed_id: feedId,
       plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
     });
     return pluginData.getItems()?.[0];
   }
 
-  static async fetchResults(covidnetPlugin: PluginInstance): Promise<ISeries> {
+  /**
+   * Gets results generated from the covidnet plugin
+   * @param {PluginInstance} covidnetPlugin covidnet plugin instance
+   * @return {Promise<ISeries>} Results
+   */
+  static async getCovidnetResults(covidnetPlugin: PluginInstance): Promise<ISeries> {
     const file = await covidnetPlugin.getFiles({
       limit: 25,
       offset: 0,

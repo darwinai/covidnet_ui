@@ -280,7 +280,7 @@ const PastAnalysisTable: React.FC = () => {
     if (isParentRow(parentRow)) {
       parentRow.isOpen = isOpen;
       if (isOpen && rowsCopy[rowKey + 1].cells.length === 0) {
-        const data: Promise<TAnalysisResults> = ChrisIntegration.getResults(parentRow.analysis.feedIds);
+        const data: Promise<TAnalysisResults> = ChrisIntegration.getResultsAndClassesFromFeedIds(parentRow.analysis.feedIds);
 
         const isProcessing = parentRow.isProcessing;
     

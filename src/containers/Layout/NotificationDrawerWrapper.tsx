@@ -42,9 +42,9 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
   }
   const viewImg = async (index: number, id?: number) => {
     if (id) {
-      const plugin = await ChrisIntegration.fetchCovidnetPluginInstanceFromFeedId(id);
+      const plugin = await ChrisIntegration.getCovidnetPluginInstanceFromFeedId(id);
       if (plugin?.data?.title) {
-        const series = await ChrisIntegration.fetchResults(plugin);
+        const series = await ChrisIntegration.getCovidnetResults(plugin);
         const dcmImage = await ChrisIntegration.getDcmImageDetailByFilePathName(plugin?.data?.title);
       
         dispatch({
