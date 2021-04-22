@@ -59,7 +59,7 @@ enum TableReducerActions {
   INCREMENT_PAGE = "INCREMENT_PAGE",
   DECREMENT_PAGE = "DECREMENT_PAGE",
   UPDATE_PLUGINS = "UPDATE_PLUGINS",
-  setFilter = "SET_FITLER"
+  SET_FITLER = "SET_FITLER"
 }
 
 type TableAction =
@@ -68,7 +68,7 @@ type TableAction =
   | { type: TableReducerActions.INCREMENT_PAGE }
   | { type: TableReducerActions.DECREMENT_PAGE }
   | { type: TableReducerActions.UPDATE_PLUGINS, payload: { processingFeedIds: number[] } }
-  | { type: TableReducerActions.setFilter, payload: { filter: string } };
+  | { type: TableReducerActions.SET_FITLER, payload: { filter: string } };
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
@@ -100,7 +100,7 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
         ...state,
         processingFeedIds: action.payload.processingFeedIds
       }
-    case TableReducerActions.setFilter:
+    case TableReducerActions.SET_FITLER:
       return {
         ...INITIAL_TABLE_STATE,
         maxFeedId: state.maxFeedId,
@@ -340,7 +340,7 @@ const PastAnalysisTable: React.FC = () => {
   }
 
   const debouncedFilterUpdate = debounce((filter: string) => tableDispatch({
-    type: TableReducerActions.setFilter,
+    type: TableReducerActions.SET_FITLER,
     payload: { filter }
   }), 500);
 
