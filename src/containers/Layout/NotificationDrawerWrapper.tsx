@@ -75,7 +75,7 @@ const NotificationDrawerWrapper: React.FC<NotificationDrawerWrapperProps> = ({ o
       <NotificationDrawerBody>
         <NotificationDrawerList>
           {notifications.map((item, index) => (
-            <NotificationDrawerListItem key={index} variant={item.variant} onClick={() => { viewImg(index, item?.pluginId) }}>
+            <NotificationDrawerListItem key={index} variant={item.variant} onClick={() => { viewImg(index, item?.feedId) }}>
               <NotificationDrawerListItemHeader variant={item.variant} title={item.title}>
               </NotificationDrawerListItemHeader>
               <NotificationDrawerListItemBody timestamp={item.timestamp.calendar()}>

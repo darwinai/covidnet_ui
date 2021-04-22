@@ -192,7 +192,7 @@ const PastAnalysisTable: React.FC = () => {
           title: `Analysis of image '${notificationInfo.title.split('/').pop()}' finished`,
           message: `The image was processed successfully.`,
           timestamp: moment(),
-          pluginId: id
+          feedId: id
         });
       }
     }));

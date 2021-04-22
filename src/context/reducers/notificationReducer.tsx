@@ -14,7 +14,7 @@ export interface NotificationItem {
   title: string;
   message: string;
   timestamp: Moment; // TODO: Migrate to Luxon, since Moment is now deprecated
-  pluginId?: number;
+  feedId?: number;
 }
 
 export type NotificationState = NotificationItem[];
