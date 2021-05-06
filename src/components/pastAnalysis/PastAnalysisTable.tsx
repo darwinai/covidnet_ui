@@ -1,5 +1,5 @@
 import { InputGroup, InputGroupText, Spinner, TextInput } from "@patternfly/react-core";
-import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
+import { FilterIcon, SearchIcon, CheckCircleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
@@ -121,10 +121,10 @@ const PastAnalysisTable: React.FC = () => {
 
   const columns = [
     {
-      title: "Study",
+      title: "Status",
       cellFormatters: [expandable]
     },
-    "Study Date", "Patient MRN", "Patient DOB", "Analysis Created"
+    "Study", "Study Date", "Patient MRN", "Patient DOB", "Analysis Created"
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -235,8 +235,19 @@ const PastAnalysisTable: React.FC = () => {
       const indexInRows = newRows.length;
       const isProcessing = !!analysis.pluginStatuses.jobsRunning;
       const analysisCreated = isProcessing ? { title: (<div><Spinner size="md" /> Processing</div>) } : analysis.analysisCreated;
+      let status;
+
+      if(isProcessing){
+        status = { title: (<Spinner size="md" />) };
+      }else if(analysis.pluginStatuses.jobsErrored){
+        status = { title: (<ExclamationCircleIcon size="md" color="crimson" />) };
+      }else{
+        status = { title: (<CheckCircleIcon size="md" color="green" />) };
+      }
+
 
       const cells: any[] = [
+        status,
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.StudyDate,
         analysis.dcmImage.PatientID,
@@ -302,7 +313,7 @@ const PastAnalysisTable: React.FC = () => {
     } = tableRow;
 
 
-    const analysisCreated = cells[4] // 4 is the index of Analysis Created column
+    const analysisCreated = cells[5] // 5 is the index of Analysis Created column
     const isAnalyzing: boolean = analysisCreated && analysisCreated.title;
     // Style the current row
     let backgroundStyle = {};
