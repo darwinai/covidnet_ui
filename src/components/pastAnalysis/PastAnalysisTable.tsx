@@ -9,7 +9,6 @@ import { AppContext } from "../../context/context";
 import { TStudyInstance } from "../../context/reducers/analyseReducer";
 import ChrisIntegration, { pluginData, TAnalysisResults, PluginPollStatus } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
-import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 import useInterval from "../../shared/useInterval";
 import { RESULT_POLL_INTERVAL } from "../../app.config";
@@ -125,7 +124,7 @@ const PastAnalysisTable: React.FC = () => {
       title: "Study",
       cellFormatters: [expandable]
     },
-    "Study Date", "Patient MRN", "Patient DOB", "Analysis Created", ""
+    "Study Date", "Patient MRN", "Patient DOB", "Analysis Created"
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -235,23 +234,7 @@ const PastAnalysisTable: React.FC = () => {
     for (const analysis of listOfAnalyses) {
       const indexInRows = newRows.length;
       const isProcessing = !!analysis.pluginStatuses.jobsRunning;
-      let analysisCreated;
-      let badges;
-      if (isProcessing) {
-        analysisCreated = {
-          title: (<div><Spinner size="md" /> Processing</div>)
-        };
-        badges = "";
-      } else {
-        analysisCreated = analysis.analysisCreated;
-        badges = {
-          title: (
-          <>
-            {<Badge className="badge-margin" isRead={!analysis.feedIds.length}>{analysis.feedIds.length}</Badge>}
-            {<Badge className="badge-danger" isRead={!analysis.pluginStatuses.jobsErrored}>{analysis.pluginStatuses.jobsErrored}</Badge>}
-          </>)
-        };
-      }
+      const analysisCreated = isProcessing ? { title: (<div><Spinner size="md" /> Processing</div>) } : analysis.analysisCreated;
 
       const cells: any[] = [
         analysis.dcmImage.StudyDescription,
@@ -259,7 +242,6 @@ const PastAnalysisTable: React.FC = () => {
         analysis.dcmImage.PatientID,
         `${analysis.dcmImage.PatientBirthDate} (${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y)`,
         analysisCreated,
-        badges
       ];
 
       // Top-level row
