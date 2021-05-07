@@ -1,5 +1,5 @@
-import { InputGroup, InputGroupText, Spinner, TextInput } from "@patternfly/react-core";
-import { FilterIcon, SearchIcon, CheckCircleIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
+import { InputGroup, InputGroupText, Spinner, TextInput, Flex, FlexItem } from "@patternfly/react-core";
+import { FilterIcon, SearchIcon, CheckCircleIcon, ExclamationCircleIcon, ImageIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
@@ -124,7 +124,7 @@ const PastAnalysisTable: React.FC = () => {
       title: "Status",
       cellFormatters: [expandable]
     },
-    "Study", "Study Date", "Patient MRN", "Patient DOB", "Analysis Created"
+    "Study", "Study Date", "# Images", "Patient MRN", "Patient DOB", "Analysis Created"
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -236,6 +236,16 @@ const PastAnalysisTable: React.FC = () => {
       const isProcessing = !!analysis.pluginStatuses.jobsRunning;
       const analysisCreated = isProcessing ? { title: (<div><Spinner size="md" /> Processing</div>) } : analysis.analysisCreated;
       let status;
+      const numImagesOutput = { title: (
+        <Flex alignItems= {{ default: "alignItemsCenter"}}>
+          <FlexItem>
+            <ImageIcon size="md"/>
+            </FlexItem>
+            <FlexItem> 
+              {analysis.feedIds.length}
+            </FlexItem>
+            </Flex>
+            )};
 
       if(isProcessing){
         status = { title: (<Spinner size="md" />) };
@@ -250,6 +260,7 @@ const PastAnalysisTable: React.FC = () => {
         status,
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.StudyDate,
+        numImagesOutput,
         analysis.dcmImage.PatientID,
         `${analysis.dcmImage.PatientBirthDate} (${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y)`,
         analysisCreated,
