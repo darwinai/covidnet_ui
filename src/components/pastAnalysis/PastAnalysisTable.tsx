@@ -386,7 +386,7 @@ const PastAnalysisTable: React.FC = () => {
           </div>
 
           <div className="page-navigation-buttons">
-            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm p pf-u-mr-md" type="button" onClick={decrementPage} disabled={isLoading || tableState.page == 0}>
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm p pf-u-mr-md" type="button" onClick={decrementPage} disabled={isLoading || tableState.page === 0}>
               <span className="pf-c-button__icon pf-m-end">
                 <i className="fas fa-arrow-left" aria-hidden="true"></i>
               </span>
