@@ -7,15 +7,20 @@ import { AppContext } from "../context/context";
 import chris_integration from "../services/chris_integration";
 import pacs_integration from "../services/pacs_integration";
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
+interface PatientLookupProps {
+  setHasSearched: (newValue: boolean) => void
+}
 
-const PatientLookup: React.FC = () => {
-  const { state: { createAnalysis: { patientID } } } = useContext(AppContext);
+const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched }) => {
+  const { state: { createAnalysis: { patientID } }, dispatch } = useContext(AppContext);
 
-  const { dispatch } = useContext(AppContext);
   const [patientIDInput, setPatientIDInput] = useState<string>(patientID ? patientID : "");
 
   const newLookup = async (event?: React.FormEvent) => {
     event?.preventDefault();
+
+    setHasSearched(true);
+
     dispatch({
       type: CreateAnalysisTypes.Update_patient_ID,
       payload: {
