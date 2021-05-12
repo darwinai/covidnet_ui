@@ -23,7 +23,7 @@ const CreateAnalysisPage = () => {
               </PageSection>
               :
               <PageSection className="page-section-no-results" variant={PageSectionVariants.light}>
-                <Error>{ hasSearched ? "No studies found" : "Search for a patient by entering their MRN above" } </Error>
+                <Error>{ hasSearched ? "No studies found for MRN #" + patientID : "Search for a patient by entering their MRN above" } </Error>
               </PageSection>
           }
         </PageSection>
