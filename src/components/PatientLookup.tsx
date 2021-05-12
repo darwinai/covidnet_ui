@@ -57,7 +57,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched }) => {
 
   const submitButton = (
     <Button variant="secondary" type="submit">
-      <b>New Lookup</b>
+      <b>Search</b>
     </Button>
   );
 
