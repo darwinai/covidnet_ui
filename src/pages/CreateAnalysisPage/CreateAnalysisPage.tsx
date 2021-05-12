@@ -13,7 +13,7 @@ const CreateAnalysisPage = () => {
     <Wrapper>
       <PageSection className="page-body">
         <PageSection className="section-area" variant={PageSectionVariants.light}>
-          <PatientLookup isOnDashboard={false}></PatientLookup>
+          <PatientLookup></PatientLookup>
         </PageSection>
           {
             dcmImages.allDcmImages.length > 0 ?
