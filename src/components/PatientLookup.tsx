@@ -2,23 +2,17 @@ import {
   Button, Stack, StackItem, TextInput
 } from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
-import { useHistory } from "react-router-dom";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
 import { AppContext } from "../context/context";
-import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
 import chris_integration from "../services/chris_integration";
 import pacs_integration from "../services/pacs_integration";
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
-interface PatientLookupProps {
-  isOnDashboard: boolean
-}
 
-const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
+const PatientLookup: React.FC = () => {
   const { state: { createAnalysis: { patientID } } } = useContext(AppContext);
 
   const { dispatch } = useContext(AppContext);
-  const [patientIDInput, setPatientIDInput] = useState<string>((patientID && !isOnDashboard) ? patientID : "");
-  const history = useHistory();
+  const [patientIDInput, setPatientIDInput] = useState<string>(patientID ? patientID : "");
 
   const newLookup = async (event?: React.FormEvent) => {
     event?.preventDefault();
@@ -54,15 +48,9 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
     } catch (err) {
       console.error(err);
     }
-
-    if (isOnDashboard) {
-      history.push("/createAnalysis");
-    }
   }
 
-  const submitButton = isOnDashboard ? (
-    <RightArrowButton type="submit">Continue</RightArrowButton>
-  ) : (
+  const submitButton = (
     <Button variant="secondary" type="submit">
       <b>New Lookup</b>
     </Button>
