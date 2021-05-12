@@ -1,5 +1,5 @@
 import { PageSection, PageSectionVariants } from "@patternfly/react-core";
-import React from "react";
+import React, { useState } from "react";
 import CreateAnalysisWrapper from "../../components/CreateAnalysis/CreateAnalysisWrapper";
 import PatientLookup from "../../components/PatientLookup";
 import Wrapper from "../../containers/Layout/PageWrapper";
@@ -7,13 +7,14 @@ import { AppContext } from "../../context/context";
 import Error from "../../shared/error";
 
 const CreateAnalysisPage = () => {
-  const { state: { dcmImages } } = React.useContext(AppContext);
+  const { state: { dcmImages, createAnalysis: { patientID } } } = React.useContext(AppContext);
+  const [hasSearched, setHasSearched] = useState(patientID && patientID !== "");
 
   return (
     <Wrapper>
       <PageSection className="page-body">
         <PageSection className="section-area" variant={PageSectionVariants.light}>
-          <PatientLookup></PatientLookup>
+          <PatientLookup setHasSearched={setHasSearched}></PatientLookup>
         </PageSection>
           {
             dcmImages.allDcmImages.length > 0 ?
@@ -22,7 +23,7 @@ const CreateAnalysisPage = () => {
               </PageSection>
               :
               <PageSection className="page-section-no-results" variant={PageSectionVariants.light}>
-                <Error>No studies found</Error>
+                <Error>{ hasSearched ? "No studies found" : "Search for a patient by entering their MRN above" } </Error>
               </PageSection>
           }
         </PageSection>
