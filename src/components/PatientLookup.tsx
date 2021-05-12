@@ -59,7 +59,7 @@ const PatientLookup: React.FC = () => {
   return (
     <React.Fragment>
       <Stack>
-        <StackItem className="input-row-label">Create a new predictive analysis</StackItem>
+        <StackItem className="input-row-label">Patient Lookup</StackItem>
         <StackItem className="InputRow">
         <form onSubmit={newLookup} className="form-display">
           <div className="InputRowField">
