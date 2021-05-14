@@ -54,7 +54,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
               </div>
               <div className="detail-patient-title">
                 <h2>{patientName}</h2>
-                <p>MRN#{createAnalysis.patientID}</p>
+                <p>MRN#{createAnalysis.patientID?.toUpperCase()}</p>
               </div>
               <div className="detail-patient-name-age">
                 <div className="detail-patient-name-age-title">
