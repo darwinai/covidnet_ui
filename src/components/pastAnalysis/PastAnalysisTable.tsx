@@ -1,5 +1,5 @@
-import { InputGroup, InputGroupText, Spinner, TextInput } from "@patternfly/react-core";
-import { FilterIcon, SearchIcon } from "@patternfly/react-icons";
+import { InputGroup, InputGroupText, Spinner, TextInput, Flex, FlexItem } from "@patternfly/react-core";
+import { FilterIcon, SearchIcon, CheckCircleIcon, ExclamationCircleIcon, ImageIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import styles from "@patternfly/react-styles/css/components/Table/table";
 import { expandable, Table, TableBody, TableHeader } from "@patternfly/react-table";
@@ -9,7 +9,6 @@ import { AppContext } from "../../context/context";
 import { TStudyInstance } from "../../context/reducers/analyseReducer";
 import ChrisIntegration, { pluginData, TAnalysisResults, PluginPollStatus } from "../../services/chris_integration";
 import SeriesTable from "./seriesTable";
-import { Badge } from "@patternfly/react-core";
 import { calculatePatientAge } from "../../shared/utils";
 import useInterval from "../../shared/useInterval";
 import { RESULT_POLL_INTERVAL } from "../../app.config";
@@ -122,10 +121,10 @@ const PastAnalysisTable: React.FC = () => {
 
   const columns = [
     {
-      title: "Study",
+      title: "Status",
       cellFormatters: [expandable]
     },
-    "Study Date", "Patient MRN", "Patient DOB", "Analysis Created", ""
+    "Study", "Study Date", "# Images", "Patient MRN", "Patient DOB", "Analysis Created"
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -235,31 +234,36 @@ const PastAnalysisTable: React.FC = () => {
     for (const analysis of listOfAnalyses) {
       const indexInRows = newRows.length;
       const isProcessing = !!analysis.pluginStatuses.jobsRunning;
-      let analysisCreated;
-      let badges;
-      if (isProcessing) {
-        analysisCreated = {
-          title: (<div><Spinner size="md" /> Processing</div>)
-        };
-        badges = "";
-      } else {
-        analysisCreated = analysis.analysisCreated;
-        badges = {
-          title: (
-          <>
-            {<Badge className="badge-margin" isRead={!analysis.feedIds.length}>{analysis.feedIds.length}</Badge>}
-            {<Badge className="badge-danger" isRead={!analysis.pluginStatuses.jobsErrored}>{analysis.pluginStatuses.jobsErrored}</Badge>}
-          </>)
-        };
+      const analysisCreated = isProcessing ? { title: (<div><Spinner size="md" /> Processing</div>) } : analysis.analysisCreated;
+      let status;
+      const numImagesOutput = { title: (
+        <Flex alignItems= {{ default: "alignItemsCenter"}}>
+          <FlexItem>
+            <ImageIcon size="md"/>
+            </FlexItem>
+            <FlexItem> 
+              {analysis.feedIds.length}
+            </FlexItem>
+            </Flex>
+            )};
+
+      if(isProcessing){
+        status = { title: (<Spinner size="md" />) };
+      }else if(analysis.pluginStatuses.jobsErrored){
+        status = { title: (<ExclamationCircleIcon size="md" color="crimson" />) };
+      }else{
+        status = { title: (<CheckCircleIcon size="md" color="green" />) };
       }
 
+
       const cells: any[] = [
+        status,
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.StudyDate,
+        numImagesOutput,
         analysis.dcmImage.PatientID,
         `${analysis.dcmImage.PatientBirthDate} (${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y)`,
         analysisCreated,
-        badges
       ];
 
       // Top-level row
@@ -320,7 +324,7 @@ const PastAnalysisTable: React.FC = () => {
     } = tableRow;
 
 
-    const analysisCreated = cells[4] // 4 is the index of Analysis Created column
+    const analysisCreated = cells[5] // 5 is the index of Analysis Created column
     const isAnalyzing: boolean = analysisCreated && analysisCreated.title;
     // Style the current row
     let backgroundStyle = {};
@@ -382,7 +386,7 @@ const PastAnalysisTable: React.FC = () => {
           </div>
 
           <div className="page-navigation-buttons">
-            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm p pf-u-mr-md" type="button" onClick={decrementPage} disabled={isLoading || tableState.page == 0}>
+            <button className="pf-c-button pf-m-inline pf-m-tertiary pf-m-display-sm p pf-u-mr-md" type="button" onClick={decrementPage} disabled={isLoading || tableState.page === 0}>
               <span className="pf-c-button__icon pf-m-end">
                 <i className="fas fa-arrow-left" aria-hidden="true"></i>
               </span>
