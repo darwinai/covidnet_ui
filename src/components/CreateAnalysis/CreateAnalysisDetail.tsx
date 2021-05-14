@@ -21,6 +21,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
   
   const { state: { createAnalysis, dcmImages } } = useContext(AppContext);
   const [isXray, setIsXray] = useState(false);
+  const [patientID, setPatientID] = useState("");
   const [patientName, setPatientName] = useState("");
   const [patientBirthdate, setPatientBirthdate] = useState("");
   const [patientSex, setPatientSex] = useState("");
@@ -28,6 +29,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
   useEffect(() => {
     const image: DcmImage = dcmImages?.allDcmImages[0];
     if (image) {
+      setPatientID(image.PatientID);
       setPatientName(image.PatientName);
       setPatientBirthdate(image.PatientBirthDate);
       setPatientSex(image.PatientSex);
@@ -54,7 +56,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
               </div>
               <div className="detail-patient-title">
                 <h2>{patientName}</h2>
-                <p>MRN#{createAnalysis.patientID?.toUpperCase()}</p>
+                <p>MRN#{patientID}</p>
               </div>
               <div className="detail-patient-name-age">
                 <div className="detail-patient-name-age-title">
