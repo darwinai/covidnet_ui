@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 
 export const formatDate = (dateStr: string): string => {
   return DateTime.fromISO(dateStr).toFormat("yyyy MM dd");
@@ -17,5 +17,9 @@ export const formatTime = (oldDay: string): string => {
 }
 
 export const modifyDatetime = (oldDay: number): string => {
-  return (DateTime.fromMillis(oldDay).toRelativeCalendar() || "").split(" ").map((date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ");
+  const inputDateTime: DateTime = DateTime.fromMillis(oldDay);
+  const diff: Duration = inputDateTime.diffNow();
+  return diff.days > 0 ? (inputDateTime.toRelativeCalendar() || "").split(" ").map(
+    (date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ")
+    : inputDateTime.toFormat('HH:mm:ss');
 }
