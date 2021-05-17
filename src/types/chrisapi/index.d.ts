@@ -938,7 +938,7 @@ declare module "@fnndsc/chrisapi" {
      *
      * @return {Object} - JS Promise, resolves to a ``PluginList`` object
      */
-    getPlugins: (searchParams?: IParams, timeout?: number) => Promuise<PluginList>;
+    getPlugins: (searchParams?: IParams, timeout?: number) => Promise<PluginList>;
 
   }
 
