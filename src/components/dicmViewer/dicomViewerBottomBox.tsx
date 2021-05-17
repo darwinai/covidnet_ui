@@ -1,13 +1,16 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { ImageViewerTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { ISeries } from "../../context/reducers/analyseReducer";
 import { isLargestNumber } from "../pastAnalysis/seriesTable";
 import PredictionCircle from "../PredictionCircle";
 import { formatGender } from "../../shared/utils";
+import { useHistory } from 'react-router-dom';
 
 const DicomViewerBottomBox = () => {
   const { state: { imgViewer: { isBottomHided }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext);
+
+  const history = useHistory();
 
   const toggle = () => {
     dispatch({
@@ -29,6 +32,12 @@ const DicomViewerBottomBox = () => {
 
   //2018 01 05 2y 6m
   const { dcmImage, series } = selectedImage;
+
+  useEffect(() => {
+    if(!series){
+      history.push('/');
+    }
+  }, [history, series]);
 
   const generateBottomDisplay = (series?: ISeries) => {
     let bottomDisplay: any = [];
