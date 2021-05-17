@@ -35,7 +35,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
 
   return (
     <div
-      className={`SelectionStudy ${isSelected ? 'selected' : ''}`}
+      className={`SelectionStudy ${isSelected ? 'selected' : 'notSelected'}`}
       onClick={selectThisStudy}
     >
       <h1 id="studyDescription" className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText' : ''}`}>
