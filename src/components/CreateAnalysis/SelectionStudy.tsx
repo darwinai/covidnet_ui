@@ -38,10 +38,10 @@ const SelectionStudy: React.FC<StudyInstance> = ({
       className={`SelectionStudy ${isSelected ? 'selected' : ''}`}
       onClick={selectThisStudy}
     >
-      <h1 className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText' : ''}`}>
-        {isSelected ?
-          (<Badge>{Object.keys(imagesSelectedDict).length}</Badge>) : null}
-        &nbsp;{studyDescription}</h1>
+      <h1 id="studyDescription" className={`${currSelectedStudyUID === studyInstanceUID ? 'blueText' : ''}`}>
+        {studyDescription}&nbsp;<span id="blueBadge">{isSelected ?
+          (<Badge>{Object.keys(imagesSelectedDict).length}</Badge>) : null}</span>
+          </h1>
       <p className="greyText"><span className="outtline-box">{modality}</span> {studyDate}</p>
     </div>
   )
