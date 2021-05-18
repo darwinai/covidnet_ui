@@ -54,7 +54,8 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({isXray}) => { // Drop-do
         <Dropdown
           onSelect={onSelect}
           toggle={
-            <DropdownToggle onToggle={setIsOpen} toggleIndicator={CaretDownIcon} isPrimary id="toggle-id-4">
+            <DropdownToggle onToggle={setIsOpen} toggleIndicator={CaretDownIcon} id="toggle-id-4"
+            className="dropdown">
               {dropdownValue}
             </DropdownToggle>
           }
