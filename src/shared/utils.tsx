@@ -18,8 +18,10 @@ export const formatTime = (oldDay: string): string => {
 
 export const modifyDatetime = (oldDay: number): string => {
   const inputDateTime: DateTime = DateTime.fromMillis(oldDay);
-  const diff: Duration = inputDateTime.diffNow();
-  return diff.days > 0 ? (inputDateTime.toRelativeCalendar() || "").split(" ").map(
+  const diffInMilli: number = inputDateTime.diffNow().valueOf();
+  const dayInMilli: number = Duration.fromISO('1D').valueOf();
+  
+  return diffInMilli >= dayInMilli ? (inputDateTime.toRelativeCalendar() || "").split(" ").map(
     (date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ")
     : inputDateTime.toFormat('HH:mm:ss');
 }
