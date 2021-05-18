@@ -19,11 +19,17 @@ export const formatTime = (oldDay: string): string => {
 export const modifyDatetime = (oldDay: number): string => {
 
   const inputDateTime: DateTime = DateTime.fromMillis(oldDay);
-  const diffInMilli: number = inputDateTime.diffNow().valueOf();
-  const dayInMilli: number = Duration.fromObject({ days: 1 }).valueOf();
+  
+  // const diffInMilli: number = inputDateTime.diffNow().valueOf();
+  // const dayInMilli: number = Duration.fromObject({ days: 1 }).valueOf();
+  // return diffInMilli >= dayInMilli ? (inputDateTime.toRelativeCalendar() || "").split(" ").map(
+  //   (date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ");
 
-  return diffInMilli >= dayInMilli ? (inputDateTime.toRelativeCalendar() || "").split(" ").map(
-    (date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ")
-    : inputDateTime.toFormat('HH:mm:ss');
+  const relativeDate = (inputDateTime.toRelativeCalendar() || "").split(" ").map(
+    (date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ");
+
+    return relativeDate === "Today" ? inputDateTime.toFormat('HH:mm:ss'): relativeDate;
+
+
     
 }
