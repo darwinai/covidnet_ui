@@ -61,7 +61,7 @@ const SelectedStudyDetail = () => {
               return (
                 <div className="pf-l-grid__item margin-top-bottom" key={i}>
                                     <Checkbox 
-                  className={`container checkmark ${isSelected? 'selected' : null}`}
+                  className={`container checkmark ${isSelected? 'selectedCheckbox' : null}`}
                   label={img.SeriesDescription}
                   aria-label={img.SeriesDescription}
                   id={"check-"+i} 
