@@ -41,11 +41,17 @@ const LoginFormComponent = () => {
       helperText="Invalid username or password."
       usernameLabel="Username"
       usernameValue={usernameValue}
-      onChangeUsername={(val) => setUsernameValue(val)}
+      onChangeUsername={(val) => {
+        setUsernameValue(val);
+        setIsValidCredentials(true);
+      }}
       isValidUsername={isValidCredentials}
       passwordLabel="Password"
       passwordValue={passwordValue}
-      onChangePassword={(val) => setPasswordValue(val)}
+      onChangePassword={(val) => {
+        setPasswordValue(val);
+        setIsValidCredentials(true);
+      }}
       isValidPassword={isValidCredentials}
       onLoginButtonClick={handleSubmit}
     />
