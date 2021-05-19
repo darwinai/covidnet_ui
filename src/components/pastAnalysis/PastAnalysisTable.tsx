@@ -128,9 +128,10 @@ const PastAnalysisTable: React.FC = () => {
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
-  // Stores an array of the "Analysis Created" property of the rows of page 0 of the table
-  // Used to identify which rows are new and need to be highlighted green
-  const newRowsRef = useRef<string[]>([]);
+  // Stores an array of either empty arrays or arrays with the feedIds for each row
+  const currRowsFeedIdsRef = useRef<number[][]>([]);
+  // Stores a list of the feeds that have just finished
+  const finishedFeedsRef = useRef<Set<number>>(new Set());
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = async () => {
@@ -217,8 +218,8 @@ const PastAnalysisTable: React.FC = () => {
         return !finishedFeeds.includes(id);
       });
   
-      // Right before refreshing table, get a list of all the "Analysis Created" properties on page 0
-      newRowsRef.current = tableState.storedPages[0].filter((study: TStudyInstance) => !study.pluginStatuses.jobsRunning).map((study: TStudyInstance) => study.analysisCreated);
+      // Before refreshing the table, keep track of finishedFeeds
+      finishedFeedsRef.current = new Set(finishedFeeds);
 
       tableDispatch({
         type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS,
@@ -231,6 +232,7 @@ const PastAnalysisTable: React.FC = () => {
 
   const updateRows = (listOfAnalyses: TStudyInstance[]) => {
     const newRows: (tableRowsChild | tableRowsParent)[] = [];
+    const currRowsFeedIds: number[][] = [];
     for (const analysis of listOfAnalyses) {
       const indexInRows = newRows.length;
       const isProcessing = !!analysis.pluginStatuses.jobsRunning;
@@ -274,6 +276,8 @@ const PastAnalysisTable: React.FC = () => {
         isProcessing
       });
 
+      currRowsFeedIds.push(analysis.feedIds);
+
       // Blank nested row
       if (analysis.feedIds.length > 0) {
         newRows.push({
@@ -282,13 +286,17 @@ const PastAnalysisTable: React.FC = () => {
           fullWidth: true,
           cells: []
         });
+
+        currRowsFeedIds.push([]);
       }
     }
     setRows(newRows);
+    currRowsFeedIdsRef.current = currRowsFeedIds;
   }
 
   const onCollapse = async (event: any, rowKey: number, isOpen: any) => {
-    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
+    finishedFeedsRef.current = new Set(); // Reset to prevent highlight animation from playing again
+
     const rowsCopy = [...rows];
     
     const parentRow = rowsCopy[rowKey];
@@ -318,21 +326,19 @@ const PastAnalysisTable: React.FC = () => {
     const {
       trRef,
       className,
-      rowProps,
-      row: { isExpanded, cells },
+      rowProps :{ rowIndex },
+      row: { isExpanded, cells},
       ...props
     } = tableRow;
 
-
-    const analysisCreated = cells[5] // 5 is the index of Analysis Created column
-    const isAnalyzing: boolean = analysisCreated && analysisCreated.title;
     // Style the current row
     let backgroundStyle = {};
-    if (isAnalyzing) {
+    const row = rows[rowIndex] as tableRowsParent;
+
+    if(cells.length > 0 && row.isProcessing){
       backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
-    } else if (newRowsRef.current?.length > 0 && !newRowsRef.current.includes(analysisCreated)) {
+    } else if (cells.length > 0 && finishedFeedsRef.current.size > 0 && currRowsFeedIdsRef.current[rowIndex].filter((v) => finishedFeedsRef.current.has(v)).length > 0) {
       backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
-      newRowsRef.current = [...newRowsRef.current, analysisCreated];
     } else {
       backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
     }
@@ -359,7 +365,8 @@ const PastAnalysisTable: React.FC = () => {
   }), 500);
 
   const searchMRN = (filter: string) => {
-    newRowsRef.current = []; // Reset to prevent highlight animation from playing again
+    finishedFeedsRef.current = new Set(); // Reset to prevent highlight animation from playing again
+
     debouncedFilterUpdate(filter);
   }
   const decrementPage = () => {
