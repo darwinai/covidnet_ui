@@ -8,10 +8,11 @@ import chris_integration from "../services/chris_integration";
 import pacs_integration from "../services/pacs_integration";
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
 interface PatientLookupProps {
-  setHasSearched: (newValue: boolean) => void
+  setHasSearched: (newValue: boolean) => void,
+  setIsSearching: (newValue: boolean) => void
 }
 
-const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched }) => {
+const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSearching }) => {
   const { state: { createAnalysis: { patientID } }, dispatch } = useContext(AppContext);
 
   const [patientIDInput, setPatientIDInput] = useState<string>(patientID ? patientID : "");
@@ -29,6 +30,9 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched }) => {
     });
 
     try {
+
+      setIsSearching(true);
+
       const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
         await pacs_integration.queryPatientFiles(patientIDInput) :
         await chris_integration.fetchPacFiles(patientIDInput);
@@ -39,6 +43,8 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched }) => {
           images: dcmImages
         }
       });
+
+      setIsSearching(false);
 
       // Select first study instance by default
       const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
@@ -51,6 +57,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched }) => {
         });
       }
     } catch (err) {
+      setIsSearching(false);
       console.error(err);
     }
   }
