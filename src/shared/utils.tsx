@@ -17,5 +17,14 @@ export const formatTime = (oldDay: string): string => {
 }
 
 export const modifyDatetime = (oldDay: number): string => {
-  return (DateTime.fromMillis(oldDay).toRelativeCalendar() || "").split(" ").map((date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ");
+
+  const inputDateTime: DateTime = DateTime.fromMillis(oldDay);
+
+  const relativeDate = (inputDateTime.toRelativeCalendar() || "").split(" ").map(
+    (date: string) => date.charAt(0).toUpperCase() + date.slice(1)).join(" ");
+
+    return relativeDate === "Today" ? inputDateTime.toFormat('HH:mm:ss'): relativeDate;
+
+
+    
 }
