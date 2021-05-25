@@ -79,9 +79,11 @@ const StudyFilters = () => {
             />
           </SplitItem>
           <SplitItem>
+            <div className="InputRowField">
               <Button variant="secondary" onClick={clearFilters}>
               <b>Clear Filters</b>
               </Button>
+            </div>
           </SplitItem>
         </Split>
       </div>
