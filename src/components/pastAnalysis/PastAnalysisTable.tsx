@@ -131,7 +131,7 @@ const PastAnalysisTable: React.FC = () => {
   // Stores an array of either empty arrays or arrays with the feedIds for each row
   const currRowsFeedIdsRef = useRef<number[][]>([]);
   // Stores a list of the feeds that have just finished
-  const finishedFeedsRef = useRef<Set<number>>(new Set());
+  const finishedFeedsRef = useRef<number[]>([]);
 
   // Reset table and update the maxFeedId to the latest Feed ID in Swift
   const updateMaxFeedId = async () => {
@@ -219,7 +219,7 @@ const PastAnalysisTable: React.FC = () => {
       });
   
       // Before refreshing the table, keep track of finishedFeeds
-      finishedFeedsRef.current = new Set(finishedFeeds);
+      finishedFeedsRef.current = finishedFeeds;
 
       tableDispatch({
         type: TableReducerActions.UPDATE_PROCESSING_FEED_IDS,
@@ -295,7 +295,7 @@ const PastAnalysisTable: React.FC = () => {
   }
 
   const onCollapse = async (event: any, rowKey: number, isOpen: any) => {
-    finishedFeedsRef.current = new Set(); // Reset to prevent highlight animation from playing again
+    finishedFeedsRef.current = []; // Reset to prevent highlight animation from playing again
 
     const rowsCopy = [...rows];
     
@@ -337,7 +337,7 @@ const PastAnalysisTable: React.FC = () => {
 
     if(cells.length > 0 && row.isProcessing){
       backgroundStyle = { "backgroundColor": "#F9E0A2" }; // Processing rows
-    } else if (cells.length > 0 && finishedFeedsRef.current.size > 0 && currRowsFeedIdsRef.current[rowIndex].filter((v) => finishedFeedsRef.current.has(v)).length > 0) {
+    } else if (cells.length > 0 && finishedFeedsRef.current.length > 0 && currRowsFeedIdsRef.current[rowIndex].filter((v) => finishedFeedsRef.current.includes(v)).length > 0) {
       backgroundStyle = { "animation": "new-row-highlight-animation 2s linear" }; // Newly added rows
     } else {
       backgroundStyle = { "backgroundColor": "#FFFFFF" }; // Default
@@ -365,7 +365,7 @@ const PastAnalysisTable: React.FC = () => {
   }), 500);
 
   const searchMRN = (filter: string) => {
-    finishedFeedsRef.current = new Set(); // Reset to prevent highlight animation from playing again
+    finishedFeedsRef.current = []; // Reset to prevent highlight animation from playing again
 
     debouncedFilterUpdate(filter);
   }
