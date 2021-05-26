@@ -9,7 +9,15 @@
     "parser": "@typescript-eslint/parser", // Specifies the ESLint parser
     "parserOptions": {
         "project": "./tsconfig.json"
-    }
+    },
+    "overrides": [
+        {
+            "files": ["**/*.tsx"],
+            "rules": {
+                "react/prop-types": "off"
+            }
+        }
+    ]
 
 
 }
