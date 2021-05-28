@@ -20,8 +20,6 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSear
   const newLookup = async (event?: React.FormEvent) => {
     event?.preventDefault();
 
-    setHasSearched(true);
-
     dispatch({
       type: CreateAnalysisTypes.Update_patient_ID,
       payload: {
@@ -29,9 +27,9 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSear
       }
     });
 
-    try {
+    setIsSearching(true);
 
-      setIsSearching(true);
+    try {
 
       const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
         await pacs_integration.queryPatientFiles(patientIDInput) :
@@ -44,8 +42,6 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSear
         }
       });
 
-      setIsSearching(false);
-
       // Select first study instance by default
       const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
       if (studyInstances.length > 0) {
@@ -57,9 +53,11 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSear
         });
       }
     } catch (err) {
-      setIsSearching(false);
       console.error(err);
     }
+    
+    setIsSearching(false);
+    setHasSearched(true);
   }
 
   const submitButton = (
