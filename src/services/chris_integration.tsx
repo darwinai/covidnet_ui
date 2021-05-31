@@ -425,7 +425,7 @@ class ChrisIntegration {
    */
   static async getResultsAndClassesFromFeedIds(feedIds: number[]): Promise<TAnalysisResults> {
     const series: ISeries[] = await Promise.all(feedIds.map(async (id: number): Promise<ISeries> => {
-      const covidnetPlugin = await this.getCovidnetPluginInstanceFromFeedId(id);
+      const covidnetPlugin = await this.getCovidnetPluginInstanceFromFeedId(id, true);
       return await this.getCovidnetResults(covidnetPlugin);
     }));
     
@@ -435,15 +435,19 @@ class ChrisIntegration {
   /**
    * Gets covidnet plugin instance that belongs to the given Feed
    * @param {number} feedId Feed ID
+   * @param {boolean} model True for model plugin instance, false for most recently used plugin instance
    * @return {Promise<PluginInstance>} covidnet plugin instance
    */
-  static async getCovidnetPluginInstanceFromFeedId(feedId: number): Promise<PluginInstance> {
+  static async getCovidnetPluginInstanceFromFeedId(feedId: number, model: boolean = false): Promise<PluginInstance> {
     const client: Client = ChrisAPIClient.getClient();
     const pluginData = await client.getPluginInstances({
       feed_id: feedId,
       plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
     });
-    return pluginData.getItems()?.[0];
+    return model ? pluginData.getItems()?.filter(item => {
+      const pluginName = item.data.plugin_name;
+      return Object.values(PluginModels.XrayModels).includes(pluginName) || Object.values(PluginModels.CTModels).includes(pluginName);
+    })[0] : pluginData.getItems()?.[0];
   }
 
   /**
