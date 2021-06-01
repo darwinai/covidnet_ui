@@ -444,10 +444,11 @@ class ChrisIntegration {
       feed_id: feedId,
       plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
     });
-    return model ? pluginData.getItems()?.filter(item => {
-      const pluginName = item.data.plugin_name;
-      return Object.values(PluginModels.XrayModels).includes(pluginName) || Object.values(PluginModels.CTModels).includes(pluginName);
-    })[0] : pluginData.getItems()?.[0];
+
+    const modelSet: Set<String> = new Set([...Object.values(PluginModels.XrayModels), ...Object.values(PluginModels.CTModels)]);
+
+    // Done under the assumption that only one model plugin is being used, otherwise will need to be more specific in parameters
+    return model ? pluginData.getItems()?.filter(item => modelSet.has(item.data.plugin_name))[0] : pluginData.getItems()?.[0];
   }
 
   /**
