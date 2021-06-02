@@ -78,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({ onNotificationBadgeClick }) => {
     headerTools={pageToolbar}
     logo={<>
       <img onClick={() => history.push("/")} src={logo} className="logo" alt="DarwinAI Logo" />
-      <Link to="/" className="logo-text">COVID-Net</Link>
+      <p className="logo-text">COVID-Net</p>
     </>}
     logoComponent={"div"}
     topNav={<PageNav />}
