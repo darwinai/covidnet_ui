@@ -425,7 +425,7 @@ class ChrisIntegration {
    */
   static async getResultsAndClassesFromFeedIds(feedIds: number[]): Promise<TAnalysisResults> {
     const series: ISeries[] = await Promise.all(feedIds.map(async (id: number): Promise<ISeries> => {
-      const covidnetPlugin = await this.getCovidnetPluginInstanceFromFeedId(id);
+      const covidnetPlugin = await this.getCovidnetPluginInstanceFromFeedId(id, true);
       return await this.getCovidnetResults(covidnetPlugin);
     }));
     
@@ -435,15 +435,20 @@ class ChrisIntegration {
   /**
    * Gets covidnet plugin instance that belongs to the given Feed
    * @param {number} feedId Feed ID
+   * @param {boolean} model True for model plugin instance, false for most recently used plugin instance
    * @return {Promise<PluginInstance>} covidnet plugin instance
    */
-  static async getCovidnetPluginInstanceFromFeedId(feedId: number): Promise<PluginInstance> {
+  static async getCovidnetPluginInstanceFromFeedId(feedId: number, model: boolean = false): Promise<PluginInstance> {
     const client: Client = ChrisAPIClient.getClient();
     const pluginData = await client.getPluginInstances({
       feed_id: feedId,
       plugin_name: BASE_COVIDNET_MODEL_PLUGIN_NAME
     });
-    return pluginData.getItems()?.[0];
+
+    const modelSet: Set<String> = new Set([...Object.values(PluginModels.XrayModels), ...Object.values(PluginModels.CTModels)]);
+
+    // Done under the assumption that only one model plugin is being used, otherwise will need to be more specific in parameters
+    return model ? pluginData.getItems()?.filter(item => modelSet.has(item.data.plugin_name))[0] : pluginData.getItems()?.[0];
   }
 
   /**
@@ -501,11 +506,11 @@ class ChrisIntegration {
     }
   }
 
-  static async fetchPluginInstanceFromId(id: number): Promise<PluginInstance> {
-    const client: Client = ChrisAPIClient.getClient();
-    const pluginData = await client.getPluginInstances({ id });
-    return pluginData.getItems()?.[0];
-  }
+  // static async fetchPluginInstanceFromId(id: number): Promise<PluginInstance> {
+  //   const client: Client = ChrisAPIClient.getClient();
+  //   const pluginData = await client.getPluginInstances({ id });
+  //   return pluginData.getItems()?.[0];
+  // }
 
   static async fetchJsonFiles(fileId: string): Promise<{ [field: string]: any }> {
     if (!fileId) {

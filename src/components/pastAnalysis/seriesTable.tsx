@@ -47,7 +47,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ data, dcmImage, isProcessing 
 
   let titles = [
     { title: (<span className='classificationText'><br />Preview</span>) },
-    { title: (<span className='classificationText'><br />Image</span>) }
+    { title: (<span className='classificationText'><br />Description</span>) }
   ];
 
   if (values.classifications.length) {
@@ -68,7 +68,7 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ data, dcmImage, isProcessing 
     const isAnalysisValid = !!analysis.classifications.size;
     let analysisCells: any = [
       { title: (analysis.imageUrl ? <div><img src={analysis.imageUrl} className="thumbnail" alt="Analysis Scan Thumbnail" /></div> : <div><PreviewNotAvailable/></div>) },
-      { title: (<div><b>{analysis.imageName.split('/').pop()}</b></div>) }
+      { title: (<div><b>{dcmImage.SeriesDescription}</b></div>) }
     ];
 
     if (isAnalysisValid) { // If this Series' analysis was successful, read in its analysis results

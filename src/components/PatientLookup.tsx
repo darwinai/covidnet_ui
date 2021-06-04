@@ -2,26 +2,24 @@ import {
   Button, Stack, StackItem, TextInput
 } from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
-import { useHistory } from "react-router-dom";
 import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
 import { AppContext } from "../context/context";
-import RightArrowButton from "../pages/CreateAnalysisPage/RightArrowButton";
 import chris_integration from "../services/chris_integration";
 import pacs_integration from "../services/pacs_integration";
 import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
 interface PatientLookupProps {
-  isOnDashboard: boolean
+  setHasSearched: (newValue: boolean) => void,
+  setIsSearching: (newValue: boolean) => void
 }
 
-const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
-  const { state: { createAnalysis: { patientID } } } = useContext(AppContext);
+const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSearching }) => {
+  const { state: { createAnalysis: { patientID } }, dispatch } = useContext(AppContext);
 
-  const { dispatch } = useContext(AppContext);
-  const [patientIDInput, setPatientIDInput] = useState<string>((patientID && !isOnDashboard) ? patientID : "");
-  const history = useHistory();
+  const [patientIDInput, setPatientIDInput] = useState<string>(patientID ? patientID : "");
 
   const newLookup = async (event?: React.FormEvent) => {
     event?.preventDefault();
+
     dispatch({
       type: CreateAnalysisTypes.Update_patient_ID,
       payload: {
@@ -29,7 +27,10 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
       }
     });
 
+    setIsSearching(true);
+
     try {
+
       const dcmImages = process.env.REACT_APP_CHRIS_UI_DICOM_SOURCE === 'pacs' ?
         await pacs_integration.queryPatientFiles(patientIDInput) :
         await chris_integration.fetchPacFiles(patientIDInput);
@@ -54,24 +55,21 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ isOnDashboard }) => {
     } catch (err) {
       console.error(err);
     }
-
-    if (isOnDashboard) {
-      history.push("/createAnalysis");
-    }
+    
+    setIsSearching(false);
+    setHasSearched(true);
   }
 
-  const submitButton = isOnDashboard ? (
-    <RightArrowButton type="submit">Continue</RightArrowButton>
-  ) : (
-    <Button variant="secondary" type="submit">
-      <b>New Lookup</b>
+  const submitButton = (
+    <Button variant="secondary" type="submit" isDisabled={patientIDInput === ""}>
+      <b>Search</b>
     </Button>
   );
 
   return (
     <React.Fragment>
       <Stack>
-        <StackItem className="input-row-label">Create a new predictive analysis</StackItem>
+        <StackItem className="input-row-label">Patient Lookup</StackItem>
         <StackItem className="InputRow">
         <form onSubmit={newLookup} className="form-display">
           <div className="InputRowField">

@@ -33,8 +33,8 @@ const ImageSelectionBox: React.FC<ImageSelectionBoxProps> = ({ img }) => {
           <img src={image_placeholder} alt="selected" width={60} height={60} />
           <div className="margin_left">
             <p className="color_grey">{StudyDescription}</p>
-            <p className="color_grey">Filename{fname.split('/')[3]}</p>
-            <p className="color_grey">{formatDate(creation_date)}</p>
+            <p className="color_grey">{"Filename: " + fname.split('/')[3]}</p>
+            <p className="color_grey">{"Date: " + formatDate(creation_date)}</p>
           </div>
         </div>
       </div>
