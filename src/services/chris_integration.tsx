@@ -176,7 +176,7 @@ class ChrisIntegration {
 
       // PL-DIRCOPY
       const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
-      const data: DirCreateData = { "dir": img.fname, title: img.PatientID };
+      const data: DirCreateData = { "dir": img.fname, title: `covidnet_ui-${img.PatientID}` };
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
       const feed = await dircopyPluginInstance.getFeed();
       const note = await feed?.getNote();
