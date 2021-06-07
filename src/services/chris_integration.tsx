@@ -24,7 +24,8 @@ export type TAnalysisResults = {
 
 type TFeedNoteContent = {
   timestamp: number,
-  img: DcmImage
+  img: DcmImage,
+  mostRecentPluginName: string
 }
 
 type TFeedNote = {
@@ -184,7 +185,8 @@ class ChrisIntegration {
         title: FEED_NOTE_TITLE,
         content: JSON.stringify({
           timestamp,
-          img
+          img,
+          mostRecentPluginName: PluginModels.Plugins.FS_PLUGIN
         })
       })
       console.log("PL-DIRCOPY task sent into the task queue")
@@ -224,9 +226,18 @@ class ChrisIntegration {
           error: new Error('not registered')
         };
       }
-      await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      const modelPluginInstance: PluginInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
-
+      const modelFeed = await modelPluginInstance.getFeed();
+      const modelNote = await modelFeed?.getNote();
+      await modelNote?.put({
+        title: FEED_NOTE_TITLE,
+        content: JSON.stringify({
+          timestamp,
+          img,
+          mostRecentPluginName: pluginNeeded
+        })
+      })
       return {
           plugin: 'plugins'
       };
@@ -385,7 +396,7 @@ class ChrisIntegration {
         const feedData = cur.feed.data;
         acc.jobsDone += feedData.finished_jobs
         acc.jobsErrored += feedData.errored_jobs + feedData.cancelled_jobs
-        acc.jobsRunning += feedData.created_jobs +
+	      acc.jobsRunning += feedData.created_jobs +
                            feedData.registering_jobs +
                            feedData.scheduled_jobs +
                            feedData.started_jobs +
@@ -567,6 +578,17 @@ class ChrisIntegration {
       patientId: selectedImage.dcmImage?.PatientID
     }
     const pdfgeneratorInstance: PluginInstance = await client.createPluginInstance(pdfgenerationPlugin.data.id, pluginData);
+    const feed = await pdfgeneratorInstance.getFeed();
+    const note = await feed?.getNote();
+    const noteContent: TFeedNoteContent = JSON.parse(note?.data?.content || "") as TFeedNoteContent;
+    await note?.put({
+      title: FEED_NOTE_TITLE,
+      content: JSON.stringify({
+        timestamp: noteContent.timestamp,
+        img: noteContent.img,
+        mostRecentPluginName: PluginModels.Plugins.PDFGENERATION
+      })
+    })
     await pollingBackend(pdfgeneratorInstance);
 
     const files = await this.findFilesGeneratedByPlugin(pdfgeneratorInstance.data.id);
