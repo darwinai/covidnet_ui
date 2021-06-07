@@ -396,11 +396,15 @@ class ChrisIntegration {
         const feedData = cur.feed.data;
         acc.jobsDone += feedData.finished_jobs
         acc.jobsErrored += feedData.errored_jobs + feedData.cancelled_jobs
+	if (cur.note.mostRecentPluginName != PluginModels.Plugins.PDFGENERATION){
 	      acc.jobsRunning += feedData.created_jobs +
                            feedData.registering_jobs +
                            feedData.scheduled_jobs +
                            feedData.started_jobs +
                            feedData.waiting_jobs;
+	}else {
+		acc.jobsRunning = 0;
+	}
         return acc;
       }, {
         jobsDone: 0,
