@@ -349,7 +349,10 @@ class ChrisIntegration {
 
       curOffset += limit;
       
-      const feedArray: Feed[] = feeds?.getItems();
+        const feedArray: Feed[] = feeds?.getItems().filter((feed: Feed) => {
+		    const separatedString: string[] = feed.data.name.split('-');
+		    return separatedString.length && separatedString[0] === 'covidnet_ui';
+        });
 
       // If the number of Feeds in the response was less than fetchLimit, it means that the end of Feeds in the DB has been reached
       isAtEndOfFeeds = feedArray?.length < limit;
