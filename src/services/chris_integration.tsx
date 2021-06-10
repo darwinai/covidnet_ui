@@ -466,7 +466,11 @@ class ChrisIntegration {
     const prediction = await this.fetchJsonFiles(predictionFileId);
     const severityFileId =  files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
     const severity = await this.fetchJsonFiles(severityFileId);
-    const imageFileId =  files.filter((file: any) => file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".jpg")?.[0]?.data?.id;
+    const imageFileId =  files.filter(
+        (file: any) =>
+            file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".jpg"
+            || file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".png" 
+        )?.[0]?.data?.id;
     
     let imageUrl: string = "";
     if (imageFileId) {
