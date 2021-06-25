@@ -467,11 +467,10 @@ class ChrisIntegration {
     const prediction = await this.fetchJsonFiles(predictionFileId);
     const severityFileId =  files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
     const severity = await this.fetchJsonFiles(severityFileId);
+    const fileExtensions = /^(jpg|png|jpeg)$/i;
     const imageFileId =  files.filter(
-        (file: any) =>
-            file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".jpg"
-            || file.data.fname.match(/\.[0-9a-z]+$/i)[0] === ".png" 
-        )?.[0]?.data?.id;
+        (file: any) => !!file.data.fname.split('.').pop().match(fileExtensions)
+    )?.[0]?.data?.id;
     
     let imageUrl: string = "";
     if (imageFileId) {
@@ -564,8 +563,9 @@ class ChrisIntegration {
     const client: any = ChrisAPIClient.getClient();
     const pluginfiles = await this.findFilesGeneratedByPlugin(covidnetPluginId);
     let imgName: string = '';
+    const fileExtensions = /^(jpg|png|jpeg)$/i;
     pluginfiles.forEach(file => {
-      if (file.data.fname.split('.').pop() === 'jpg') {
+      if (!!file.data.fname.split('.').pop().match(fileExtensions)) {
         imgName = file.data.fname.split('/').pop()
       }
     })
