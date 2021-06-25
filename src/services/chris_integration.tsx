@@ -176,7 +176,7 @@ class ChrisIntegration {
 
       // PL-DIRCOPY
       const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
-      const data: DirCreateData = { "dir": img.fname, title: img.PatientID };
+      const data: DirCreateData = { "dir": img.fname, title: `COVIDNET_Analysis_of_${img.PatientID}` };
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
       const feed = await dircopyPluginInstance.getFeed();
       const note = await feed?.getNote();
@@ -191,12 +191,13 @@ class ChrisIntegration {
 
       // PL-MED2IMG
       const imgConverterPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.MED2IMG })).getItems()[0];
-      const filename = img.fname.split('/').pop()?.split('.')[0];
-      console.log(filename);
+      const filename = img.fname.split('/').pop();
+      const filenameWithoutExtension = filename?.split('.')[0];
       const imgData = {
-        inputFile: img.fname.split('/').pop(),
+        title: filename,
+        inputFile: filename,
         sliceToConvert: 0,
-        outputFileStem: `${filename}.jpg`, //-slice000
+        outputFileStem: `${filenameWithoutExtension}.jpg`, //-slice000
         previous_id: dircopyPluginInstance.data.id
       }
 
@@ -214,8 +215,8 @@ class ChrisIntegration {
       const covidnetPlugin = (await client.getPlugins({ "name_exact": pluginNeeded })).getItems()[0];
       const plcovidnet_data: PlcovidnetData = {
         previous_id: imgConverterInstance.data.id,
-        title: img.fname,
-        imagefile: `${filename}.jpg`
+        title: "COVIDNET",
+        imagefile: `${filenameWithoutExtension}.jpg`
       }
 
       if (covidnetPlugin === undefined || covidnetPlugin.data === undefined) {
