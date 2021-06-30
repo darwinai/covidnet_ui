@@ -158,6 +158,15 @@ class ChrisIntegration {
     return true;
   }
 
+  /***
+   *  Return a consistent feed name based on the provided patientID/MRN
+   *  @param {string} patientID - The MRN of the patient
+   *  @returns {string} The name of the corresponding feed as established by the convention in this function
+   */
+  static getFeedName(patientID: string): string {
+      return `COVIDNET_Analysis_of_${patientID}`;
+  }
+
   /**
    * Initiate pl-dircopy, pl-med2img, and the appropriate COVID-Net plugin in sequence on the provided DcmImage
    * @param {DcmImage} img - The DICOM data to run the analysis on
@@ -176,7 +185,7 @@ class ChrisIntegration {
 
       // PL-DIRCOPY
       const dircopyPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins.FS_PLUGIN })).getItems()[0];
-      const data: DirCreateData = { "dir": img.fname, title: `COVIDNET_Analysis_of_${img.PatientID}` };
+      const data: DirCreateData = { "dir": img.fname, title: this.getFeedName(img.PatientID) };
       const dircopyPluginInstance: PluginInstance = await client.createPluginInstance(dircopyPlugin.data.id, data);
       const feed = await dircopyPluginInstance.getFeed();
       const note = await feed?.getNote();
@@ -322,6 +331,7 @@ class ChrisIntegration {
    * TStudyInstance of the provided size (limit)
    * @param {number} offset Page offset
    * @param {number} limit Desired number of TStudyInstance to receive
+   * @param {string} filter Filter string used for MRN search
    * @param {number} max_id Maximum Feed ID search parameter
    */
   static async getPastAnalyses(offset: number, limit: number, filter: string, max_id?: number): Promise<[TStudyInstance[], number, boolean]> {
@@ -344,7 +354,7 @@ class ChrisIntegration {
       const feeds: FeedList = await client.getFeeds({
         limit: limit,
         offset: curOffset,
-        name: filter,
+        name: !!filter ? this.getFeedName(filter): "", // get feed name based on filter, which should be the patientID/MRN
         max_id
       });
 
