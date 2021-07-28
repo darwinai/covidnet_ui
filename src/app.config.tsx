@@ -14,7 +14,8 @@ export const PluginModels: Plugins = {
     Plugins: { // Place other app plug-ins here
         'FS_PLUGIN': 'pl-dircopy',
         'MED2IMG': 'pl-med2img',
-        'PDFGENERATION': 'pl-pdfgeneration'
+        'PDFGENERATION': 'pl-pdfgeneration',
+        'GRAD-CAM': 'pl-grad-cam'
     }
 }
 
