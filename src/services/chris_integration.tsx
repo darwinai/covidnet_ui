@@ -39,7 +39,10 @@ interface DirCreateData extends IPluginCreateData {
 interface PlcovidnetData extends IPluginCreateData {
   imagefile: string;
 }
-
+interface PlgradcamData extends IPluginCreateData {
+  imagefile: string;
+  predmatrix: string;
+}
 interface PACSFile {
   url: string;
   auth: {
@@ -234,9 +237,17 @@ class ChrisIntegration {
           error: new Error('not registered')
         };
       }
-      await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      const covidnetInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
 
+      const gradcamPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins['GRAD-CAM']})).getItems()[0];
+      const plgradcam_data: PlgradcamData = {
+        previous_id: covidnetInstance.data.id,
+        title: "GRAD-CAM",
+        imagefile: `${filenameWithoutExtension}.jpg`,
+        predmatrix: "raw-prediction-matrix-default.json"
+      }
+      await client.createPluginInstance(gradcamPlugin.data.id, plgradcam_data);
       return {
           plugin: 'plugins'
       };
