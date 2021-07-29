@@ -1,6 +1,6 @@
 import Client, { IPluginCreateData, Note, FeedPluginInstanceList, PluginInstance, PluginInstanceFileList, Feed, FeedList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
-import { ISeries, selectedImageType, TStudyInstance, TPluginStatuses } from "../context/reducers/analyseReducer";
+import { ISeries, GradCAMResults, selectedImageType, TStudyInstance, TPluginStatuses } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
 import { PluginModels, FEED_NOTE_TITLE, BASE_COVIDNET_MODEL_PLUGIN_NAME } from "../app.config";
@@ -522,12 +522,52 @@ class ChrisIntegration {
   
     return {
         covidnetPluginId: covidnetPlugin.data.id,
-        imageName: covidnetPlugin.data.title || "File name not available",
+        imageName: covidnetPlugin.data.title || "File name not available", // Change this because title is not reflective of imageName anymore
         imageId: imageFileId || "",
         classifications,
         geographic,
         opacity,
         imageUrl: imageUrl || ""
+    }
+  }
+
+  /**
+   * Gets results generated from the Grad-CAM plugin
+   * @param {PluginInstance} gradcamPlugin Grad-CAM plugin instance
+   * @return {Promise<GradCAMResults>} Results
+   */
+  static async getGradCAMResults(gradcamPlugin: PluginInstance): Promise<GradCAMResults> {
+    const file = await gradcamPlugin.getFiles({
+      limit: 25,
+      offset: 0,
+    });
+    const files = file.getItems();
+
+    let maskImageUrl = "";
+    let preprocessedImageUrl = "";
+    const urlCreator = window.URL || window.webkitURL;
+
+    const maskFileId = files.filter((file: any) => file.data.fname.split('-').pop().match('mask.png'))?.[0]?.data?.id;
+    if(maskFileId){
+      const maskImgBlob = await DicomViewerService.fetchImageFile(maskFileId);
+      maskImageUrl = urlCreator.createObjectURL(maskImgBlob);
+    }
+    const preprocessedFileId = files.filter((file: any) => file.data.fname.split('-').pop().match('preprocessed.png'))?.[0]?.data?.id;
+    if(preprocessedFileId){
+      const preprocessedImgBlob = await DicomViewerService.fetchImageFile(preprocessedFileId);
+      preprocessedImageUrl = urlCreator.createObjectURL(preprocessedImgBlob);
+    }
+
+    const inputMetadataFileId = files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "input.meta.json")?.[0]?.data?.id;
+    const inputMetadata = await this.fetchJsonFiles(inputMetadataFileId);
+
+    return {
+      gradcamPluginId: gradcamPlugin.data.id,
+      imageName: inputMetadata['imagefile'].split('.')[0] || "",
+      maskImageId: maskFileId || "",
+      maskImageUrl: maskImageUrl || "",
+      preprocessedImageId: preprocessedFileId || "",
+      preprocessedImageUrl: preprocessedImageUrl || ""
     }
   }
 
