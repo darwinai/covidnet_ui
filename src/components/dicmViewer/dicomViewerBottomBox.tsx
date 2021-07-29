@@ -6,6 +6,7 @@ import { isLargestNumber } from "../pastAnalysis/seriesTable";
 import PredictionCircle from "../PredictionCircle";
 import { formatGender } from "../../shared/utils";
 import { useHistory } from 'react-router-dom';
+import { Flex, Switch } from '@patternfly/react-core';
 
 const DicomViewerBottomBox = () => {
   const { state: { imgViewer: { isBottomHided }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext);
@@ -108,10 +109,16 @@ const DicomViewerBottomBox = () => {
             <p><span>MODALITY</span> XRAY</p>
           </div>
           <div className="predictions padding-l-2rem">
-            <span className='logo-text'>COVID-Net</span>
-            <div className="flex_row">
-            
-              {generateDisplayCircles(series)}
+            <Flex alignItems={{default: "alignItemsFlexEnd"}}>
+              <div className="flex_column">
+              <Flex justifyContent={{ default: "justifyContentSpaceBetween" }}>
+              <span className='logo-text'>COVID-Net</span>
+              <Switch />
+            </Flex>
+                <div className="flex_row">
+                {generateDisplayCircles(series)}  
+                </div>
+              </div>        
 
               <div className="padding-l-2rem">
                 <p><span>GEOGRAPHIC SEVERITY</span>&nbsp;{geoOpacityNumbers(series, 'geographic', 'severity')}</p>
@@ -120,7 +127,7 @@ const DicomViewerBottomBox = () => {
                 <p><span>OPACITY SEVERITY</span>&nbsp;{geoOpacityNumbers(series, 'opacity', 'severity')}</p>
                 <p><span>OPACITY EXTENT</span>&nbsp;{geoOpacityNumbers(series, 'opacity', 'extentScore')}</p>
               </div>
-            </div>
+            </Flex>
           </div>
         </div>
       </div>
