@@ -9,7 +9,7 @@ import { useHistory } from 'react-router-dom';
 import { Flex, Switch } from '@patternfly/react-core';
 
 const DicomViewerBottomBox = () => {
-  const { state: { imgViewer: { isBottomHided }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext);
+  const { state: { imgViewer: { isBottomHided, isImgMaskApplied }, prevAnalyses: { selectedImage } }, dispatch } = useContext(AppContext);
 
   const history = useHistory();
 
@@ -18,6 +18,13 @@ const DicomViewerBottomBox = () => {
       type: ImageViewerTypes.Update_is_bottom_hidded,
       payload: { isBottomHided: !isBottomHided }
     });
+  }
+
+  const toggleMask = () => {
+    dispatch({
+      type: ImageViewerTypes.Update_is_img_mask_applied,
+      payload: { isImgMaskApplied: !isImgMaskApplied }
+    })
   }
 
   const geoOpacityNumbers = (
@@ -113,7 +120,10 @@ const DicomViewerBottomBox = () => {
               <div className="flex_column">
               <Flex justifyContent={{ default: "justifyContentSpaceBetween" }}>
               <span className='logo-text'>COVID-Net</span>
-              <Switch />
+              <Flex>
+              <p>Areas of interest Hide | Show </p>
+              <Switch id="maskSwitch" isChecked={isImgMaskApplied} onClick={toggleMask} />
+              </Flex>
             </Flex>
                 <div className="flex_row">
                 {generateDisplayCircles(series)}  
