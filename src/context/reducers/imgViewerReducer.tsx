@@ -11,13 +11,15 @@ export type IimgViewerState = {
   isBottomHided: boolean;
   isImgInverted: boolean;
   isResetButtonPressed: boolean;
+  isImgMaskApplied: boolean;
 }
 
 export const initialIimgViewer: IimgViewerState = {
   mod: ImagesViewerMods.ZOOM,
   isBottomHided: false,
   isImgInverted: false,
-  isResetButtonPressed: false
+  isResetButtonPressed: false,
+  isImgMaskApplied: false
 }
 
 type IimgViewerPayload = {
@@ -25,6 +27,7 @@ type IimgViewerPayload = {
   [ImageViewerTypes.Update_is_bottom_hidded]: { isBottomHided: boolean }
   [ImageViewerTypes.Update_is_img_inverted]: { isImgInverted: boolean }
   [ImageViewerTypes.Update_is_reset_button_pressed]: { isResetButtonPressed: boolean }
+  [ImageViewerTypes.Update_is_img_mask_applied]: { isImgMaskApplied: boolean }
 }
 
 export type IimgViwerActions = ActionMap<IimgViewerPayload>[
@@ -55,6 +58,11 @@ export const imgViewerReducer = (
       return {
         ...state, 
         isResetButtonPressed: action.payload.isResetButtonPressed
+      }
+    case ImageViewerTypes.Update_is_img_mask_applied:
+      return {
+        ...state,
+        isImgMaskApplied: action.payload.isImgMaskApplied
       }
     default:
       return state;
