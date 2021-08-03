@@ -7,7 +7,7 @@ import DicomViewerService, { windowLevelType } from "../../services/dicomViewerS
 import renderer from "../../services/renderService";
 
 const ViewImagePage = () => {
-  const { state: { imgViewer: { mod }, prevAnalyses: { selectedImage }, imgViewer: { isImgInverted } } } = useContext(AppContext);
+  const { state: { imgViewer: { mod, isImgInverted, isImgMaskApplied }, prevAnalyses: { selectedImage } } } = useContext(AppContext);
   const history = useHistory();
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const ViewImagePage = () => {
           const myImage: any = document.querySelector('#dicomViewerImg');
           const urlCreator = window.URL || window.webkitURL;
           var objectURL = urlCreator.createObjectURL(imgBlob);
-          if (myImage) myImage.src = objectURL;
+          if (myImage) myImage.src = isImgMaskApplied ? selectedImage.gradcamResults?.imageUrl : objectURL;
           const container = document.getElementById("imageContainer");
           const instance = renderer({ minScale: .1, maxScale: 30, element: container?.children[0], scaleSensitivity: 50 });
           if (container) {
@@ -106,7 +106,7 @@ const ViewImagePage = () => {
           }
         })
     }
-  }, [selectedImage, history, mod])
+  }, [selectedImage, history, mod, isImgMaskApplied])
 
   return (
     <div id="dicomImgViewer" className="imgViewer">
