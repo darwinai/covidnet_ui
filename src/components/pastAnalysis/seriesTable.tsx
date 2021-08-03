@@ -4,7 +4,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AnalysisTypes } from '../../context/actions/types';
 import { AppContext } from '../../context/context';
-import { ISeries, TStudyInstance } from '../../context/reducers/analyseReducer';
+import { GradCAMResults, ISeries, TStudyInstance } from '../../context/reducers/analyseReducer';
 import PredictionCircle from '../PredictionCircle';
 import PreviewNotAvailable from '../../shared/PreviewNotAvailable';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
@@ -34,12 +34,12 @@ export const isLargestNumber = (num: number | null | undefined, numArray: Map<st
 const SeriesTable: React.FC<SeriesTableProps> = ({ data, dcmImage, isProcessing }) => {
   const history = useHistory();
   const { dispatch } = useContext(AppContext);
-  const [values, setValues] = useState<{series: ISeries[], classifications: string[]}>({series: [], classifications: []});
+  const [values, setValues] = useState<{series: ISeries[], classifications: string[], gradcamResults: GradCAMResults[]}>({series: [], classifications: [], gradcamResults: []});
 
   useEffect(() => {
     (async () => {
-      const {series, classifications} = await data;
-      setValues({series, classifications});
+      const {series, classifications, gradcamResults} = await data;
+      setValues({series, classifications, gradcamResults});
     })();
 
   }, [])
@@ -113,7 +113,8 @@ const SeriesTable: React.FC<SeriesTableProps> = ({ data, dcmImage, isProcessing 
       payload: {
         selectedImage: {
           dcmImage,
-          series: values.series[index]
+          series: values.series[index],
+          gradcamResults: values.gradcamResults[index]
         }
       }
     })
