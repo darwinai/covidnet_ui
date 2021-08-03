@@ -41,6 +41,7 @@ export type TStudyInstance = {
 export type selectedImageType = {
   dcmImage?: DcmImage
   series?: ISeries
+  gradcamResults?: GradCAMResults
 }
 
 export type IPrevAnalysesState = {
