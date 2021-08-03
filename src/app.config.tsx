@@ -27,5 +27,7 @@ export const FEED_NOTE_TITLE = "COVIDNET_ANALYSIS_NOTE";
 
 export const BASE_COVIDNET_MODEL_PLUGIN_NAME = "covidnet";
 
+export const BASE_GRADCAM_MODEL_PLUGIN_NAME = "grad-cam";
+
 // Time interval in ms to poll ChRIS for new analysis results
 export const RESULT_POLL_INTERVAL = 10000;
