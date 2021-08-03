@@ -64,13 +64,30 @@ class GradCAMChrisIntegration {
     const inputMetadataFileId = files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "input.meta.json")?.[0]?.data?.id;
     const inputMetadata = await ChrisIntegration.fetchJsonFiles(inputMetadataFileId);
 
+    let imageUrl = "";
+    if(maskImageUrl && preprocessedImageUrl){
+      const mask = new Image();
+      mask.src = maskImageUrl;
+      const preprocessedImage = new Image();
+      preprocessedImage.src = preprocessedImageUrl;
+      mask.onload = () => {
+        preprocessedImage.onload = () => {
+          const canvas = document.createElement("CANVAS") as HTMLCanvasElement;
+          const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+          canvas.width =  preprocessedImage.width;
+          canvas.height = preprocessedImage.height;
+          context?.drawImage(preprocessedImage, 0, 0);
+          context.globalCompositeOperation = 'darken';
+          context?.drawImage(mask, 0, 0);
+          imageUrl = canvas.toDataURL();
+        }
+      }
+    }
+
     return {
       gradcamPluginId: gradcamPlugin.data.id,
       imageName: inputMetadata['imagefile'].split('.')[0] || "",
-      maskImageId: maskFileId || "",
-      maskImageUrl: maskImageUrl || "",
-      preprocessedImageId: preprocessedFileId || "",
-      preprocessedImageUrl: preprocessedImageUrl || ""
+      imageUrl: imageUrl || ""
     }
   }
 }
