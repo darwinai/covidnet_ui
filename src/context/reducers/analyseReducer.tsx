@@ -19,10 +19,7 @@ export type ISeries = {
 export type GradCAMResults = {
   gradcamPluginId: number,
   imageName: string,
-  maskImageId: string,
-  maskImageUrl?: string,
-  preprocessedImageId: string,
-  preprocessedImageUrl?: string
+  imageUrl?: string
 }
 
 export type TPluginStatuses = {
