@@ -70,18 +70,18 @@ class GradCAMChrisIntegration {
       mask.src = maskImageUrl;
       const preprocessedImage = new Image();
       preprocessedImage.src = preprocessedImageUrl;
-      mask.onload = () => {
-        preprocessedImage.onload = () => {
-          const canvas = document.createElement("CANVAS") as HTMLCanvasElement;
-          const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-          canvas.width =  preprocessedImage.width;
-          canvas.height = preprocessedImage.height;
-          context?.drawImage(preprocessedImage, 0, 0);
-          context.globalCompositeOperation = 'darken';
-          context?.drawImage(mask, 0, 0);
-          imageUrl = canvas.toDataURL();
-        }
-      }
+      await Promise.all([mask.decode(), preprocessedImage.decode()]);
+
+      // Using canvas element to layer an image on top of another image
+      const canvas = document.createElement("CANVAS") as HTMLCanvasElement;
+      const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+      canvas.width =  preprocessedImage.width;
+      canvas.height = preprocessedImage.height;
+      context?.drawImage(preprocessedImage, 0, 0);
+      // Darken takes the darkest pixels of the previous layer and subsequent layer
+      context.globalCompositeOperation = 'darken';
+      context?.drawImage(mask, 0, 0);
+      imageUrl = canvas.toDataURL();
     }
 
     return {
