@@ -10,6 +10,88 @@ const ViewImagePage = () => {
   const { state: { imgViewer: { mod, isImgInverted, isImgMaskApplied }, prevAnalyses: { selectedImage } } } = useContext(AppContext);
   const history = useHistory();
 
+  const configureImageContainer = () => {
+    const container = document.getElementById("imageContainer");
+    const instance = renderer({ minScale: .1, maxScale: 30, element: container?.children[0], scaleSensitivity: 50 });
+    if (container) {
+      let mouseDown = false;
+      let brightness: number = 100;
+      let contrast: number = 100;
+      const showContrastBrightness = (brightness: number, contrast: number) => {
+        const imgBrightnesss = document.getElementById('imgBrightness');
+        const imgContrast = document.getElementById('imgContrast')
+        if (imgBrightnesss && imgContrast) {
+          imgBrightnesss.innerHTML = brightness.toString();
+          imgContrast.innerHTML = contrast.toString();
+        }
+      }
+      showContrastBrightness(brightness, contrast)
+      container.addEventListener("wheel", (event) => {
+        const direction = Math.sign(event.deltaY) > 0 ? 1 : -1
+        event.preventDefault();
+        instance.zoom({
+          deltaScale: direction,
+          x: event.pageX,
+          y: event.pageY
+        });
+      });
+      container.addEventListener("dblclick", () => { // resets 
+        instance.panTo({
+          originX: 0,
+          originY: 0,
+          scale: 1,
+        });
+        brightness = 100;
+        contrast = 100
+        const img = document.getElementById('dicomViewerImg')
+        img?.setAttribute('style', `filter: brightness(${brightness}%) contrast(${contrast}%);`);
+      });
+      container.addEventListener("mousemove", (event) => {
+        if (!mouseDown) {
+          return;
+        }
+        event.preventDefault();
+        if (event.ctrlKey) {
+          // adjust window/level
+          brightness = DicomViewerService.maxMinWindowLevel(brightness + event.movementY, windowLevelType.brightness);
+          contrast = DicomViewerService.maxMinWindowLevel(contrast + event.movementX, windowLevelType.contrast);
+          const img = document.getElementById('dicomViewerImg')
+          if (img) {
+            img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+            showContrastBrightness(brightness, contrast);
+          }
+        } else if (event.shiftKey){
+          const direction = event.movementY > 0 ? 1: -1;
+          event.preventDefault();
+          instance.zoom({
+            deltaScale: direction,
+            x: event.pageX,
+            y: event.pageY
+          });
+        } else { // panning
+          instance.panBy({
+            originX: event.movementX,
+            originY: event.movementY
+          });
+          return;
+        }
+      })
+      container.addEventListener('mousedown', e => {
+        if (e.button === 0) mouseDown = true;
+      })
+      container.addEventListener('mouseup', e => {
+        mouseDown = false;
+      })
+
+      const bottomBox = document.getElementById('ViewerbottomBox');
+      const upperBox = document.getElementById('ViewerHeaderBox');
+      if (bottomBox && upperBox) {
+        bottomBox.addEventListener('mousemove', e => mouseDown = false);
+        upperBox.addEventListener('mousemove', e => mouseDown = false);
+      }
+    }
+  }
+
   useEffect(() => {
     if (!selectedImage) {
       history.push('/')
@@ -17,93 +99,19 @@ const ViewImagePage = () => {
     };
 
     const imageId = selectedImage?.series?.imageId;
+    const maskedImageUrl = selectedImage.gradcamResults?.imageUrl;
 
-    if (imageId) {
+    const myImage: any = document.querySelector('#dicomViewerImg');
+    if(isImgMaskApplied && maskedImageUrl){
+      if(myImage) myImage.src = maskedImageUrl;
+      configureImageContainer();
+    }else if(imageId){
       DicomViewerService.fetchImageFile(imageId)
         .then((imgBlob: any) => {
-          const myImage: any = document.querySelector('#dicomViewerImg');
           const urlCreator = window.URL || window.webkitURL;
-          var objectURL = urlCreator.createObjectURL(imgBlob);
-          if (myImage) myImage.src = isImgMaskApplied ? selectedImage.gradcamResults?.imageUrl : objectURL;
-          const container = document.getElementById("imageContainer");
-          const instance = renderer({ minScale: .1, maxScale: 30, element: container?.children[0], scaleSensitivity: 50 });
-          if (container) {
-            let mouseDown = false;
-            let brightness: number = 100;
-            let contrast: number = 100;
-            const showContrastBrightness = (brightness: number, contrast: number) => {
-              const imgBrightnesss = document.getElementById('imgBrightness');
-              const imgContrast = document.getElementById('imgContrast')
-              if (imgBrightnesss && imgContrast) {
-                imgBrightnesss.innerHTML = brightness.toString();
-                imgContrast.innerHTML = contrast.toString();
-              }
-            }
-            showContrastBrightness(brightness, contrast)
-            container.addEventListener("wheel", (event) => {
-              const direction = Math.sign(event.deltaY) > 0 ? 1 : -1
-              event.preventDefault();
-              instance.zoom({
-                deltaScale: direction,
-                x: event.pageX,
-                y: event.pageY
-              });
-            });
-            container.addEventListener("dblclick", () => { // resets 
-              instance.panTo({
-                originX: 0,
-                originY: 0,
-                scale: 1,
-              });
-              brightness = 100;
-              contrast = 100
-              const img = document.getElementById('dicomViewerImg')
-              img?.setAttribute('style', `filter: brightness(${brightness}%) contrast(${contrast}%);`);
-            });
-            container.addEventListener("mousemove", (event) => {
-              if (!mouseDown) {
-                return;
-              }
-              event.preventDefault();
-              if (event.ctrlKey) {
-                // adjust window/level
-                brightness = DicomViewerService.maxMinWindowLevel(brightness + event.movementY, windowLevelType.brightness);
-                contrast = DicomViewerService.maxMinWindowLevel(contrast + event.movementX, windowLevelType.contrast);
-                const img = document.getElementById('dicomViewerImg')
-                if (img) {
-                  img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
-                  showContrastBrightness(brightness, contrast);
-                }
-              } else if (event.shiftKey){
-                const direction = event.movementY > 0 ? 1: -1;
-                event.preventDefault();
-                instance.zoom({
-                  deltaScale: direction,
-                  x: event.pageX,
-                  y: event.pageY
-                });
-              } else { // panning
-                instance.panBy({
-                  originX: event.movementX,
-                  originY: event.movementY
-                });
-                return;
-              }
-            })
-            container.addEventListener('mousedown', e => {
-              if (e.button === 0) mouseDown = true;
-            })
-            container.addEventListener('mouseup', e => {
-              mouseDown = false;
-            })
-
-            const bottomBox = document.getElementById('ViewerbottomBox');
-            const upperBox = document.getElementById('ViewerHeaderBox');
-            if (bottomBox && upperBox) {
-              bottomBox.addEventListener('mousemove', e => mouseDown = false);
-              upperBox.addEventListener('mousemove', e => mouseDown = false);
-            }
-          }
+          const objectURL = urlCreator.createObjectURL(imgBlob);
+          if (myImage) myImage.src = objectURL;
+          configureImageContainer();
         })
     }
   }, [selectedImage, history, mod, isImgMaskApplied])
