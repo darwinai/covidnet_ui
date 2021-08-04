@@ -19,6 +19,122 @@ const ViewImagePage = () => {
       imgContrast.innerHTML = contrast.toString();
     }
   }
+  
+  const configureImageContainer = (myImage: any) => {
+    const container = document.getElementById("imageContainer");
+    const instance = renderer({ minScale: .1, maxScale: 30, element: container?.children[0], scaleSensitivity: 50 });
+    if (container) {
+      let leftMouseDown = false;
+      let middleMouseDown = false;
+      let rightMouseDown = false;
+      let brightness: number = 100;
+      let contrast: number = 100;
+      showContrastBrightness(brightness, contrast)
+      container.addEventListener("wheel", (event) => {
+        const direction = Math.sign(event.deltaY) > 0 ? 1 : -1
+        event.preventDefault();
+        instance.zoom({
+          deltaScale: direction,
+          x: event.pageX,
+          y: event.pageY
+        });
+      });
+      container.addEventListener("dblclick", () => { // resets 
+        instance.panTo({
+          originX: 0,
+          originY: 0,
+          scale: 1,
+        });
+        brightness = 100;
+        contrast = 100
+        const img = document.getElementById('dicomViewerImg')
+        img?.setAttribute('style', `filter: brightness(${brightness}%) contrast(${contrast}%);`);
+        showContrastBrightness(brightness, contrast);
+      });
+      container.addEventListener("mousemove", (event) => {
+        if (!leftMouseDown && !middleMouseDown && !rightMouseDown) {
+          return;
+        }
+        event.preventDefault();
+        if (leftMouseDown && event.ctrlKey || rightMouseDown) {
+          // adjust window/level
+          brightness = DicomViewerService.maxMinWindowLevel(brightness + event.movementY, windowLevelType.brightness);
+          contrast = DicomViewerService.maxMinWindowLevel(contrast + event.movementX, windowLevelType.contrast);
+          const img = document.getElementById('dicomViewerImg')
+          if (img) {
+            img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+            showContrastBrightness(brightness, contrast);
+          }
+        } else if (leftMouseDown && event.shiftKey || middleMouseDown){
+          const direction = event.movementY > 0 ? 1: -1;
+          const rect: DOMRect = myImage.getBoundingClientRect();
+          const centerX = rect.x + rect.width / 2;
+          const centerY = rect.y + rect.height / 2;
+          event.preventDefault();
+          instance.zoom({
+            deltaScale: direction,
+            x: centerX,
+            y: centerY
+          });
+        } else { // panning
+          instance.panBy({
+            originX: event.movementX,
+            originY: event.movementY
+          });
+          return;
+        }
+      })
+      container.addEventListener('mousedown', e => {
+        switch(e.button){
+          case 0: 
+            leftMouseDown = true;
+            break;
+          
+          case 1:
+            middleMouseDown = true;
+            break;
+          
+          case 2:
+            rightMouseDown = true;
+            break;
+          
+          default:
+        } 
+      })
+      container.addEventListener('mouseup', e => {
+        switch(e.button){
+          case 0: 
+            leftMouseDown = false;
+            break;
+          
+          case 1:
+            middleMouseDown = false;
+            break;
+          
+          case 2:
+            rightMouseDown = false;
+            break;
+          
+          default:
+        }
+      })
+
+      const bottomBox = document.getElementById('ViewerbottomBox');
+      const upperBox = document.getElementById('ViewerHeaderBox');
+      if (bottomBox && upperBox) {
+        bottomBox.addEventListener('mousemove', e => {
+          leftMouseDown = false;
+          middleMouseDown = false;
+          rightMouseDown = false;
+        });
+        upperBox.addEventListener('mousemove', e => {
+          leftMouseDown = false;
+          middleMouseDown = false;
+          rightMouseDown = false;
+        });
+      }
+    }
+  }
 
   useEffect(() => {
     if (!selectedImage) {
@@ -27,127 +143,19 @@ const ViewImagePage = () => {
     };
 
     const imageId = selectedImage?.series?.imageId;
+    const maskedImageUrl = selectedImage.gradcamResults?.imageUrl;
 
-    if (imageId) {
+    const myImage: any = document.querySelector('#dicomViewerImg');
+    if(isImgMaskApplied && maskedImageUrl){
+      if(myImage) myImage.src = maskedImageUrl;
+      configureImageContainer(myImage);
+    }else if(imageId){
       DicomViewerService.fetchImageFile(imageId)
         .then((imgBlob: any) => {
-          const myImage: any = document.querySelector('#dicomViewerImg');
           const urlCreator = window.URL || window.webkitURL;
-          var objectURL = urlCreator.createObjectURL(imgBlob);
-          if (myImage) myImage.src = isImgMaskApplied ? selectedImage.gradcamResults?.imageUrl : objectURL;
-          const container = document.getElementById("imageContainer");
-          const instance = renderer({ minScale: .1, maxScale: 30, element: container?.children[0], scaleSensitivity: 50 });
-          if (container) {
-            let leftMouseDown = false;
-            let middleMouseDown = false;
-            let rightMouseDown = false;
-            let brightness: number = 100;
-            let contrast: number = 100;
-            showContrastBrightness(brightness, contrast)
-            container.addEventListener("wheel", (event) => {
-              const direction = Math.sign(event.deltaY) > 0 ? 1 : -1
-              event.preventDefault();
-              instance.zoom({
-                deltaScale: direction,
-                x: event.pageX,
-                y: event.pageY
-              });
-            });
-            container.addEventListener("dblclick", () => { // resets 
-              instance.panTo({
-                originX: 0,
-                originY: 0,
-                scale: 1,
-              });
-              brightness = 100;
-              contrast = 100
-              const img = document.getElementById('dicomViewerImg')
-              img?.setAttribute('style', `filter: brightness(${brightness}%) contrast(${contrast}%);`);
-              showContrastBrightness(brightness, contrast);
-            });
-            container.addEventListener("mousemove", (event) => {
-              if (!leftMouseDown && !middleMouseDown && !rightMouseDown) {
-                return;
-              }
-              event.preventDefault();
-              if (leftMouseDown && event.ctrlKey || rightMouseDown) {
-                // adjust window/level
-                brightness = DicomViewerService.maxMinWindowLevel(brightness + event.movementY, windowLevelType.brightness);
-                contrast = DicomViewerService.maxMinWindowLevel(contrast + event.movementX, windowLevelType.contrast);
-                const img = document.getElementById('dicomViewerImg')
-                if (img) {
-                  img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
-                  showContrastBrightness(brightness, contrast);
-                }
-              } else if (leftMouseDown && event.shiftKey || middleMouseDown){
-                const direction = event.movementY > 0 ? 1: -1;
-                const rect: DOMRect = myImage.getBoundingClientRect();
-                const centerX = rect.x + rect.width / 2;
-                const centerY = rect.y + rect.height / 2;
-                event.preventDefault();
-                instance.zoom({
-                  deltaScale: direction,
-                  x: centerX,
-                  y: centerY
-                });
-              } else { // panning
-                instance.panBy({
-                  originX: event.movementX,
-                  originY: event.movementY
-                });
-                return;
-              }
-            })
-            container.addEventListener('mousedown', e => {
-              switch(e.button){
-                case 0: 
-                  leftMouseDown = true;
-                  break;
-                
-                case 1:
-                  middleMouseDown = true;
-                  break;
-                
-                case 2:
-                  rightMouseDown = true;
-                  break;
-                
-                default:
-              } 
-            })
-            container.addEventListener('mouseup', e => {
-              switch(e.button){
-                case 0: 
-                  leftMouseDown = false;
-                  break;
-                
-                case 1:
-                  middleMouseDown = false;
-                  break;
-                
-                case 2:
-                  rightMouseDown = false;
-                  break;
-                
-                default:
-              }
-            })
-
-            const bottomBox = document.getElementById('ViewerbottomBox');
-            const upperBox = document.getElementById('ViewerHeaderBox');
-            if (bottomBox && upperBox) {
-              bottomBox.addEventListener('mousemove', e => {
-                leftMouseDown = false;
-                middleMouseDown = false;
-                rightMouseDown = false;
-              });
-              upperBox.addEventListener('mousemove', e => {
-                leftMouseDown = false;
-                middleMouseDown = false;
-                rightMouseDown = false;
-              });
-            }
-          }
+          const objectURL = urlCreator.createObjectURL(imgBlob);
+          if (myImage) myImage.src = objectURL;
+          configureImageContainer(myImage);
         })
     }
   }, [selectedImage, history, mod, isImgMaskApplied])
