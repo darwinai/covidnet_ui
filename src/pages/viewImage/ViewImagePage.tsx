@@ -92,6 +92,28 @@ const ViewImagePage = () => {
     }
   }
 
+  const generateMaskedImageUrl = async (maskImageUrl: string, preprocessedImageUrl: string): Promise<string> => {
+    let imageUrl = "";
+    if(maskImageUrl && preprocessedImageUrl){
+      const mask = new Image();
+      mask.src = maskImageUrl;
+      const preprocessedImage = new Image();
+      preprocessedImage.src = preprocessedImageUrl;
+      await Promise.all([mask.decode(), preprocessedImage.decode()]);
+      // Using canvas element to layer an image on top of another image
+      const canvas = document.createElement("CANVAS") as HTMLCanvasElement;
+      const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+      canvas.width =  preprocessedImage.width;
+      canvas.height = preprocessedImage.height;
+      context?.drawImage(preprocessedImage, 0, 0);
+      // Darken takes the darkest pixels of the previous layer and subsequent layer
+      context.globalCompositeOperation = 'darken';
+      context?.drawImage(mask, 0, 0);
+      imageUrl = canvas.toDataURL();
+    }
+    return imageUrl;
+  }
+
   useEffect(() => {
     if (!selectedImage) {
       history.push('/')
@@ -99,18 +121,21 @@ const ViewImagePage = () => {
     };
 
     const imageId = selectedImage?.series?.imageId;
-    const maskedImageUrl = selectedImage.gradcamResults?.imageUrl;
+    const maskUrl = selectedImage.gradcamResults?.maskImageUrl;
+    const preprocessedImageUrl = selectedImage.gradcamResults?.preprocessedImageUrl;
 
     const myImage: any = document.querySelector('#dicomViewerImg');
-    if(isImgMaskApplied && maskedImageUrl){
-      if(myImage) myImage.src = maskedImageUrl;
-      configureImageContainer();
+    if(isImgMaskApplied && maskUrl && preprocessedImageUrl){
+      generateMaskedImageUrl(maskUrl, preprocessedImageUrl).then((maskedImageUrl: string ) => {
+        if(myImage) myImage.src = maskedImageUrl;
+        configureImageContainer();
+      })
     }else if(imageId){
       DicomViewerService.fetchImageFile(imageId)
         .then((imgBlob: any) => {
           const urlCreator = window.URL || window.webkitURL;
           const objectURL = urlCreator.createObjectURL(imgBlob);
-          if (myImage) myImage.src = objectURL;
+          myImage.src = objectURL;
           configureImageContainer();
         })
     }
@@ -120,7 +145,7 @@ const ViewImagePage = () => {
     <div id="dicomImgViewer" className="imgViewer">
       <DicomViewerHeader></DicomViewerHeader>
       <div className="layerContainer" id="imageContainer">
-        <img className={`${isImgInverted ? 'invertImg' : ''}`} id="dicomViewerImg" alt="DICOM Viewer" />
+        <img className={isImgInverted && !isImgMaskApplied ? "invertImg" : "" } id="dicomViewerImg" alt="DICOM Viewer" />
       </div>
       <DicomViewerBottomBox></DicomViewerBottomBox>
     </div>
