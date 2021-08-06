@@ -241,6 +241,7 @@ class ChrisIntegration {
         predmatrix: "raw-prediction-matrix-default.json"
       }
       await client.createPluginInstance(gradcamPlugin.data.id, plgradcam_data);
+      console.log(`PL-GRAD-CAM task sent into the task queue`)
       return {
           plugin: 'plugins'
       };
