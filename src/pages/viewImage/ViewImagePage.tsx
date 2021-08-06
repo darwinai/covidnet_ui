@@ -150,8 +150,6 @@ const ViewImagePage = () => {
       canvas.width =  preprocessedImage.width;
       canvas.height = preprocessedImage.height;
       context?.drawImage(preprocessedImage, 0, 0);
-      // Darken takes the darkest pixels of the previous layer and subsequent layer
-      context.globalCompositeOperation = 'darken';
       context?.drawImage(mask, 0, 0);
       imageUrl = canvas.toDataURL();
     }
