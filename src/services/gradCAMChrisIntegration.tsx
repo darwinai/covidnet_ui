@@ -66,11 +66,11 @@ class GradCAMChrisIntegration {
 
     return {
       gradcamPluginId: gradcamPlugin.data.id,
-      imageName: inputMetadata['imagefile'].split('.')[0] || "",
+      imageName: inputMetadata['imagefile'] ? inputMetadata['imagefile'].split('.')[0] : "",
       maskImageId: maskFileId,
       maskImageUrl: maskImageUrl || "",
       preprocessedImageId: preprocessedFileId,
-      preprocessedImageUrl: preprocessedImageUrl
+      preprocessedImageUrl: preprocessedImageUrl || ""
     }
   }
 }
