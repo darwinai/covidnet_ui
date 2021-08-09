@@ -118,13 +118,13 @@ const DicomViewerBottomBox = () => {
           <div className="predictions padding-l-2rem">
             <Flex alignItems={{default: "alignItemsFlexEnd"}}>
               <div className="flex_column">
-              <Flex justifyContent={{ default: "justifyContentSpaceBetween" }}>
-              <span className='logo-text'>COVID-Net</span>
-              <Flex>
-              <p>{isImgMaskApplied ? "Hide" : "Show"} Areas of Interest</p> 
-              <Switch id="maskSwitch" isChecked={isImgMaskApplied} onClick={toggleMask} />
-              </Flex>
-            </Flex>
+                <Flex justifyContent={{ default: "justifyContentSpaceBetween" }}>
+                  <span className='logo-text'>COVID-Net</span>
+                  <Flex>
+                    <p>{isImgMaskApplied ? "Hide" : "Show"} Areas of Interest</p> 
+                    <Switch id="maskSwitch" isChecked={isImgMaskApplied} onClick={toggleMask} />
+                  </Flex>
+                </Flex>
                 <div className="flex_row">
                 {generateDisplayCircles(series)}  
                 </div>
