@@ -121,7 +121,7 @@ const DicomViewerBottomBox = () => {
               <Flex justifyContent={{ default: "justifyContentSpaceBetween" }}>
               <span className='logo-text'>COVID-Net</span>
               <Flex>
-              <p>Areas of interest Hide | Show </p>
+              <p>{isImgMaskApplied ? "Hide" : "Show"} Areas of Interest</p> 
               <Switch id="maskSwitch" isChecked={isImgMaskApplied} onClick={toggleMask} />
               </Flex>
             </Flex>
