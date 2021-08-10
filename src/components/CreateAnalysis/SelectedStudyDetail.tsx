@@ -25,7 +25,7 @@ const SelectedStudyDetail = () => {
   }
 
   if (images.length > 0) {
-    const { StudyDescription, PatientBirthDate, Modality, PatientName } = images[0];
+    const { StudyDescription, PatientBirthDate, Modality, StudyDate } = images[0];
     return (
       <div className="detail-select">
         <div className="flex_row">
@@ -40,6 +40,10 @@ const SelectedStudyDetail = () => {
               <div className="half_width">
                 <h2 className="bold med-size">Performed Station</h2>
                 <p className="color_grey">Station1234</p>
+              </div>
+              <div className="half_width">
+                <h2 className="bold med-size">Study Date</h2>
+                <p className="color_grey">{StudyDate}</p>
               </div>
             </div>
           </div>
