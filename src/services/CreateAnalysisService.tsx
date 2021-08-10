@@ -37,7 +37,22 @@ class CreateAnalysisService {
       }
     })
 
-    return studyInstances;
+    // Sort by study date in descending order first, 
+    // then by study description in descending order
+    const sortedStudyInstances: StudyInstance[] = studyInstances.sort(
+      (a: StudyInstance, b: StudyInstance): number => {
+        const aDate = new Date(a.studyDate);
+        const bDate = new Date(b.studyDate);
+        if (aDate > bDate){
+          return -1;
+        }else if(aDate < bDate){
+          return 1;
+        }else {
+          return a.studyDescription <= b.studyDescription ? 1 : -1;
+        }
+      });
+
+    return sortedStudyInstances;
   }
 
   static returnAllImagesInOneStudy(dcmImages: DcmImage[], studyUID: string): DcmImage[] {
