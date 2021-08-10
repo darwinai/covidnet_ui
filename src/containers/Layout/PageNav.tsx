@@ -3,8 +3,8 @@ import React from "react";
 import { Link, useLocation } from 'react-router-dom';
 
 const navMap = [
-  { 'label': 'Dashboard', 'path': '/' },
-  { 'label': 'Create Analysis', 'path': '/createAnalysis' }
+  { 'label': 'Create Analysis', 'path': '/' },
+  { 'label': 'Past Predictions', 'path': '/pastPredictions' }
 ];
 
 const PageNav = () => {
