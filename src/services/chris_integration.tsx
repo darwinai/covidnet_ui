@@ -354,7 +354,7 @@ class ChrisIntegration {
       const feeds: FeedList = await client.getFeeds({
         limit: limit,
         offset: curOffset,
-        name: !!filter ? this.getFeedName(filter): "", // get feed name based on filter, which should be the patientID/MRN
+        name_startswith: !!filter ? this.getFeedName(filter): "", // get feed name based on filter, which should be the patientID/MRN
         max_id
       });
 
