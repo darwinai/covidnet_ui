@@ -15,6 +15,7 @@ import { RESULT_POLL_INTERVAL } from "../../app.config";
 import { debounce } from "lodash";
 import { NotificationItem, NotificationItemVariant } from "../../context/reducers/notificationReducer";
 import moment from "moment";
+import Error from "../../shared/error";
 
 interface tableRowsParent {
   isOpen: boolean,
@@ -412,7 +413,7 @@ const PastAnalysisTable: React.FC = () => {
         <div className="loading">
           <Spinner size="xl" /> &nbsp; Loading
         </div>
-      ) : (
+      ) : ( rows.length > 0 ? (
         <Table aria-label="Collapsible table" id="pastAnalysisTable"
           onCollapse={onCollapse} rows={rows} cells={columns}
           rowWrapper={customRowWrapper}
@@ -420,9 +421,10 @@ const PastAnalysisTable: React.FC = () => {
           <TableHeader />
           <TableBody />
         </Table>
-      )
-      }
-    </div>
+        ) : <Error>{!!tableState.filter ? `No analyses found with filter ${tableState.filter}` 
+        : "Create an analysis by clicking the Create Analysis button"}</Error>
+      )}
+    </div> 
   );
 }
 
