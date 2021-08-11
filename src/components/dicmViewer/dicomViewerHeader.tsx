@@ -69,7 +69,7 @@ const DicomViewerHeader = () => {
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
-          content={<div>Pan: LMB + Drag</div>}
+          content={<div>Pan: Left Mouse Button + Drag</div>}
         >
           <button
             onClick={() => switchMode(ImagesViewerMods.PAN)}><PanToolOutlinedIcon></PanToolOutlinedIcon></button>
@@ -77,7 +77,7 @@ const DicomViewerHeader = () => {
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
-          content={<div>Zoom: Scroll<br />Alternatively:<br /> Shift+LMB+Drag Up to zoom out and drag down to zoom in</div>}
+          content={<div>Zoom: Scroll<br />Alternatively:<br /> Shift+Left Mouse Button+Drag Up to zoom out and drag down to zoom in</div>}
         >
           <button
             onClick={() => { switchMode(ImagesViewerMods.ZOOM) }}><i className="fas fa-search-plus"></i></button>
@@ -85,7 +85,7 @@ const DicomViewerHeader = () => {
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
-          content={<div> Window/Level: Ctrl+LMB+Drag <br></br>
+          content={<div> Window/Level: Ctrl+Left Mouse Button+Drag <br></br>
             &nbsp;&nbsp;&nbsp;&nbsp;Horizontal movement adjusts contrast <br></br>
             &nbsp;&nbsp;&nbsp;&nbsp;Vertical movement adjusts brightness</div>}
         >
@@ -113,9 +113,9 @@ const DicomViewerHeader = () => {
             isContentLeftAligned
             content={
               <div>
-                Pan: LMB + Drag <br></br>
-                Zoom: Scroll or Shift+LMB+Drag Up to zoom out,drag down to zoom in<br></br>
-                Window/Level: Ctrl+LMB+Drag <br></br>
+                Pan: Left Mouse Button + Drag <br></br>
+                Zoom: Scroll or Shift+Left Mouse Button+Drag Up to zoom out,drag down to zoom in<br></br>
+                Window/Level: Ctrl+Left Mouse Button+Drag <br></br>
                 &nbsp;&nbsp;&nbsp;&nbsp;Horizontal movement adjusts contrast <br></br>
                 &nbsp;&nbsp;&nbsp;&nbsp;Vertical movement adjusts brightness
               </div>
