@@ -3,6 +3,7 @@ import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import InvertColorsIcon from '@material-ui/icons/InvertColors';
 import PanToolOutlinedIcon from '@material-ui/icons/PanToolOutlined';
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import { Spinner, Tooltip, TooltipPosition } from '@patternfly/react-core';
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -105,6 +106,13 @@ const DicomViewerHeader = () => {
             <InvertColorsIcon />
           </Tooltip>
         </button>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          isContentLeftAligned
+          content={<div>Reset: Double click Left Mouse Button</div>}
+          >
+            <button><RotateLeftIcon/></button>
+        </Tooltip>
       </div>
       <div className='padding_left_right_2rem flex_row'>
         <button>
