@@ -61,6 +61,7 @@ const ViewImagePage = () => {
               contrast = 100
               const img = document.getElementById('dicomViewerImg')
               img?.setAttribute('style', `filter: brightness(${brightness}%) contrast(${contrast}%);`);
+              showContrastBrightness(brightness, contrast);
             });
             container.addEventListener("mousemove", (event) => {
               if (!leftMouseDown && !middleMouseDown && !rightMouseDown) {
