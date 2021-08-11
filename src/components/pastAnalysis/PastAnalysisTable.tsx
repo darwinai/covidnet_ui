@@ -125,7 +125,7 @@ const PastAnalysisTable: React.FC = () => {
       title: "Status",
       cellFormatters: [expandable]
     },
-    "Study", "Study Date", "# Images", "Patient MRN", "Patient DOB", "Analysis Created"
+    "Study", "Study Date", "# Images", "Patient Name", "Patient MRN", "Patient DOB", "Analysis Created"
   ]
   const [rows, setRows] = useState<(tableRowsChild | tableRowsParent)[]>([])
 
@@ -264,6 +264,7 @@ const PastAnalysisTable: React.FC = () => {
         analysis.dcmImage.StudyDescription,
         analysis.dcmImage.StudyDate,
         numImagesOutput,
+        analysis.dcmImage.PatientName,
         analysis.dcmImage.PatientID,
         `${analysis.dcmImage.PatientBirthDate} (${calculatePatientAge(analysis.dcmImage.PatientBirthDate)}y)`,
         analysisCreated,
