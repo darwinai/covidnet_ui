@@ -69,19 +69,18 @@ const DicomViewerHeader = () => {
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
-          content={<div>LMB + Drag</div>
-          }
+          content={<div>Pan: LMB + Drag</div>}
         >
           <button
-            onClick={() => { switchMode(ImagesViewerMods.ZOOM) }}><i className="fas fa-search-plus"></i></button>
+            onClick={() => switchMode(ImagesViewerMods.PAN)}><PanToolOutlinedIcon></PanToolOutlinedIcon></button>
         </Tooltip>
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
-          content={<div>Scroll<br />Alternatively:<br /> Shift+LMB+Drag Up to zoom out and drag down to zoom in</div>}
+          content={<div>Zoom: Scroll<br />Alternatively:<br /> Shift+LMB+Drag Up to zoom out and drag down to zoom in</div>}
         >
           <button
-            onClick={() => switchMode(ImagesViewerMods.PAN)}><PanToolOutlinedIcon></PanToolOutlinedIcon></button>
+            onClick={() => { switchMode(ImagesViewerMods.ZOOM) }}><i className="fas fa-search-plus"></i></button>
         </Tooltip>
         <Tooltip
           position={TooltipPosition.bottom}
