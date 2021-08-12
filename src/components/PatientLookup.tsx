@@ -13,9 +13,9 @@ interface PatientLookupProps {
 }
 
 const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSearching }) => {
-  const { state: { createAnalysis: { patientID } }, dispatch } = useContext(AppContext);
+  const { dispatch } = useContext(AppContext);
 
-  const [patientIDInput, setPatientIDInput] = useState<string>(patientID ? patientID : "");
+  const [patientIDInput, setPatientIDInput] = useState<string>("");
 
   const newLookup = async (event?: React.FormEvent) => {
     event?.preventDefault();
