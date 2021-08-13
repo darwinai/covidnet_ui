@@ -93,8 +93,6 @@ const DicomViewerHeader = () => {
           <button
             onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon /></button>
         </Tooltip>
-      </div>
-      <div className='padding_left_right_2rem flex_row'>
         <button onClick={() => dispatch({
           type: ImageViewerTypes.Update_is_img_inverted,
           payload: { isImgInverted: !isImgInverted }
@@ -108,6 +106,8 @@ const DicomViewerHeader = () => {
             <InvertColorsIcon />
           </Tooltip>
         </button>
+      </div>
+      <div className='padding_left_right_2rem flex_row'>
         <button>
           <Tooltip
             position={TooltipPosition.bottom}
