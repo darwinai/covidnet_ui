@@ -421,7 +421,7 @@ const PastAnalysisTable: React.FC = () => {
           <TableHeader />
           <TableBody />
         </Table>
-        ) : <Error>{!!tableState.filter ? `No analyses found with filter ${tableState.filter}` 
+        ) : <Error>{!!tableState.filter ? `No analyses found with filter "${tableState.filter}"` 
         : "Create an analysis by clicking the Create Analysis button"}</Error>
       )}
     </div> 
