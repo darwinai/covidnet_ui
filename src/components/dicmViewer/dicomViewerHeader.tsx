@@ -25,6 +25,13 @@ const DicomViewerHeader = () => {
     // })
   }
 
+  const pressReset = () => {
+    dispatch({
+      type: ImageViewerTypes.Update_is_reset_button_pressed,
+      payload: { isResetButtonPressed: true }
+    })
+  }
+
   const switchFullScreen = () => {
     const elem: any = document.getElementById('dicomImgViewer')
     if (!isFullScreen) {
@@ -48,7 +55,6 @@ const DicomViewerHeader = () => {
     ChrisIntegration.pdfGeneration(selectedImage)
       .then(() => setLoading(false))
   }
-
   return (
     <div id="ViewerHeaderBox" className="flex_row dicomViewerHeader">
       <div className="headerlogo padding_left_right_2rem">
@@ -111,7 +117,7 @@ const DicomViewerHeader = () => {
           isContentLeftAligned
           content={<div>Reset: Double click Left Mouse Button</div>}
           >
-            <button><RotateLeftIcon/></button>
+            <button onClick={pressReset}><RotateLeftIcon/></button>
         </Tooltip>
       </div>
       <div className='padding_left_right_2rem flex_row'>
