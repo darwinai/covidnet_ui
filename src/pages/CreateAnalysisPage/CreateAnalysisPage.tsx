@@ -14,12 +14,15 @@ const CreateAnalysisPage = () => {
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect( () => {
-    dispatch({
-      type: DicomImagesTypes.Update_all_images,
-      payload: {
-        images: initialIDcmImagesState
-      }
-    });
+    // Clean up function for when user leaves the CreateAnalysis page
+    return () => {
+      dispatch({
+        type: DicomImagesTypes.Update_all_images,
+        payload: {
+          images: initialIDcmImagesState
+        }
+      });
+    }
   }, []);
   
   let pageSectionContent;
