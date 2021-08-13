@@ -28,7 +28,9 @@ const ViewImagePage = () => {
           const container = document.getElementById("imageContainer");
           const instance = renderer({ minScale: .1, maxScale: 30, element: container?.children[0], scaleSensitivity: 50 });
           if (container) {
-            let mouseDown = false;
+            let leftMouseDown = false;
+            let middleMouseDown = false;
+            let rightMouseDown = false;
             let brightness: number = 100;
             let contrast: number = 100;
             const showContrastBrightness = (brightness: number, contrast: number) => {
@@ -61,11 +63,11 @@ const ViewImagePage = () => {
               img?.setAttribute('style', `filter: brightness(${brightness}%) contrast(${contrast}%);`);
             });
             container.addEventListener("mousemove", (event) => {
-              if (!mouseDown) {
+              if (!leftMouseDown && !middleMouseDown && !rightMouseDown) {
                 return;
               }
               event.preventDefault();
-              if (event.ctrlKey) {
+              if (leftMouseDown && event.ctrlKey || rightMouseDown) {
                 // adjust window/level
                 brightness = DicomViewerService.maxMinWindowLevel(brightness + event.movementY, windowLevelType.brightness);
                 contrast = DicomViewerService.maxMinWindowLevel(contrast + event.movementX, windowLevelType.contrast);
@@ -74,7 +76,7 @@ const ViewImagePage = () => {
                   img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
                   showContrastBrightness(brightness, contrast);
                 }
-              } else if (event.shiftKey){
+              } else if (leftMouseDown && event.shiftKey || middleMouseDown){
                 const direction = event.movementY > 0 ? 1: -1;
                 event.preventDefault();
                 instance.zoom({
@@ -91,22 +93,66 @@ const ViewImagePage = () => {
               }
             })
             container.addEventListener('mousedown', e => {
-              if (e.button === 0) mouseDown = true;
+              switch(e.button){
+                case 0: 
+                  leftMouseDown = true;
+                  break;
+                
+                case 1:
+                  middleMouseDown = true;
+                  break;
+                
+                case 2:
+                  rightMouseDown = true;
+                  break;
+                
+                default:
+              } 
             })
             container.addEventListener('mouseup', e => {
-              mouseDown = false;
+              switch(e.button){
+                case 0: 
+                  leftMouseDown = false;
+                  break;
+                
+                case 1:
+                  middleMouseDown = false;
+                  break;
+                
+                case 2:
+                  rightMouseDown = false;
+                  break;
+                
+                default:
+              }
             })
 
             const bottomBox = document.getElementById('ViewerbottomBox');
             const upperBox = document.getElementById('ViewerHeaderBox');
             if (bottomBox && upperBox) {
-              bottomBox.addEventListener('mousemove', e => mouseDown = false);
-              upperBox.addEventListener('mousemove', e => mouseDown = false);
+              bottomBox.addEventListener('mousemove', e => {
+                leftMouseDown = false;
+                middleMouseDown = false;
+                rightMouseDown = false;
+              });
+              upperBox.addEventListener('mousemove', e => {
+                leftMouseDown = false;
+                middleMouseDown = false;
+                rightMouseDown = false;
+              });
             }
           }
         })
     }
   }, [selectedImage, history, mod])
+
+  useEffect(() => {
+    const dicomViewerImg = document.getElementById('dicomViewerImg');
+    if(dicomViewerImg){
+      dicomViewerImg.addEventListener("contextmenu", (e) => e.preventDefault());
+    }
+
+  }, []);
 
   return (
     <div id="dicomImgViewer" className="imgViewer">
