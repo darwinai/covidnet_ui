@@ -49,10 +49,6 @@ const CreateAnalysisWrapper = () => {
       }
     }
 
-    dispatch({
-      type: CreateAnalysisTypes.Clear_selected_studies_UID
-    });
-
     // Processing the images
     // Passing selected models to Chris_Integration for image analysis
     const notifications: NotificationItem[] = await CreateAnalysisService.analyzeImages(imagesSelected, models.xrayModel, models.ctModel);
@@ -63,6 +59,10 @@ const CreateAnalysisWrapper = () => {
     });
     
     history.push("/");
+
+    dispatch({
+      type: CreateAnalysisTypes.Clear_selected_studies_UID
+    });
   }
 
   const panelContent = (
