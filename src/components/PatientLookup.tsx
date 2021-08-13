@@ -61,7 +61,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSear
   }
 
   const submitButton = (
-    <Button variant="secondary" type="submit" isDisabled={patientIDInput === ""}>
+    <Button variant="secondary" type="submit" isDisabled={patientIDInput.replace(/^\s*/, "") === ""}>
       <b>Search</b>
     </Button>
   );
