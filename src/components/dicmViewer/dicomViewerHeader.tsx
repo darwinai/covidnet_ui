@@ -59,7 +59,7 @@ const DicomViewerHeader = () => {
     <div id="ViewerHeaderBox" className="flex_row dicomViewerHeader">
       <div className="headerlogo padding_left_right_2rem">
         <span className='logo-text'>COVID-Net</span>
-        <a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#"> <i className="fas fa-angle-left"></i> Back to Dashboard</a>
+        <a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#"> <i className="fas fa-angle-left"></i> Back to Past Predictions dashboard</a>
       </div>
       <div className='padding_left_right_2rem'>
         {/* Tools

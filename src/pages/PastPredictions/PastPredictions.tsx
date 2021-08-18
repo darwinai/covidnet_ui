@@ -7,7 +7,7 @@ import Wrapper from "../../containers/Layout/PageWrapper";
 
 type AllProps = RouteComponentProps;
 
-const DashboardPage: React.FC<AllProps> = () => {
+const PastPredictionsPage: React.FC<AllProps> = () => {
 
   const history = useHistory();
 
@@ -19,7 +19,7 @@ const DashboardPage: React.FC<AllProps> = () => {
             <p>To look up a patient and create a new analysis, please go to the Create Analysis page.</p>
           </Alert>
           <Button variant="link" isLarge className="pf-u-pl-0" 
-          onClick={() => history.push('/')}> 
+          onClick={() => history.push('/createAnalysis')}> 
           Create Analysis <ArrowRightIcon/>
           </Button>
         </PageSection>
@@ -31,4 +31,4 @@ const DashboardPage: React.FC<AllProps> = () => {
   );
 }
 
-export { DashboardPage as Dashboard };
+export { PastPredictionsPage as PastPredictions };

@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 import CreateAnalysisPage from "./pages/CreateAnalysisPage/CreateAnalysisPage";
 // Add view routes here
-import { Dashboard } from "./pages/Dashboard/Dashboard";
+import { PastPredictions } from "./pages/PastPredictions/PastPredictions";
 import LogInPage from "./pages/LogIn/Login";
 import { NotFound } from "./pages/NotFound/NotFound";
 import ViewImagePage from "./pages/viewImage/ViewImagePage";
@@ -17,7 +17,7 @@ const Routes: React.FunctionComponent = () => (
     <Switch>
       <Route exact path="/login" component={LogInPage} />
       <PrivateRoute exact component={CreateAnalysisPage} path="/" />
-      <PrivateRoute exact component={Dashboard} path="/pastPredictions" />
+      <PrivateRoute exact component={PastPredictions} path="/pastPredictions" />
       <PrivateRoute exact component={ViewImagePage} path="/viewImage" />
       <Route component={NotFound} />
     </Switch>

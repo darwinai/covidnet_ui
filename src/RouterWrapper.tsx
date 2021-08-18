@@ -28,7 +28,7 @@ const RouterWrapper: React.FC = ({ children }) => {
           payload: user
         });
         
-        // If on Login page and already authenticated, go to Dashboard
+        // If on Login page and already authenticated, go to Create Analysis page
         if (location.pathname === "/login") {
           history.push('/');
         }
