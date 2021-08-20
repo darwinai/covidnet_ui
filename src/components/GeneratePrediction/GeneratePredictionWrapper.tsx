@@ -58,7 +58,7 @@ const GeneratePredictionWrapper = () => {
       payload: { notifications }
     });
     
-    history.push("/");
+    history.push("/pastPredictions");
 
     dispatch({
       type: GeneratePredictionTypes.Clear_selected_studies_UID
