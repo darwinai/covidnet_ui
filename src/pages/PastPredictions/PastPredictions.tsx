@@ -15,12 +15,12 @@ const PastPredictionsPage: React.FC<AllProps> = () => {
     <Wrapper>
       <PageSection className="page-body">
         <PageSection className="section-area" variant={PageSectionVariants.light}>
-          <Alert isInline variant="warning" title="Patient lookup designated to Create Analysis page">
-            <p>To look up a patient and create a new analysis, please go to the Create Analysis page.</p>
+          <Alert isInline variant="warning" title="Patient lookup designated to Generate Prediction page">
+            <p>To look up a patient and create a new analysis, please go to the Generate Prediction page.</p>
           </Alert>
           <Button variant="link" isLarge className="pf-u-pl-0" 
           onClick={() => history.push('/generatePrediction')}> 
-          Create Analysis <ArrowRightIcon/>
+          Generate Prediction <ArrowRightIcon/>
           </Button>
         </PageSection>
         <PageSection className="flex-column" variant={PageSectionVariants.light}>

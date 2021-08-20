@@ -28,7 +28,7 @@ const RouterWrapper: React.FC = ({ children }) => {
           payload: user
         });
         
-        // If on Login page and already authenticated, go to Create Analysis page
+        // If on Login page and already authenticated, go to Generate Prediction page
         if (location.pathname === "/login") {
           history.push('/');
         }
