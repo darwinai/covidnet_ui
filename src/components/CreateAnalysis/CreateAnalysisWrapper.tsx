@@ -58,11 +58,12 @@ const CreateAnalysisWrapper = () => {
       payload: { notifications }
     });
     
-    history.push("/");
+    history.push("/pastPredictions");
 
     dispatch({
       type: CreateAnalysisTypes.Clear_selected_studies_UID
     });
+    
   }
 
   const panelContent = (
