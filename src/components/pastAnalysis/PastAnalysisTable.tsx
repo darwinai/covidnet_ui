@@ -423,7 +423,7 @@ const PastAnalysisTable: React.FC = () => {
           <TableBody />
         </Table>
         ) : <Error>{!!tableState.filter ? `No analyses found with filter "${tableState.filter}"` 
-        : "Create an analysis by clicking the Create Analysis button"}</Error>
+        : "Create an analysis by clicking the Generate Prediction button"}</Error>
       )}
     </div> 
   );

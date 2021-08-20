@@ -17,7 +17,7 @@ const GeneratePredictionWrapper = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const history = useHistory();
 
-  const submitAnalysis = async () => {
+  const submitPrediction = async () => {
     let imagesSelected: DcmImage[] = GeneratePredictionService.pickImages(dcmImages?.allDcmImages, selectedStudyUIDs);
     if (imagesSelected.length <= 0) {
       setIsModalOpen(true);
@@ -76,7 +76,7 @@ const GeneratePredictionWrapper = () => {
         </DrawerActions>
       </DrawerHead>
       <DrawerContentBody>
-        <ConfirmAnalysis submit={submitAnalysis}></ConfirmAnalysis>
+        <ConfirmAnalysis submit={submitPrediction}></ConfirmAnalysis>
       </DrawerContentBody>
     </DrawerPanelContent>
   );
@@ -88,11 +88,11 @@ const GeneratePredictionWrapper = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       >
-        Please select at least 1 image to analyze
+        Please select at least 1 image to predict
       </Modal>
       <DrawerContent panelContent={panelContent}>
         <DrawerContentBody>
-          <GeneratePredictionDetail setIsExpanded={setIsExpanded} submitAnalysis={submitAnalysis}>
+          <GeneratePredictionDetail setIsExpanded={setIsExpanded} submitPrediction={submitPrediction}>
           </GeneratePredictionDetail>
         </DrawerContentBody>
       </DrawerContent>

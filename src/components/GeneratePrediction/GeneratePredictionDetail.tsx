@@ -14,10 +14,10 @@ import { calculatePatientAge, formatDate } from "../../shared/utils";
 
 interface GeneratePredictionDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
-  submitAnalysis: () => void
+  submitPrediction: () => void
 }
 
-const GeneratePredictionDetail: React.FC<GeneratePredictionDetailProps> = ({ setIsExpanded, submitAnalysis }) => {
+const GeneratePredictionDetail: React.FC<GeneratePredictionDetailProps> = ({ setIsExpanded, submitPrediction }) => {
   
   const { state: { generatePrediction, dcmImages } } = useContext(AppContext);
   const [isXray, setIsXray] = useState(false);
@@ -48,8 +48,8 @@ const GeneratePredictionDetail: React.FC<GeneratePredictionDetailProps> = ({ set
       <div className="detail-wrapper">
         <div className="detail-top-wrapper">
           <div className="detail-top-left">
-            <h1>Create a new predictive analysis</h1>
-            <p>Select at least one image series below and select the "Analyze" button to receive predictions per image.</p>
+            <h1>Generate a new prediction</h1>
+            <p>Select at least one image series below and select the "Predict" button to receive predictions per image.</p>
             <div className="detail-patient">
               <div>
                 <img src={avator} alt="avator" width="100px" height="100px"></img>
@@ -78,7 +78,7 @@ const GeneratePredictionDetail: React.FC<GeneratePredictionDetailProps> = ({ set
               <h3>Series selected</h3>
               <a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {setIsExpanded(true); e.preventDefault();}} href="/#">(More details)</a>
               <ModelSelection isXray={isXray}></ModelSelection>
-              <RightArrowButton click={submitAnalysis}>Analyze</RightArrowButton>
+              <RightArrowButton click={submitPrediction}>Predict</RightArrowButton>
             </div>
           </div>
         </div>
