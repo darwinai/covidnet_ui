@@ -1,5 +1,5 @@
 import { NotificationItem, NotificationItemVariant } from "../context/reducers/notificationReducer";
-import { AnalyzedImageResult } from "./CreateAnalysisService";
+import { AnalyzedImageResult } from "./GeneratePredictionService";
 import moment from 'moment';
 
 class NotificationService {

@@ -1,8 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Button, DatePicker, Split, SplitItem, isValidDate } from "@patternfly/react-core";
 import { AppContext } from "../../context/context";
-import { CreateAnalysisTypes, DicomImagesTypes } from "../../context/actions/types";
-import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
+import { GeneratePredictionTypes, DicomImagesTypes } from "../../context/actions/types";
+import GeneratePredictionService, { StudyInstance } from "../../services/GeneratePredictionService";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 
 const StudyFilters = () => {
@@ -24,10 +24,10 @@ const StudyFilters = () => {
         images: filteredDcmImages
       }
     });
-    const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(filteredDcmImages);
+    const studyInstances: StudyInstance[] = GeneratePredictionService.extractStudyInstances(filteredDcmImages);
     if (studyInstances.length > 0) {
       dispatch({
-        type: CreateAnalysisTypes.UpdateCurrSelectedStudyUID,
+        type: GeneratePredictionTypes.UpdateCurrSelectedStudyUID,
         payload: {
           studyUID: studyInstances[0].studyInstanceUID
         }

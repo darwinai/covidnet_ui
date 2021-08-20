@@ -1,4 +1,4 @@
-import { SelectedStudies } from "../context/reducers/createAnalysisReducer";
+import { SelectedStudies } from "../context/reducers/generatePredictionReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import { NotificationItem } from "../context/reducers/notificationReducer";
 import ChrisIntegration, { BackendPollResult } from "./chris_integration";
@@ -19,7 +19,7 @@ export interface AnalyzedImageResult {
   processedResults: BackendPollResult;
 }
 
-class CreateAnalysisService {
+class GeneratePredictionService {
 
   static extractStudyInstances(dcmImages: DcmImage[]): StudyInstance[] {
     const studyInstances: StudyInstance[] = [];
@@ -106,4 +106,4 @@ class CreateAnalysisService {
   }
 }
 
-export default CreateAnalysisService;
+export default GeneratePredictionService;

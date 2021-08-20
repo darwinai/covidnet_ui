@@ -1,8 +1,8 @@
 import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import avator from '../../assets/images/avator.png';
 import { AppContext } from "../../context/context";
-import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
-import CreateAnalysisService, { StudyInstance } from "../../services/CreateAnalysisService";
+import RightArrowButton from "../../pages/GeneratePredictionPage/RightArrowButton";
+import GeneratePredictionService, { StudyInstance } from "../../services/GeneratePredictionService";
 import ModelSelection from "./ModelSelection";
 import SelectedStudyDetail from "./SelectedStudyDetail";
 import SelectionStudy from "./SelectionStudy";
@@ -12,14 +12,14 @@ import { PageSection, PageSectionVariants } from "@patternfly/react-core";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import { calculatePatientAge, formatDate } from "../../shared/utils";
 
-interface CreateAnalysisDetailProps {
+interface GeneratePredictionDetailProps {
   setIsExpanded: Dispatch<SetStateAction<boolean>>,
   submitAnalysis: () => void
 }
 
-const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpanded, submitAnalysis }) => {
+const GeneratePredictionDetail: React.FC<GeneratePredictionDetailProps> = ({ setIsExpanded, submitAnalysis }) => {
   
-  const { state: { createAnalysis, dcmImages } } = useContext(AppContext);
+  const { state: { generatePrediction, dcmImages } } = useContext(AppContext);
   const [isXray, setIsXray] = useState(false);
   const [patientID, setPatientID] = useState("");
   const [patientName, setPatientName] = useState("");
@@ -36,8 +36,8 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
     }
   }, [dcmImages]);
 
-  const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages?.filteredDcmImages);
-  const numOfSelectedImages: number = CreateAnalysisService.findTotalImages(createAnalysis.selectedStudyUIDs);
+  const studyInstances: StudyInstance[] = GeneratePredictionService.extractStudyInstances(dcmImages?.filteredDcmImages);
+  const numOfSelectedImages: number = GeneratePredictionService.findTotalImages(generatePrediction.selectedStudyUIDs);
 
   const setModelType = (modality: string) => {
     setIsXray(modality === 'CR'); // Determining which drop-down models (Xray/CT) should be displayed, based on modality of current study
@@ -106,7 +106,7 @@ const CreateAnalysisDetail: React.FC<CreateAnalysisDetailProps> = ({ setIsExpand
   )
 }
 
-export default CreateAnalysisDetail;
+export default GeneratePredictionDetail;
 
 
 /*

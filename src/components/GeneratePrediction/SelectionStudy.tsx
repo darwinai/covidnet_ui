@@ -1,8 +1,8 @@
 import { Badge } from '@patternfly/react-core';
 import React, { useContext, useEffect } from "react";
-import { CreateAnalysisTypes } from "../../context/actions/types";
+import { GeneratePredictionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
-import { StudyInstance } from "../../services/CreateAnalysisService";
+import { StudyInstance } from "../../services/GeneratePredictionService";
 
 const SelectionStudy: React.FC<StudyInstance> = ({
   studyInstanceUID,
@@ -11,7 +11,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
   studyDate,
   setModelType
 }) => {
-  const { state: { createAnalysis: { selectedStudyUIDs, currSelectedStudyUID } }, dispatch } = useContext(AppContext);
+  const { state: { generatePrediction: { selectedStudyUIDs, currSelectedStudyUID } }, dispatch } = useContext(AppContext);
   const imagesSelectedDict = selectedStudyUIDs[studyInstanceUID]
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const SelectionStudy: React.FC<StudyInstance> = ({
 
   const selectThisStudy = () => {
     dispatch({
-      type: CreateAnalysisTypes.UpdateCurrSelectedStudyUID,
+      type: GeneratePredictionTypes.UpdateCurrSelectedStudyUID,
       payload: {
         studyUID: studyInstanceUID
       }

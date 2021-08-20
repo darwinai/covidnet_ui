@@ -1,6 +1,6 @@
-import { ActionMap, CreateAnalysisTypes } from "../actions/types";
+import { ActionMap, GeneratePredictionTypes } from "../actions/types";
 
-export type ICreateAnalysisState = {
+export type IGeneratePredictionState = {
   patientID?: string;
   selectedStudyUIDs: SelectedStudies;
   currSelectedStudyUID: string;
@@ -12,47 +12,47 @@ export interface SelectedStudies {
   }
 }
 
-export const initialICreateAnalysisState: ICreateAnalysisState = {
+export const initialIGeneratePredictionState: IGeneratePredictionState = {
   patientID: '',
   currSelectedStudyUID: '',
   selectedStudyUIDs: {}
 }
 
-type CreateAnalysisPayload = {
-  [CreateAnalysisTypes.Update_patient_ID]: { patientID: string },
-  [CreateAnalysisTypes.Add_selected_studies_UID]: {
+type GeneratePredictionPayload = {
+  [GeneratePredictionTypes.Update_patient_ID]: { patientID: string },
+  [GeneratePredictionTypes.Add_selected_studies_UID]: {
     studyUID: string;
     SeriesInstanceUID: string;
     fname: string;
   },
-  [CreateAnalysisTypes.Remove_selected_studies_UID]: {
+  [GeneratePredictionTypes.Remove_selected_studies_UID]: {
     studyUID: string;
     SeriesInstanceUID: string;
     fname: string;
   },
-  [CreateAnalysisTypes.UpdateCurrSelectedStudyUID]: {
+  [GeneratePredictionTypes.UpdateCurrSelectedStudyUID]: {
     studyUID: string;
   },
-  [CreateAnalysisTypes.Clear_selected_studies_UID]: {}
+  [GeneratePredictionTypes.Clear_selected_studies_UID]: {}
 }
 
-export type CreateAnalysisActions = ActionMap<CreateAnalysisPayload>[
-  keyof ActionMap<CreateAnalysisPayload>
+export type GeneratePredictionActions = ActionMap<GeneratePredictionPayload>[
+  keyof ActionMap<GeneratePredictionPayload>
 ]
 
-export const createAnalysisReducer = (
-  state: ICreateAnalysisState,
-  action: CreateAnalysisActions
+export const generatePredictionReducer = (
+  state: IGeneratePredictionState,
+  action: GeneratePredictionActions
 ) => {
   switch (action.type) {
-    case CreateAnalysisTypes.Update_patient_ID:
+    case GeneratePredictionTypes.Update_patient_ID:
       return {
         ...state,
         patientID: action.payload.patientID,
         selectedStudyUIDs: {},
         currSelectedStudyUID: ""
       }
-    case CreateAnalysisTypes.Add_selected_studies_UID:
+    case GeneratePredictionTypes.Add_selected_studies_UID:
       return {
         ...state,
         selectedStudyUIDs: {
@@ -63,7 +63,7 @@ export const createAnalysisReducer = (
           }
         }
       }
-    case CreateAnalysisTypes.Remove_selected_studies_UID:
+    case GeneratePredictionTypes.Remove_selected_studies_UID:
       const prevStudy = state.selectedStudyUIDs[action.payload.studyUID];
       const { [action.payload.SeriesInstanceUID]: deleted, ...studyWithFileRemoved } = prevStudy;
       const selectedFilesInNewStudy = Object.keys(studyWithFileRemoved).length;
@@ -82,12 +82,12 @@ export const createAnalysisReducer = (
           selectedStudyUIDs: studyWithTargetStudyRemoved
         }
       }
-    case CreateAnalysisTypes.Clear_selected_studies_UID:
+    case GeneratePredictionTypes.Clear_selected_studies_UID:
       return {
         ...state,
         selectedStudyUIDs: {}
       }
-    case CreateAnalysisTypes.UpdateCurrSelectedStudyUID:
+    case GeneratePredictionTypes.UpdateCurrSelectedStudyUID:
       return {
         ...state,
         currSelectedStudyUID: action.payload.studyUID

@@ -1,19 +1,19 @@
 import { Alert, Checkbox } from '@patternfly/react-core';
 import React, { useContext } from "react";
-import { CreateAnalysisTypes } from "../../context/actions/types";
+import { GeneratePredictionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
-import CreateAnalysisService from "../../services/CreateAnalysisService";
+import GeneratePredictionService from "../../services/GeneratePredictionService";
 import { calculatePatientAge } from "../../shared/utils";
 
 const SelectedStudyDetail = () => {
-  const { state: { createAnalysis: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);
+  const { state: { generatePrediction: { currSelectedStudyUID, selectedStudyUIDs }, dcmImages }, dispatch } = useContext(AppContext);
 
-  const images: DcmImage[] = CreateAnalysisService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID);
+  const images: DcmImage[] = GeneratePredictionService.returnAllImagesInOneStudy(dcmImages?.filteredDcmImages, currSelectedStudyUID);
 
   const addImgToAnalysis = (isSelected: boolean, img: DcmImage): void => {
-    let actionType = CreateAnalysisTypes.Add_selected_studies_UID;
-    if (isSelected) actionType = CreateAnalysisTypes.Remove_selected_studies_UID;
+    let actionType = GeneratePredictionTypes.Add_selected_studies_UID;
+    if (isSelected) actionType = GeneratePredictionTypes.Remove_selected_studies_UID;
     dispatch({
       type: actionType,
       payload: {
@@ -61,7 +61,7 @@ const SelectedStudyDetail = () => {
           </div>
           <div className="pf-l-grid pf-m-all-6-col">
             {images.map((img: DcmImage, i) => {
-              const isSelected: boolean = CreateAnalysisService.isImgSelected(selectedStudyUIDs, img);
+              const isSelected: boolean = GeneratePredictionService.isImgSelected(selectedStudyUIDs, img);
               return (
                 <div className="pf-l-grid__item margin-top-bottom" key={i}>
                                     <Checkbox 

@@ -1,7 +1,7 @@
 import { DrawerCloseButton } from "@patternfly/react-core";
 import React, { useContext } from "react";
 import image_placeholder from "../../assets/images/image_placeholder.png";
-import { CreateAnalysisTypes } from "../../context/actions/types";
+import { GeneratePredictionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
 import { formatDate } from "../../shared/utils";
@@ -15,7 +15,7 @@ const ImageSelectionBox: React.FC<ImageSelectionBoxProps> = ({ img }) => {
   const { dispatch } = useContext(AppContext);
 
   const removeImg = (img: DcmImage) => dispatch({
-    type: CreateAnalysisTypes.Remove_selected_studies_UID,
+    type: GeneratePredictionTypes.Remove_selected_studies_UID,
     payload: {
       studyUID: img.StudyInstanceUID,
       SeriesInstanceUID: img.SeriesInstanceUID,

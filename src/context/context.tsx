@@ -1,6 +1,6 @@
 import React, { createContext, useReducer } from 'react';
 import { analysesReducer, initialIPrevAnalysesState, IPrevAnalysesState } from './reducers/analyseReducer';
-import { createAnalysisReducer, ICreateAnalysisState, initialICreateAnalysisState } from './reducers/createAnalysisReducer';
+import { generatePredictionReducer, IGeneratePredictionState, initialIGeneratePredictionState } from './reducers/generatePredictionReducer';
 import { dicomImagesReducer, IDcmImagesState, initialIDcmImagesState } from './reducers/dicomImagesReducer';
 import { IimgViewerState, imgViewerReducer, initialIimgViewer } from './reducers/imgViewerReducer';
 import { initialNotificationsState, notificationsReducer, NotificationState } from './reducers/notificationReducer';
@@ -10,7 +10,7 @@ import { initialModelSelectionState, ModelSelection, updatingModelSelectionReduc
 type InitialStateType = {
   user: IUserState;
   prevAnalyses: IPrevAnalysesState;
-  createAnalysis: ICreateAnalysisState;
+  generatePrediction: IGeneratePredictionState;
   dcmImages: IDcmImagesState;
   imgViewer: IimgViewerState;
   notifications: NotificationState;
@@ -20,7 +20,7 @@ type InitialStateType = {
 const initialState: InitialStateType = {
   user: initialIUserState,
   prevAnalyses: initialIPrevAnalysesState,
-  createAnalysis: initialICreateAnalysisState,
+  generatePrediction: initialIGeneratePredictionState,
   dcmImages: initialIDcmImagesState,
   imgViewer: initialIimgViewer,
   notifications: initialNotificationsState,
@@ -36,12 +36,12 @@ const AppContext = createContext<{
 });
 
 const mainReducer = (
-  { user, prevAnalyses, createAnalysis, dcmImages, imgViewer, notifications, models }: InitialStateType,
+  { user, prevAnalyses, generatePrediction, dcmImages, imgViewer, notifications, models }: InitialStateType,
   action: any, // or UserActions | AnalysisActions
 ) => ({
   user: userReducer(user, action),
   prevAnalyses: analysesReducer(prevAnalyses, action),
-  createAnalysis: createAnalysisReducer(createAnalysis, action),
+  generatePrediction: generatePredictionReducer(generatePrediction, action),
   dcmImages: dicomImagesReducer(dcmImages, action),
   imgViewer: imgViewerReducer(imgViewer, action),
   notifications: notificationsReducer(notifications, action),

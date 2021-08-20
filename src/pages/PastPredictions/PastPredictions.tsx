@@ -19,7 +19,7 @@ const PastPredictionsPage: React.FC<AllProps> = () => {
             <p>To look up a patient and create a new analysis, please go to the Create Analysis page.</p>
           </Alert>
           <Button variant="link" isLarge className="pf-u-pl-0" 
-          onClick={() => history.push('/createAnalysis')}> 
+          onClick={() => history.push('/generatePrediction')}> 
           Create Analysis <ArrowRightIcon/>
           </Button>
         </PageSection>

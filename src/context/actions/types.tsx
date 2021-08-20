@@ -22,7 +22,7 @@ export enum AnalysisTypes {
   Update_selected_image = "UPDATE_SELECTED_IMAGE"
 }
 
-export enum CreateAnalysisTypes {
+export enum GeneratePredictionTypes {
   Update_patient_ID = 'UPDATE_PATIENT_ID',
   Add_selected_studies_UID = "ADD_SELECTED_STUDY_UID",
   Remove_selected_studies_UID = 'REMOVE_SELECTED_STUDIES_UID',

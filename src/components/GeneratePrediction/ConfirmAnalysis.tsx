@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
-import RightArrowButton from "../../pages/CreateAnalysisPage/RightArrowButton";
-import CreateAnalysisService from "../../services/CreateAnalysisService";
+import RightArrowButton from "../../pages/GeneratePredictionPage/RightArrowButton";
+import GeneratePredictionService from "../../services/GeneratePredictionService";
 import ImageSelectionBox from "./ImageSelectionBox";
 
 interface ConfirmAnalysisProps{
@@ -10,12 +10,12 @@ interface ConfirmAnalysisProps{
 }
 
 const ConfirmAnalysis: React.FC<ConfirmAnalysisProps> = ({submit}) => {
-  const { state: { dcmImages, createAnalysis: { selectedStudyUIDs } } } = useContext(AppContext);
+  const { state: { dcmImages, generatePrediction: { selectedStudyUIDs } } } = useContext(AppContext);
 
   return (
     <div className="ConfirmAnalysis">
       {dcmImages.allDcmImages.map((img: DcmImage, i: number) => {
-        const isSelected: boolean = CreateAnalysisService.isImgSelected(selectedStudyUIDs, img);
+        const isSelected: boolean = GeneratePredictionService.isImgSelected(selectedStudyUIDs, img);
         if (!isSelected) return null;
         return (
           <React.Fragment key={i}>

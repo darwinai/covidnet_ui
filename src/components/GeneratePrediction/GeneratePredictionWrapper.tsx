@@ -1,24 +1,24 @@
 import { Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelContent, Modal } from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { CreateAnalysisTypes, NotificationActionTypes } from "../../context/actions/types";
+import { GeneratePredictionTypes, NotificationActionTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
 import { DcmImage } from "../../context/reducers/dicomImagesReducer";
-import CreateAnalysisService from "../../services/CreateAnalysisService";
+import GeneratePredictionService from "../../services/GeneratePredictionService";
 import ConfirmAnalysis from "./ConfirmAnalysis";
-import CreateAnalysisDetail from "./CreateAnalysisDetail";
+import GeneratePredictionDetail from "./GeneratePredictionDetail";
 import pacs_integration from "../../services/pacs_integration";
 import chris_integration from "../../services/chris_integration";
 import { NotificationItem } from "../../context/reducers/notificationReducer";
 
-const CreateAnalysisWrapper = () => {
-  const { state: { dcmImages, models, createAnalysis: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);
+const GeneratePredictionWrapper = () => {
+  const { state: { dcmImages, models, generatePrediction: { selectedStudyUIDs } }, dispatch } = useContext(AppContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const history = useHistory();
 
   const submitAnalysis = async () => {
-    let imagesSelected: DcmImage[] = CreateAnalysisService.pickImages(dcmImages?.allDcmImages, selectedStudyUIDs);
+    let imagesSelected: DcmImage[] = GeneratePredictionService.pickImages(dcmImages?.allDcmImages, selectedStudyUIDs);
     if (imagesSelected.length <= 0) {
       setIsModalOpen(true);
       return;
@@ -51,7 +51,7 @@ const CreateAnalysisWrapper = () => {
 
     // Processing the images
     // Passing selected models to Chris_Integration for image analysis
-    const notifications: NotificationItem[] = await CreateAnalysisService.analyzeImages(imagesSelected, models.xrayModel, models.ctModel);
+    const notifications: NotificationItem[] = await GeneratePredictionService.analyzeImages(imagesSelected, models.xrayModel, models.ctModel);
 
     dispatch({
       type: NotificationActionTypes.SEND,
@@ -61,7 +61,7 @@ const CreateAnalysisWrapper = () => {
     history.push("/");
 
     dispatch({
-      type: CreateAnalysisTypes.Clear_selected_studies_UID
+      type: GeneratePredictionTypes.Clear_selected_studies_UID
     });
   }
 
@@ -92,12 +92,12 @@ const CreateAnalysisWrapper = () => {
       </Modal>
       <DrawerContent panelContent={panelContent}>
         <DrawerContentBody>
-          <CreateAnalysisDetail setIsExpanded={setIsExpanded} submitAnalysis={submitAnalysis}>
-          </CreateAnalysisDetail>
+          <GeneratePredictionDetail setIsExpanded={setIsExpanded} submitAnalysis={submitAnalysis}>
+          </GeneratePredictionDetail>
         </DrawerContentBody>
       </DrawerContent>
     </Drawer>
   )
 }
 
-export default CreateAnalysisWrapper;
+export default GeneratePredictionWrapper;

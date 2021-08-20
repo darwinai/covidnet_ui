@@ -4,7 +4,7 @@ import {
   Route,
   Switch
 } from "react-router-dom";
-import CreateAnalysisPage from "./pages/CreateAnalysisPage/CreateAnalysisPage";
+import GeneratePredictionPage from "./pages/GeneratePredictionPage/GeneratePredictionPage";
 // Add view routes here
 import { PastPredictions } from "./pages/PastPredictions/PastPredictions";
 import LogInPage from "./pages/LogIn/Login";
@@ -16,7 +16,7 @@ const Routes: React.FunctionComponent = () => (
   <React.Fragment>
     <Switch>
       <Route exact path="/login" component={LogInPage} />
-      <PrivateRoute exact component={CreateAnalysisPage} path="/" />
+      <PrivateRoute exact component={GeneratePredictionPage} path="/" />
       <PrivateRoute exact component={PastPredictions} path="/pastPredictions" />
       <PrivateRoute exact component={ViewImagePage} path="/viewImage" />
       <Route component={NotFound} />

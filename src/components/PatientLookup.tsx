@@ -2,11 +2,11 @@ import {
   Button, Stack, StackItem, TextInput
 } from "@patternfly/react-core";
 import React, { useContext, useState } from "react";
-import { CreateAnalysisTypes, DicomImagesTypes } from "../context/actions/types";
+import { GeneratePredictionTypes, DicomImagesTypes } from "../context/actions/types";
 import { AppContext } from "../context/context";
 import chris_integration from "../services/chris_integration";
 import pacs_integration from "../services/pacs_integration";
-import CreateAnalysisService, { StudyInstance } from "../services/CreateAnalysisService";
+import GeneratePredictionService, { StudyInstance } from "../services/GeneratePredictionService";
 interface PatientLookupProps {
   setHasSearched: (newValue: boolean) => void,
   setIsSearching: (newValue: boolean) => void
@@ -21,7 +21,7 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSear
     event?.preventDefault();
 
     dispatch({
-      type: CreateAnalysisTypes.Update_patient_ID,
+      type: GeneratePredictionTypes.Update_patient_ID,
       payload: {
         patientID: patientIDInput
       }
@@ -43,10 +43,10 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ setHasSearched, setIsSear
       });
 
       // Select first study instance by default
-      const studyInstances: StudyInstance[] = CreateAnalysisService.extractStudyInstances(dcmImages);
+      const studyInstances: StudyInstance[] = GeneratePredictionService.extractStudyInstances(dcmImages);
       if (studyInstances.length > 0) {
         dispatch({
-          type: CreateAnalysisTypes.UpdateCurrSelectedStudyUID,
+          type: GeneratePredictionTypes.UpdateCurrSelectedStudyUID,
           payload: {
             studyUID: studyInstances[0].studyInstanceUID
           }
