@@ -3,7 +3,7 @@ import React from "react";
 import { Link, useLocation } from 'react-router-dom';
 
 const navMap = [
-  { 'label': 'Create Analysis', 'path': '/' },
+  { 'label': 'Generate Prediction', 'path': '/' },
   { 'label': 'Past Predictions', 'path': '/pastPredictions' }
 ];
 
