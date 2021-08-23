@@ -114,7 +114,7 @@ The app supports the user to choose from multiple models. For testing purposes o
 5. In the app.config.tsx file, add the correct entries into the Xray and CT Models section, where the key can be anything (which will be displayed to user on front-end), and the value is the plug-in name from 3a and 3b
 6. Now, the front-end will present the user the added models to select from (in the drop-down menu), when creating an analysis
     7a. The mocked pl-covidnet and pl-ct-covidnet models should be displayed on the drop-down and able to be selected by the user
-    7b. After creating the analysis, the results will be shown on the dashboard, where there will now be 2 or 4 classifications displayed for the scan now
+    7b. After creating the analysis, the results will be shown on the Past Predictions dashboard, where there will now be 2 or 4 classifications displayed for the scan now
 ```
 ### PACS Integration
 
