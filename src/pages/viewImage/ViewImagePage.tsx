@@ -81,11 +81,14 @@ const ViewImagePage = () => {
                 }
               } else if (leftMouseDown && event.shiftKey || middleMouseDown){
                 const direction = event.movementY > 0 ? 1: -1;
+                const rect: DOMRect = myImage.getBoundingClientRect();
+                const centerX = rect.x + rect.width / 2;
+                const centerY = rect.y + rect.height / 2;
                 event.preventDefault();
                 instance.zoom({
                   deltaScale: direction,
-                  x: event.pageX,
-                  y: event.pageY
+                  x: centerX,
+                  y: centerY
                 });
               } else { // panning
                 instance.panBy({
