@@ -48,6 +48,8 @@ https://github.com/darwinai/pl-covidnet
 https://github.com/darwinai/pl-CT-covidnet
 
 https://github.com/darwinai/pl-pdfgeneration
+
+https://github.com/darwinai/pl-grad-cam
 ```
 
 2. Download the models into plugin folders:
@@ -60,6 +62,7 @@ https://github.com/darwinai/pl-pdfgeneration
 docker build -t local/pl-covidnet .
 docker build -t local/pl-ct-covidnet .
 docker build -t local/pl-pdfgeneration .
+docker build -t local/pl-grad-cam .
 ```
 
 4. Type the following command to verify all images were built successfully:
