@@ -7,8 +7,25 @@ The COVID-Net app is being developed by DarwinAI in close collaboration with the
 
 ### Installation
 
+#### Getting the ChRIS Backend Running
+
+```
+git clone https://github.com/FNNDSC/ChRIS_ultron_backEnd.git
+cd ChRIS_ultron_backEnd
+./make.sh -U -I -i
+```
 #### Getting the ChRIS Plugins
 
+Using images from dockerhub:
+```
+git clone https://github.com/darwinai/covidnet_integration.git
+cd covidnet_integration
+cp postscript.sh <path to ChRIS_ultron_backEnd> (typically ../ChRIS_ultron_backEnd)
+cd <path to ChRIS_ultron_backEnd>
+./postscript.sh
+```
+
+Building from source:
 1) Clone the plugin repositories
 
 ```
@@ -36,15 +53,10 @@ docker image -ls
 ```
 NOTE: If the pl-covidnet plugin fails to build with version compatibility error, open the file requirements.txt and remove the version numbers near tensorflow-estimator and tensorboard.
 
-#### Getting the ChRIS Backend Running
+#### Getting the ChRIS Integration Repo to Upload Plugins when building from source
 
-```
-git clone https://github.com/FNNDSC/ChRIS_ultron_backEnd.git
-cd ChRIS_ultron_backEnd
-./make.sh -U -I -i
-```
+Note: this step can be skipped if pulling images from dockerhub and using postscript
 
-#### Getting the ChRIS Integration Repo to Upload Plugins
 ```
 git clone https://github.com/darwinai/covidnet_integration.git
 cd covidnet_integration
@@ -60,6 +72,7 @@ Note: You can install the required Python packages using this script:
 ```
  ./install_packages.sh   
 ```
+Install httpie using the following instructions: https://httpie.io/docs#installation
 
 Now register the plugins on ChRIS:
 1. Navigate to http://localhost:8000/chris-admin
@@ -74,6 +87,17 @@ Now register the plugins on ChRIS:
 
 Repeat this process for all other plugins with their respective names (pl-med2img, pl-ct-covidnet, pl-pdfgeneration).
 
+#### Uploading DICOM data to Swift
+
+Note: PACS integration into `covidnet_ui` is still under development. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem. A method for transporting these files into the Swift filesystem to be accessible by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files that were uploaded to the PACS server must also be manually uploaded to the Swift storage during setup:
+
+<!-- TO DO: add DICOM files with proper headers -->
+When testing out COVID-Net with PACS integration, be sure to delete any PACS files currently in the Swift storage and upload the DICOM files from `/covidnet_integration/images` without the `mock` flag:
+
+<!-- TO DO: include instructions to upload using particular packages specified by fnndsc -->
+```
+python3 upload_swift_notify_cube.py
+```
 #### Deployment
 
 To run inside Docker Container:
@@ -127,16 +151,6 @@ Instructions for setting up a local Orthanc PACS server and `pfdcm` can be found
 - Follow the steps up until the section titled **Query the PACS server**. The steps that follow are simply for querying and retrieving from PACS via the command line. 
 - At the step for uploading DICOM files to Orthanc, use the DICOM files from `/covidnet_integration/images` .
 - Make note of the `HOST_IP` and `HOST_PORT` values used.
-
-#### Uploading DICOM data to Swift
-
-Note: PACS integration into `covidnet_ui` is still under development. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem. A method for transporting these files into the Swift filesystem to be accessible by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files that were uploaded to the PACS server must also be manually uploaded to the Swift storage during setup:
-
-When testing out COVID-Net with PACS integration, be sure to delete any PACS files currently in the Swift storage and upload the DICOM files from `/covidnet_integration/images` without the `mock` flag:
-
-```
-python3 upload_swift_notify_cube.py
-```
 
 #### Setting environment variables
 
