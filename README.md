@@ -28,10 +28,9 @@ Plugins can be retrieved from Docker Hub or they can be built from source code.
 
 ```shell
 git clone https://github.com/darwinai/covidnet_integration.git
-cd covidnet_integration
-cp postscript.sh <path to ChRIS_ultron_backEnd> (typically ../ChRIS_ultron_backEnd)
 cd <path to ChRIS_ultron_backEnd>
-./postscript.sh
+cp <path to covidnet_integration>/covidnet-postscript.sh . (path to covidnet_integrationis typically ../covidnet_integration)
+./covidnet-postscript.sh
 ```
 
 #### Building from source
@@ -49,20 +48,17 @@ https://github.com/darwinai/pl-CT-covidnet
 
 https://github.com/darwinai/pl-pdfgeneration
 
-https://github.com/darwinai/pl-grad-cam
+https://github.com/darwinai/pl-covidnet-grad-cam
 ```
 
-2. Download the models into plugin folders:
-   a) Download the models COVIDNet-CXR4-B, COVIDNet-SEV-GEO, COVIDNet-SEV-OPC from https://github.com/lindawangg/COVID-Net/blob/master/docs/models.md and place them into the covidnet/models subfolder of the pl-covidnet plugin.
-   b) Download the model COVIDNet-CT-A from https://drive.google.com/drive/folders/13Cb8yvAW0V_Hh-AvUEDrMEpwLhD3zv-F and place them into the ct_covidnet/models subfolder of the pl-CT-covidnet plugin.
-
-3. Build the Docker Container images for these plugins by running:
+2. Build the Docker Container images for these plugins by running `docker build`
+in the proper directories:
 
 ```shell
-docker build -t local/pl-covidnet .
-docker build -t local/pl-ct-covidnet .
-docker build -t local/pl-pdfgeneration .
-docker build -t local/pl-grad-cam .
+DOCKER_BUILDKIT=1 docker build -t local/pl-covidnet .
+DOCKER_BUILDKIT=1 docker build -t local/pl-ct-covidnet .
+DOCKER_BUILDKIT=1 docker build -t local/pl-pdfgeneration .
+DOCKER_BUILDKIT=1 docker build -t local/pl-covidnet-grad-cam .
 ```
 
 4. Type the following command to verify all images were built successfully:
@@ -115,14 +111,7 @@ When testing out COVID-Net with PACS integration, be sure to delete any PACS fil
 
 <!-- TO DO: include instructions to upload using particular packages specified by fnndsc -->
 
-```shell
-cd <path to the covidnet_integration repo>
-./make.sh
-export IMAGES_DIR="$PWD/images"
-docker run --network host -v ${IMAGES_DIR}:/images covidnet_integration upload_swift_notify_cube.py --imageDir /images
-```
-
-Update the `IMAGES_DIR` variable to point to where your images are.
+See the covidnet_integration repository README.md for instruction on how to add sample DICOMs to the COVID-Net UI.
 
 ### Deployment
 

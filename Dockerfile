@@ -13,15 +13,15 @@ FROM node:12-alpine
 ARG UID=1001
 ENV UID=$UID  VERSION="0.1"
 
-# Install server
-RUN yarn global add serve --network-timeout 100000
-
 RUN adduser --uid $UID --disabled-password localuser  \
   && su - localuser -c "mkdir app"
 
 WORKDIR /home/localuser/app/
 
 COPY --from=builder --chown=localuser /app/build .
+
+# Install server
+RUN yarn global add serve --network-timeout 100000
 
 # Start as user localuser
 USER localuser
