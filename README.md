@@ -28,13 +28,69 @@ Plugins can be retrieved from Docker Hub or they can be built from source code.
 
 ```shell
 git clone https://github.com/darwinai/covidnet_integration.git
-cd covidnet_integration
-cp postscript.sh <path to ChRIS_ultron_backEnd> (typically ../ChRIS_ultron_backEnd)
 cd <path to ChRIS_ultron_backEnd>
-./postscript.sh
+cp <path to covidnet_integration>/covidnet-postscript.sh . (path to covidnet_integrationis typically ../covidnet_integration)
+./covidnet-postscript.sh
 ```
 
-#### Building from source
+### Uploading DICOM data to Swift
+
+**Note**: PACS integration into `covidnet_ui` is still under development. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem. A method for transporting these files into the Swift filesystem to be accessible by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files that were uploaded to the PACS server must also be manually uploaded to the Swift storage during setup:
+
+<!-- TO DO: add DICOM files with proper headers -->
+
+When testing out COVID-Net with PACS integration, be sure to delete any PACS files currently in the Swift storage and upload the DICOM files from `/covidnet_integration/images` without the `mock` flag:
+
+<!-- TO DO: include instructions to upload using particular packages specified by fnndsc -->
+
+⚠️ See the **covidnet_integration** repository README.md for instruction on how to add sample DICOMs to the COVID-Net UI.
+
+### Deployment
+
+```shell
+docker run --rm --name covidnet_ui -p 3000:3000 -d darwinai/covidnet-ui
+```
+
+Once the container is up, you can access the COVID-Net UI through http://localhost:3000. Use the following username and password to log in.
+
+- Username: `chris`
+- Password: `chris1234`
+
+### Development
+
+```shell
+cd covidnet_ui
+docker build -t local/covidnet-ui .
+docker run --rm --name covidnet_ui -p 3000:3000 -d local/covidnet-ui
+```
+
+Alternatively, to run inside Docker Container:
+
+```shell
+yarn
+yarn start
+```
+
+### Tearing Down
+
+```shell
+docker stop covidnet_ui
+```
+
+Remove CUBE backend containers:
+
+```bash
+cd <path to ChRIS_ultron_backend>
+./unmake.sh
+```
+
+Remove the local Docker Swarm cluster if desired:
+
+```bash
+docker swarm leave --force
+```
+
+#### Building the ChRIS Plugins From Source
 
 **NOTE**:*Skip this section if you have downloaded the Docker images from Docker Hub.*
 
@@ -49,20 +105,17 @@ https://github.com/darwinai/pl-CT-covidnet
 
 https://github.com/darwinai/pl-pdfgeneration
 
-https://github.com/darwinai/pl-grad-cam
+https://github.com/darwinai/pl-covidnet-grad-cam
 ```
 
-2. Download the models into plugin folders:
-   a) Download the models COVIDNet-CXR4-B, COVIDNet-SEV-GEO, COVIDNet-SEV-OPC from https://github.com/lindawangg/COVID-Net/blob/master/docs/models.md and place them into the covidnet/models subfolder of the pl-covidnet plugin.
-   b) Download the model COVIDNet-CT-A from https://drive.google.com/drive/folders/13Cb8yvAW0V_Hh-AvUEDrMEpwLhD3zv-F and place them into the ct_covidnet/models subfolder of the pl-CT-covidnet plugin.
-
-3. Build the Docker Container images for these plugins by running:
+2. Build the Docker Container images for these plugins by running `docker build`
+in the proper directories:
 
 ```shell
-docker build -t local/pl-covidnet .
-docker build -t local/pl-ct-covidnet .
-docker build -t local/pl-pdfgeneration .
-docker build -t local/pl-grad-cam .
+DOCKER_BUILDKIT=1 docker build -t local/pl-covidnet .
+DOCKER_BUILDKIT=1 docker build -t local/pl-ct-covidnet .
+DOCKER_BUILDKIT=1 docker build -t local/pl-pdfgeneration .
+DOCKER_BUILDKIT=1 docker build -t local/pl-covidnet-grad-cam .
 ```
 
 4. Type the following command to verify all images were built successfully:
@@ -104,66 +157,6 @@ Now register the plugins on ChRIS:
 7. then save
 
 Repeat this process for all other plugins with their respective names (pl-med2img, pl-ct-covidnet, pl-pdfgeneration).
-
-### Uploading DICOM data to Swift
-
-**Note**: PACS integration into `covidnet_ui` is still under development. Currently, DICOM files retrieved from the PACS server are stored within the `pypx` container filesystem. A method for transporting these files into the Swift filesystem to be accessible by the UI has not yet been implemented. This means that in order to test the full workflow of COVID-Net with the current implementation of PACS integration enabled, the DICOM files that were uploaded to the PACS server must also be manually uploaded to the Swift storage during setup:
-
-<!-- TO DO: add DICOM files with proper headers -->
-
-When testing out COVID-Net with PACS integration, be sure to delete any PACS files currently in the Swift storage and upload the DICOM files from `/covidnet_integration/images` without the `mock` flag:
-
-<!-- TO DO: include instructions to upload using particular packages specified by fnndsc -->
-
-```shell
-cd <path to the covidnet_integration repo>
-./make.sh
-export IMAGES_DIR="$PWD/images"
-docker run --network host -v ${IMAGES_DIR}:/images covidnet_integration upload_swift_notify_cube.py --imageDir /images
-```
-
-Update the `IMAGES_DIR` variable to point to where your images are.
-
-### Deployment
-
-To run inside Docker Container:
-
-```shell
-cd covidnet_ui
-docker build -t covidnet_ui .
-docker run --rm --name covidnet_ui -p 3000:3000 -d covidnet_ui
-```
-
-Once the container is up, you can access the COVID-Net UI through http://localhost:3000. Use the following username and password to log in.
-
-- Username: `chris`
-- Password: `chris1234`
-
-### Development
-
-```shell
-yarn
-yarn start
-```
-
-### Tearing Down
-
-```shell
-docker stop covidnet_ui
-```
-
-Remove CUBE backend containers:
-
-```bash
-cd <path to ChRIS_ultron_backend>
-./unmake.sh
-```
-
-Remove the local Docker Swarm cluster if desired:
-
-```bash
-docker swarm leave --force
-```
 
 ### Adding More Plug-ins and Models
 
