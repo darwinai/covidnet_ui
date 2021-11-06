@@ -3,6 +3,7 @@ import BrightnessMediumIcon from '@material-ui/icons/BrightnessMedium';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import InvertColorsIcon from '@material-ui/icons/InvertColors';
 import PanToolOutlinedIcon from '@material-ui/icons/PanToolOutlined';
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import { Spinner, Tooltip, TooltipPosition } from '@patternfly/react-core';
 import React, { useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -22,6 +23,13 @@ const DicomViewerHeader = () => {
     //   type: ImageViewerTypes.Update_view_mod,
     //   payload: { mod }
     // })
+  }
+
+  const pressReset = () => {
+    dispatch({
+      type: ImageViewerTypes.Update_is_reset_button_pressed,
+      payload: { isResetButtonPressed: true }
+    })
   }
 
   const switchFullScreen = () => {
@@ -47,12 +55,11 @@ const DicomViewerHeader = () => {
     ChrisIntegration.pdfGeneration(selectedImage)
       .then(() => setLoading(false))
   }
-
   return (
     <div id="ViewerHeaderBox" className="flex_row dicomViewerHeader">
       <div className="headerlogo padding_left_right_2rem">
         <span className='logo-text'>COVID-Net</span>
-        <a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/'); e.preventDefault();}} href="/#"> <i className="fas fa-angle-left"></i> Back to Dashboard</a>
+        <a onClick={(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {history.push('/pastPredictions'); e.preventDefault();}} href="/#"> <i className="fas fa-angle-left"></i> Back to Past Predictions</a>
       </div>
       <div className='padding_left_right_2rem'>
         {/* Tools
@@ -69,16 +76,7 @@ const DicomViewerHeader = () => {
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
-          content={<div>LMB + Drag</div>
-          }
-        >
-          <button
-            onClick={() => { switchMode(ImagesViewerMods.ZOOM) }}><i className="fas fa-search-plus"></i></button>
-        </Tooltip>
-        <Tooltip
-          position={TooltipPosition.bottom}
-          isContentLeftAligned
-          content={<div>Scroll<br />Alternatively:<br /> Shift+LMB+Drag Up to zoom out and drag down to zoom in</div>}
+          content={<div>Pan: Left Mouse Button + Drag</div>}
         >
           <button
             onClick={() => switchMode(ImagesViewerMods.PAN)}><PanToolOutlinedIcon></PanToolOutlinedIcon></button>
@@ -86,15 +84,21 @@ const DicomViewerHeader = () => {
         <Tooltip
           position={TooltipPosition.bottom}
           isContentLeftAligned
-          content={<div> Window/Level: Ctrl+LMB+Drag <br></br>
+          content={<div>Zoom: Scroll<br />Alternatively:<br /> Shift+Left Mouse Button+Drag Up or Middle Mouse Button+Drag Up to zoom out and drag down to zoom in</div>}
+        >
+          <button
+            onClick={() => { switchMode(ImagesViewerMods.ZOOM) }}><i className="fas fa-search-plus"></i></button>
+        </Tooltip>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          isContentLeftAligned
+          content={<div> Window/Level: Ctrl+Left Mouse Button+Drag or Right Mouse Button+Drag <br></br>
             &nbsp;&nbsp;&nbsp;&nbsp;Horizontal movement adjusts contrast <br></br>
             &nbsp;&nbsp;&nbsp;&nbsp;Vertical movement adjusts brightness</div>}
         >
           <button
             onClick={() => switchMode(ImagesViewerMods.WINDOW_LEVEL)}><BrightnessMediumIcon /></button>
         </Tooltip>
-      </div>
-      <div className='padding_left_right_2rem flex_row'>
         <button onClick={() => dispatch({
           type: ImageViewerTypes.Update_is_img_inverted,
           payload: { isImgInverted: !isImgInverted }
@@ -108,15 +112,24 @@ const DicomViewerHeader = () => {
             <InvertColorsIcon />
           </Tooltip>
         </button>
+        <Tooltip
+          position={TooltipPosition.bottom}
+          isContentLeftAligned
+          content={<div>Reset: Double click Left Mouse Button</div>}
+          >
+            <button onClick={pressReset}><RotateLeftIcon/></button>
+        </Tooltip>
+      </div>
+      <div className='padding_left_right_2rem flex_row'>
         <button>
           <Tooltip
             position={TooltipPosition.bottom}
             isContentLeftAligned
             content={
               <div>
-                Pan: LMB + Drag <br></br>
-                Zoom: Scroll or Shift+LMB+Drag Up to zoom out,drag down to zoom in<br></br>
-                Window/Level: Ctrl+LMB+Drag <br></br>
+                Pan: Left Mouse Button + Drag <br></br>
+                Zoom: Scroll, Shift+Left Mouse Button+Drag Up, or Middle Mouse Button+Drag Up to zoom out, drag down to zoom in<br></br>
+                Window/Level: Ctrl+Left Mouse Button+Drag or Right Mouse Button+Drag <br></br>
                 &nbsp;&nbsp;&nbsp;&nbsp;Horizontal movement adjusts contrast <br></br>
                 &nbsp;&nbsp;&nbsp;&nbsp;Vertical movement adjusts brightness
               </div>

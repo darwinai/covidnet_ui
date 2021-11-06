@@ -1,11 +1,12 @@
 import Client, { IPluginCreateData, Note, FeedPluginInstanceList, PluginInstance, PluginInstanceFileList, Feed, FeedList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../api/chrisapiclient";
-import { ISeries, selectedImageType, TStudyInstance, TPluginStatuses } from "../context/reducers/analyseReducer";
+import { ISeries, GradCAMResults, selectedImageType, TStudyInstance, TPluginStatuses } from "../context/reducers/analyseReducer";
 import { DcmImage } from "../context/reducers/dicomImagesReducer";
 import DicomViewerService from "../services/dicomViewerService";
 import { PluginModels, FEED_NOTE_TITLE, BASE_COVIDNET_MODEL_PLUGIN_NAME } from "../app.config";
 import { formatTime, modifyDatetime } from "../shared/utils"
 import { groupBy } from "lodash";
+import GradCAMChrisIntegration from "./gradCAMChrisIntegration";
 
 export interface LocalFile {
   name: string;
@@ -13,13 +14,14 @@ export interface LocalFile {
 }
 
 export type DircopyResult = {
-  instance: PluginInstance, 
+  instance: PluginInstance,
   img: DcmImage
 }
 
 export type TAnalysisResults = {
   series: ISeries[];
   classifications: string[];
+  gradcamResults: GradCAMResults[];
 }
 
 type TFeedNoteContent = {
@@ -39,7 +41,10 @@ interface DirCreateData extends IPluginCreateData {
 interface PlcovidnetData extends IPluginCreateData {
   imagefile: string;
 }
-
+interface PlgradcamData extends IPluginCreateData {
+  imagefile: string;
+  predmatrix: string;
+}
 interface PACSFile {
   url: string;
   auth: {
@@ -164,7 +169,7 @@ class ChrisIntegration {
    *  @returns {string} The name of the corresponding feed as established by the convention in this function
    */
   static getFeedName(patientID: string): string {
-      return `COVIDNET_Analysis_of_${patientID}`;
+    return `COVIDNET_Analysis_of_${patientID}`;
   }
 
   /**
@@ -174,7 +179,7 @@ class ChrisIntegration {
    * @param {string} chosenCTModel - The name of the COVID-Net model to use on the CT images
    * @returns {BackendPollResult} The result of initiating the plugins
    */
-   static async processOneImg(img: DcmImage, timestamp: number, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
+  static async processOneImg(img: DcmImage, timestamp: number, chosenXrayModel: string, chosenCTModel: string): Promise<BackendPollResult> {
     let client: Client = await ChrisAPIClient.getClient();
 
     let XRayModel: string = PluginModels.XrayModels[chosenXrayModel]; // Configuring ChRIS to use the correct Xray model
@@ -234,11 +239,20 @@ class ChrisIntegration {
           error: new Error('not registered')
         };
       }
-      await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
+      const covidnetInstance = await client.createPluginInstance(covidnetPlugin.data.id, plcovidnet_data);
       console.log(`${pluginNeeded.toUpperCase()} task sent into the task queue`)
 
+      const gradcamPlugin = (await client.getPlugins({ "name_exact": PluginModels.Plugins['COVIDNET-GRAD-CAM'] })).getItems()[0];
+      const plgradcam_data: PlgradcamData = {
+        previous_id: covidnetInstance.data.id,
+        title: "COVIDNET-GRAD-CAM",
+        imagefile: `${filenameWithoutExtension}.jpg`,
+        predmatrix: "raw-prediction-matrix-default.json"
+      }
+      await client.createPluginInstance(gradcamPlugin.data.id, plgradcam_data);
+      console.log(`PL-COVIDNET-GRAD-CAM task sent into the task queue`)
       return {
-          plugin: 'plugins'
+        plugin: 'plugins'
       };
     } catch (err) {
       console.log(err);
@@ -301,10 +315,10 @@ class ChrisIntegration {
     const feed: Feed = await client.getFeed(id);
     const feedData = feed?.data;
     const jobsRunning = feedData?.created_jobs +
-                        feedData?.registering_jobs +
-                        feedData?.scheduled_jobs +
-                        feedData?.started_jobs +
-                        feedData?.waiting_jobs;
+      feedData?.registering_jobs +
+      feedData?.scheduled_jobs +
+      feedData?.started_jobs +
+      feedData?.waiting_jobs;
     return jobsRunning === 0;
   }
 
@@ -354,12 +368,12 @@ class ChrisIntegration {
       const feeds: FeedList = await client.getFeeds({
         limit: limit,
         offset: curOffset,
-        name: !!filter ? this.getFeedName(filter): "", // get feed name based on filter, which should be the patientID/MRN
+        name_startswith: !!filter ? this.getFeedName(filter) : "", // get feed name based on filter, which should be the patientID/MRN
         max_id
       });
 
       curOffset += limit;
-      
+
       const feedArray: Feed[] = feeds?.getItems();
 
       // If the number of Feeds in the response was less than fetchLimit, it means that the end of Feeds in the DB has been reached
@@ -397,10 +411,10 @@ class ChrisIntegration {
         acc.jobsDone += feedData.finished_jobs
         acc.jobsErrored += feedData.errored_jobs + feedData.cancelled_jobs
         acc.jobsRunning += feedData.created_jobs +
-                           feedData.registering_jobs +
-                           feedData.scheduled_jobs +
-                           feedData.started_jobs +
-                           feedData.waiting_jobs;
+          feedData.registering_jobs +
+          feedData.scheduled_jobs +
+          feedData.started_jobs +
+          feedData.waiting_jobs;
         return acc;
       }, {
         jobsDone: 0,
@@ -439,8 +453,10 @@ class ChrisIntegration {
       const covidnetPlugin = await this.getCovidnetPluginInstanceFromFeedId(id, true);
       return await this.getCovidnetResults(covidnetPlugin);
     }));
-    
-    return {series, classifications: Array.from(series?.[0]?.classifications.keys())}
+
+    const gradcamResults = await GradCAMChrisIntegration.getGradCAMResultsFromFeedIds(feedIds);
+
+    return { series, classifications: Array.from(series?.[0]?.classifications.keys()), gradcamResults };
   }
 
   /**
@@ -475,13 +491,13 @@ class ChrisIntegration {
     const files = await file.getItems();
     const predictionFileId = files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "prediction-default.json")?.[0]?.data?.id;
     const prediction = await this.fetchJsonFiles(predictionFileId);
-    const severityFileId =  files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
+    const severityFileId = files.filter((file: any) => file.data.fname.replace(/^.*[\\\/]/, '') === "severity.json")?.[0]?.data?.id;
     const severity = await this.fetchJsonFiles(severityFileId);
     const fileExtensions = /^(jpg|png|jpeg)$/i;
-    const imageFileId =  files.filter(
-        (file: any) => !!file.data.fname.split('.').pop().match(fileExtensions)
+    const imageFileId = files.filter(
+      (file: any) => !!file.data.fname.split('.').pop().match(fileExtensions)
     )?.[0]?.data?.id;
-    
+
     let imageUrl: string = "";
     if (imageFileId) {
       const imgBlob = await DicomViewerService.fetchImageFile(imageFileId);
@@ -508,18 +524,17 @@ class ChrisIntegration {
       severity: severity['Opacity severity'],
       extentScore: severity['Opacity extent score']
     }
-  
+
     return {
-        covidnetPluginId: covidnetPlugin.data.id,
-        imageName: covidnetPlugin.data.title || "File name not available",
-        imageId: imageFileId || "",
-        classifications,
-        geographic,
-        opacity,
-        imageUrl: imageUrl || ""
+      covidnetPluginId: covidnetPlugin.data.id,
+      imageName: covidnetPlugin.data.title || "File name not available", // Change this because title is not reflective of imageName anymore
+      imageId: imageFileId || "",
+      classifications,
+      geographic,
+      opacity,
+      imageUrl: imageUrl || ""
     }
   }
-
   // static async fetchPluginInstanceFromId(id: number): Promise<PluginInstance> {
   //   const client: Client = ChrisAPIClient.getClient();
   //   const pluginData = await client.getPluginInstances({ id });

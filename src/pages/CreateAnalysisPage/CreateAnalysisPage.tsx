@@ -1,15 +1,30 @@
 import { PageSection, PageSectionVariants, Spinner } from "@patternfly/react-core";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CreateAnalysisWrapper from "../../components/CreateAnalysis/CreateAnalysisWrapper";
 import PatientLookup from "../../components/PatientLookup";
 import Wrapper from "../../containers/Layout/PageWrapper";
+import { DicomImagesTypes } from "../../context/actions/types";
 import { AppContext } from "../../context/context";
+import { initialIDcmImagesState } from "../../context/reducers/dicomImagesReducer";
 import Error from "../../shared/error";
 
 const CreateAnalysisPage = () => {
-  const { state: { dcmImages, createAnalysis: { patientID } } } = React.useContext(AppContext);
-  const [hasSearched, setHasSearched] = useState(patientID && patientID !== "");
+  const { state: { dcmImages, createAnalysis: { patientID } }, dispatch } = React.useContext(AppContext);
+  const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+
+  useEffect( () => {
+    // Clean up function for when user leaves the CreateAnalysis page
+    return () => {
+      dispatch({
+        type: DicomImagesTypes.Update_all_images,
+        payload: {
+          images: initialIDcmImagesState
+        }
+      });
+    }
+  }, []);
+  
   let pageSectionContent;
 
   if(isSearching){

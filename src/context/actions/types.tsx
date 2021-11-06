@@ -43,7 +43,9 @@ export enum UpdatingModelSelectionTypes {
 export enum ImageViewerTypes {
   Update_view_mod = 'UPDATE_VIEW_MOD',
   Update_is_bottom_hidded = 'UPDATE_IS_BOTTOM_HIDED',
-  Update_is_img_inverted = 'UPDATE_IS_IMG_INVETED'
+  Update_is_img_inverted = 'UPDATE_IS_IMG_INVETED',
+  Update_is_reset_button_pressed = 'UPDATE_IS_RESET_BUTTON_PRESSED',
+  Update_is_img_mask_applied = 'UPDATE_IS_IMG_MASK_APPLIED'
 }
 
 export enum NotificationActionTypes {

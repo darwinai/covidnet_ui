@@ -16,6 +16,15 @@ export type ISeries = {
   imageUrl?: string,
 }
 
+export type GradCAMResults = {
+  gradcamPluginId: number,
+  imageName: string,
+  maskImageId: string,
+  maskImageUrl?: string,
+  preprocessedImageId: string,
+  preprocessedImageUrl?: string
+}
+
 export type TPluginStatuses = {
   jobsDone: number,
   jobsRunning: number,
@@ -32,6 +41,7 @@ export type TStudyInstance = {
 export type selectedImageType = {
   dcmImage?: DcmImage
   series?: ISeries
+  gradcamResults?: GradCAMResults
 }
 
 export type IPrevAnalysesState = {
