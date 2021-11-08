@@ -28,7 +28,7 @@
     "@types/react-redux": "^7.1.5",
     "@types/three": "^0.93.30",
     "ami.js": "github:FNNDSC/ami",
-    "axios": "^0.18.0",
+    "axios": "^0.21.2",
     "bootstrap": "^4.3.1",
     "c3": "^0.6.13",
     "classnames": "^2.2.6",
