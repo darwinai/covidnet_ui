@@ -43,7 +43,14 @@ When testing out COVID-Net with PACS integration, be sure to delete any PACS fil
 
 <!-- TO DO: include instructions to upload using particular packages specified by fnndsc -->
 
-⚠️ See the **covidnet_integration** repository README.md for instruction on how to add sample DICOMs to the COVID-Net UI.
+⚠️ See the **covidnet_integration** repository README.md for more details about how to add sample DICOMs to the COVID-Net UI.
+```shell
+cd <path to the covidnet_integration repo>
+./make.sh
+docker run --network host -v "$PWD/images/WithProtocolName/COVID-19:/images" covidnet_integration upload_swift_notify_cube.py --imageDir /images
+docker run --network host -v "$PWD/images/WithProtocolName/Normal:/images" covidnet_integration upload_swift_notify_cube.py --imageDir /images
+docker run --network host -v "$PWD/images/WithProtocolName/Pneumonia:/images" covidnet_integration upload_swift_notify_cube.py --imageDir /images
+```
 
 ### Deployment
 
