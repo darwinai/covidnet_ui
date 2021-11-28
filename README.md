@@ -1,8 +1,34 @@
-# COVID-Net UI Initiative
+# COVID-Net UI:  AI-Powered Clinical Decision Support Platform for COVID-19
 
-This repo contains the front-end UI for the COVID-Net app, which is a containerized application for the ChRIS platform built around the COVID-Net initiative. This initiative is a global open-source initiative started by DarwinAI (http://www.darwinai.com) and the Vision and Image Processing Research Group at the University of Waterloo (http://vip.uwaterloo.ca), focussing on advancing deep learning AI in the fight against the COVID-19 pandemic. This user interface, designed specifically for radiologists, lets clinicians easily use the deep learning models from the main COVID-Net repo (https://github.com/lindawangg/COVID-Net) to help detect COVID-19 from chest x-rays and CT scans, as well as predict the severity of a COVID-19 infection from chest x-rays.
+<p align="center">
+	<img src="https://github.com/AlexSWong/COVID-Net/blob/gh-pages/covidnetlogo.png" alt="COVID-Net" width="30%" height="30%">
+</p>
 
-The COVID-Net app is being developed by DarwinAI in close collaboration with the ChRIS team led by individuals in the Advanced Computing Group at Boston Children's Hospital's Fetal-Neonatal Neuroimaging and Developmental Science Center (https://fnndsc.org), with significant contributions from Red Hat, Inc. out of the Boston University/Red Hat collaboratory (https://www.bu.edu/rhcollab/projects/radiology). For more information about ChRIS, see https://chrisproject.org.
+This repo contains COVID-Net UI, an open source AI-powered clinical decision support platform for supporting different aspects in the COVID-19 clinical workflow, ranging from screening and triaging to risk stratification to treatment planning.  COVID-Net UI is a containerized GUI-based platform built on top of the ChRIS platform that is designed specifically for integrating into existing clinical healthcare infrastructures, and is a core part of the COVID-Net open source initiative (http://www.covid-net.ml). The COVID-Net initiative is a global open-source initiative started by DarwinAI (http://www.darwinai.com) and the Vision and Image Processing Research Group at the University of Waterloo (http://vip.uwaterloo.ca), focussing on advancing deep learning AI in the fight against the COVID-19 pandemic. 
+
+<p align="center">
+	<img src="https://github.com/AlexSWong/COVID-Net/blob/gh-pages/covidnet-mlsys4.png" alt="COVID-Net UI" width="100%" height="100%">
+</p>
+
+The COVID-Net UI platform, designed specifically for radiologists, lets clinicians easily leveraging the deep learning models from the main COVID-Net repo (http://www.covid-net.ml) within an easy-to-use GUI environment within the clinical workflow and features:
+- A plug-in infrastructure for easy incorporation of new and updated models from the COVID-Net initiative for tackling different clinical decision support tasks in the clinical workflow for COVID-19
+- PACS support for easy integration into existing clinical healthcare infrastructures
+- Automatic report generation functionality for generating PDF reports of findings  
+- Medical image visualization functionality for easy examination of each patient case
+- Patient case management functionality to easily organize patients being assessed in the COVID-19 clinical workflow
+- Plug-and-play explainability (XAI) functionality to better understand decisions made by the COVID-Net AI systems
+
+<p align="center">
+	<img src="https://github.com/AlexSWong/COVID-Net/blob/gh-pages/covidnet-mlsys2.png" alt="COVID-Net UI Case Management" width="100%" height="100%">
+</p>
+<p align="center">
+	<img src="https://github.com/AlexSWong/COVID-Net/blob/gh-pages/covidnet-mlsys3.png" alt="COVID-Net UI Medical Image Visualization" width="100%" height="100%">
+</p>
+
+More details can be found in the paper 'COVID-Net MLSys: Designing COVID-Net for the
+Clinical Workflow': [Click here](https://arxiv.org/pdf/2109.06421.pdf)
+
+The COVID-Net UI platform is being developed by DarwinAI in close collaboration with the ChRIS team led by individuals in the Advanced Computing Group at Boston Children's Hospital's Fetal-Neonatal Neuroimaging and Developmental Science Center (https://fnndsc.org), with significant contributions from Red Hat, Inc. out of the Boston University/Red Hat collaboratory (https://www.bu.edu/rhcollab/projects/radiology). For more information about ChRIS, see https://chrisproject.org.
 
 ## Installation
 
