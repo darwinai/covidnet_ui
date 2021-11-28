@@ -10,7 +10,7 @@ This repo contains COVID-Net UI, an open source AI-powered clinical decision sup
 	<img src="https://github.com/AlexSWong/COVID-Net/blob/gh-pages/covidnet-mlsys4.png" alt="COVID-Net UI" width="100%" height="100%">
 </p>
 
-The COVID-Net UI platform, designed specifically for radiologists, lets clinicians easily leveraging the deep learning models from the main COVID-Net repo (http://www.covid-net.ml) within a easy-to-use GUI environment within the clinical workflow and features:
+The COVID-Net UI platform, designed specifically for radiologists, lets clinicians easily leveraging the deep learning models from the main COVID-Net repo (http://www.covid-net.ml) within an easy-to-use GUI environment within the clinical workflow and features:
 - A plug-in infrastructure for easy incorporation of new and updated models from the COVID-Net initiative for tackling different clinical decision support tasks in the clinical workflow for COVID-19
 - PACS support for easy integration into existing clinical healthcare infrastructures
 - Automatic report generation functionality for generating PDF reports of findings  
