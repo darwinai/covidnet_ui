@@ -9,6 +9,6 @@ services:
     env_file:
       - .env
     ports:
-      - 8080:80
+      - 8800:80
     depends_on:
       - covidnet

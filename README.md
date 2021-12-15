@@ -100,7 +100,7 @@ cd covidnet_ui
 DOCKER_BUILDKIT=1 docker-compose -p covidnet-dev -f docker-compose.development.yml up -d --build
 ```
 
-The development COVID-Net UI is hosted on http://localhost:8080.
+The development COVID-Net UI is hosted on http://localhost:8800.
 
 Alternatively, to run inside Docker Container:
 
