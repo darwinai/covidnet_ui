@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and Push
+      - name: Build and Push COVID-Net UI
         id: docker_build
         uses: docker/build-push-action@v2
         with:
@@ -44,6 +44,18 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: darwinai/covidnet-ui:${{ github.event.release.tag_name || env.RELEASE_TAG }}, darwinai/covidnet-ui:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+      - name: Build and Push COVID-Net UI Proxy
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./proxy
+          file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: darwinai/covidnet-ui:proxy-${{ github.event.release.tag_name || env.RELEASE_TAG }}, darwinai/covidnet-ui:proxy-latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 

@@ -5,7 +5,7 @@ Dockerfile*
 .git
 LICENSE
 README.md
-
+docker-compose.yml
 
 # dev container stuff that might end up here bc of the dev environment
 node_modules

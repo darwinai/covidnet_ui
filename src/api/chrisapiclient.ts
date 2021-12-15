@@ -1,12 +1,6 @@
 import Client from '@fnndsc/chrisapi';
 
-declare var process: {
-  env: {
-    REACT_APP_CHRIS_UI_URL: string,
-  }
-};
-
-const AUTH_TOKEN_KEY = 'AUTH_TOKEN';
+export const AUTH_TOKEN_KEY = 'AUTH_TOKEN';
 
 /**
  * This is a singleton to hold an instantiated, authenticated `Client` object,
@@ -27,7 +21,7 @@ class ChrisAPIClient {
       } else {
         this.isTokenAuthorized = false;
       }
-      this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL, {
+      this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL || "/api/v1/", {
         token
       });
     }

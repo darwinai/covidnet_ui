@@ -1,0 +1,14 @@
+services:
+  covidnet:
+    build: .
+    restart: always
+
+  proxy:
+    restart: always
+    build: ./proxy
+    env_file:
+      - .env
+    ports:
+      - 8080:80
+    depends_on:
+      - covidnet

@@ -1,12 +1,8 @@
-import { DcmImage, PFDCMResponse, PACSMainResponse, PACSSeries} from "../context/reducers/dicomImagesReducer";
+import { DcmImage, PFDCMResponse, PACSMainResponse, PACSSeries } from "../context/reducers/dicomImagesReducer";
 import { BASE_PACS_FILE_PATH } from '../app.config';
 import axios from 'axios';
 
-declare var process: {
-    env: {
-        REACT_APP_CHRIS_UI_PFDCM_URL: string,
-    }
-};
+const REACT_APP_CHRIS_UI_PFDCM_URL = process.env.REACT_APP_CHRIS_UI_PFDCM_URL || "/api/v1/cmd/"
 
 class PACSIntegration {
 
@@ -30,38 +26,38 @@ class PACSIntegration {
      */
     static async queryPatientFiles(patientID?: string): Promise<DcmImage[]> {
         if (!patientID) return [];
-        
+
         try {
-            const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
-                action:"PACSinteract",
-                meta:{
-                    do:"query",
-                    on:{PatientID: patientID},
-                    PACS:"orthanc"
+            const rawResponse = await axios.post(REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
+                action: "PACSinteract",
+                meta: {
+                    do: "query",
+                    on: { PatientID: patientID },
+                    PACS: "orthanc"
                 }
-            }), {headers: {'Content-Type': 'text/plain'}});
+            }), { headers: { 'Content-Type': 'text/plain' } });
             const parsedResponse = this.parseResponse(rawResponse?.data);
             const data = parsedResponse?.query?.data;
             const patientData = data?.flatMap((study: PACSMainResponse): DcmImage[] => (
                 study.series.map((series: PACSSeries): DcmImage => ({
-                        id: series.uid.value,
-                        creation_date: series.StudyDate.value,
-                        fname: BASE_PACS_FILE_PATH + series.SeriesInstanceUID.value,
-                        PatientID: series.PatientID.value,
-                        PatientName: series.PatientName.value,
-                        PatientBirthDate: series.PatientBirthDate.value,
-                        PatientAge: series.PatientAge.value,
-                        PatientSex: series.PatientSex.value,
-                        StudyInstanceUID: series.StudyInstanceUID.value,
-                        StudyDescription: series.StudyDescription.value,
-                        SeriesInstanceUID: series.SeriesInstanceUID.value,
-                        SeriesDescription: series.SeriesDescription.value,
-                        StudyDate: series.StudyDate.value,
-                        Modality: series.Modality.value,
-                        pacs_identifier: 'covidnet'
+                    id: series.uid.value,
+                    creation_date: series.StudyDate.value,
+                    fname: BASE_PACS_FILE_PATH + series.SeriesInstanceUID.value,
+                    PatientID: series.PatientID.value,
+                    PatientName: series.PatientName.value,
+                    PatientBirthDate: series.PatientBirthDate.value,
+                    PatientAge: series.PatientAge.value,
+                    PatientSex: series.PatientSex.value,
+                    StudyInstanceUID: series.StudyInstanceUID.value,
+                    StudyDescription: series.StudyDescription.value,
+                    SeriesInstanceUID: series.SeriesInstanceUID.value,
+                    SeriesDescription: series.SeriesDescription.value,
+                    StudyDate: series.StudyDate.value,
+                    Modality: series.Modality.value,
+                    pacs_identifier: 'covidnet'
                 }))
             ));
-            
+
             return patientData ? patientData : [];
         } catch (err) {
             return Promise.reject(err);
@@ -76,17 +72,17 @@ class PACSIntegration {
      */
     static async retrievePatientFiles(StudyInstanceUID?: string, SeriesInstanceUID?: string): Promise<boolean> {
         try {
-            const rawResponse = await axios.post(process.env.REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
-                action:"PACSinteract",
-                meta:{
-                    do:"retrieve",
-                    on:{
-                        StudyInstanceUID, 
+            const rawResponse = await axios.post(REACT_APP_CHRIS_UI_PFDCM_URL, JSON.stringify({
+                action: "PACSinteract",
+                meta: {
+                    do: "retrieve",
+                    on: {
+                        StudyInstanceUID,
                         SeriesInstanceUID
                     },
-                    PACS:"orthanc"
+                    PACS: "orthanc"
                 }
-            }), {headers: {'Content-Type': 'text/plain'}});
+            }), { headers: { 'Content-Type': 'text/plain' } });
             const parsedResponse = this.parseResponse(rawResponse?.data);
             if (parsedResponse?.retrieve?.status === 'success') {
                 return true;

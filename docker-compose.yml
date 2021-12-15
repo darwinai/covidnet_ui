@@ -1,0 +1,14 @@
+services:
+  covidnet:
+    image: darwinai/covidnet-ui:latest
+    restart: always
+
+  proxy:
+    restart: always
+    image: darwinai/covidnet-ui:proxy-latest
+    env_file:
+      - .env
+    ports:
+      - 80:80
+    depends_on:
+      - covidnet

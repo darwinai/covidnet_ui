@@ -80,22 +80,27 @@ docker run --network host -v "$PWD/images/WithProtocolName/Pneumonia:/images" co
 
 ### Deployment
 
+**NOTE**: Update `REACT_APP_CHRIS_UI_HOST` and `REACT_APP_CHRIS_UI_PFDCM_HOST` in the [.env](.env) file to the deployment host IP/hostname.
+
 ```shell
-docker run --rm --name covidnet_ui -p 3000:3000 -d darwinai/covidnet-ui
+docker-compose up -d
 ```
 
-Once the container is up, you can access the COVID-Net UI through http://localhost:3000. Use the following username and password to log in.
+Once the containers are up, you can access the COVID-Net UI through http://localhost. Use the following username and password to log in.
 
 - Username: `chris`
 - Password: `chris1234`
 
 ### Development
 
+**NOTE**: Update `REACT_APP_CHRIS_UI_HOST` and `REACT_APP_CHRIS_UI_PFDCM_HOST` in the [.env](.env) file to the development host IP/hostname.
+
 ```shell
 cd covidnet_ui
-docker build -t local/covidnet-ui .
-docker run --rm --name covidnet_ui -p 3000:3000 -d local/covidnet-ui
+DOCKER_BUILDKIT=1 docker-compose -p covidnet-dev -f docker-compose.development.yml up -d --build
 ```
+
+The development COVID-Net UI is hosted on http://localhost:8080.
 
 Alternatively, to run inside Docker Container:
 
@@ -107,7 +112,14 @@ yarn start
 ### Tearing Down
 
 ```shell
-docker stop covidnet_ui
+cd covidnet_ui
+docker-compose down
+```
+
+Or, in case of development
+
+```
+docker-compose -f docker-compose.development.yml down
 ```
 
 Remove CUBE backend containers:
