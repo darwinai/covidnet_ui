@@ -40,7 +40,7 @@
     "dwv": "^0.27.0",
     "history": "^4.7.2",
     "jszip": "^3.2.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "luxon": "^1.26.0",
     "node-sass": "^4.13.1",
     "patternfly-react": "^2.39.17",
