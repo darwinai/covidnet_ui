@@ -41,7 +41,7 @@
     "history": "^4.7.2",
     "jszip": "^3.2.2",
     "lodash": "^4.17.15",
-    "luxon": "^1.26.0",
+    "luxon": "^2.5.2",
     "node-sass": "^4.13.1",
     "patternfly-react": "^2.39.17",
     "react": "^16.12.0",
